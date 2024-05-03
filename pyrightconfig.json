@@ -1,0 +1,18 @@
+{
+    "include": [
+        "src"
+    ],
+    "exclude": [
+        "**/__pycache__"
+    ],
+    "ignore": [],
+    "defineConstant": {
+        "DEBUG": true
+    },
+    "stubPath": "typings/",
+    "reportMissingImports": true,
+    "reportMissingTypeStubs": false,
+    "pythonVersion": "3.12",
+    "pythonPlatform": "All",
+    "typeCheckingMode": "strict"
+}

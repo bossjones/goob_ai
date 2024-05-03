@@ -169,6 +169,8 @@ pdm add -dG test pyright
 
 pdm add -dG test pytest-rerunfailures
 pdm add -dG test pytest-asyncio
+
+pdm add python-json-logger
 ```
 
 
@@ -177,3 +179,8 @@ pdm add -dG test pytest-asyncio
 ```bash
 eval $(pdm venv activate)
 ```
+
+
+## pyright
+
+https://github.com/microsoft/pyright/blob/main/docs/configuration.md

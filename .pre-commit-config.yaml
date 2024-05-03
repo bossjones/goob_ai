@@ -25,6 +25,29 @@ repos:
   #       args: [--config=app/pyproject.toml]
   #       files: ^((app|hack)/.+)?[^/]+\.(py|pyi)$
 
+  # export python requirements
+  - repo: https://github.com/pdm-project/pdm
+    rev: 2.15.1 # a PDM release exposing the hook
+    hooks:
+      - id: pdm-export
+        # command arguments, e.g.:
+        args: ['-o', 'requirements.txt', '--without-hashes']
+        files: ^pdm.lock$
+
+  # Check pdm.lock is up to date with pyproject.toml
+  - repo: https://github.com/pdm-project/pdm
+    rev: 2.15.1 # a PDM release exposing the hook
+    hooks:
+      - id: pdm-lock-check
+
+  - repo: https://github.com/pdm-project/pdm
+    rev: 2.15.1 # a PDM release exposing the hook
+    hooks:
+      - id: pdm-sync
+        # additional_dependencies:
+        #   - keyring
+
+
   # # NOTE: This requires you to brew install taplo
   # - repo: local
   #   hooks:
