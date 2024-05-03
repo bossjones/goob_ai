@@ -1,0 +1,19 @@
+[project]
+name = "goob_ai"
+version = "0.1.0"
+description = "sandbox app to test discord.py with langchain tools"
+authors = [
+    {name = "Malcolm Jones", email = "bossjones@theblacktonystark.com"},
+]
+dependencies = []
+requires-python = ">=3.12"
+readme = "README.md"
+license = {text = "MIT"}
+
+[build-system]
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"
+
+
+[tool.pdm]
+distribution = true
