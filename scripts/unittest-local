@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+# shellcheck disable=SC2096
+# shellcheck disable=SC3010
+
+set -x
+if [[ "$LOCAL_TEST_DEBUG" = 1 ]]; then
+    pytest --verbose --pdb --pdbcls bpdb:BPdb  --showlocals --tb=short --cov-append --cov-report=term-missing --junitxml=../junit/test-results.xml --cov-report=xml:../cov.xml --cov-report=html:../htmlcov --cov-report=annotate:../cov_annotate --cov=.
+else
+    pytest
+fi
