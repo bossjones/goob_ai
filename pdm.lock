@@ -2,10 +2,10 @@
 # It is not intended for manual editing.
 
 [metadata]
-groups = ["default", "test", "testvalidate-pyproject[all,store]==0.16"]
+groups = ["default", "test"]
 strategy = ["cross_platform", "inherit_metadata"]
 lock_version = "4.4.1"
-content_hash = "sha256:04ac77f1faa175f33879a11bf775da49ce6e0262ddffa09425ff04b07c9cb655"
+content_hash = "sha256:414e49c7c0cf2ab5f65f8624c33e798c4dc802f84ac430e29688793aa3745187"
 
 [[package]]
 name = "absl-py"
@@ -1244,6 +1244,21 @@ files = [
 ]
 
 [[package]]
+name = "email-validator"
+version = "2.1.1"
+requires_python = ">=3.8"
+summary = "A robust email address syntax and deliverability validation library."
+groups = ["default"]
+dependencies = [
+    "dnspython>=2.0.0",
+    "idna>=2.0.0",
+]
+files = [
+    {file = "email_validator-2.1.1-py3-none-any.whl", hash = "sha256:97d882d174e2a65732fb43bfce81a3a834cbc1bde8bf419e30ef5ea976370a05"},
+    {file = "email_validator-2.1.1.tar.gz", hash = "sha256:200a70680ba08904be6d1eef729205cc0d687634399a5924d842533efb824b84"},
+]
+
+[[package]]
 name = "expression"
 version = "5.0.2"
 requires_python = ">=3.11,<4"
@@ -1299,6 +1314,16 @@ dependencies = [
 files = [
     {file = "fastapi-0.110.0-py3-none-any.whl", hash = "sha256:87a1f6fb632a218222c5984be540055346a8f5d8a68e8f6fb647b1dc9934de4b"},
     {file = "fastapi-0.110.0.tar.gz", hash = "sha256:266775f0dcc95af9d3ef39bad55cff525329a931d5fd51930aadd4f428bf7ff3"},
+]
+
+[[package]]
+name = "fastjsonschema"
+version = "2.19.1"
+summary = "Fastest Python implementation of JSON schema"
+groups = ["test"]
+files = [
+    {file = "fastjsonschema-2.19.1-py3-none-any.whl", hash = "sha256:3672b47bc94178c9f23dbb654bf47440155d4db9df5f7bc47643315f9c405cd0"},
+    {file = "fastjsonschema-2.19.1.tar.gz", hash = "sha256:e3126a94bdc4623d3de4485f8d468a12f02a67921315ddc87836d6e456dc789d"},
 ]
 
 [[package]]
@@ -3789,6 +3814,22 @@ files = [
 ]
 
 [[package]]
+name = "pydantic"
+version = "2.6.1"
+extras = ["dotenv", "email"]
+requires_python = ">=3.8"
+summary = "Data validation using Python type hints"
+groups = ["default"]
+dependencies = [
+    "email-validator>=2.0.0",
+    "pydantic==2.6.1",
+]
+files = [
+    {file = "pydantic-2.6.1-py3-none-any.whl", hash = "sha256:0b6a909df3192245cb736509a92ff69e4fef76116feffec68e93a567347bae6f"},
+    {file = "pydantic-2.6.1.tar.gz", hash = "sha256:4fd5c182a2488dc63e6d32737ff19937888001e2a6d86e94b3f233104a5d1fa9"},
+]
+
+[[package]]
 name = "pydeck"
 version = "0.9.0"
 requires_python = ">=3.8"
@@ -3876,6 +3917,17 @@ summary = ""
 groups = ["default"]
 files = [
     {file = "pyinvoke-1.0.4.tar.gz", hash = "sha256:0b96de9e8ed5b6d681bc761ed6758087998b1a84f84b09811f7d5401d64dea7e"},
+]
+
+[[package]]
+name = "pylint-per-file-ignores"
+version = "1.3.2"
+requires_python = ">=3.8.1,<4.0.0"
+summary = "A pylint plugin to ignore error codes per file."
+groups = ["test"]
+files = [
+    {file = "pylint_per_file_ignores-1.3.2-py3-none-any.whl", hash = "sha256:4a2a2d7b88484ef1d1b1170029e542954f70efbab13ac3b977606ea5617d04c1"},
+    {file = "pylint_per_file_ignores-1.3.2.tar.gz", hash = "sha256:3c641f69c316770749a8a353556504dae7469541cdaef38e195fe2228841451e"},
 ]
 
 [[package]]
@@ -5460,6 +5512,16 @@ files = [
 ]
 
 [[package]]
+name = "trove-classifiers"
+version = "2024.4.10"
+summary = "Canonical source for classifiers on PyPI (pypi.org)."
+groups = ["test"]
+files = [
+    {file = "trove-classifiers-2024.4.10.tar.gz", hash = "sha256:49f40bb6a746b72a1cba4f8d55ee8252169cda0f70802e3fd24f04b7fb25a492"},
+    {file = "trove_classifiers-2024.4.10-py3-none-any.whl", hash = "sha256:678bd6fcc5218d72e3304e27a608acc9b91e17bd00c3f3d8c968497c843ad98b"},
+]
+
+[[package]]
 name = "typepy"
 version = "1.3.2"
 requires_python = ">=3.7"
@@ -5906,6 +5968,37 @@ files = [
 ]
 
 [[package]]
+name = "validate-pyproject"
+version = "0.16"
+requires_python = ">=3.6"
+summary = "Validation library and CLI tool for checking on 'pyproject.toml' files using JSON Schema"
+groups = ["test"]
+dependencies = [
+    "fastjsonschema<=3,>=2.16.2",
+]
+files = [
+    {file = "validate-pyproject-0.16.tar.gz", hash = "sha256:2d60282f23559cfa1328e4a2c308c8065cba8008a80c8898352355fef66517ca"},
+    {file = "validate_pyproject-0.16-py3-none-any.whl", hash = "sha256:597d9ecb3c8d125d800cb243c53e3534e8a4f0360c9807076fc08c276a7b6869"},
+]
+
+[[package]]
+name = "validate-pyproject"
+version = "0.16"
+extras = ["all", "store"]
+requires_python = ">=3.6"
+summary = "Validation library and CLI tool for checking on 'pyproject.toml' files using JSON Schema"
+groups = ["test"]
+dependencies = [
+    "packaging>=20.4",
+    "trove-classifiers>=2021.10.20",
+    "validate-pyproject==0.16",
+]
+files = [
+    {file = "validate-pyproject-0.16.tar.gz", hash = "sha256:2d60282f23559cfa1328e4a2c308c8065cba8008a80c8898352355fef66517ca"},
+    {file = "validate_pyproject-0.16-py3-none-any.whl", hash = "sha256:597d9ecb3c8d125d800cb243c53e3534e8a4f0360c9807076fc08c276a7b6869"},
+]
+
+[[package]]
 name = "validators"
 version = "0.28.1"
 requires_python = ">=3.8"
@@ -5963,6 +6056,37 @@ version = "4.0.0"
 requires_python = ">=3.8"
 summary = "Filesystem events monitoring"
 groups = ["default"]
+files = [
+    {file = "watchdog-4.0.0-cp312-cp312-macosx_10_9_universal2.whl", hash = "sha256:11e12fafb13372e18ca1bbf12d50f593e7280646687463dd47730fd4f4d5d257"},
+    {file = "watchdog-4.0.0-cp312-cp312-macosx_10_9_x86_64.whl", hash = "sha256:5369136a6474678e02426bd984466343924d1df8e2fd94a9b443cb7e3aa20d19"},
+    {file = "watchdog-4.0.0-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:76ad8484379695f3fe46228962017a7e1337e9acadafed67eb20aabb175df98b"},
+    {file = "watchdog-4.0.0-pp310-pypy310_pp73-macosx_10_9_x86_64.whl", hash = "sha256:6e949a8a94186bced05b6508faa61b7adacc911115664ccb1923b9ad1f1ccf7b"},
+    {file = "watchdog-4.0.0-pp38-pypy38_pp73-macosx_10_9_x86_64.whl", hash = "sha256:6a4db54edea37d1058b08947c789a2354ee02972ed5d1e0dca9b0b820f4c7f92"},
+    {file = "watchdog-4.0.0-pp39-pypy39_pp73-macosx_10_9_x86_64.whl", hash = "sha256:d31481ccf4694a8416b681544c23bd271f5a123162ab603c7d7d2dd7dd901a07"},
+    {file = "watchdog-4.0.0-py3-none-manylinux2014_aarch64.whl", hash = "sha256:8fec441f5adcf81dd240a5fe78e3d83767999771630b5ddfc5867827a34fa3d3"},
+    {file = "watchdog-4.0.0-py3-none-manylinux2014_armv7l.whl", hash = "sha256:6a9c71a0b02985b4b0b6d14b875a6c86ddea2fdbebd0c9a720a806a8bbffc69f"},
+    {file = "watchdog-4.0.0-py3-none-manylinux2014_i686.whl", hash = "sha256:557ba04c816d23ce98a06e70af6abaa0485f6d94994ec78a42b05d1c03dcbd50"},
+    {file = "watchdog-4.0.0-py3-none-manylinux2014_ppc64.whl", hash = "sha256:d0f9bd1fd919134d459d8abf954f63886745f4660ef66480b9d753a7c9d40927"},
+    {file = "watchdog-4.0.0-py3-none-manylinux2014_ppc64le.whl", hash = "sha256:f9b2fdca47dc855516b2d66eef3c39f2672cbf7e7a42e7e67ad2cbfcd6ba107d"},
+    {file = "watchdog-4.0.0-py3-none-manylinux2014_s390x.whl", hash = "sha256:73c7a935e62033bd5e8f0da33a4dcb763da2361921a69a5a95aaf6c93aa03a87"},
+    {file = "watchdog-4.0.0-py3-none-manylinux2014_x86_64.whl", hash = "sha256:6a80d5cae8c265842c7419c560b9961561556c4361b297b4c431903f8c33b269"},
+    {file = "watchdog-4.0.0-py3-none-win32.whl", hash = "sha256:8f9a542c979df62098ae9c58b19e03ad3df1c9d8c6895d96c0d51da17b243b1c"},
+    {file = "watchdog-4.0.0-py3-none-win_amd64.whl", hash = "sha256:f970663fa4f7e80401a7b0cbeec00fa801bf0287d93d48368fc3e6fa32716245"},
+    {file = "watchdog-4.0.0-py3-none-win_ia64.whl", hash = "sha256:9a03e16e55465177d416699331b0f3564138f1807ecc5f2de9d55d8f188d08c7"},
+    {file = "watchdog-4.0.0.tar.gz", hash = "sha256:e3e7065cbdabe6183ab82199d7a4f6b3ba0a438c5a512a68559846ccb76a78ec"},
+]
+
+[[package]]
+name = "watchdog"
+version = "4.0.0"
+extras = ["watchmedo"]
+requires_python = ">=3.8"
+summary = "Filesystem events monitoring"
+groups = ["default"]
+dependencies = [
+    "PyYAML>=3.10",
+    "watchdog==4.0.0",
+]
 files = [
     {file = "watchdog-4.0.0-cp312-cp312-macosx_10_9_universal2.whl", hash = "sha256:11e12fafb13372e18ca1bbf12d50f593e7280646687463dd47730fd4f4d5d257"},
     {file = "watchdog-4.0.0-cp312-cp312-macosx_10_9_x86_64.whl", hash = "sha256:5369136a6474678e02426bd984466343924d1df8e2fd94a9b443cb7e3aa20d19"},

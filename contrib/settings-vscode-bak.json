@@ -1,0 +1,308 @@
+{
+    "coverage-gutters.showLineCoverage": true,
+    "python.linting.pylintArgs": [
+        "--enable",
+        "F,E",
+        "--rcfile",
+        "${workspaceFolder}/lint-configs-python/python/pylintrc"
+    ],
+    "editor.tabSize": 4,
+    "editor.insertSpaces": true,
+    "editor.detectIndentation": true,
+    "todohighlight.keywords": [
+        {
+            "text": "TODO:",
+            "color": "#fff",
+            "backgroundColor": "#ffbd2a",
+            "overviewRulerColor": "rgba(255,189,42,0.8)"
+        },
+        {
+            "text": "FIXME:",
+            "color": "#fff",
+            "backgroundColor": "#f06292",
+            "overviewRulerColor": "rgba(240,98,146,0.8)"
+        },
+        {
+            "text": "BOSSJONES:",
+            "color": "#fff",
+            "backgroundColor": "green"
+        },
+        {
+            "text": "DEBUG:",
+            "color": "#fff",
+            "backgroundColor": "blue"
+        },
+        {
+            "text": "REVIEW:",
+            "color": "#fff",
+            "backgroundColor": "yellow"
+        },
+        {
+            "text": "INFO:",
+            "color": "#fff",
+            "backgroundColor": "violet"
+        },
+        {
+            "text": "NOTE:",
+            "color": "#fff",
+            "backgroundColor": "grey"
+        },
+        {
+            "text": "EXAMPLE:",
+            "color": "#fff",
+            "backgroundColor": "teal"
+        },
+        {
+            "text": "SOURCE:",
+            "color": "#fff",
+            "backgroundColor": "maroon"
+        },
+        {
+            "text": "DISABLED:",
+            "color": "#fff",
+            "backgroundColor": "#f06292"
+        }
+    ],
+    "python.linting.mypyCategorySeverity.error": "Error",
+    "python.linting.mypyCategorySeverity.note": "Warning",
+    "python.linting.pylintCategorySeverity.warning": "Warning",
+    "python.linting.pylintCategorySeverity.error": "Error",
+    "python.linting.pylintCategorySeverity.convention": "Warning",
+    "python.linting.pylintCategorySeverity.fatal": "Error",
+    "python.linting.pylintCategorySeverity.refactor": "Warning",
+    "python.analysis.completeFunctionParens": true,
+    "python.analysis.indexing": true,
+    "python.linting.pylintEnabled": true,
+    "python.linting.enabled": true,
+    "python.tensorBoard.logDirectory": "runs",
+    "python.languageServer": "Pylance",
+    "python.linting.prospectorEnabled": false,
+    "python.terminal.activateEnvInCurrentTerminal": true,
+    "python.analysis.autoImportCompletions": true,
+    "python.analysis.inlayHints.variableTypes": true,
+    "python.analysis.inlayHints.functionReturnTypes": true,
+    "python.analysis.fixAll": [
+        "source.convertImportFormat",
+        "source.unusedImports"
+    ],
+    "python.analysis.diagnosticSeverityOverrides": {
+        "reportUnusedImport": "none",
+        "reportMissingImports": "error",
+        "reportImportCycles": "error",
+        "reportUnusedVariable": "none",
+        "reportMissingTypeStubs": "none",
+        "reportUnknownMemberType": "none",
+        "reportUnusedFunction": "warning",
+        "reportUnusedClass": "warning"
+    },
+    "editor.formatOnSave": true,
+    "python.linting.lintOnSave": true,
+    "[python]": {
+        "editor.tabSize": 4,
+        "editor.formatOnSave": true,
+        "editor.formatOnPaste": false,
+        "editor.formatOnType": false,
+        "editor.formatOnSaveMode": "file",
+        "editor.defaultFormatter": "ms-python.black-formatter",
+        "editor.codeActionsOnSave": {
+            "source.organizeImports": true
+        }
+    },
+    "editor.codeActionsOnSave": {
+        "source.organizeImports": true
+    },
+    "python.formatting.provider": "none",
+    "python.formatting.autopep8Args": [
+        "--indent-size=4",
+        "--max-line-length",
+        "160",
+        "--ignore=E111, E114, E402, E501"
+    ],
+    "black-formatter.args": [
+        "--config",
+        "setup.cfg",
+        "--force-exclude",
+        "site-packages"
+    ],
+    "isort.args": [
+        "--settings-file",
+        "pyproject.toml",
+        "--extend-skip-glob",
+        "*/site-packages/*",
+        "--profile",
+        "black"
+    ],
+    "python.defaultInterpreterPath": "~/.pyenv/versions/3.9.10/envs/cerebro-bot3910/bin/python3",
+    "output.smartScroll.enabled": true,
+    "files.exclude": {
+        "__pycache__/": true,
+        "__pypackages__/": true,
+        ".cache": true,
+        ".coverage.*": true,
+        ".coverage": true,
+        ".direnv/": true,
+        ".dmypy.json": true,
+        ".eggs/": true,
+        ".env": true,
+        ".envrc": true,
+        ".hypothesis/": true,
+        ".idea/": true,
+        ".installed.cfg": true,
+        ".ipynb_checkpoints": true,
+        ".mypy_cache/": true,
+        ".nox/": true,
+        ".pybuilder/": true,
+        ".pyre/": true,
+        ".pytest_cache/": true,
+        ".python-version": true,
+        ".Python": true,
+        ".pytype/": true,
+        ".ropeproject": true,
+        ".scrapy": true,
+        ".spyderproject": true,
+        ".spyproject": true,
+        ".tox/": true,
+        ".venv": true,
+        ".vscode/": true,
+        ".vscode/settings.json": true,
+        ".webassets-cache": true,
+        "*.avi": true,
+        "*.cover": true,
+        "*.egg-info/": true,
+        "*.egg": true,
+        "*.h5": true,
+        "*.hdf5": true,
+        "*.log": true,
+        "*.manifest": true,
+        "*.mo": true,
+        "*.pot": true,
+        "*.pth": true,
+        "*.py,cover": true,
+        "*.py[cod]": true,
+        "*.sage.py": true,
+        "*.so": true,
+        "*.spec": true,
+        "*.zip": true,
+        "*$py.class": true,
+        "build/": true,
+        "celerybeat-schedule": true,
+        "celerybeat.pid": true,
+        "colorization_release_v2.caffemodel": true,
+        "cov_annotate": true,
+        "cov.xml": true,
+        "cover/": true,
+        "coverage.xml": true,
+        "cython_debug/": true,
+        "data.ms": true,
+        "data/ACLs.db": true,
+        "data/Backup.db": true,
+        "data/ChatRoom.db": true,
+        "data/CommandNotFoundFilter.db": true,
+        "data/core.db": true,
+        "data/discord_backend.db": true,
+        "data/Flows.db": true,
+        "data/Health.db": true,
+        "data/Help.db": true,
+        "data/kaggle/nyse/*.csv": true,
+        "data/kaggle/nyse/*.parquet": true,
+        "data/kaggle/nyse/*.zip": true,
+        "data/Plugins.db": true,
+        "data/repomgr.db": true,
+        "data/Utils.db": true,
+        "data/VersionChecker.db": true,
+        "data/WIKI_PRICES_212b326a081eacca455e13140d7bb9db.parquet": true,
+        "db.sqlite3-journal": true,
+        "db.sqlite3": true,
+        "dbdata": true,
+        "deeplearning_data/*.jpeg": true,
+        "deeplearning_data/*.jpg": true,
+        "deeplearning_data/*.png": true,
+        "deeplearning_data/**/*.gif": true,
+        "deeplearning_data/**/*.jpeg": true,
+        "deeplearning_data/**/*.jpg": true,
+        "deeplearning_data/**/*.png": true,
+        "deeplearning_data/**/*.webp": true,
+        "develop-eggs/": true,
+        "dist/": true,
+        "dmypy.json": true,
+        "docs/_build/": true,
+        "downloads/": true,
+        "eggs/": true,
+        "env.bak/": true,
+        "env/": true,
+        "ENV/": true,
+        "errbackends/err-backend-discord/": true,
+        "gallery-dl": true,
+        "htmlcov/": true,
+        "instance/": true,
+        "ipython_config.py": true,
+        "lib/": true,
+        "lib64/": true,
+        "local_settings.py": true,
+        "machine_learning_with_python/settings_test.toml": true,
+        "MANIFEST": true,
+        "monkeytype.sqlite3": true,
+        "No_I_Dont_Think_You_Understand_Shorts-*": true,
+        "nosetests.xml": true,
+        "NOTES.md": true,
+        "parts/": true,
+        "pip-delete-this-directory.txt": true,
+        "pip-log.txt": true,
+        "profile_default/": true,
+        "sdist/": true,
+        "share/python-wheels/": true,
+        "site": true,
+        "stubs": true,
+        "target/": true,
+        "tests/.vscode": true,
+        "var/": true,
+        "venv.bak/": true,
+        "venv/": true,
+        "wheels/": true,
+        "WIKI_PRICES_212b326a081eacca455e13140d7bb9db.csv": true,
+        "WIKI_PRICES_212b326a081eacca455e13140d7bb9db.zip": true,
+        "youtube-dl": true
+    },
+    "json.schemas": [
+        {
+            "fileMatch": [
+                "*.meta.yaml"
+            ],
+            "url": "https://raw.githubusercontent.com/microsoft/vscode-python/main/schemas/conda-meta.json"
+        },
+        {
+            "fileMatch": [
+                ".pre-commit-config.yaml"
+            ],
+            "url": "https://json.schemastore.org/pre-commit-config.json"
+        },
+        {
+            "fileMatch": [
+                "pyproject.toml"
+            ],
+            "url": "https://json.schemastore.org/pyproject.json"
+        }
+    ],
+    "python.linting.mypyEnabled": true,
+    "python.linting.mypyArgs": [
+        "--show-column-numbers",
+        "--no-pretty",
+        "--config-file=${workspaceFolder}/lint-configs-python/python/mypy.ini"
+    ],
+    "isort.check": true,
+    "yaml.schemas": {
+        "https://docs.sourcery.ai/resources/sourcery_yaml_schema.json": ".sourcery.yaml",
+        "https://json.schemastore.org/pre-commit-config.json": ".pre-commit-config.yaml"
+    },
+    "ruff.fixAll": true,
+    "ruff.path": [
+        "ruff"
+    ],
+    "ruff.importStrategy": "fromEnvironment",
+    "ruff.interpreter": [
+        "~/.pyenv/versions/3.9.10/envs/cerebro-bot3910/bin/python3"
+    ],
+    "ruff.args": [
+        "--config=pyproject.toml"
+    ]
+}

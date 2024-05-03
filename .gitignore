@@ -266,3 +266,81 @@ cython_debug/
 #.idea/
 database/database.db
 database/messages.db
+
+# from cerebro
+
+# Spyder project settings
+.spyderproject
+.spyproject
+
+# Rope project settings
+.ropeproject
+
+# mkdocs documentation
+/site
+
+# mypy
+.mypy_cache/
+
+.idea/
+# .vscode/
+
+# Project
+dbdata
+
+
+cov.xml
+cov_annotate
+
+
+monkeytype.sqlite3
+
+stubs
+colorization_release_v2.caffemodel
+.vscode/settings.json
+gallery-dl
+youtube-dl
+machine_learning_with_python/settings_test.toml
+.envrc
+data.ms
+tests/.vscode
+WIKI_PRICES_212b326a081eacca455e13140d7bb9db.zip
+WIKI_PRICES_212b326a081eacca455e13140d7bb9db.csv
+data/WIKI_PRICES_212b326a081eacca455e13140d7bb9db.parquet
+data/kaggle/nyse/*.zip
+data/kaggle/nyse/*.csv
+data/kaggle/nyse/*.parquet
+deeplearning_data/*.jpg
+deeplearning_data/*.jpeg
+deeplearning_data/*.png
+
+deeplearning_data/**/*.jpg
+deeplearning_data/**/*.jpeg
+deeplearning_data/**/*.png
+deeplearning_data/**/*.gif
+deeplearning_data/**/*.webp
+*.avi
+*.hdf5
+*.h5
+errbackends/err-backend-discord/
+
+# persistent data
+data/ACLs.db
+data/Backup.db
+data/ChatRoom.db
+data/CommandNotFoundFilter.db
+data/Flows.db
+data/Health.db
+data/Help.db
+data/Plugins.db
+data/Utils.db
+data/VersionChecker.db
+data/core.db
+data/discord_backend.db
+data/repomgr.db
+
+No_I_Dont_Think_You_Understand_Shorts-*
+.direnv/
+*.pth
+*.zip
+NOTES.md

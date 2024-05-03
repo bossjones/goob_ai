@@ -1,0 +1,23 @@
+version: '3.9'
+
+services:
+  redis:
+    image: bitnami/redis:6.2.10
+    hostname: "cerebro-redis"
+    restart: always
+    environment:
+      ALLOW_EMPTY_PASSWORD: "yes"
+      REDIS_PORT_NUMBER: 7600
+    healthcheck:
+      test: redis-cli ping
+      interval: 1s
+      timeout: 3s
+      retries: 50
+    ports:
+    - "7600:7600"
+    volumes:
+    - 'redis_data:/bitnami/redis/data'
+
+volumes:
+  redis_data:
+    driver: local

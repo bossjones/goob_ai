@@ -34,7 +34,7 @@ pdm add -dG test "types-requests<2.31.0.7"
 
 
 
-pdm add -dG testvalidate-pyproject\[all,store\]==0.16 && \
+pdm add -dG test validate-pyproject\[all,store\]==0.16 && \
 pdm add beautifulsoup4==4.10.0 && \
 pdm add chardet==5.2.0 && \
 pdm add langchain_community==0.0.33 && \
@@ -161,6 +161,7 @@ pdm add -dG test types-pyasn1==0.6.0.20240402 && \
 pdm add -dG test types-python-jose==3.3.4.20240106 && \
 pdm add -dG test types-pytz==2024.1.0.20240203 && \
 pdm add -dG test typing-extensions==4.10.0
+pdm add -dG test pylint-per-file-ignores
 
 
 pdm add -dG test pyright
@@ -178,6 +179,12 @@ pdm add duckduckgo-search && \
 pdm add wikipedia && \
 pdm add youtube-transcript-api && \
 pdm add torch
+
+pdm add pydantic\[dotenv,email\]
+pdm add pyinvoke
+
+
+pdm install -Gtest -d
 ```
 
 

@@ -14,5 +14,5 @@
     "reportMissingTypeStubs": false,
     "pythonVersion": "3.12",
     "pythonPlatform": "All",
-    "typeCheckingMode": "strict"
+    "typeCheckingMode": "basic"
 }
