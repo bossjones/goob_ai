@@ -171,6 +171,13 @@ pdm add -dG test pytest-rerunfailures
 pdm add -dG test pytest-asyncio
 
 pdm add python-json-logger
+
+pdm add transformers && \
+pdm add chromadb && \
+pdm add duckduckgo-search && \
+pdm add wikipedia && \
+pdm add youtube-transcript-api && \
+pdm add torch
 ```
 
 
