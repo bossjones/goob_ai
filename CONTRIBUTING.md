@@ -168,6 +168,7 @@ pdm add -dG test pyright
 
 
 pdm add -dG test pytest-rerunfailures
+pdm add -dG test pytest-asyncio
 ```
 
 

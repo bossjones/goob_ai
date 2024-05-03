@@ -5,7 +5,7 @@
 groups = ["default", "test", "testvalidate-pyproject[all,store]==0.16"]
 strategy = ["cross_platform", "inherit_metadata"]
 lock_version = "4.4.1"
-content_hash = "sha256:43ec493686d108e71690a4ce2388ece78464969e7c7bb0ce522e5898f8deae86"
+content_hash = "sha256:072307feaa51022915e7b45ef0f641c0467258bec953b3beba71d4bc68e0d60b"
 
 [[package]]
 name = "absl-py"
@@ -3349,6 +3349,20 @@ dependencies = [
 files = [
     {file = "pytest-8.0.0-py3-none-any.whl", hash = "sha256:50fb9cbe836c3f20f0dfa99c565201fb75dc54c8d76373cd1bde06b06657bdb6"},
     {file = "pytest-8.0.0.tar.gz", hash = "sha256:249b1b0864530ba251b7438274c4d251c58d868edaaec8762893ad4a0d71c36c"},
+]
+
+[[package]]
+name = "pytest-asyncio"
+version = "0.23.6"
+requires_python = ">=3.8"
+summary = "Pytest support for asyncio"
+groups = ["test"]
+dependencies = [
+    "pytest<9,>=7.0.0",
+]
+files = [
+    {file = "pytest-asyncio-0.23.6.tar.gz", hash = "sha256:ffe523a89c1c222598c76856e76852b787504ddb72dd5d9b6617ffa8aa2cde5f"},
+    {file = "pytest_asyncio-0.23.6-py3-none-any.whl", hash = "sha256:68516fdd1018ac57b846c9846b954f0393b26f094764a28c955eabb0536a4e8a"},
 ]
 
 [[package]]
