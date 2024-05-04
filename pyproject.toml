@@ -174,7 +174,8 @@ mypy-missing = {cmd = "mypy --install-types"}
 clean = {cmd = "python -m invoke ci.clean -vvv"}
 fmt = {cmd = "pre-commit run --all-files"}
 pylint = {cmd = "python -m invoke ci.pylint --everything"}
-lint = {cmd = "python -m pylint --output-format=colorized --rcfile pyproject.toml tests src"}
+lint-all = {cmd = "python -m pylint --output-format=colorized --rcfile pyproject.toml tests src"}
+lint = {cmd = "python -m pylint --output-format=colorized --disable=C0111,E0401,C,W --enable=F,E tests src"}
 
 # NOTE: THIS CAUSED EVERYTHING TO BE HELD BACK TO SUPER OLD VERSIONS
 # # https://github.com/astral-sh/rye/blob/ab8d5b433d5c4342c2bb125583c6bff4d29f5fbc/docs/guide/faq.md
@@ -692,7 +693,7 @@ max-doc-length = 120
 
 # ===========================[ PYLINT ]========================
 [tool.pylint.MAIN]
-py-version = "3.10.*"
+py-version = "3.10"
 # Use a conservative default here; 2 should speed up most setups and not hurt
 # any too bad. Override on command line as appropriate.
 jobs = 0
