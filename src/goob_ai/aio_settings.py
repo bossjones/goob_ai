@@ -1,5 +1,6 @@
 """aio_settings"""
 
+# pylint: disable=no-name-in-module
 # type: ignore[call-arg
 from __future__ import annotations
 

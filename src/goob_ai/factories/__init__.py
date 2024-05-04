@@ -8,12 +8,8 @@ from datetime import datetime
 from enum import Enum
 from typing import Dict, List, Optional
 
-from pydantic import validate_arguments
-
 read_only = "read_only"
 coerce_to = "coerce_to"
-
-# @validate_arguments
 
 
 @dataclass

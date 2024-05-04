@@ -18,8 +18,6 @@ from goob_ai.utils.file_functions import (
     run_aio_json_loads,
 )
 
-# DISCORD_GUILD = os.environ.get("DISCORD_SERVER_ID")
-
 LOGGER = get_logger(__name__, provider="Events", level=logging.DEBUG)
 
 

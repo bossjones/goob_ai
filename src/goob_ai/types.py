@@ -126,7 +126,7 @@ if tuple(np.__version__.split(".")) < ("1", "20"):
     class ArrayBase(np.ndarray):  # noqa
         def __getattr__(self, name: str) -> Any:
             # Super of 'ArrayBase' has no '__getattr__' member (no-member)
-            return super().__getattr__(name)  # pylint: disable=E1101
+            return super().__getattr__(name)  # pylint: disable=no-member
 
 else:
     ArrayBase = np.ndarray  # type: ignore

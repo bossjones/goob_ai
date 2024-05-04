@@ -106,7 +106,6 @@ dependencies = [
     "invoke>=2.2.0",
     "click>=8.1.7",
     "torchvision>=0.18.0",
-    "pytest-memray[memray]>=1.6.0",
 ]
 
 readme = "README.md"
@@ -167,7 +166,6 @@ dev-dependencies = [
     "validate-pyproject[all,store]>=0.16",
     "pylint-per-file-ignores>=1.3.2",
     "pylint>=3.1.0",
-    "pydantic-extra-types @ git+https://github.com/pydantic/pydantic-extra-types@main",
 ]
 
 [tool.rye.scripts]
@@ -696,6 +694,12 @@ max-doc-length = 120
 
 # ===========================[ PYLINT ]========================
 [tool.pylint.MAIN]
+extension-pkg-allow-list = [
+    "torch",
+    "numpy",
+    "orjson",
+    "cv2",
+]
 py-version = "3.10"
 # Use a conservative default here; 2 should speed up most setups and not hurt
 # any too bad. Override on command line as appropriate.
@@ -704,9 +708,11 @@ fail-on = ["I"]
 load-plugins = [
     "pylint.extensions.code_style",
     "pylint.extensions.typing",
+    "pylint.extensions.no_self_use",
     "pylint_per_file_ignores",
 ]
 persistent = false
+
 
 [tool.pylint.BASIC]
 class-const-naming-style = "any"
@@ -1004,3 +1010,32 @@ runtime-typing = false
 # Used to prevent optional suggestions which would get split by a code formatter
 # (e.g., black). Will default to the setting for ``max-line-length``.
 max-line-length-suggestions = 72
+
+[tool.pylint.logging]
+# Possible choices: ['old', 'new']
+logging-format-style = "new"
+
+logging-modules = ["logging", "loguru"]
+
+[tool.pyright]
+include = [
+    "src",
+    "tests",
+    "discord/types",
+    "discord/ui",
+    "discord/ext",
+    "discord/ext/commands",
+    "discord/ext/tasks",
+]
+exclude = [
+    "**/__pycache__",
+    "build",
+    "dist",
+    "docs",
+]
+reportUnnecessaryTypeIgnoreComment = "warning"
+reportUnusedImport = "none"
+pythonVersion = "3.10"
+typeCheckingMode = "basic"
+# pythonPlatform = "All"
+reportMissingTypeStubs = "none"

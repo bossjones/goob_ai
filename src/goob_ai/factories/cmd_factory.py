@@ -6,13 +6,13 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Dict, Optional
 
-from pydantic import validate_arguments
+from pydantic import ValidationError, validate_call
 
 from goob_ai.factories import SerializerFactory
 
 
 # SOURCE: https://stackoverflow.com/questions/54863458/force-type-conversion-in-python-dataclass-init-method
-@validate_arguments
+@validate_call
 @dataclass
 class CmdSerializer(SerializerFactory):
     name: str
@@ -26,16 +26,6 @@ class CmdSerializer(SerializerFactory):
 
 # SOURCE: https://stackoverflow.com/questions/54863458/force-type-conversion-in-python-dataclass-init-method
 
-# @validate_arguments
-# @dataclass
-# class Guild(SerializerFactory):
-#     id: str
-#     cmd: Optional[str]
-#     uri: Optional[str]
-
-#     @staticmethod
-#     def create(d: Dict) -> CmdSerializer:
-#         return CmdSerializer(name=d["name"])
 
 # smoke tests
 if __name__ == "__main__":

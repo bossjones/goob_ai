@@ -32,9 +32,7 @@ which-python:
 
 # when developing, you can use this to watch for changes and restart the server
 autoreload-code:
-	watchmedo auto-restart --pattern "*.py" --recursive --signal SIGTERM python app.py
-
-
+	watchmedo auto-restart --pattern "*.py" --recursive --signal SIGTERM python src/bot.py
 
 # via ada
 taplo-dry-run:
