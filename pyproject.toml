@@ -107,6 +107,7 @@ dependencies = [
     "invoke>=2.2.0",
     "click>=8.1.7",
     "torchvision>=0.18.0",
+    "asyncer>=0.0.7",
 ]
 
 readme = "README.md"
@@ -456,7 +457,7 @@ ignore_missing_imports = true
 # SOURCE: https://docs.astral.sh/ruff/settings/#tab-size
 [tool.ruff]
 # Allow imports relative to the "src" and "test" directories.
-src = ["src", "tests"]
+# src = ["src", "tests"]
 # Group violations by containing file.
 output-format = "full"
 force-exclude = true
@@ -509,13 +510,14 @@ extend-unsafe-fixes = [
 ] # pydocstyle (D) https://docs.astral.sh/ruff/rules/#pydocstyle-d
 
 # A list of rule codes or prefixes to consider non-fixable. default []
-unfixable = ["I"] # isort (I) https://docs.astral.sh/ruff/rules/#isort-i
+# unfixable = ["I"] # isort (I) https://docs.astral.sh/ruff/rules/#isort-i
 
 # Only allow fix behavior for `E` and `F` rules. https://docs.astral.sh/ruff/settings/#lint_fixable
 
 fixable = [
-    "E", # Error (E)# https://docs.astral.sh/ruff/rules/#pycodestyle-e-w
-    "F", # Pyflakes (F)
+    "E",    # Error (E)# https://docs.astral.sh/ruff/rules/#pycodestyle-e-w
+    "F",    # Pyflakes (F)
+    "I002",
 ]
 
 # Enable Pyflakes (`F`) and a subset of the pycodestyle (`E`)  codes by default.
@@ -526,7 +528,8 @@ select = [
     # "RUF100", # unused `noqa` directive
     # "C90",    # mccabe (C90). C901 complex-structure	{name} is too complex ({complexity} > {max_complexity})
     # "F",      # pyflakes (F) https://docs.astral.sh/ruff/rules/#pyflakes-f
-    "D", # pydocstyle (D) https://docs.astral.sh/ruff/rules/#pydocstyle-d
+    "D",    # pydocstyle (D) https://docs.astral.sh/ruff/rules/#pydocstyle-d
+    "I002", # from __future__ import annotations
     # # used to be in extended select
     # "ARG", # flake8-unused-arguments
     # "C",   # pylint: Convention (C)
@@ -666,6 +669,10 @@ max-complexity = 18
 
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401"]
+# https://github.com/astral-sh/ruff/issues/3928
+"*.pyi" = [
+    "I002", # from __future__ import annotations
+]
 
 # ===========================[ ISORT ]========================
 # SOURCE: https://github.com/zulip/zulip/blob/f4d109c289f614273b43b411cbd8d1fad128842e/pyproject.toml#L199
