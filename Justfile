@@ -90,3 +90,10 @@ update-lock:
 
 pdm-install:
 	pdm install -d -G :all -v
+
+rye-get-pythons:
+	rye fetch 3.8.19
+	rye fetch 3.9.19
+	rye fetch 3.10.14
+	rye fetch 3.11.4
+	rye fetch 3.12.3
