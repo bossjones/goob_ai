@@ -84,3 +84,6 @@ bootstap:
 
 pdm-plugins:
 	pdm self add pdm-readiness
+
+update-lock:
+	pdm lock -G :all -v
