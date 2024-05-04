@@ -97,3 +97,6 @@ rye-get-pythons:
 	rye fetch 3.10.14
 	rye fetch 3.11.4
 	rye fetch 3.12.3
+
+rye-add-all:
+	./contrib/rye-add-all.sh
