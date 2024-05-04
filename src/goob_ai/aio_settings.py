@@ -4,13 +4,31 @@
 # type: ignore[call-arg
 from __future__ import annotations
 
+from typing import Any, Callable, List, cast
+from typing import Any, Callable, Set
+
+from pydantic import (
+    AliasChoices,
+    AmqpDsn,
+    BaseModel,
+    Field,
+    ImportString,
+    PostgresDsn,
+    RedisDsn,
+)
+
+from pydantic_settings import BaseSettings, SettingsConfigDict
+from typing_extensions import Annotated, TypedDict
+
 import enum
 import pathlib
 from pathlib import Path
 from tempfile import gettempdir
 from typing import Any, Dict, Optional
 
-from pydantic import BaseSettings, validator
+
+from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic.functional_validators import field_validator
 from rich.console import Console
 from rich.table import Table
 from yarl import URL
@@ -40,7 +58,7 @@ def tilda(obj):
 
 
 def normalize_settings_path(file_path: str) -> str:
-    """Validator used to detect shell tilda notation and expand field automatically
+    """field_validator used to detect shell tilda notation and expand field automatically
 
     Args:
         file_path (str): _description_
@@ -329,15 +347,19 @@ class AioSettings(BaseSettings):
     redis_pass: Optional[str] = None
     redis_base: Optional[int] = None
 
-    # validators
-    _normalize_cerebro_root = validator("cerebro_root", allow_reuse=True)(normalize_settings_path)
-    _normalize_gallery_dl_config_dir = validator("gallery_dl_config_dir", allow_reuse=True)(normalize_settings_path)
-    _normalize_gallery_dl_homedir_config = validator("gallery_dl_homedir_config", allow_reuse=True)(
+    # field_validators
+    _normalize_cerebro_root = field_validator("cerebro_root", allow_reuse=True)(normalize_settings_path)
+    _normalize_gallery_dl_config_dir = field_validator("gallery_dl_config_dir", allow_reuse=True)(
         normalize_settings_path
     )
-    _normalize_netrc_config_filepath = validator("netrc_config_filepath", allow_reuse=True)(normalize_settings_path)
-    _normalize_yt_dl_config_dir = validator("yt_dl_config_dir", allow_reuse=True)(normalize_settings_path)
-    _normalize_globals_root = validator("globals_root", allow_reuse=True)(normalize_settings_path)
+    _normalize_gallery_dl_homedir_config = field_validator("gallery_dl_homedir_config", allow_reuse=True)(
+        normalize_settings_path
+    )
+    _normalize_netrc_config_filepath = field_validator("netrc_config_filepath", allow_reuse=True)(
+        normalize_settings_path
+    )
+    _normalize_yt_dl_config_dir = field_validator("yt_dl_config_dir", allow_reuse=True)(normalize_settings_path)
+    _normalize_globals_root = field_validator("globals_root", allow_reuse=True)(normalize_settings_path)
 
     @property
     def redis_url(self) -> URL:

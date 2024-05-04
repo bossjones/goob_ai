@@ -1,0 +1,67 @@
+{
+    "printWidth": 100,
+    "tabWidth": 4,
+    "useTabs": false,
+    "semi": true,
+    "singleQuote": false,
+    "endOfLine": "auto",
+
+    "plugins": ["prettier-plugin-ini"],
+
+    "overrides": [
+        {
+            "files": "*.{json,jsonc}",
+            "options": {
+                "printWidth": 100,
+                "tabWidth": 4,
+                "singleAttributePerLine": true
+            }
+        },
+        {
+            "files": "*.yaml",
+            "options": {
+                "parser": "yaml",
+                "printWidth": 100,
+                "tabWidth": 4
+            }
+        },
+        {
+            "files": "*.{md,markdown}",
+            "options": {
+                "printWidth": 200,
+                "tabWidth": 2
+            }
+        },
+        {
+            "files": "*.html",
+            "options": {
+                "parser": "html",
+                "printWidth": 200,
+                "tabWidth": 2
+            }
+        },
+        {
+            "files": "*.workspace",
+            "options": {
+                "parser": "json",
+                "tabWidth": 4
+            }
+        },
+        {
+            "files": ".prettierrc",
+            "options": {
+                "parser": "json",
+                "tabWidth": 4
+            }
+        },
+        {
+            "files": "*.ini, .coveragerc, .editorconfig",
+            "options": {
+                "parser": "ini",
+                "tabWidth": 4,
+                "printWidth": 80,
+                "iniSpaceAroundEquals": true
+            }
+        }
+    ]
+}

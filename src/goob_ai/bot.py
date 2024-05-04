@@ -256,37 +256,6 @@ class GoobBot(commands.AutoShardedBot):
                 traceback.print_tb(exc_traceback)
                 raise
 
-    # # Method translated to python from BlueAmulet's original alias PR
-    # # Basically this allows the fuzzy matching to look at individual phrases present in the model name
-    # # This way, if you had two models, e.g 4xBox and 4x_sponge_bob, you could type 'bob' and it will choose the correct model
-    # # This method just builds the alias dictionary and list for that functionality
-    # def build_aliases(self):
-    #     """Builds aliases for fuzzy string matching the model name input"""
-    #     aliases = {}
-
-    #     # Create aliases for models based on unique parts
-    #     for model in self.models:
-    #         name = os.path.splitext(os.path.basename(model))[0]
-    #         parts = re.findall(r"([0-9]+x?|[A-Z]+(?![a-z])|[A-Z][^A-Z0-9_-]*)", name)
-    #         for i in range(len(parts)):
-    #             for j in range(i + 1, len(parts) + 1):
-    #                 alias = "".join(parts[i:j])
-    #                 if alias in aliases:
-    #                     if fuzz.ratio(alias, model) > fuzz.ratio(alias, aliases[alias]):
-    #                         aliases[alias] = model
-    #                 else:
-    #                     aliases[alias] = model
-
-    #     # Ensure exact names are usable
-    #     for model in self.models:
-    #         name = os.path.splitext(os.path.basename(model))[0]
-    #         aliases[name] = model
-
-    #     fuzzylist = [alias for alias, value in aliases.items() if value]
-    #     print(f"Made {len(fuzzylist)} aliases for {len(self.models)} models.")
-    #     LOGGER.debug(f"Made {fuzzylist} aliases for {self.models} models.")
-    #     return fuzzylist, aliases
-
     # SOURCE: https://discordpy.readthedocs.io/en/stable/api.html?highlight=event#discord.on_ready
     async def on_ready(self) -> None:
         """Event is called when the bot has finished logging in and setting things up"""

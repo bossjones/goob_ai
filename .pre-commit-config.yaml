@@ -11,6 +11,23 @@ repos:
       - id: check-json
         exclude: (.vscode|.devcontainer|hack)
 
+  # SOURCE: https://github.com/Ruzzy77/python-template/blob/57c8964f1efb2635d0bdca5684613a8d8736aed0/.pre-commit-config.yaml
+  # - repo: https://github.com/pre-commit/mirrors-prettier
+  #   rev: "v3.0.3"
+  #   hooks:
+  #       - id: prettier
+  #         # types_or: [json, yaml]
+  #         exclude_types: [markdown, python, toml]
+  #         args:
+  #             [
+  #                 "--config",
+  #                 ".prettierrc",
+  #                 "--write",
+  #                 "--ignore-path",
+  #                 ".prettierignore",
+  #                 "--ignore-unknown",
+  #             ]
+  #         # additional_dependencies: ["prettier", "prettier-plugin-multiline-arrays"]
   # SOURCE: https://github.com/astral-sh/ruff-pre-commit
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.4.3
@@ -26,6 +43,14 @@ repos:
         args: [--config=pyproject.toml]
         files: ^((src|hack)/.+)?[^/]+\.(py|pyi)$
 
+  # SOURCE: https://github.com/Ruzzy77/python-template/blob/57c8964f1efb2635d0bdca5684613a8d8736aed0/.pre-commit-config.yaml
+  # - repo: https://github.com/pre-commit/mirrors-prettier
+  # - repo: https://github.com/PyCQA/docformatter
+  #   rev: v1.7.5
+  #   hooks:
+  #       - id: docformatter
+  #         additional_dependencies: [tomli]
+  #         args: ["--in-place", "--recursive", "--diff", "."]
 
 
   # NOTE: This requires you to brew install taplo

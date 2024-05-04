@@ -1,49 +1,22 @@
 # NOTE: The comment below tells vscode to use the json schema for this file.
-#:schema hack/jsonschema/pyproject.json
+#:schema https://raw.githubusercontent.com/bossjones/goob_ai/main/hack/jsonschema/pyproject.json
+# SOURCE: https://github.com/pylint-dev/pylint/blob/df5533f7d2d7bbe5092ddbbfb213c561fd263a64/examples/pyproject.toml#L24
 
 [project]
-name = "goob_ai"
+name = "goob-ai"
 dynamic = ["version"]
-description = "sandbox app to test discord.py with langchain tools"
+description = "Add your description here"
 authors = [
     {name = "Malcolm Jones", email = "bossjones@theblacktonystark.com"},
 ]
-classifiers = [
-    "Environment :: Console",
-    "License :: OSI Approved :: Apache Software License",
-    "Operating System :: OS Independent",
-    "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.8",
-    "Programming Language :: Python :: 3.9",
-    "Programming Language :: Python :: 3.10",
-    "Programming Language :: Python :: 3.11",
-    "Programming Language :: Python :: 3.12",
-]
-keywords = [
-    "python",
-    "chart",
-    "charts",
-    "dataviz",
-    "jupyter",
-    "animation",
-    "ipython",
-    "graphs",
-    "storytelling",
-    "jupyter-notebook",
-    "data-visualization",
-    "graphing",
-    "plotting",
-    "charting",
-    "vizzu"
-]
-
 dependencies = [
+    "langchain>=0.1.17",
+    "langchain-core",
     "fastapi>=0.111.0",
     "boto3>=1.34.98",
     "beautifulsoup4>=4.12.3",
     "chardet>=5.2.0",
     "langchain-community>=0.0.36",
-    "langchain>=0.1.17",
     "langchain-openai>=0.1.6",
     "openai>=1.25.1",
     "pydantic-settings>=2.2.1",
@@ -53,7 +26,7 @@ dependencies = [
     "python-dotenv>=1.0.1",
     "striprtf>=0.0.26",
     "tenacity>=8.2.3",
-    "requests>=2.28.1",
+    "requests>=2.31.0",
     "uvicorn>=0.29.0",
     "aiocache>=0.12.2",
     "aiodebug>=2.3.0",
@@ -89,9 +62,9 @@ dependencies = [
     "motor>=3.4.0",
     "multiprocess>=0.70.16",
     "mutagen>=1.47.0",
-    "numpy>=1.26.3",
+    "numpy>=1.26.4",
     "passlib[bcrypt]>=1.7.4",
-    "pillow>=10.2.0",
+    "pillow>=10.3.0",
     "prettytable>=3.10.0",
     "pycryptodome>=3.20.0",
     "pygments>=2.18.0",
@@ -104,181 +77,143 @@ dependencies = [
     "pytz>=2024.1",
     "redis>=5.0.4",
     "scenedetect[opencv]>=0.6.3",
+    "sentencepiece>=0.2.0",
+    "simpletransformers>=0.70.0",
+    "soupsieve>=2.5",
+    "streamlit>=1.34.0",
+    "telnetlib3>=2.0.4",
+    "tqdm>=4.66.4",
+    "transformers>=4.40.1",
+    "typer>=0.12.3",
+    "uritemplate>=4.1.1",
+    "uritools>=4.0.2",
+    "validators>=0.28.1",
+    "watchdog[watchmedo]>=4.0.0",
+    "webcolors>=1.13",
+    "websockets>=12.0",
+    "docutils>=0.21.2",
+    "pyinvoke>=1.0.4",
+    "pathlib-mate>=1.3.2",
+    "lazy-object-proxy>=1.10.0",
+    "httpx[http2]>=0.27.0",
+    "python-json-logger>=2.0.7",
+    "torch>=2.3.0",
+    "chromadb>=0.5.0",
+    "duckduckgo-search>=5.3.0",
+    "wikipedia>=1.4.0",
+    "pandas>=2.2.2",
+    "babel>=2.14.0",
+    "dask>=2024.5.0",
+    "invoke>=2.2.0",
+    "click>=8.1.7",
+    "torchvision>=0.18.0",
 ]
-# dependencies = [
-#     "fastapi>=0.111.0",
-#     "boto3>=1.34.98",
-#     "beautifulsoup4>=4.12.3",
-#     "chardet>=5.2.0",
-#     "langchain>=0.1.17",
-#     "langchain-openai>=0.1.6",
-#     "openai>=1.25.1",
-#     "pydantic-settings>=2.2.1",
-#     "pydantic[dotenv,email]>=2.7.1",
-#     "pypdf>=4.2.0",
-#     "python-docx>=1.1.2",
-#     "python-dotenv>=1.0.1",
-#     "striprtf>=0.0.26",
-#     "requests>=2.31.0",
-#     "uvicorn>=0.29.0",
-#     "tenacity>=8.2.3",
-#     "aiocache>=0.12.2",
-#     "aiodebug>=2.3.0",
-#     "aiodns>=3.2.0",
-#     "aiofile>=3.8.8",
-#     "aiofiles>=23.2.1",
-#     "aiohttp>=3.9.5",
-#     "aiomonitor>=0.7.0",
-#     "aioprometheus[starlette]>=23.12.0",
-#     "aiosql>=10.1",
-#     "aiosqlite>=0.20.0",
-#     "attrs>=23.2.0",
-#     "better-exceptions>=0.3.3",
-#     "click-spinner>=0.1.10",
-#     "codetiming>=1.4.0",
-#     "discord-py>=2.3.2",
-#     "factory-boy>=3.3.0",
-#     "faker>=25.0.1",
-#     "fonttools[woff]>=4.51.0",
-#     "gallery-dl>=1.26.9",
-#     "google-auth>=2.29.0",
-#     "google-auth-oauthlib>=1.2.0",
-#     "gutter>=0.5.0",
-#     "imageio>=2.34.1",
-#     "imutils>=0.5.4",
-#     "logging-tree>=1.10",
-#     "loguru>=0.7.2",
-#     "lxml>=5.2.1",
-#     "markdown>=3.6",
-#     "matplotlib>=3.8.4",
-#     "md2pdf>=1.0.1",
-#     "memory-profiler>=0.61.0",
-#     "motor>=3.4.0",
-#     "multiprocess>=0.70.16",
-#     "mutagen>=1.47.0",
-#     "numpy>=1.26.4",
-#     "passlib[bcrypt]>=1.7.4",
-#     "pillow>=10.3.0",
-#     "prettytable>=3.10.0",
-#     "pycryptodome>=3.20.0",
-#     "pygments>=2.18.0",
-#     "pyinspect>=0.1.0",
-#     "pypdf2>=3.0.1",
-#     "pypi-command-line[speedups]>=1.7.1",
-#     "pytablewriter[html]>=1.2.0",
-#     "python-levenshtein>=0.25.1",
-#     "python-slugify>=8.0.4",
-#     "pytz>=2024.1",
-#     "redis>=5.0.4",
-#     "scenedetect[opencv]>=0.6.3",
-#     "sentencepiece>=0.2.0",
-#     "simpletransformers>=0.70.0",
-#     "soupsieve>=2.5",
-#     "streamlit>=1.34.0",
-#     "telnetlib3>=2.0.4",
-#     "tqdm>=4.66.4",
-#     "transformers>=4.40.1",
-#     "typer>=0.12.3",
-#     "uritemplate>=4.1.1",
-#     "uritools>=4.0.2",
-#     "validators>=0.28.1",
-#     "watchdog[watchmedo]>=4.0.0",
-#     "webcolors>=1.13",
-#     "websockets>=12.0",
-#     "docutils>=0.21.2",
-#     "pyinvoke>=1.0.4",
-#     "pathlib-mate>=1.3.2",
-#     "lazy-object-proxy>=1.10.0",
-#     "httpx[http2]>=0.27.0",
-#     "python-json-logger>=2.0.7",
-#     "torch>=2.3.0",
-#     "chromadb>=0.5.0",
-#     "duckduckgo-search>=5.3.0",
-#     "wikipedia>=1.4.0",
-#     "pandas>=2.2.2",
-#     "babel>=2.14.0",
-#     "dask>=2024.5.0",
-# ]
+
 readme = "README.md"
-requires-python = ">= 3.12"
-license = { text = "MIT" }
+# requires-python = ">= 3.8"
+# requires-python = "!=3.9.7,~=3.9"
+# requires-python = ">= 3.9.7, <3.13"
+requires-python = ">=3.10,<3.12"
 
-[project.urls]
-Homepage = "https://github.com/bossjones/goob_ai"
-Documentation = "https://goob_ai.bossjones.com/"
-Repository = "https://github.com/bossjones/goob_ai"
-
+license = {text = "MIT"}
 
 [build-system]
-requires = ["hatchling"]
+requires = ["hatchling", "packaging<24"]
 build-backend = "hatchling.build"
 
 [tool.rye]
 managed = true
-dev-dependencies = []
-#     "black>=24.4.2",
-#     "boto3-stubs[essential]>=1.34.98",
-#     "bpython>=0.24",
-#     "flake8>=7.0.0",
-#     "isort>=5.13.2",
-#     "mypy>=1.10.0",
-#     "mypy-boto3>=1.34.98",
-#     "pre-commit>=3.7.0",
-#     "pydocstyle>=6.3.0",
-#     "pytest-cov>=5.0.0",
-#     "pytest-mock>=3.14.0",
-#     "pytest-sugar>=1.0.0",
-#     "pytest>=8.2.0",
-#     "pyupgrade>=3.15.2",
-#     "requests-mock>=1.12.1",
-#     "rich>=13.7.1",
-#     "ruff>=0.4.3",
-#     "types-beautifulsoup4>=4.12.0.20240504",
-#     "types-boto>=2.49.18.20240205",
-#     "types-mock>=5.1.0.20240425",
-#     "types-pyyaml>=6.0.12.20240311",
-#     "types-aiofiles>=23.2.0.20240403",
-#     "types-click>=7.1.8",
-#     "types-colorama>=0.4.15.20240311",
-#     "types-dataclasses>=0.6.6",
-#     "types-freezegun>=1.1.10",
-#     "types-pytz>=2024.1.0.20240417",
-#     "types-setuptools>=69.5.0.20240423",
-#     "types-six>=1.16.21.20240425",
-#     "monkeytype>=23.3.0",
-#     "hunter>=3.7.0",
-#     "types-html5lib>=1.1.11.20240228",
-#     "types-pillow>=10.2.0.20240423",
-#     "types-pyasn1>=0.6.0.20240402",
-#     "types-python-jose>=3.3.4.20240106",
-#     "typing-extensions>=4.11.0",
-#     "pyright>=1.1.361",
-#     "pytest-rerunfailures>=14.0",
-#     "pytest-asyncio>=0.23.6",
-#     "validate-pyproject[all,store]>=0.16",
-#     "pylint-per-file-ignores>=1.3.2",
-# ]
+dev-dependencies = [
+    "black>=24.4.2",
+    "boto3-stubs[essential]>=1.34.98",
+    "bpython>=0.24",
+    "flake8>=7.0.0",
+    "isort>=5.13.2",
+    "mypy>=1.10.0",
+    "mypy-boto3>=1.34.98",
+    "pre-commit>=3.7.0",
+    "pydocstyle>=6.3.0",
+    "pytest-cov>=5.0.0",
+    "pytest-mock>=3.14.0",
+    "pytest-sugar>=1.0.0",
+    "pytest>=8.2.0",
+    "pyupgrade>=3.15.2",
+    "requests-mock>=1.12.1",
+    "rich>=13.7.1",
+    "ruff>=0.4.3",
+    "types-beautifulsoup4>=4.12.0.20240504",
+    "types-boto>=2.49.18.20240205",
+    "types-mock>=5.1.0.20240425",
+    "types-pyyaml>=6.0.12.20240311",
+    "types-aiofiles>=23.2.0.20240403",
+    "types-click>=7.1.8",
+    "types-colorama>=0.4.15.20240311",
+    "types-dataclasses>=0.6.6",
+    "types-freezegun>=1.1.10",
+    "types-pytz>=2024.1.0.20240417",
+    "types-setuptools>=69.5.0.20240423",
+    "types-six>=1.16.21.20240425",
+    "monkeytype>=23.3.0",
+    "hunter>=3.7.0",
+    "sourcery>=1.16.0",
+    "types-html5lib>=1.1.11.20240228",
+    "types-pillow>=10.2.0.20240423",
+    "types-pyasn1>=0.6.0.20240402",
+    "types-python-jose>=3.3.4.20240106",
+    "typing-extensions>=4.11.0",
+    "pyright>=1.1.361",
+    "pytest-rerunfailures>=14.0",
+    "pytest-asyncio>=0.23.6",
+    "validate-pyproject[all,store]>=0.16",
+    "pylint-per-file-ignores>=1.3.2",
+    "pylint>=3.1.0",
+    "loguru-mypy>=0.0.4",
+    "pylint-pydantic>=0.3.2",
+    "docformatter[tomli]>=1.7.5",
+    "pylint-pytest>=1.1.7",
+]
 
-# https://github.com/astral-sh/rye/blob/ab8d5b433d5c4342c2bb125583c6bff4d29f5fbc/docs/guide/faq.md
-[[tool.rye.sources]]
-name = "pytorch"
-url = "https://download.pytorch.org/whl/cpu"
+[tool.rye.scripts]
+http = {cmd = ["python", "-mhttp.server", "8008"]}
+whoami = {cmd = "whoami"}
+mypy-missing = {cmd = "mypy --install-types"}
+clean = {cmd = "python -m invoke ci.clean -vvv"}
+fmt = {cmd = "pre-commit run --all-files"}
+pylint = {cmd = "python -m invoke ci.pylint --everything"}
+lint-all = {cmd = "python -m pylint --output-format=colorized --rcfile pyproject.toml tests src"}
+lint = {cmd = "python -m pylint --output-format=colorized --disable=C0111,E0401,C,W --enable=F,E tests src"}
+
+# NOTE: THIS CAUSED EVERYTHING TO BE HELD BACK TO SUPER OLD VERSIONS
+# # https://github.com/astral-sh/rye/blob/ab8d5b433d5c4342c2bb125583c6bff4d29f5fbc/docs/guide/faq.md
+# [[tool.rye.sources]]
+# name = "pytorch"
+# url = "https://download.pytorch.org/whl/cpu"
+
+
+[tool.hatch.version]
+path = "src/goob_ai/__version__.py"
 
 [tool.hatch.metadata]
 allow-direct-references = true
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/gaston_ai"]
-
-[tool.hatch.version]
-path = "src/goob_ai/__version__.py"
-
-# [tool.pdm.scripts]
-# whoami = { shell = "echo `{pdm} -V` was called as '{pdm} -V'" }
-# mypy-missing = "mypy --install-types"
-# clean = "inv ci.clean -vvv"
+packages = ["src/goob_ai"]
 
 [tool.coverage.report]
+exclude_lines = [
+    "@(abc.)?abstractmethod",
+    "@overload",
+    "def __repr__",
+    "def __str__",
+    "if __name__ == .__main__.:",
+    "if self.debug",
+    "if settings.DEBUG",
+    "if TYPE_CHECKING",
+    "pragma: no cover",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "return NotImplemented",
+]
 omit = [
     "test/*",
     "tests/*",
@@ -350,7 +285,7 @@ source = [
 # dd=======================[ BLACK ]========================
 [tool.black]
 line-length = 120
-target-version = ["py39","py310","py311", "py312"]
+target-version = ["py39", "py310", "py311", "py312"]
 
 
 # ===========================[ MYPY ]========================
@@ -359,6 +294,27 @@ target-version = ["py39","py310","py311", "py312"]
 # mypy also accepts per file configuration (comment starting with #mypy: ) https://mypy.readthedocs.io/en/stable/inline_config.html
 # Finally, adding `#type: ignore` after a line, disables mypy checking for that line
 [tool.mypy]
+no_implicit_optional = true
+disable_error_code = [
+    # annotation-unchecked are 'warning notes', not errors and won't cause mypy to fail
+    # but it does create a lot of noise in the CI mypy step.
+    # https://mypy-lang.blogspot.com/2022/11/mypy-0990-released.html
+    "import-untyped",
+    "annotation-unchecked",
+    "assignment",
+    "attr-defined",
+    "call-arg",
+    "has-type",
+    "import",
+    "misc",
+    "name-defined",
+    "operator",
+    "type-var",
+    "var-annotated",
+]
+exclude = [
+    "tasks/",
+]
 mypy_path = "typings"
 # disable_error_code = import-untyped
 show_column_numbers = true
@@ -367,6 +323,7 @@ disallow_untyped_calls = false
 disallow_untyped_decorators = false
 strict = false
 warn_return_any = false
+disallow_untyped_defs = false
 
 # Enable optional errors.
 enable_error_code = [
@@ -379,14 +336,6 @@ enable_error_code = [
     "unused-awaitable",
 ]
 
-# The following list of codes are globally ignored, do not add to this list
-disable_error_code = [
-    # annotation-unchecked are 'warning notes', not errors and won't cause mypy to fail
-    # but it does create a lot of noise in the CI mypy step.
-    # https://mypy-lang.blogspot.com/2022/11/mypy-0990-released.html
-    'annotation-unchecked',
-    'import-untyped',
-]
 
 follow_imports = "silent"
 
@@ -422,56 +371,78 @@ no_implicit_reexport = true
 
 # Ignores all non-fatal errors.
 ignore_errors = true
-warn_untyped_fields = true
+# warn_untyped_fields = true
 
 # ===========================[ MYPY OVERRIDES ]========================
 [[tool.mypy.overrides]]
 check_untyped_defs = true
 ignore_missing_imports = true
-module = "app.test.*"
+module = "tests.*"
+
+[[tool.mypy.overrides]]
+check_untyped_defs = true
+ignore_missing_imports = true
+module = "src.*"
 
 [[tool.mypy.overrides]]
 module = [
+    "_pytest.*",
+    "_string",
+    "absl.*",
+    "albumentations.*",
+    "asr_python.*",
+    "astroid.*",
     "boto3.*",
     "botocore.*",
-    "asr_python.*",
-    "absl.*",
     "colorama.*",
+    "colorama",
+    "contributors_txt",
+    "coverage",
+    "cv2.*",
+    "dill",
+    "enchant.*",
+    "git.*",
     "importlib_metadata.*",
     "IPython.*",
+    "matplotlib.*",
+    "mccabe",
+    "multiprocessing.*",
     "numpy.*",
     "opt_einsum.*",
-    "scipy.*",
-    "libtpu.*",
-    "jaxlib.mlir.*",
-    "iree.*",
-    "rich.*",
     "optax.*",
-    "flatbuffers.*",
-    "flax.*",
-    "tensorflow.*",
-    "tensorflowjs.*",
-    "tensorflow.io.*",
-    "tensorstore.*",
-    "web_pdb.*",
-    "etils.*",
-    "google.colab.*",
+    "pl_bolts.*",
+    "pssh.*",
     "pygments.*",
-    "jraph.*",
-    "matplotlib.*",
-    "tensorboard_plugin_profile.convert.*",
-    "jaxlib.*",
+    "pytest_benchmark.*",
     "pytest.*",
-    "zstandard.*",
-    "jax.experimental.jax2tf.tests.flax_models",
-    "jax.experimental.jax2tf.tests.back_compat_testdata",
+    "pytest",
+    "rich.*",
+    "robustness.*",
+    "scipy.*",
+    "seaborn",
     "setuptools.*",
+    "skimage.*",
+    "sklearn.*",
+    "sphinx.*",
+    "tensorboard_plugin_profile.convert.*",
+    "tensorboard.*",
+    "tensorflow.*",
+    "tensorflow.io.*",
+    "tensorflowjs.*",
+    "tensorstore.*",
+    "timm.*",
+    "torch.*",
+    "torchvision.*",
+    "usort.*",
+    "uvloop.*",
+    "web_pdb.*",
+    "wilds.*",
+    "zstandard.*",
+    # "mypy.*",
+    # "numpy.*",
 ]
 ignore_missing_imports = true
 
-[[tool.mypy.overrides]]
-module = ["colorama.*", "uvloop.*"]
-ignore_missing_imports = true
 
 # ===========================[ RUFF ]========================
 # SOURCE: https://docs.astral.sh/ruff/settings/#tab-size
@@ -681,6 +652,10 @@ ignore = [
     "PLE1142", # await-outside-async	await should be used within an async function
 ]
 
+# SOURCE: https://github.com/google/jax/blob/a1c82219e2d23ec994e42761ebcaf4c53d9e4ea7/pyproject.toml#L159C1-L160C20
+[tool.ruff.lint.mccabe]
+max-complexity = 18
+
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401"]
 
@@ -769,23 +744,158 @@ docstring-code-line-length = "dynamic"
 max-doc-length = 120
 
 # ===========================[ PYLINT ]========================
-[tool.pylint.MAIN]
-py-version = "3.10.*"
+# Configuration for the pylint
+#
+# Usage:
+#   pylint --rcfile=<path/to/this/config/file> <path/to/file/to/check>
+#   pylint --rcfile=<path/to/this/config/file> <path/to/directory/to/check>
+#   pylint --rcfile=<path/to/this/config/file> <path/to/directory/to/check>/*.py
+#   pylint --rcfile=<path/to/this/config/file> <path/to/directory/to/check>/**/*.py
+#
+# VSCode (settings.json):
+#   "pylint.args": [
+#       "--rcfile", "<path/to/this/file>"
+#   ]
+
+# Sections:
+#   - [tool.pylint.main]
+#      Main configuration, load plugins
+#   - [tool.pylint.master]
+#      Allow list of modules
+#   - [tool.pylint.design]
+#      Code design (complexity)
+#   - [tool.pylint.typecheck]
+#      Type checking
+#   - [tool.pylint.basic]
+#      Naming conventions
+#   - [tool.pylint.code_style]
+#      Code style
+#   - [tool.pylint.spelling]
+#      Spell checker
+#      (Not working) - Alternates to use: code spell checker (VSCode extension)
+#   - [tool.pylint.similarities]
+#     Detects duplicated code
+#   - [tool.pylint.formatting]
+#      Code formatting, Code complexity, Code quality
+#   - [tool.pylint.messages_control]
+#      Enable/Disable messages
+[tool.pylint.main]
+# load-plugins = "pylint_per_file_ignores,pylint_pydantic,pylint_pytest,pylint.extensions.bad_builtin,pylint.extensions.broad_try_clause,pylint.extensions.check_elif,pylint.extensions.code_style,pylint.extensions.consider_ternary_expression,pylint.extensions.docparams,pylint.extensions.docstyle,pylint.extensions.dunder,pylint.extensions.empty_comment,pylint.extensions.emptystring,pylint.extensions.mccabe,pylint.extensions.no_self_use,pylint.extensions.overlapping_exceptions,pylint.extensions.redefined_variable_type,pylint.extensions.typing"
+load-plugins = [
+    "pylint_per_file_ignores",
+    "pylint_pydantic",
+    "pylint_pytest",
+    "pylint.extensions.code_style",
+    "pylint.extensions.typing",
+    "pylint.extensions.no_self_use",
+    "pylint_per_file_ignores",
+    # "pylint.extensions.bad_builtin",
+    # "pylint.extensions.broad_try_clause",
+    # "pylint.extensions.check_elif",
+    # "pylint.extensions.code_style",
+    # "pylint.extensions.consider_ternary_expression",
+    # "pylint.extensions.docparams",
+    # "pylint.extensions.docstyle",
+    # "pylint.extensions.dunder",
+    # "pylint.extensions.empty_comment",
+    # "pylint.extensions.emptystring",
+    # "pylint.extensions.mccabe",
+    # "pylint.extensions.no_self_use",
+    # "pylint.extensions.overlapping_exceptions",
+    # "pylint.extensions.redefined_variable_type",
+    "pylint.extensions.typing",
+]
+# ignore = "lib"
+ignore-paths = [
+    ".venv",       # Virtual Environment
+    "^.*.pyi$",    # Type Hinting
+    "^.*_prv_.*$", # Private Files/Folders (e.g. _prv_*.py | _prv_* folder)
+    "lib",         # External Libraries
+]
+# init-hook = "import sys; sys.path.append('.'); sys.path.append('./src');"
+# https://pylint.pycqa.org/en/v2.13.9/technical_reference/c_extensions.html
+# Pylint and C extensions
+# If you are getting the dreaded no-member error, there is a possibility that either pylint found a bug in your code or that it actually tries to lint a C extension module.
+
+# Linting C extension modules is not supported out of the box, especially since pylint has no way to get an AST object out of the extension module.
+
+# But pylint actually has a mechanism which you might use in case you want to analyze C extensions. pylint has a flag, called extension-pkg-allow-list (formerly extension-pkg-whitelist), through which you can tell it to import that module and to build an AST from that imported module:
+# extension-pkg-allow-list = "pydantic, torch, numpy, orjson, cv2"
+# extension-pkg-whitelist = "pydantic, torch, numpy, orjson, cv2"
+extension-pkg-allow-list = ["pydantic", "torch", "numpy", "orjson", "cv2"]
+extension-pkg-whitelist = ["pydantic", "torch", "numpy", "orjson", "cv2"]
+
+py-version = "3.10"
 # Use a conservative default here; 2 should speed up most setups and not hurt
 # any too bad. Override on command line as appropriate.
 jobs = 0
 fail-on = ["I"]
-load-plugins = [
-    "pylint.extensions.code_style",
-    "pylint.extensions.typing",
-    "pylint_per_file_ignores",
-]
+
 persistent = false
+
+# SOURCE: https://github.com/ocellicode/gpyt-commandbus/blob/80172644b35af7b4679ace734bea1c5ea2212a52/pyproject.toml#L21
+[tool.pylint.exceptions]
+overgeneral-exceptions = ["builtins.BaseException", "builtins.Exception"]
+
+# # Think about enabling this
+# # SOURCE: https://github.com/ocellicode/gpyt-commandbus/blob/80172644b35af7b4679ace734bea1c5ea2212a52/pyproject.toml#L21
+# [tool.pylint.classes]
+# defining-attr-methods = [
+#     "__init__",
+#     "__new__",
+#     "setUp",
+#     "asyncSetUp",
+#     "__post_init__",
+# ]
+# exclude-protected = [
+#     "_asdict",
+#     "_fields",
+#     "_replace",
+#     "_source",
+#     "_make",
+#     "os._exit",
+# ]
+# valid-classmethod-first-arg = ["cls"]
+# valid-metaclass-classmethod-first-arg = ["mcs"]
+
+# # Think about enabling this
+# # SOURCE: https://github.com/ocellicode/gpyt-commandbus/blob/80172644b35af7b4679ace734bea1c5ea2212a52/pyproject.toml#L21
+# [tool.pylint.design]
+# max-args = 5
+# max-attributes = 7
+# max-bool-expr = 5
+# max-branches = 12
+# max-locals = 15
+# max-parents = 7
+# max-public-methods = 20
+# max-returns = 6
+# max-statements = 50
+# min-public-methods = 2
 
 [tool.pylint.BASIC]
 class-const-naming-style = "any"
+# Think about enabling this
+# SOURCE: https://github.com/ocellicode/gpyt-commandbus/blob/80172644b35af7b4679ace734bea1c5ea2212a52/pyproject.toml#L21
+# attr-naming-style = "snake_case"
+# bad-names = ["foo", "bar", "baz", "toto", "tutu", "tata"]
+# class-attribute-naming-style = "any"
+# class-const-naming-style = "UPPER_CASE"
+# class-naming-style = "PascalCase"
+# const-naming-style = "UPPER_CASE"
+# docstring-min-length = -1
+# function-naming-style = "snake_case"
+# good-names = ["i", "j", "k", "ex", "Run", "_", "ok"]
+# inlinevar-naming-style = "any"
+# method-naming-style = "snake_case"
+# module-naming-style = "snake_case"
+# no-docstring-rgx = "^_"
+# property-classes = ["abc.abstractproperty"]
+# variable-naming-style = "snake_case"
 
-[tool.pylint."MESSAGES CONTROL"]
+[tool.pylint."messages control"]
+extension-pkg-whitelist = ["pydantic", "torch", "numpy", "orjson", "cv2"]
+# https://github.com/pydantic/pydantic/issues/1961
+
 # Reasons disabled:
 # format - handled by ruff
 # locally-disabled - it spams too much
@@ -805,8 +915,15 @@ class-const-naming-style = "any"
 # consider-using-namedtuple-or-dataclass - too opinionated
 # consider-using-assignment-expr - decision to use := better left to devs
 disable = [
+    "raw-checker-failed",
+    "bad-inline-option",
+    "file-ignored",
+    "suppressed-message",
+    "deprecated-pragma",
+    "use-implicit-booleaness-not-comparison-to-string",
+    "use-implicit-booleaness-not-comparison-to-zero",
     "fixme",
-    "line-too-long",                          # formatting done by Black
+    "line-too-long",                                    # formatting done by Black
     "missing-class-docstring",
     "missing-function-docstring",
     "missing-module-docstring",
@@ -1047,14 +1164,29 @@ disable = [
     "wrong-exception-operation",
 ]
 enable = [
-    #"useless-suppression",  # temporarily every now and then to clean them up
+    # "useless-suppression",          # temporarily every now and then to clean them up
     "use-symbolic-message-instead",
+    # "c-extension-no-member",
+
+    # # pylint.extensions.docstyle
+    # "missing-class-docstring",
+    # "missing-docstring",
+    # "missing-function-docstring",
+    # "missing-module-docstring",
+
+    # # pylint.extensions.typing
+    # "deprecated-typing-alias",
 ]
 
 [tool.pylint.REPORTS]
 score = false
 
+# SOURCE: https://github.com/atlassian-api/atlassian-python-api/blob/master/pyproject.toml
 [tool.pylint.TYPECHECK]
+# List of members which are set dynamically and missed by pylint inference
+# system, and so shouldn't trigger E1101 when accessed. Python regular
+# expressions are accepted.
+generated-members = 'numpy.*, torch.*'
 ignored-classes = [
     "_CountingAttr", # for attrs
 ]
@@ -1063,11 +1195,86 @@ mixin-class-rgx = ".*[Mm]ix[Ii]n"
 [tool.pylint.FORMAT]
 expected-line-ending-format = "LF"
 
-[tool.pylint.TYPING]
-runtime-typing = false
+# Set to ``no`` if the app / library does **NOT* need to support runtime introspection of type annotations. If you use type annotations exclusively for type checking of an application, you're probably fine. For libraries, evaluate if some users want to access the type hints at runtime first, e.g., through typing.get_type_hints. Applies to Python versions 3.7 - 3.9*
+# [tool.pylint.TYPING]
+# runtime-typing = false
 
 [tool.pylint.CODE_STYLE]
 # Max line length for which to sill emit suggestions.
 # Used to prevent optional suggestions which would get split by a code formatter
 # (e.g., black). Will default to the setting for ``max-line-length``.
 max-line-length-suggestions = 72
+
+[tool.pylint.logging]
+# Possible choices: ['old', 'new']
+logging-format-style = "new"
+
+logging-modules = ["logging", "loguru"]
+
+# [tool.pylint.similarities]
+# ignore-comments = true
+# ignore-docstrings = true
+# ignore-imports = false
+# min-similarity-lines = 5
+
+# NOTE: see https://github.com/Ruzzy77/python-template/blob/57c8964f1efb2635d0bdca5684613a8d8736aed0/pyrightconfig.json
+[tool.pyright]
+include = [
+    "src",
+    "tests",
+]
+exclude = [
+    "**/__pycache__",
+    "build",
+    "dist",
+    "docs",
+]
+defineConstant = {DEBUG = true}
+stubPath = "./typings"
+# https://github.com/microsoft/pyright/blob/main/docs/configuration.md#reportGeneralTypeIssues
+reportUnnecessaryTypeIgnoreComment = "warning"
+reportUnusedImport = "none"
+pythonVersion = "3.10"
+verboseOutput = true
+reportUnnecessaryCast = true
+# typeCheckingMode = "basic"
+typeCheckingMode = "standard"
+reportMissingTypeStubs = "none"
+reportMissingImports = "error"
+reportImportCycles = "error"
+reportUnusedVariable = "none"
+reportUnknownMemberType = "none"
+reportUnusedFunction = "warning"
+reportUnusedClass = "warning"
+reportReturnType = "warning"
+# [boolean or string, optional]: Generate or suppress diagnostics for general type inconsistencies, unsupported operations, argument/parameter mismatches, etc. This covers all of the basic type-checking rules not covered by other rules. It does not include syntax errors. The default value for this setting is "error".
+reportGeneralTypeIssues = "none"
+reportArgumentType = "none"
+reportAttributeAccessIssue = "none"
+
+# SOURCE: https://github.com/Ruzzy77/python-template/blob/57c8964f1efb2635d0bdca5684613a8d8736aed0/pyproject.toml#L168C1-L189C2
+################################################################################
+# Docformatter Configuration
+# (docformatter doesn't support custom config file names)
+# [tool.docformatter]
+# black             = true
+# blank             = true
+# recursive         = true
+# style             = "google"
+# wrap-descriptions = 80
+# wrap-summaries    = 80       # 0: disable wrapping
+
+# # make_summary_multiline = false
+# # pre_summary_newline    = false
+# # pre_summary_space      = false
+
+# exclude = [
+#     ".venv",
+#     "build",
+#     "dist",
+#     "docs",
+#     "examples",
+#     "notebooks",
+#     "sample*",
+#     "test*",
+# ]

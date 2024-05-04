@@ -1,4 +1,5 @@
 ## https://taplo.tamasfe.dev/configuration/file.html
+#:schema = "taplo://taplo.toml"
 include = ["*.toml"]
 
 [schema]
@@ -29,7 +30,7 @@ enabled = true
 # SOURCE: https://github.com/tamasfe/taplo/blob/4890bd426ce432a97596944ca6496979ff757355/site/site/configuration/formatter-options.md
 # default formatting rules for everything in pyproject
 [[rule]]
-include = ["**/pyproject.toml"]
+include = ["pyproject.toml"]
 
 [rule.formatting]
 array_auto_collapse = false
@@ -40,7 +41,7 @@ reorder_arrays = false
 
 # override formatting specifically for these ruff keys
 [[rule]]
-include = ["**/pyproject.toml"]
+include = ["pyproject.toml"]
 keys = [
     # "project.dependencies",
     # "project.optional-dependencies",

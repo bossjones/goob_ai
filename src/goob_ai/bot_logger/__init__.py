@@ -2,6 +2,8 @@
 
 """goob_ai bot_logger -- Setup loguru logging with stderr and file with click."""
 
+from __future__ import annotations
+
 import collections
 import gc
 import inspect
@@ -12,6 +14,7 @@ import sys
 from time import process_time
 from typing import TYPE_CHECKING, Any, Deque, Dict, Optional  # , Union, cast
 
+import loguru
 from loguru import logger
 from loguru._defaults import LOGURU_FORMAT
 
@@ -75,7 +78,7 @@ class InterceptHandler(logging.Handler):
     }
 
     # https://issueexplorer.com/issue/tiangolo/fastapi/4026
-    def emit(self, record: logging.LogRecord) -> None:  # pragma: no cover
+    def emit(self, record: loguru.LogRecord) -> None:  # pragma: no cover
         # Get corresponding Loguru level if it exists
         try:
             level = logger.level(record.levelname).name
@@ -114,7 +117,7 @@ class LoopDetector(logging.Filter):
         self._recent_lines: Deque[str] = collections.deque(maxlen=self.LINE_HISTORY_SIZE)
         self._supressed_lines: collections.Counter = collections.Counter()
 
-    def filter(self, record: logging.LogRecord) -> bool:
+    def filter(self, record: loguru.LogRecord) -> bool:
         if record.levelno < logging.WARNING:
             return True
 
