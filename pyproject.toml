@@ -377,10 +377,10 @@ check_untyped_defs = true
 ignore_missing_imports = true
 module = "tests.*"
 
-[[tool.mypy.overrides]]
-check_untyped_defs = true
-ignore_missing_imports = true
-module = "src.*"
+# [[tool.mypy.overrides]]
+# check_untyped_defs = true
+# ignore_missing_imports = true
+# module = "src.*"
 
 [[tool.mypy.overrides]]
 module = [
