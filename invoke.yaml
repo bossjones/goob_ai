@@ -16,7 +16,6 @@ run:
 
 docker:
   env:
-    # env vars for the fastapi app
     POSTGRES_DB: "rwdb"
     POSTGRES_PORT: "5432"
     POSTGRES_USER: "postgres"
@@ -29,7 +28,6 @@ docker:
 
 local:
   env:
-    # env vars for the fastapi app
     POSTGRES_DB: "rwdb"
     POSTGRES_PORT: "5432"
     POSTGRES_USER: "postgres"

@@ -126,6 +126,7 @@ click==8.1.7
     # via aiomonitor
     # via dask
     # via duckduckgo-search
+    # via goob-ai
     # via pyinspect
     # via rich-click
     # via scenedetect
@@ -285,6 +286,8 @@ importlib-metadata==7.0.0
 importlib-resources==6.4.0
     # via chromadb
 imutils==0.5.4
+    # via goob-ai
+invoke==2.2.0
     # via goob-ai
 janus==1.0.0
     # via aiomonitor

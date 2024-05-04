@@ -10,12 +10,6 @@ import sys
 # DEFINES:
 # -----------------------------------------------------------------------------
 HERE = os.path.dirname(__file__)
-# TASKS_VENDOR_DIR = os.path.join(HERE, "_vendor")
-# INVOKE_BUNDLE = os.path.join(TASKS_VENDOR_DIR, "invoke.zip")
-# INVOKE_BUNDLE_VERSION = "0.13.0"
-
-# DEBUG_SYSPATH = False
-
 
 # -----------------------------------------------------------------------------
 # UTILITY FUNCTIONS:

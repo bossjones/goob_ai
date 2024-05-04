@@ -87,3 +87,12 @@ pre-commit-run-all:
 
 pre-commit-install:
 	pre-commit install
+
+pipdep-tree:
+	pipdeptree --python .venv/bin/python3
+
+# install rye tools globally
+rye-tool-install:
+	rye install invoke
+	rye install pipdeptree
+	rye install click

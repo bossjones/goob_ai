@@ -103,7 +103,8 @@ dependencies = [
     "pandas>=2.2.2",
     "babel>=2.14.0",
     "dask>=2024.5.0",
-
+    "invoke>=2.2.0",
+    "click>=8.1.7",
 ]
 
 readme = "README.md"
@@ -169,8 +170,9 @@ dev-dependencies = [
 http = {cmd = ["python", "-mhttp.server", "8008"]}
 whoami = {cmd = "whoami"}
 mypy-missing = {cmd = "mypy --install-types"}
-clean = {cmd = "python -m inv ci.clean -vvv"}
+clean = {cmd = "python -m invoke ci.clean -vvv"}
 fmt = {cmd = "pre-commit run --all-files"}
+pylint = {cmd = "python -m invoke ci.pylint --everything"}
 
 # NOTE: THIS CAUSED EVERYTHING TO BE HELD BACK TO SUPER OLD VERSIONS
 # # https://github.com/astral-sh/rye/blob/ab8d5b433d5c4342c2bb125583c6bff4d29f5fbc/docs/guide/faq.md
@@ -269,6 +271,9 @@ target-version = ["py39", "py310", "py311", "py312"]
 # mypy also accepts per file configuration (comment starting with #mypy: ) https://mypy.readthedocs.io/en/stable/inline_config.html
 # Finally, adding `#type: ignore` after a line, disables mypy checking for that line
 [tool.mypy]
+exclude = [
+    "tasks/",
+]
 mypy_path = "typings"
 # disable_error_code = import-untyped
 show_column_numbers = true
@@ -338,7 +343,12 @@ warn_untyped_fields = true
 [[tool.mypy.overrides]]
 check_untyped_defs = true
 ignore_missing_imports = true
-module = "app.test.*"
+module = "tests.*"
+
+[[tool.mypy.overrides]]
+check_untyped_defs = true
+ignore_missing_imports = true
+module = "invoke.*"
 
 [[tool.mypy.overrides]]
 module = [

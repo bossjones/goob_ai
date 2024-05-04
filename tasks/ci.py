@@ -12,9 +12,6 @@ from tasks.utils import get_compose_env
 
 from .utils import COLOR_CAUTION, COLOR_SUCCESS
 
-# from tasks.core import clean, execute_sql
-
-
 logger = logging.getLogger(__name__)
 logger.setLevel("DEBUG")
 
@@ -94,17 +91,17 @@ def pylint(ctx, loc="local", tests=False, everything=False, specific=""):
 
     if tests:
         ctx.run(
-            "pylint --output-format=colorized --disable=all --enable=F,E --rcfile ./lint-configs-python/python/pylintrc tests"
+            "pylint --output-format=colorized --disable=C0111,E0401,C,W --enable=F,E --rcfile pyproject.toml tests"
         )
     elif everything:
-        ctx.run("pylint --output-format=colorized --rcfile ./lint-configs-python/python/pylintrc tests goob_ai")
+        ctx.run("pylint --output-format=colorized --rcfile pyproject.toml tests src")
     elif specific:
         ctx.run(
-            f"pylint --output-format=colorized --disable=all --enable={specific} --rcfile ./lint-configs-python/python/pylintrc tests goob_ai"
+            f"pylint --output-format=colorized --disable=all --enable={specific} --rcfile pyproject.toml tests src"
         )
     else:
         ctx.run(
-            "pylint --output-format=colorized --disable=all --enable=F,E --rcfile ./lint-configs-python/python/pylintrc goob_ai"
+            "pylint --output-format=colorized --disable=all --enable=F,E --rcfile pyproject.toml src"
         )
 
 
@@ -123,8 +120,7 @@ def mypy(ctx, loc="local", verbose=0):
     for k, v in env.items():
         ctx.config["run"]["env"][k] = v
 
-    # ctx.run("mypy --config-file ./lint-configs-python/python/mypy.ini goob_ai tests")
-    ctx.run("mypy --config-file ./setup.cfg goob_ai tests")
+    ctx.run("mypy --config-file pyproject.toml src tests")
 
 
 @task(incrementable=["verbose"])
@@ -238,7 +234,7 @@ def black(ctx, loc="local", check=False, debug=False, verbose=0, tests=False):
     if tests:
         _cmd += "tests tasks "
 
-    _cmd += "goob_ai"
+    _cmd += "src"
 
     if verbose >= 1:
         msg = "[black] bout to run command: \n"
@@ -283,7 +279,7 @@ def isort(ctx, loc="local", check=False, dry_run=False, verbose=0, diff=False):
     if verbose >= 2:
         _cmd += " --verbose"
 
-    _cmd += " goob_ai tests"
+    _cmd += " src tests"
 
     if verbose >= 1:
         msg = f"{_cmd}"
@@ -328,7 +324,7 @@ def bandit(ctx, loc="local", package=True, tests=True, verbose=0):
     _cmd = "bandit -r "
 
     if package:
-        _cmd += " goob_ai"
+        _cmd += " src"
 
     if tests:
         _cmd += " tests"
@@ -384,7 +380,7 @@ def pre_start(ctx, loc="local", check=True, debug=False):
     for k, v in env.items():
         ctx.config["run"]["env"][k] = v
 
-    # ctx.run("python goob_ai/api/tests_pre_start.py")
+    # ctx.run("python src/api/tests_pre_start.py")
 
 
 @task(incrementable=["verbose"])
@@ -507,7 +503,7 @@ def pytest(
     if mypy:
         _cmd += r" --mypy "
 
-    _cmd += r" --cov-config=setup.cfg --verbose --cov-append --cov-report=term-missing --cov-report=xml:cov.xml --cov-report=html:htmlcov --cov-report=annotate:cov_annotate  --showlocals --tb=short --cov=goob_ai tests"
+    _cmd += r" --cov-config=setup.cfg --verbose --cov-append --cov-report=term-missing --cov-report=xml:cov.xml --cov-report=html:htmlcov --cov-report=annotate:cov_annotate  --showlocals --tb=short --cov=src tests"
 
     resp = ctx.run(_cmd)
     if not resp.ok:
@@ -625,8 +621,8 @@ def editable(ctx, loc="local"):
 @task(
     pre=[
         call(clean, loc="local"),
-        call(verify_python_version, loc="local"),
-        call(pre_start, loc="local"),
+        call(verify_python_version, loc="local"), # type: ignore
+        call(pre_start, loc="local"), # type: ignore
         # call(alembic_upgrade, loc="local"),
     ],
     incrementable=["verbose"],
@@ -767,7 +763,7 @@ def autoflake(
         _cmd += " --in-place"
 
     _cmd += " --exclude=__init__.py"
-    _cmd += " goob_ai"
+    _cmd += " src"
     _cmd += " tests"
     _cmd += " tasks"
 
