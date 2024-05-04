@@ -14,6 +14,7 @@ Example: python mock_patch_checker.py app/test/conftest.py \
 """
 
 # SOURCE: https://github.com/Yelp/Tron/blob/master/contrib/mock_patch_checker.py
+from __future__ import annotations
 import ast
 import sys
 

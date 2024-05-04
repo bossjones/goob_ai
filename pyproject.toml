@@ -494,6 +494,8 @@ extend-exclude = [
     "notebooks/*",
     "tests/data",
     "venv",
+    "typings",
+    "contrib",
 ]
 
 # https://docs.astral.sh/ruff/settings/#indent-width

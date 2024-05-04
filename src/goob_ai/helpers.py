@@ -1,5 +1,7 @@
 """goob_ai.helpers"""
 
+from __future__ import annotations
+
 from collections import OrderedDict
 import os
 import pathlib

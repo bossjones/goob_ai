@@ -1,5 +1,7 @@
 """temporary_file.py"""
 
+from __future__ import annotations
+
 from contextlib import contextmanager
 import os
 from tempfile import NamedTemporaryFile

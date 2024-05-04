@@ -1,4 +1,5 @@
 """Test the async Typer class."""
+from __future__ import annotations
 
 import asyncio
 

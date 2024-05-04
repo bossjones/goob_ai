@@ -1,5 +1,7 @@
 """Debugging module. Import these functions in pdb or jupyter notebooks to figure step through code execution."""
 
+from __future__ import annotations
+
 import logging
 from typing import Any
 

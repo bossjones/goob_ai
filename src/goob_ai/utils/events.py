@@ -1,5 +1,7 @@
 """goob_ai.utils.events"""
 
+from __future__ import annotations
+
 import logging
 import pathlib
 import sys

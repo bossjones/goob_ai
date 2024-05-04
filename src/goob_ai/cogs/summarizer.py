@@ -1,3 +1,4 @@
+from __future__ import annotations
 import torch  # type: ignore
 from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 import unicodedata

@@ -1,5 +1,7 @@
 """goob_ai.utils.chat_formatting"""
 
+from __future__ import annotations
+
 import datetime
 from io import BytesIO
 import itertools

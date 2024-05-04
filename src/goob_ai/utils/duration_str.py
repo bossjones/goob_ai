@@ -15,6 +15,7 @@
 
 # Adapted from durationpy
 # https://github.com/icholy/durationpy/
+from __future__ import annotations
 
 from datetime import timedelta
 import re

@@ -1,3 +1,4 @@
+from __future__ import annotations
 from typing import Any, Dict, List
 from langchain.memory.chat_memory import BaseChatMemory
 from langchain.schema import BaseMessage, HumanMessage, AIMessage, SystemMessage, ChatMessage

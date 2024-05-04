@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 """goob_ai.shell"""
 
+from __future__ import annotations
+
 import asyncio
 from asyncio.subprocess import Process
 import os

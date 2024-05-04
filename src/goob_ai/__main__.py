@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 """goob_ai.main."""
 
+from __future__ import annotations
+
 import logging
 
 rootlogger = logging.getLogger()

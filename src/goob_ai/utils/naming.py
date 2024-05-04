@@ -1,5 +1,7 @@
 """Automatically generate names."""
 
+from __future__ import annotations
+
 import collections
 
 # try:  # python 3

@@ -39,6 +39,7 @@ from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple, Type, U
 
 from goob_ai.bot_logger import get_logger
 
+
 class AsyncTyper(Typer):
     """
     Decorates a function with the given decorator, but only if the function is not already a coroutine function.
@@ -50,6 +51,7 @@ class AsyncTyper(Typer):
     Returns:
         function: The decorated function.
     """
+
     @staticmethod
     def maybe_run_async(decorator, f):
         if inspect.iscoroutinefunction(f):

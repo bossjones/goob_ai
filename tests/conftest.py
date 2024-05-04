@@ -3,6 +3,7 @@ Global test fixtures definitions.
 """
 
 # Taken from tedi and guid_tracker
+from __future__ import annotations
 
 import datetime
 import os

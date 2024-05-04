@@ -28,20 +28,21 @@ repos:
   #                 "--ignore-unknown",
   #             ]
   #         # additional_dependencies: ["prettier", "prettier-plugin-multiline-arrays"]
-  # # SOURCE: https://github.com/astral-sh/ruff-pre-commit
-  # - repo: https://github.com/astral-sh/ruff-pre-commit
-  #   rev: v0.4.3
-  #   hooks:
-  #     # Run the linter.
-  #     - id: ruff
-  #       # entry: ruff check --force-exclude
-  #       args: [--fix, --exit-non-zero-on-fix, --show-fixes, --config=pyproject.toml]
+  # SOURCE: https://github.com/astral-sh/ruff-pre-commit
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.4.3
+    hooks:
+      # Run the linter.
+      - id: ruff
+        # entry: ruff check --force-exclude
+        args: [--fix, --exit-non-zero-on-fix, --show-fixes, --config=pyproject.toml]
 
-  #     # Run the formatter.
-  #     - id: ruff-format
-  #       # entry: ruff format --force-exclude
-  #       args: [--config=pyproject.toml]
-  #       files: ^((src|hack)/.+)?[^/]+\.(py|pyi)$
+      # Run the formatter.
+      - id: ruff-format
+        # entry: ruff format --force-exclude
+        args: [--config=pyproject.toml]
+        files: ^((src|hack)/.+)?[^/]+\.(py|pyi)$
+        exclude: (.tasks|hack)
 
   # SOURCE: https://github.com/Ruzzy77/python-template/blob/57c8964f1efb2635d0bdca5684613a8d8736aed0/.pre-commit-config.yaml
   # - repo: https://github.com/pre-commit/mirrors-prettier
