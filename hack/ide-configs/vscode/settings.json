@@ -4,6 +4,7 @@
         "--enable=F,E,E1101",
         "--disable=C0111,E0401,C,W",
         "--max-line-length=120",
+        "--generated-members=torch.*, numpy.*"
     ],
     "python.analysis.extraPaths": [
         "./app"
