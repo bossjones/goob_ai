@@ -164,6 +164,7 @@ dev-dependencies = [
     "pytest-asyncio>=0.23.6",
     "validate-pyproject[all,store]>=0.16",
     "pylint-per-file-ignores>=1.3.2",
+    "pylint>=3.1.0",
 ]
 
 [tool.rye.scripts]
@@ -173,6 +174,7 @@ mypy-missing = {cmd = "mypy --install-types"}
 clean = {cmd = "python -m invoke ci.clean -vvv"}
 fmt = {cmd = "pre-commit run --all-files"}
 pylint = {cmd = "python -m invoke ci.pylint --everything"}
+lint = {cmd = "python -m pylint --output-format=colorized --rcfile pyproject.toml tests src"}
 
 # NOTE: THIS CAUSED EVERYTHING TO BE HELD BACK TO SUPER OLD VERSIONS
 # # https://github.com/astral-sh/rye/blob/ab8d5b433d5c4342c2bb125583c6bff4d29f5fbc/docs/guide/faq.md

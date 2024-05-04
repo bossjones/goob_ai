@@ -10,7 +10,7 @@ from invoke import call, task
 
 from tasks.utils import get_compose_env
 
-from .utils import COLOR_CAUTION, COLOR_SUCCESS
+from tasks.utils import COLOR_CAUTION, COLOR_SUCCESS
 
 logger = logging.getLogger(__name__)
 logger.setLevel("DEBUG")

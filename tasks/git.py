@@ -6,29 +6,10 @@ from invoke import task
 import click
 from tasks.utils import get_compose_env
 
-# from tasks.core import clean, execute_sql
-
 logger = logging.getLogger(__name__)
 logger.setLevel("DEBUG")
 
 
-# git rev-parse HEAD
-
-
-# @task(incrementable=["verbose"])
-# def verbosity(ctx, loc="local", quiet=False, verbose=0):
-#     """
-#     Return `git rev-parse HEAD` for project.
-#     Usage: inv docker.lint-test or inv local.lint-test
-#     """
-#     env = get_compose_env(ctx, loc=loc)
-
-#     # Only display result
-#     ctx.config["run"]["echo"] = False
-
-#     # Override run commands env variables one key at a time
-#     for k, v in env.items():
-#         ctx.config["run"]["env"][k] = v
 
 
 @task(incrementable=["verbose"])
