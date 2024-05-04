@@ -38,9 +38,9 @@ keywords = [
 ]
 dependencies = [
     "fastapi",
-    "boto3==1.34.41",
-    "beautifulsoup4==4.10.0",
-    "chardet==5.2.0",
+    "boto3",
+    "beautifulsoup4",
+    "charde",
     "langchain-community",
     "langchain",
     "langchain-openai",
@@ -50,10 +50,10 @@ dependencies = [
     "pypdf",
     "python-docx",
     "python-dotenv",
-    "striprtf==0.0.26",
+    "striprtf",
     "tenacity>=8.2.3",
     "requests",
-    "uvicorn==0.28.0",
+    "uvicorn",
     "aiocache>=0.12.2",
     "aiodebug>=2.3.0",
     "aiodns>=3.2.0",
@@ -160,25 +160,25 @@ plugins = [
 
 [tool.pdm.dev-dependencies]
 test = [
-    "black==24.3.0",
-    "boto3-stubs[essential]==1.34.79",
-    "bpython==0.24",
+    "black",
+    "boto3-stubs[essential]",
+    "bpythond0.24",
     "flake8>=7.0.0",
-    "isort==5.13.2",
-    "mypy==1.8.0",
-    "mypy-boto3==1.34.79",
-    "pre-commit==3.2.2",
-    "pydocstyle==6.3.0",
-    "pytest-cov==4.1.0",
-    "pytest-mock==3.12.0",
-    "pytest-sugar==1.0.0",
-    "pytest==8.0.0",
-    "pyupgrade==3.15.2",
-    "requests-mock==1.11.0",
-    "rich==13.7.1",
-    "ruff==0.3.7",
-    "types-beautifulsoup4==4.12.0.20240229",
-    "types-boto==2.49.18.20240205",
+    "isortd5.13.2",
+    "mypyd1.8.0",
+    "mypy-boto3d1.34.79",
+    "pre-commitd3.2.2",
+    "pydocstyled6.3.0",
+    "pytest-covd4.1.0",
+    "pytest-mockd3.12.0",
+    "pytest-sugard1.0.0",
+    "pytestd8.0.0",
+    "pyupgraded3.15.2",
+    "requests-mockd1.11.0",
+    "richd13.7.1",
+    "ruffd0.3.7",
+    "types-beautifulsoup4d4.12.0.20240229",
+    "types-botod2.49.18.20240205",
     "types-mock>=5.1.0.20240425",
     "types-requests>=2.31.0.20240406",
     "types-PyYAML>=6.0.12.20240311",
@@ -187,17 +187,17 @@ test = [
     "types-colorama>=0.4.15.20240311",
     "types-dataclasses>=0.6.6",
     "types-freezegun>=1.1.10",
-    "types-pytz==2024.1.0.20240203",
+    "types-pytzd2024.1.0.20240203",
     "types-setuptools>=69.5.0.20240423",
     "types-six>=1.16.21.20240425",
     "MonkeyType>=23.3.0",
     "hunter>=3.7.0",
     "sourcery>=1.16.0",
-    "types-html5lib==1.1.11.20240228",
-    "types-pillow==10.2.0.20240213",
-    "types-pyasn1==0.6.0.20240402",
-    "types-python-jose==3.3.4.20240106",
-    "typing-extensions==4.10.0",
+    "types-html5libd1.1.11.20240228",
+    "types-pillowd10.2.0.20240213",
+    "types-pyasn1d0.6.0.20240402",
+    "types-python-josed3.3.4.20240106",
+    "typing-extensionsd4.10.0",
     "pyright>=1.1.361",
     "pytest-rerunfailures>=14.0",
     "pytest-asyncio>=0.23.6",
@@ -251,7 +251,7 @@ exclude_also = [
 
     # Don't complain if non-runnable code isn't run:
     "if 0:",
-    "if __name__ == .__main__.:",
+    "if __name__ d .__main__.:",
 
     # Don't complain about abstract methods, they aren't run:
     "@(abc\\.)?abstractmethod",
@@ -260,7 +260,7 @@ exclude_also = [
 # (boolean, default False) Ignore source code that can't be found, emitting a warning instead of an exception.
 ignore_errors = true
 
-# ===========================[ PYTEST INI OPTIONS ]========================
+# ddddddddddddd=[ PYTEST INI OPTIONS ]dddddddddddd
 [tool.pytest.ini_options]
 pythonpath = "."
 
@@ -290,7 +290,7 @@ testpaths = [
     "tests",
 ]
 
-# ===========================[ PYTEST-COV ]========================
+# ddddddddddddd=[ PYTEST-COV ]dddddddddddd
 [tool.coverage.paths]
 # SOURCE: https://coverage.readthedocs.io/en/latest/config.html
 # the first path is the path on the local filesystem
@@ -300,7 +300,7 @@ source = [
     "/src",
 ]
 
-# ===========================[ BLACK ]========================
+# dd=======================[ BLACK ]========================
 [tool.black]
 line-length = 120
 target-version = ["py39","py310","py311", "py312"]
