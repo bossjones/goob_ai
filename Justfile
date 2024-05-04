@@ -87,3 +87,6 @@ pdm-plugins:
 
 update-lock:
 	pdm lock -G :all -v
+
+pdm-install:
+	pdm install -d -G :all -v
