@@ -1,5 +1,6 @@
 """goob_ai.cli"""
 
+# SOURCE: https://github.com/tiangolo/typer/issues/88#issuecomment-1732469681
 from __future__ import annotations
 
 import inspect
@@ -34,11 +35,28 @@ import typer
 import goob_ai
 from goob_ai import settings_validator
 from goob_ai.aio_settings import aiosettings, config_to_table, get_rich_console
-from goob_ai.bot import GoobBot, aiomonitor  # , load_extensions
+from goob_ai.bot import GoobBot, aiomonitor
 from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple, Type, Union
 
 from goob_ai.bot_logger import get_logger
 
+from typing import Any, Dict, Optional, Tuple
+
+import rich
+import typer
+from rich.console import Console
+from rich.table import Table
+from typing_extensions import Annotated
+
+
+import json
+import logging
+import sys
+
+import typer
+from rich import print, print_json
+
+from goob_ai.utils.asynctyper import AsyncTyper
 from typing import Any, Dict, Optional, Tuple
 
 import rich
@@ -214,7 +232,7 @@ from typing_extensions import Annotated
 #     run_aiodebug: bool = False,
 # ) -> typer.Context:
 #     """
-#     Manage users in the awesome CLI app.
+#     Manage users in the awesome CLI APP.
 #     """
 
 #     ctx.ensure_object(dict)
@@ -265,15 +283,6 @@ from typing_extensions import Annotated
 
 #########################################################
 
-# SOURCE: https://github.com/tiangolo/typer/issues/88#issuecomment-1732469681
-import json
-import logging
-import sys
-
-import typer
-from rich import print, print_json
-
-from goob_ai.utils.asynctyper import AsyncTyper
 
 # from ..bot import bot
 # from ..config import settings
@@ -282,14 +291,22 @@ from goob_ai.utils.asynctyper import AsyncTyper
 
 
 APP = AsyncTyper()
+console = Console()
+
+
+def version_callback(version: bool) -> None:
+    """Print the version of goob_ai."""
+    if version:
+        rich.print(f"goob_ai version: {goob_ai.__version__}")
+        raise typer.Exit()
 
 
 @APP.command()
 def about() -> None:
-    typer.echo("This is a bot created from aulasoftwarelibre/telegram-bot-template")
+    typer.echo("This is GoobBot CLI")
 
 
-# @app.async_command()
+# @APP.async_command()
 # async def info() -> None:
 #     """Returns information about the bot."""
 #     result = await bot.get_me()
@@ -315,7 +332,7 @@ def about() -> None:
 #     await bot.close_session()
 
 
-# @app.async_command()
+# @APP.async_command()
 # async def install() -> None:
 #     """Install bot webhook"""
 #     # Remove webhook, it fails sometimes the set if there is a previous webhook
@@ -332,24 +349,24 @@ def about() -> None:
 #     await bot.close_session()
 
 
-@app.async_command()
-async def serve() -> None:
-    """Run polling bot version."""
-    logging.info("Starting...")
+# @APP.async_command()
+# async def serve() -> None:
+#     """Run polling bot version."""
+#     logging.info("Starting...")
 
-    await bot.remove_webhook()
-    await bot.infinity_polling(logger_level=logging.INFO)
-
-    await bot.close_session()
-
-
-# @app.async_command()
-# async def uninstall() -> None:
-#     """Uninstall bot webhook."""
 #     await bot.remove_webhook()
+#     await bot.infinity_polling(logger_level=logging.INFO)
 
 #     await bot.close_session()
 
 
-if __name__ == "__main__":
-    app()
+# # @APP.async_command()
+# # async def uninstall() -> None:
+# #     """Uninstall bot webhook."""
+# #     await bot.remove_webhook()
+
+# #     await bot.close_session()
+
+
+# if __name__ == "__main__":
+#     app()
