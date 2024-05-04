@@ -6,7 +6,7 @@ import re
 import typing
 
 from fuzzywuzzy import fuzz, process
-import torch
+import torch  # type: ignore
 
 # ML_MODEL_PATH = f"{pathlib.Path('./goob_ai/ml_models/').absolute()}"
 from goob_ai.aio_settings import aiosettings
@@ -125,4 +125,4 @@ models = [f"{m.name}" for m in pth_list_only]
 # for (dirpath, dirnames, filenames) in os.walk(ML_MODEL_PATH):
 #     models.extend(filenames)
 #     break
-fuzzymodels, aliases = build_aliases(models)
+# fuzzymodels, aliases = build_aliases(models)

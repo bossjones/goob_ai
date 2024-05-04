@@ -4,7 +4,7 @@ import asyncio
 import os
 
 import pytest
-import torch
+import torch  # type: ignore
 
 from goob_ai import bot
 
@@ -12,7 +12,7 @@ IS_RUNNING_ON_GITHUB_ACTIONS = bool(os.environ.get("GITHUB_ACTOR"))
 
 
 @pytest.mark.skipif(
-    os.getenv("GOOB_AI_BOT_SANITY"),
+    os.getenv("GOOB_AI_BOT_SANITY"),  # noqa
     reason="These tests are meant to only run locally on laptop prior to porting it over to new system",
 )
 @pytest.mark.integration

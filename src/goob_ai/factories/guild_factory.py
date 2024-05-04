@@ -37,30 +37,6 @@ class Guild(metaclass=Singleton):
         self.id = id
         self.prefix = prefix
 
-
-# # SOURCE: https://stackoverflow.com/questions/54863458/force-type-conversion-in-python-dataclass-init-method
-# @validate_arguments
-# @dataclass(frozen=True)
-# class Guild(SerializerFactory):
-#     id: int = int(DISCORD_GUILD)
-#     prefix: str = constants.PREFIX
-
-#     @staticmethod
-#     def init() -> Guild:
-#         if not _private_instance:
-#             global _private_instance = Guild(
-#                 id=...
-#                 prefix=...
-#             )
-#         return _private_instance
-
-
-#     @staticmethod
-#     def create(d: Dict) -> Guild:
-#         return Guild(id=d["id"], prefix=d["prefix"])
-
-# _private_instance: Optional[Guild] = None
-
 # smoke tests
 if __name__ == "__main__":
     # test_guild_metadata = Guild(id=int(DISCORD_GUILD), prefix=constants.PREFIX)

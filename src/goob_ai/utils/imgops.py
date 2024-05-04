@@ -455,7 +455,7 @@ import pytz
 # import aiorwlock
 import rich
 from scipy.spatial import KDTree
-import torch
+import torch  # type: ignore
 from torchvision.utils import make_grid
 from tqdm.auto import tqdm
 from webcolors import CSS3_HEX_TO_NAMES, hex_to_rgb

@@ -19,7 +19,6 @@ from typing import (
 
 import discord
 
-# from redis.asyncio import ConnectionPool, Redis
 import rich
 from rich.pretty import pprint
 import typer
@@ -29,27 +28,17 @@ from goob_ai import settings_validator
 from goob_ai.aio_settings import aiosettings, config_to_table, get_rich_console
 from goob_ai.bot import GoobBot, aiomonitor  # , load_extensions
 
-# TEMPCHANGE: # from goob_ai.bot import DISCORD_TOKEN, GoobBot, aiomonitor, load_extensions
 from goob_ai.bot_logger import get_logger
 
 # type: ignore
 # noqa: E402
 
-# from goob_ai.utils.async_ import aobject
 
 LOGGER = get_logger(__name__, provider="CLI", level=logging.DEBUG)
 
 CACHE_CTX = {}
 
 
-# # SOURCE: https://github.com/long2ice/fettler/blob/271bbf68e3c08cb02f285a7ff9e3f2357ce1216e/fettler/cli.py
-# def coro(f):
-#     @wraps(f)
-#     def wrapper(*args, **kwargs):
-#         loop = asyncio.get_event_loop()
-#         loop.run_until_complete(f(*args, **kwargs))
-
-#     return wrapper
 
 
 async def co_get_ctx(ctxs: List[typer.Context]) -> None:
@@ -289,10 +278,3 @@ if __name__ == "__main__":
     _ctx = CLI()
     rich.print("CTX")
     rich.print(_ctx)
-
-#  autoflake --imports=dropbox,discord,unicodedata,six,uritools,goob_ai --in-place --remove-unused-variables goob_ai/cli.py
-#  autoflake --imports=dropbox,discord,unicodedata,six,uritools,goob_ai --in-place --remove-unused-variables goob_ai/cli.py
-#  autoflake --imports=dropbox,discord,unicodedata,six,uritools,goob_ai --in-place --remove-unused-variables goob_ai/cli.py
-#  autoflake --imports=dropbox,discord,unicodedata,six,uritools,goob_ai --in-place --remove-unused-variables goob_ai/cli.py
-#  autoflake --imports=dropbox,discord,unicodedata,six,uritools,goob_ai --in-place --remove-unused-variables goob_ai/cli.py
-#  autoflake --imports=dropbox,discord,unicodedata,six,uritools,goob_ai --in-place --remove-unused-variables goob_ai/cli.py

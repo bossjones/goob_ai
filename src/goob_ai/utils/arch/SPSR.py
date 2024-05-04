@@ -5,7 +5,7 @@
 
 import math
 
-import torch
+import torch  # type: ignore
 import torch.nn as nn
 import torch.nn.functional as F
 

@@ -3,7 +3,7 @@ import argparse
 import contextlib
 from typing import Optional, Union
 
-import torch
+import torch  # type: ignore
 
 from goob_ai.core import errors
 
@@ -155,7 +155,7 @@ def seed_everything(seed: int):
     import random
 
     import numpy as np
-    import torch
+    import torch  # type: ignore
 
     random.seed(seed)
     os.environ["PYTHONHASHSEED"] = str(seed)

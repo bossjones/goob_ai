@@ -7,7 +7,7 @@ from langchain.document_loaders import YoutubeLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.chains.summarize import load_summarize_chain
 
-import torch
+import torch  # type: ignore
 
 
 class YoutubeSummaryCog(commands.Cog):
@@ -40,7 +40,7 @@ class YoutubeSummaryCog(commands.Cog):
             # Create and configure chain
             chain = load_summarize_chain(llm=self.llm, chain_type="map_reduce", verbose=True)
 #             chain.llm_chain.prompt.template = \
-#             """### Instruction: 
+#             """### Instruction:
 # Write a 1-3 paragraph summary the following:
 # "{text}"
 # ### Response:
@@ -59,4 +59,3 @@ class YoutubeSummaryCog(commands.Cog):
 
 async def setup(bot):
     await bot.add_cog(YoutubeSummaryCog(bot))
-

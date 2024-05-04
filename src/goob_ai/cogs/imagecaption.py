@@ -4,7 +4,7 @@ from PIL import Image
 from io import BytesIO
 import requests
 import re
-import torch
+import torch  # type: ignore
 from transformers import BlipForConditionalGeneration, BlipProcessor
 
 

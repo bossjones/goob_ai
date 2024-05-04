@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import torch
+import torch  # type: ignore
 
 cuda_available = torch.cuda.is_available()
 current_device = torch.cuda.current_device()

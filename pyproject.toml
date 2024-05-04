@@ -129,6 +129,8 @@ dependencies = [
     "duckduckgo-search>=5.3.0",
     "wikipedia>=1.4.0",
     "pandas>=2.2.2",
+    "Babel>=2.14.0",
+    "dask>=2024.5.0",
 ]
 # requires-python = ">=3.8"
 requires-python = "!=3.9.7,~=3.9"
@@ -312,6 +314,7 @@ target-version = ["py39","py310","py311", "py312"]
 # mypy also accepts per file configuration (comment starting with #mypy: ) https://mypy.readthedocs.io/en/stable/inline_config.html
 # Finally, adding `#type: ignore` after a line, disables mypy checking for that line
 [tool.mypy]
+mypy_path = "typings"
 # disable_error_code = import-untyped
 show_column_numbers = true
 disallow_subclassing_any = false
@@ -374,6 +377,7 @@ no_implicit_reexport = true
 
 # Ignores all non-fatal errors.
 ignore_errors = true
+warn_untyped_fields = true
 
 # ===========================[ MYPY OVERRIDES ]========================
 [[tool.mypy.overrides]]
@@ -386,6 +390,37 @@ module = [
     "boto3.*",
     "botocore.*",
     "asr_python.*",
+    "absl.*",
+    "colorama.*",
+    "importlib_metadata.*",
+    "IPython.*",
+    "numpy.*",
+    "opt_einsum.*",
+    "scipy.*",
+    "libtpu.*",
+    "jaxlib.mlir.*",
+    "iree.*",
+    "rich.*",
+    "optax.*",
+    "flatbuffers.*",
+    "flax.*",
+    "tensorflow.*",
+    "tensorflowjs.*",
+    "tensorflow.io.*",
+    "tensorstore.*",
+    "web_pdb.*",
+    "etils.*",
+    "google.colab.*",
+    "pygments.*",
+    "jraph.*",
+    "matplotlib.*",
+    "tensorboard_plugin_profile.convert.*",
+    "jaxlib.*",
+    "pytest.*",
+    "zstandard.*",
+    "jax.experimental.jax2tf.tests.flax_models",
+    "jax.experimental.jax2tf.tests.back_compat_testdata",
+    "setuptools.*",
 ]
 ignore_missing_imports = true
 

@@ -7,7 +7,7 @@ rootlogger = logging.getLogger()
 handler_logger = logging.getLogger("handler")
 
 name_logger = logging.getLogger(__name__)
-asyncio_logger = logging.getLogger("asyncio").setLevel(logging.DEBUG)
+asyncio_logger = logging.getLogger("asyncio").setLevel(logging.DEBUG)  # noqa
 
 # TEMPCHANGE: DISCORD_TOKEN = os.environ.get("DISCORD_TOKEN")
 # TEMPCHANGE: DISCORD_ADMIN = os.environ.get("DISCORD_ADMIN_USER_ID")

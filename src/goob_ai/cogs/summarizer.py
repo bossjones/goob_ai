@@ -1,4 +1,4 @@
-import torch
+import torch  # type: ignore
 from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 import unicodedata
 import discord
@@ -103,7 +103,7 @@ class TextSummarizerCog(commands.Cog, name="text_summarizer"):
         print("Summary output:", summary, sep="\n")
         return summary
 
-    # this command will summarize text and send it back to the user. 
+    # this command will summarize text and send it back to the user.
     @app_commands.command(name="summarizetext", description="summarize text")
     async def summarize_text(self, interaction: discord.Interaction, input_text: str):
         truncated_text = input_text[:30] + "..." if len(input_text) > 30 else input_text

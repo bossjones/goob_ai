@@ -122,7 +122,7 @@ if tuple(np.__version__.split(".")) < ("1", "20"):
     # this hack is because NewType doesn't allow `Any` as a base type
     # and numpy <=1.20 didn't provide type stubs for np.ndarray
     # https://github.com/python/mypy/issues/6701#issuecomment-609638202
-    class ArrayBase(np.ndarray):
+    class ArrayBase(np.ndarray):  # noqa
         def __getattr__(self, name: str) -> Any:
             # Super of 'ArrayBase' has no '__getattr__' member (no-member)
             return super().__getattr__(name)  # pylint: disable=E1101

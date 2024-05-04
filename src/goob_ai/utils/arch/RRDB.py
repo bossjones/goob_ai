@@ -7,7 +7,7 @@ import functools
 import math
 import re
 
-import torch
+import torch  # type: ignore
 import torch.nn as nn
 
 import goob_ai.utils.arch.block as B
