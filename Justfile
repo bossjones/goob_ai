@@ -72,25 +72,6 @@ run-pre-commit-all:
 local-open-coverage:
 	./scripts/open-browser.py file://${PWD}/htmlcov/index.html
 
-pdm-info:
-	pdm info && pdm info --env
-
-# via: https://github.com/chipxsd/ormpoc/tree/237a76cf047582c23815888579a5c6a522f85544
-# pdm bootstrap
-bootstap:
-	pdm install
-	pdm use
-	pdm run main
-
-pdm-plugins:
-	pdm self add pdm-readiness
-
-update-lock:
-	pdm lock -G :all -v
-
-pdm-install:
-	pdm install -d -G :all -v
-
 rye-get-pythons:
 	rye fetch 3.8.19
 	rye fetch 3.9.19
@@ -100,3 +81,9 @@ rye-get-pythons:
 
 rye-add-all:
 	./contrib/rye-add-all.sh
+
+pre-commit-run-all:
+	pre-commit run --all-files
+
+pre-commit-install:
+	pre-commit install

@@ -1,4 +1,5 @@
 """guild_factory.py"""
+
 from __future__ import annotations
 
 from goob_ai.aio_settings import aiosettings
@@ -36,6 +37,7 @@ class Guild(metaclass=Singleton):
         # print('Creating Guild')
         self.id = id
         self.prefix = prefix
+
 
 # smoke tests
 if __name__ == "__main__":

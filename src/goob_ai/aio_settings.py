@@ -1,4 +1,5 @@
-""" aio_settings """
+"""aio_settings"""
+
 # type: ignore[call-arg
 from __future__ import annotations
 

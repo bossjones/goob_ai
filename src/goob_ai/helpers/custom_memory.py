@@ -2,9 +2,8 @@ from typing import Any, Dict, List
 from langchain.memory.chat_memory import BaseChatMemory
 from langchain.schema import BaseMessage, HumanMessage, AIMessage, SystemMessage, ChatMessage
 
-def get_buffer_string(
-    messages: List[BaseMessage], human_prefix: str = "Human", ai_prefix: str = "AI"
-) -> str:
+
+def get_buffer_string(messages: List[BaseMessage], human_prefix: str = "Human", ai_prefix: str = "AI") -> str:
     """Get buffer string of messages."""
     string_messages = []
     for m in messages:

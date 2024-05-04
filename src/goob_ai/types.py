@@ -1,4 +1,5 @@
 """goob_ai.types"""
+
 from __future__ import annotations
 
 # pyright: reportMissingImports=false, reportUnusedVariable=warning, reportUntypedBaseClass=error, reportGeneralTypeIssues=false

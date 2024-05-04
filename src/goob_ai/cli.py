@@ -1,4 +1,5 @@
 """goob_ai.cli"""
+
 from __future__ import annotations
 
 import asyncio
@@ -37,8 +38,6 @@ from goob_ai.bot_logger import get_logger
 LOGGER = get_logger(__name__, provider="CLI", level=logging.DEBUG)
 
 CACHE_CTX = {}
-
-
 
 
 async def co_get_ctx(ctxs: List[typer.Context]) -> None:

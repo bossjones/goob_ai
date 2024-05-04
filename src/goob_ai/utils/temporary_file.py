@@ -1,4 +1,5 @@
 """temporary_file.py"""
+
 from contextlib import contextmanager
 import os
 from tempfile import NamedTemporaryFile
@@ -15,7 +16,7 @@ def temporary_file(suffix=""):
     --------
     >>> import numpy as np
     >>> from goob_ai.utils import io
-    >>> with temporary_file('.tif') as tempfile:
+    >>> with temporary_file(".tif") as tempfile:
     ...     im = np.arange(25, dtype=np.uint8).reshape((5, 5))
     ...     io.imsave(tempfile, im)
     ...     assert np.all(io.imread(tempfile) == im)

@@ -14,15 +14,11 @@ class General(commands.Cog, name="general"):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.hybrid_command(
-        name="help", description="List all commands the bot has loaded."
-    )
+    @commands.hybrid_command(name="help", description="List all commands the bot has loaded.")
     @checks.not_blacklisted()
     async def help(self, context: Context) -> None:
         prefix = self.bot.config["prefix"]
-        embed = discord.Embed(
-            title="Help", description="List of available commands:", color=0x9C84EF
-        )
+        embed = discord.Embed(title="Help", description="List of available commands:", color=0x9C84EF)
         for i in self.bot.cogs:
             cog = self.bot.get_cog(i.lower())
             commands = cog.get_commands()
@@ -31,9 +27,7 @@ class General(commands.Cog, name="general"):
                 description = command.description.partition("\n")[0]
                 data.append(f"{prefix}{command.name} - {description}")
             help_text = "\n".join(data)
-            embed.add_field(
-                name=i.capitalize(), value=f"```{help_text}```", inline=False
-            )
+            embed.add_field(name=i.capitalize(), value=f"```{help_text}```", inline=False)
         await context.send(embed=embed)
 
     @commands.hybrid_command(
@@ -53,9 +47,7 @@ class General(commands.Cog, name="general"):
         )
         embed.set_author(name="Bot Information")
         embed.add_field(name="Owner:", value="Krypton#7331", inline=True)
-        embed.add_field(
-            name="Python Version:", value=f"{platform.python_version()}", inline=True
-        )
+        embed.add_field(name="Python Version:", value=f"{platform.python_version()}", inline=True)
         embed.add_field(
             name="Prefix:",
             value=f"/ (Slash Commands) or {self.bot.config['prefix']} for normal commands",
@@ -81,16 +73,12 @@ class General(commands.Cog, name="general"):
             roles.append(f">>>> Displaying[50/{len(roles)}] Roles")
         roles = ", ".join(roles)
 
-        embed = discord.Embed(
-            title="**Server Name:**", description=f"{context.guild}", color=0x9C84EF
-        )
+        embed = discord.Embed(title="**Server Name:**", description=f"{context.guild}", color=0x9C84EF)
         if context.guild.icon is not None:
             embed.set_thumbnail(url=context.guild.icon.url)
         embed.add_field(name="Server ID", value=context.guild.id)
         embed.add_field(name="Member Count", value=context.guild.member_count)
-        embed.add_field(
-            name="Text/Voice Channels", value=f"{len(context.guild.channels)}"
-        )
+        embed.add_field(name="Text/Voice Channels", value=f"{len(context.guild.channels)}")
         embed.add_field(name=f"Roles ({len(context.guild.roles)})", value=roles)
         embed.set_footer(text=f"Created at: {context.guild.created_at}")
         await context.send(embed=embed)
@@ -212,9 +200,7 @@ class General(commands.Cog, name="general"):
         """
         # This will prevent your bot from stopping everything when doing a web request - see: https://discordpy.readthedocs.io/en/stable/faq.html#how-do-i-make-a-web-request
         async with aiohttp.ClientSession() as session:
-            async with session.get(
-                "https://api.coindesk.com/v1/bpi/currentprice/BTC.json"
-            ) as request:
+            async with session.get("https://api.coindesk.com/v1/bpi/currentprice/BTC.json") as request:
                 if request.status == 200:
                     data = await request.json(
                         content_type="application/javascript"

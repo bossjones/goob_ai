@@ -20,15 +20,12 @@ from dotenv import load_dotenv
 # Load .env file
 load_dotenv()
 
-OPENAI = os.getenv('OPENAI')
+OPENAI = os.getenv("OPENAI")
+
 
 def embedder(msg):
-    embed = discord.Embed(
-            description=f"{msg}",
-            color=0x9C84EF
-        )
+    embed = discord.Embed(description=f"{msg}", color=0x9C84EF)
     return embed
-
 
 
 class AgentCommands(commands.Cog, name="agent_commands"):
@@ -37,43 +34,42 @@ class AgentCommands(commands.Cog, name="agent_commands"):
         self.llm = ""
         os.environ["OPENAI_API_KEY"] = self.bot.openai
         # Tools
-        self.wikipedia = WikipediaAPIWrapper() # Wikipedia tool
-        self.search = DuckDuckGoSearchRun() # DuckDuckGo tool
+        self.wikipedia = WikipediaAPIWrapper()  # Wikipedia tool
+        self.search = DuckDuckGoSearchRun()  # DuckDuckGo tool
         self.python_repl = PythonREPL()  # Python REPL tool
-        
 
         self.wikipedia_tool = Tool(
-            name='wikipedia',
-            func= self.wikipedia.run,
-            description="Useful for when you need to look up a topic, country or person on wikipedia"
+            name="wikipedia",
+            func=self.wikipedia.run,
+            description="Useful for when you need to look up a topic, country or person on wikipedia",
         )
 
         self.duckduckgo_tool = Tool(
-            name='DuckDuckGo Search',
-            func= self.search.run,
-            description="Useful for when you need to do a search on the internet to find information that another tool can't find. be specific with your input."
+            name="DuckDuckGo Search",
+            func=self.search.run,
+            description="Useful for when you need to do a search on the internet to find information that another tool can't find. be specific with your input.",
         )
-
 
     @app_commands.command(name="searchweb", description="Query Web")
     async def search_web(self, interaction: discord.Interaction, prompt: str):
-
         self.llm = OpenAI(temperature=0)
 
         name = interaction.user.display_name
         channel_id = interaction.channel.id
 
-        await interaction.response.send_message(embed=discord.Embed(
-        title=f"{interaction.user.display_name} used Search Web 🌐",
-        description=f"Prompt: {prompt}",
-        color=0x9C84EF
-        ))
+        await interaction.response.send_message(
+            embed=discord.Embed(
+                title=f"{interaction.user.display_name} used Search Web 🌐",
+                description=f"Prompt: {prompt}",
+                color=0x9C84EF,
+            )
+        )
 
         tools = [
             Tool(
-                name = "python repl",
+                name="python repl",
                 func=self.python_repl.run,
-                description="useful for when you need to use python to answer a question. You should input python code"
+                description="useful for when you need to use python to answer a question. You should input python code",
             )
         ]
 
@@ -94,10 +90,7 @@ class AgentCommands(commands.Cog, name="agent_commands"):
 
         response = await self.bot.get_cog("chatbot").agent_command(name, channel_id, prompt, observation)
 
-
         await interaction.channel.send(response)
-
-
 
     @app_commands.command(name="agent_test", description="Test command")
     async def agent_test(self, interaction: discord.Interaction):
@@ -107,24 +100,12 @@ class AgentCommands(commands.Cog, name="agent_commands"):
     async def on_ready(self):
         self.bot.logger.info("Agent Commands cog loaded.")
 
-
-    
-
-
-
-
-
-
-
-
-        
     # create a command for the wiipedia chroma code is in the wikichroma copy.ipynb that will use the agent_command from pygbot
     @app_commands.command(name="wikipedia", description="Wikipedia Search")
     async def wikipedia_search(self, interaction: discord.Interaction, topic: str, wikipedia: str, query: str):
-        
         loader = WikipediaLoader(query=wikipedia, load_max_docs=100)
         documents = loader.load()
-        #splitting the text into
+        # splitting the text into
         text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
         texts = text_splitter.split_documents(documents)
 
@@ -132,22 +113,19 @@ class AgentCommands(commands.Cog, name="agent_commands"):
 
         # Embed and store the texts
         # Supplying a persist_directory will store the embeddings on disk
-        persist_directory = 'db'
+        persist_directory = "db"
 
         ## here we are using OpenAI embeddings but in future we will swap out to local embeddings
         embedding = OpenAIEmbeddings()
 
-        vectordb = Chroma.from_documents(documents=texts,
-                                        embedding=embedding,
-                                        persist_directory=persist_directory)
+        vectordb = Chroma.from_documents(documents=texts, embedding=embedding, persist_directory=persist_directory)
 
         # persiste the db to disk
         vectordb.persist()
         vectordb = None
 
         # Now we can load the persisted database from disk, and use it as normal.
-        vectordb = Chroma(persist_directory=persist_directory,
-                        embedding_function=embedding)
+        vectordb = Chroma(persist_directory=persist_directory, embedding_function=embedding)
 
         """## Make a retriever"""
 
@@ -159,30 +137,21 @@ class AgentCommands(commands.Cog, name="agent_commands"):
         retriever.search_kwargs
 
         # create the chain to answer questions
-        qa_chain = RetrievalQA.from_chain_type(llm=OpenAI(),
-                                        chain_type="stuff",
-                                        retriever=retriever,
-                                        return_source_documents=True)
-                                        
-        await interaction.response.send_message(embed=discord.Embed(
-        title=f"{interaction.user.display_name} used Wikipedia Search 🔍",
-        description=f"Prompt: {topic}",
-        color=0x9C84EF
-        ), timeout=3)
+        qa_chain = RetrievalQA.from_chain_type(
+            llm=OpenAI(), chain_type="stuff", retriever=retriever, return_source_documents=True
+        )
+
+        await interaction.response.send_message(
+            embed=discord.Embed(
+                title=f"{interaction.user.display_name} used Wikipedia Search 🔍",
+                description=f"Prompt: {topic}",
+                color=0x9C84EF,
+            ),
+            timeout=3,
+        )
         # create a conversation thread in discord that will allow the user to ask questions about the topic
         self.llm_response = qa_chain(query)
         await interaction.channel.send(self.llm_response)
-
-
-
-
-
-
-
-
-
-
-
 
 
 async def setup(bot):

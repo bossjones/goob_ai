@@ -1,4 +1,5 @@
 """goob_ai.utils.chat_formatting"""
+
 import datetime
 from io import BytesIO
 import itertools
@@ -468,11 +469,11 @@ def humanize_list(items: Sequence[str], *, locale: Optional[str] = None, style: 
 
     .. doctest::
 
-        >>> humanize_list(['One', 'Two', 'Three'])
+        >>> humanize_list(["One", "Two", "Three"])
         'One, Two, and Three'
-        >>> humanize_list(['One'])
+        >>> humanize_list(["One"])
         'One'
-        >>> humanize_list(['omena', 'peruna', 'aplari'], style='or', locale='fi')
+        >>> humanize_list(["omena", "peruna", "aplari"], style="or", locale="fi")
         'omena, peruna tai aplari'
 
     """

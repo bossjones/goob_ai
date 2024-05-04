@@ -5,10 +5,7 @@ import os
 
 
 def embedder(msg):
-    embed = discord.Embed(
-            description=f"{msg}",
-            color=0x9C84EF
-        )
+    embed = discord.Embed(description=f"{msg}", color=0x9C84EF)
     return embed
 
 
@@ -18,7 +15,7 @@ class ReloadCogSelect(discord.ui.Select):
         options = [
             discord.SelectOption(label=cog[:-3], description="")
             for cog in os.listdir(f"{os.path.realpath(os.path.dirname(__file__))}")
-            if cog.endswith('.py')
+            if cog.endswith(".py")
         ]
         super().__init__(
             placeholder="Choose a cog to reload...",
@@ -28,9 +25,10 @@ class ReloadCogSelect(discord.ui.Select):
         )
 
     async def callback(self, interaction: discord.Interaction):
-            cog = self.values[0]
-            await self.parent.bot.reload_extension(f"cogs.{cog}")
-            await interaction.response.send_message(f"Reloaded {cog} cog.")
+        cog = self.values[0]
+        await self.parent.bot.reload_extension(f"cogs.{cog}")
+        await interaction.response.send_message(f"Reloaded {cog} cog.")
+
 
 class ReloadCogView(discord.ui.View):
     def __init__(self, parent):
@@ -49,21 +47,17 @@ class DevCommands(commands.Cog, name="dev_commands"):
         view = ReloadCogView(self)
         await interaction.response.send_message("Select a cog to reload:", view=view)
 
-
-
-
     @commands.Cog.listener()
     async def on_ready(self):
         self.bot.logger.info("Dev Commands cog loaded.")
 
-    @commands.command(name='sync', description='sync up')
+    @commands.command(name="sync", description="sync up")
     async def sync(self, interaction: discord.Interaction) -> None:
         await self.bot.tree.sync()
 
     @app_commands.command(name="test", description="Test command")
     async def test(self, interaction: discord.Interaction):
         await interaction.response.send_message("Test passed.", delete_after=3)
-
 
 
 async def setup(bot):

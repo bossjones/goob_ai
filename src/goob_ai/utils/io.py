@@ -1,4 +1,5 @@
 """io.py"""
+
 import csv
 from glob import glob
 import os
@@ -44,10 +45,9 @@ def _alphanumeric_key(s):
 
     Examples
     --------
-    >>> _alphanumeric_key('z23a')
+    >>> _alphanumeric_key("z23a")
     ['z', 23, 'a']
-    >>> filenames = ['f9.10.png', 'e10.png', 'f9.9.png', 'f10.10.png',
-    ...              'f10.9.png']
+    >>> filenames = ["f9.10.png", "e10.png", "f9.9.png", "f10.10.png", "f10.9.png"]
     >>> sorted(filenames)
     ['e10.png', 'f10.10.png', 'f10.9.png', 'f9.10.png', 'f9.9.png']
     >>> sorted(filenames, key=_alphanumeric_key)

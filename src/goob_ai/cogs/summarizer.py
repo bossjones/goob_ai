@@ -36,34 +36,30 @@ DEFAULT_SUMMARIZE_PARAMS = {
 
 
 def embedder(msg):
-    embed = discord.Embed(
-            description=f"{msg}",
-            color=0x9C84EF
-        )
+    embed = discord.Embed(description=f"{msg}", color=0x9C84EF)
     return embed
 
 
 class TextSummarizerCog(commands.Cog, name="text_summarizer"):
-
     def __init__(self, bot):
         self.bot = bot
         self.device = device
-        self.summarization_transformer = AutoModelForSeq2SeqLM.from_pretrained("facebook/bart-large-cnn").to(self.device)
+        self.summarization_transformer = AutoModelForSeq2SeqLM.from_pretrained("facebook/bart-large-cnn").to(
+            self.device
+        )
         self.summarization_tokenizer = AutoTokenizer.from_pretrained("facebook/bart-large-cnn")
 
     async def summarize_chunks(self, text: str, params: dict) -> str:
         try:
             return await self.summarize(text, params)
         except IndexError:
-            print(
-                "Sequence length too large for model, cutting text in half and calling again"
-            )
+            print("Sequence length too large for model, cutting text in half and calling again")
             new_params = params.copy()
             new_params["max_length"] = new_params["max_length"] // 2
             new_params["min_length"] = new_params["min_length"] // 2
-            return await self.summarize_chunks(
-                text[: (len(text) // 2)], new_params
-            ) + self.summarize_chunks(text[(len(text) // 2):], new_params)
+            return await self.summarize_chunks(text[: (len(text) // 2)], new_params) + self.summarize_chunks(
+                text[(len(text) // 2) :], new_params
+            )
 
     async def summarize(self, text: str, params: dict) -> str:
         # Tokenize input

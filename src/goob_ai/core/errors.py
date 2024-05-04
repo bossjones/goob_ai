@@ -1,4 +1,5 @@
 """goob_ai.core.errors."""
+
 import importlib.machinery
 import sys
 import traceback

@@ -1,4 +1,5 @@
 """goob_ai.settings_validator"""
+
 # type: ignore
 from __future__ import annotations
 

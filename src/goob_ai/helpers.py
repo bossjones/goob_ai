@@ -1,4 +1,5 @@
 """goob_ai.helpers"""
+
 from collections import OrderedDict
 import os
 import pathlib

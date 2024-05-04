@@ -1,4 +1,5 @@
 """goob_ai.utils"""
+
 # NOTE: Via Red https://github.com/Cog-Creators/Red-DiscordBot/tree/V3/develop/redbot
 from __future__ import annotations
 
@@ -404,7 +405,7 @@ class AsyncIter(AsyncIterator[_T], Awaitable[List[_T]]):  # pylint: disable=dupl
         Examples
         --------
         >>> from redbot.core.utils import AsyncIter
-        >>> iterator = AsyncIter(['one', 'two', 'three'])
+        >>> iterator = AsyncIter(["one", "two", "three"])
         >>> async for i in iterator.enumerate(start=10):
         ...     print(i)
         (10, 'one')
@@ -421,7 +422,7 @@ class AsyncIter(AsyncIterator[_T], Awaitable[List[_T]]):  # pylint: disable=dupl
         Examples
         --------
         >>> from redbot.core.utils import AsyncIter
-        >>> iterator = AsyncIter([1,2,3,3,4,4,5])
+        >>> iterator = AsyncIter([1, 2, 3, 3, 4, 4, 5])
         >>> async for i in iterator.without_duplicates():
         ...     print(i)
         1
@@ -525,9 +526,8 @@ def get_end_user_data_statement(file: Union[Path, str]) -> Optional[str]:
     --------
     >>> # In cog's `__init__.py`
     >>> from redbot.core.utils import get_end_user_data_statement
-    >>> __red_end_user_data_statement__  = get_end_user_data_statement(__file__)
-    >>> def setup(bot):
-    ...     ...
+    >>> __red_end_user_data_statement__ = get_end_user_data_statement(__file__)
+    >>> def setup(bot): ...
     """
     try:
         file = Path(file).parent.absolute()

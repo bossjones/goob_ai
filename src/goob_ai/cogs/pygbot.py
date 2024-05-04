@@ -47,8 +47,6 @@
 # from ooballm import OobaApiLLM
 
 
-
-
 # class Chatbot:
 
 #     def __init__(self, char_filename, bot):

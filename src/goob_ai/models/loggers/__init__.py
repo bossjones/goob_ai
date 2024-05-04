@@ -1,4 +1,5 @@
 """goob_ai.models.loggers"""
+
 # SOURCE: https://blog.bartab.fr/fastapi-logging-on-the-fly/
 from __future__ import annotations
 

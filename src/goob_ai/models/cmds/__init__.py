@@ -1,4 +1,5 @@
 """goob_ai.models.cmds"""
+
 from dataclasses import dataclass
 from typing import Dict, List, Optional, Union
 
@@ -17,4 +18,4 @@ class CmdArgs:
 class DataCmd:
     name: str
     command_args: Union[List[str], None] = []
-    command_kargs: Dict[str,str] = {}
+    command_kargs: Dict[str, str] = {}

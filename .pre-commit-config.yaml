@@ -7,53 +7,33 @@ repos:
     hooks:
       # Simply check whether files parse as valid python.
       - id: check-ast
+        exclude: (.vscode|contrib)
       - id: check-json
         exclude: (.vscode|.devcontainer|hack)
 
-  # # SOURCE: https://github.com/astral-sh/ruff-pre-commit
-  # - repo: https://github.com/astral-sh/ruff-pre-commit
-  #   rev: v0.3.7
-  #   hooks:
-  #     # Run the linter.
-  #     - id: ruff
-  #       # entry: ruff check --force-exclude
-  #       args: [--fix, --exit-non-zero-on-fix, --show-fixes, --config=app/pyproject.toml]
+  # SOURCE: https://github.com/astral-sh/ruff-pre-commit
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.4.3
+    hooks:
+      # Run the linter.
+      - id: ruff
+        # entry: ruff check --force-exclude
+        args: [--fix, --exit-non-zero-on-fix, --show-fixes, --config=pyproject.toml]
 
-  #     # Run the formatter.
-  #     - id: ruff-format
-  #       # entry: ruff format --force-exclude
-  #       args: [--config=app/pyproject.toml]
-  #       files: ^((app|hack)/.+)?[^/]+\.(py|pyi)$
-
-  # # export python requirements
-  # - repo: https://github.com/pdm-project/pdm
-  #   rev: 2.15.1 # a PDM release exposing the hook
-  #   hooks:
-  #     - id: pdm-export
-  #       # command arguments, e.g.:
-  #       args: ['-o', 'requirements.txt', '--without-hashes']
-  #       files: ^pdm.lock$
-
-  # # Check pdm.lock is up to date with pyproject.toml
-  # - repo: https://github.com/pdm-project/pdm
-  #   rev: 2.15.1 # a PDM release exposing the hook
-  #   hooks:
-  #     - id: pdm-lock-check
-
-  # - repo: https://github.com/pdm-project/pdm
-  #   rev: 2.15.1 # a PDM release exposing the hook
-  #   hooks:
-  #     - id: pdm-sync
-  #       # additional_dependencies:
-  #       #   - keyring
+      # Run the formatter.
+      - id: ruff-format
+        # entry: ruff format --force-exclude
+        args: [--config=pyproject.toml]
+        files: ^((src|hack)/.+)?[^/]+\.(py|pyi)$
 
 
-  # # NOTE: This requires you to brew install taplo
-  # - repo: local
-  #   hooks:
-  #     - id: taplo
-  #       name: taplo
-  #       entry: taplo format --config taplo.toml
-  #       language: system
-  #       types: [toml]
-  #       files: "^app/pyproject.*$"
+
+  # NOTE: This requires you to brew install taplo
+  - repo: local
+    hooks:
+      - id: taplo
+        name: taplo
+        entry: taplo format --config taplo.toml
+        language: system
+        types: [toml]
+        files: "^pyproject.*$"

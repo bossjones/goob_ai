@@ -1,4 +1,5 @@
 """goob_ai.factories.cmd_factory."""
+
 # pylint: disable=no-value-for-parameter
 from __future__ import annotations
 

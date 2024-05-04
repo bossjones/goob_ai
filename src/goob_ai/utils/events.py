@@ -1,4 +1,5 @@
 """goob_ai.utils.events"""
+
 import logging
 import pathlib
 import sys

@@ -11,7 +11,6 @@ import torch  # type: ignore
 
 
 class YoutubeSummaryCog(commands.Cog):
-
     def __init__(self, bot):
         self.bot = bot
         self.llm = self.bot.llm
@@ -25,7 +24,7 @@ class YoutubeSummaryCog(commands.Cog):
             embed=discord.Embed(
                 title=f"{interaction.user.display_name} used Youtube Summary 📺",
                 description=f"Summarizing {url} \nGenerating response\nPlease wait..",
-                color=0x9C84EF
+                color=0x9C84EF,
             )
         )
         try:
@@ -39,22 +38,20 @@ class YoutubeSummaryCog(commands.Cog):
 
             # Create and configure chain
             chain = load_summarize_chain(llm=self.llm, chain_type="map_reduce", verbose=True)
-#             chain.llm_chain.prompt.template = \
-#             """### Instruction:
-# Write a 1-3 paragraph summary the following:
-# "{text}"
-# ### Response:
-# 1-3 PARAGRAPH SUMMARY:"""
+            #             chain.llm_chain.prompt.template = \
+            #             """### Instruction:
+            # Write a 1-3 paragraph summary the following:
+            # "{text}"
+            # ### Response:
+            # 1-3 PARAGRAPH SUMMARY:"""
 
             # Run the chain and get summary
             summary = chain.run(texts)
 
-
-
-            await interaction.followup.send(f'Summary:\n{summary}')
+            await interaction.followup.send(f"Summary:\n{summary}")
 
         except Exception as e:
-            await interaction.channel.send(f'Sorry, an error occurred: {str(e)}')
+            await interaction.channel.send(f"Sorry, an error occurred: {str(e)}")
 
 
 async def setup(bot):
