@@ -1,5 +1,6 @@
 # NOTE: The comment below tells vscode to use the json schema for this file.
 #:schema hack/jsonschema/pyproject.json
+# SOURCE: https://github.com/pylint-dev/pylint/blob/df5533f7d2d7bbe5092ddbbfb213c561fd263a64/examples/pyproject.toml#L24
 
 [project]
 name = "goob-ai"
@@ -166,6 +167,8 @@ dev-dependencies = [
     "validate-pyproject[all,store]>=0.16",
     "pylint-per-file-ignores>=1.3.2",
     "pylint>=3.1.0",
+    "loguru-mypy>=0.0.4",
+    "docformatter[tomli]>=1.7.5",
 ]
 
 [tool.rye.scripts]
@@ -195,6 +198,20 @@ allow-direct-references = true
 packages = ["src/goob_ai"]
 
 [tool.coverage.report]
+exclude_lines = [
+    "@(abc.)?abstractmethod",
+    "@overload",
+    "def __repr__",
+    "def __str__",
+    "if __name__ == .__main__.:",
+    "if self.debug",
+    "if settings.DEBUG",
+    "if TYPE_CHECKING",
+    "pragma: no cover",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "return NotImplemented",
+]
 omit = [
     "test/*",
     "tests/*",
@@ -299,12 +316,23 @@ enable_error_code = [
 ]
 
 # The following list of codes are globally ignored, do not add to this list
+no_implicit_optional = true
 disable_error_code = [
     # annotation-unchecked are 'warning notes', not errors and won't cause mypy to fail
     # but it does create a lot of noise in the CI mypy step.
     # https://mypy-lang.blogspot.com/2022/11/mypy-0990-released.html
-    'annotation-unchecked',
-    'import-untyped',
+    "import-untyped",
+    "annotation-unchecked",
+    "assignment",
+    "attr-defined",
+    "call-arg",
+    "has-type",
+    "import",
+    "misc",
+    "name-defined",
+    "operator",
+    "type-var",
+    "var-annotated",
 ]
 
 follow_imports = "silent"
@@ -341,7 +369,7 @@ no_implicit_reexport = true
 
 # Ignores all non-fatal errors.
 ignore_errors = true
-warn_untyped_fields = true
+# warn_untyped_fields = true
 
 # ===========================[ MYPY OVERRIDES ]========================
 [[tool.mypy.overrides]]
@@ -352,50 +380,77 @@ module = "tests.*"
 [[tool.mypy.overrides]]
 check_untyped_defs = true
 ignore_missing_imports = true
-module = "invoke.*"
+module = "src.*"
 
 [[tool.mypy.overrides]]
 module = [
+    "_pytest.*",
+    "_string",
+    "absl.*",
+    "albumentations.*",
+    "asr_python.*",
+    "astroid.*",
     "boto3.*",
     "botocore.*",
-    "asr_python.*",
-    "absl.*",
     "colorama.*",
-    "importlib_metadata.*",
-    "IPython.*",
-    "numpy.*",
-    "opt_einsum.*",
-    "scipy.*",
-    "libtpu.*",
-    "jaxlib.mlir.*",
-    "iree.*",
-    "rich.*",
-    "optax.*",
+    "colorama",
+    "contributors_txt",
+    "coverage",
+    "cv2.*",
+    "dill",
+    "enchant.*",
+    "etils.*",
     "flatbuffers.*",
     "flax.*",
-    "tensorflow.*",
-    "tensorflowjs.*",
-    "tensorflow.io.*",
-    "tensorstore.*",
-    "web_pdb.*",
-    "etils.*",
+    "git.*",
     "google.colab.*",
-    "pygments.*",
-    "jraph.*",
-    "matplotlib.*",
-    "tensorboard_plugin_profile.convert.*",
-    "jaxlib.*",
-    "pytest.*",
-    "zstandard.*",
-    "jax.experimental.jax2tf.tests.flax_models",
+    "importlib_metadata.*",
+    "invoke.*",
+    "IPython.*",
+    "iree.*",
     "jax.experimental.jax2tf.tests.back_compat_testdata",
+    "jax.experimental.jax2tf.tests.flax_models",
+    "jaxlib.*",
+    "jaxlib.mlir.*",
+    "jraph.*",
+    "libtpu.*",
+    "matplotlib.*",
+    "mccabe",
+    "multiprocessing.*",
+    "numpy.*",
+    "opt_einsum.*",
+    "optax.*",
+    "pl_bolts.*",
+    "pssh.*",
+    "pygments.*",
+    "pytest_benchmark.*",
+    "pytest.*",
+    "pytest",
+    "rich.*",
+    "robustness.*",
+    "scipy.*",
+    "seaborn",
     "setuptools.*",
+    "skimage.*",
+    "sklearn.*",
+    "sphinx.*",
+    "tensorboard_plugin_profile.convert.*",
+    "tensorboard.*",
+    "tensorflow.*",
+    "tensorflow.io.*",
+    "tensorflowjs.*",
+    "tensorstore.*",
+    "timm.*",
+    "torch.*",
+    "torchvision.*",
+    "usort.*",
+    "uvloop.*",
+    "web_pdb.*",
+    "wilds.*",
+    "zstandard.*",
 ]
 ignore_missing_imports = true
 
-[[tool.mypy.overrides]]
-module = ["colorama.*", "uvloop.*"]
-ignore_missing_imports = true
 
 # ===========================[ RUFF ]========================
 # SOURCE: https://docs.astral.sh/ruff/settings/#tab-size
@@ -605,6 +660,10 @@ ignore = [
     "PLE1142", # await-outside-async	await should be used within an async function
 ]
 
+# SOURCE: https://github.com/google/jax/blob/a1c82219e2d23ec994e42761ebcaf4c53d9e4ea7/pyproject.toml#L159C1-L160C20
+[tool.ruff.lint.mccabe]
+max-complexity = 18
+
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401"]
 
@@ -693,6 +752,41 @@ docstring-code-line-length = "dynamic"
 max-doc-length = 120
 
 # ===========================[ PYLINT ]========================
+# Configuration for the pylint
+#
+# Usage:
+#   pylint --rcfile=<path/to/this/config/file> <path/to/file/to/check>
+#   pylint --rcfile=<path/to/this/config/file> <path/to/directory/to/check>
+#   pylint --rcfile=<path/to/this/config/file> <path/to/directory/to/check>/*.py
+#   pylint --rcfile=<path/to/this/config/file> <path/to/directory/to/check>/**/*.py
+#
+# VSCode (settings.json):
+#   "pylint.args": [
+#       "--rcfile", "<path/to/this/file>"
+#   ]
+
+# Sections:
+#   - [tool.pylint.main]
+#      Main configuration, load plugins
+#   - [tool.pylint.master]
+#      Allow list of modules
+#   - [tool.pylint.design]
+#      Code design (complexity)
+#   - [tool.pylint.typecheck]
+#      Type checking
+#   - [tool.pylint.basic]
+#      Naming conventions
+#   - [tool.pylint.code_style]
+#      Code style
+#   - [tool.pylint.spelling]
+#      Spell checker
+#      (Not working) - Alternates to use: code spell checker (VSCode extension)
+#   - [tool.pylint.similarities]
+#     Detects duplicated code
+#   - [tool.pylint.formatting]
+#      Code formatting, Code complexity, Code quality
+#   - [tool.pylint.messages_control]
+#      Enable/Disable messages
 [tool.pylint.MAIN]
 extension-pkg-allow-list = [
     "torch",
@@ -700,6 +794,7 @@ extension-pkg-allow-list = [
     "orjson",
     "cv2",
 ]
+extension-pkg-whitelist = ["pydantic", "torch", "numpy", "orjson", "cv2"]
 py-version = "3.10"
 # Use a conservative default here; 2 should speed up most setups and not hurt
 # any too bad. Override on command line as appropriate.
@@ -710,8 +805,79 @@ load-plugins = [
     "pylint.extensions.typing",
     "pylint.extensions.no_self_use",
     "pylint_per_file_ignores",
+    # "pylint.extensions.bad_builtin",
+    # "pylint.extensions.broad_try_clause",
+    # "pylint.extensions.check_elif",
+    # "pylint.extensions.code_style",
+    # "pylint.extensions.consider_ternary_expression",
+    # "pylint.extensions.docparams",
+    # "pylint.extensions.docstyle",
+    # "pylint.extensions.dunder",
+    # "pylint.extensions.empty_comment",
+    # "pylint.extensions.emptystring",
+    # "pylint.extensions.mccabe",
+    # "pylint.extensions.no_self_use",
+    # "pylint.extensions.overlapping_exceptions",
+    # "pylint.extensions.redefined_variable_type",
 ]
 persistent = false
+# ignore = "lib"
+ignore-paths = [
+    ".venv",       # Virtual Environment
+    "^.*.pyi$",    # Type Hinting
+    "^.*_prv_.*$", # Private Files/Folders (e.g. _prv_*.py | _prv_* folder)
+    "lib",         # External Libraries
+]
+# init-hook = "import sys; sys.path.append('.'); sys.path.append('./src');"
+# https://pylint.pycqa.org/en/v2.13.9/technical_reference/c_extensions.html
+# Pylint and C extensions
+# If you are getting the dreaded no-member error, there is a possibility that either pylint found a bug in your code or that it actually tries to lint a C extension module.
+
+# Linting C extension modules is not supported out of the box, especially since pylint has no way to get an AST object out of the extension module.
+
+# But pylint actually has a mechanism which you might use in case you want to analyze C extensions. pylint has a flag, called extension-pkg-allow-list (formerly extension-pkg-whitelist), through which you can tell it to import that module and to build an AST from that imported module:
+# extension-pkg-allow-list = "pydantic, torch, numpy, orjson, cv2"
+# extension-pkg-whitelist = "pydantic, torch, numpy, orjson, cv2"
+
+
+# SOURCE: https://github.com/ocellicode/gpyt-commandbus/blob/80172644b35af7b4679ace734bea1c5ea2212a52/pyproject.toml#L21
+[tool.pylint.exceptions]
+overgeneral-exceptions = ["builtins.BaseException", "builtins.Exception"]
+
+# # Think about enabling this
+# # SOURCE: https://github.com/ocellicode/gpyt-commandbus/blob/80172644b35af7b4679ace734bea1c5ea2212a52/pyproject.toml#L21
+# [tool.pylint.classes]
+# defining-attr-methods = [
+#     "__init__",
+#     "__new__",
+#     "setUp",
+#     "asyncSetUp",
+#     "__post_init__",
+# ]
+# exclude-protected = [
+#     "_asdict",
+#     "_fields",
+#     "_replace",
+#     "_source",
+#     "_make",
+#     "os._exit",
+# ]
+# valid-classmethod-first-arg = ["cls"]
+# valid-metaclass-classmethod-first-arg = ["mcs"]
+
+# # Think about enabling this
+# # SOURCE: https://github.com/ocellicode/gpyt-commandbus/blob/80172644b35af7b4679ace734bea1c5ea2212a52/pyproject.toml#L21
+# [tool.pylint.design]
+# max-args = 5
+# max-attributes = 7
+# max-bool-expr = 5
+# max-branches = 12
+# max-locals = 15
+# max-parents = 7
+# max-public-methods = 20
+# max-returns = 6
+# max-statements = 50
+# min-public-methods = 2
 
 
 [tool.pylint.BASIC]
@@ -739,8 +905,15 @@ extension-pkg-whitelist = "pydantic"
 # consider-using-namedtuple-or-dataclass - too opinionated
 # consider-using-assignment-expr - decision to use := better left to devs
 disable = [
+    "raw-checker-failed",
+    "bad-inline-option",
+    "file-ignored",
+    "suppressed-message",
+    "deprecated-pragma",
+    "use-implicit-booleaness-not-comparison-to-string",
+    "use-implicit-booleaness-not-comparison-to-zero",
     "fixme",
-    "line-too-long",                          # formatting done by Black
+    "line-too-long",                                    # formatting done by Black
     "missing-class-docstring",
     "missing-function-docstring",
     "missing-module-docstring",
@@ -981,8 +1154,18 @@ disable = [
     "wrong-exception-operation",
 ]
 enable = [
-    #"useless-suppression",  # temporarily every now and then to clean them up
+    # "useless-suppression",          # temporarily every now and then to clean them up
     "use-symbolic-message-instead",
+    # "c-extension-no-member",
+
+    # # pylint.extensions.docstyle
+    # "missing-class-docstring",
+    # "missing-docstring",
+    # "missing-function-docstring",
+    # "missing-module-docstring",
+
+    # # pylint.extensions.typing
+    # "deprecated-typing-alias",
 ]
 
 [tool.pylint.REPORTS]
@@ -1002,8 +1185,11 @@ mixin-class-rgx = ".*[Mm]ix[Ii]n"
 [tool.pylint.FORMAT]
 expected-line-ending-format = "LF"
 
-[tool.pylint.TYPING]
-runtime-typing = false
+# [tool.pylint.TYPING]
+# runtime-typing = false
+# Set to ``no`` if the app / library does **NOT* need to support runtime introspection of type annotations. If you use type annotations exclusively for type checking of an application, you're probably fine. For libraries, evaluate if some users want to access the type hints at runtime first, e.g., through typing.get_type_hints. Applies to Python versions 3.7 - 3.9*
+# [tool.pylint.TYPING]
+# runtime-typing = false
 
 [tool.pylint.CODE_STYLE]
 # Max line length for which to sill emit suggestions.
@@ -1017,15 +1203,17 @@ logging-format-style = "new"
 
 logging-modules = ["logging", "loguru"]
 
+[tool.pylint.similarities]
+ignore-comments = true
+ignore-docstrings = true
+ignore-imports = false
+min-similarity-lines = 5
+
+# NOTE: see https://github.com/Ruzzy77/python-template/blob/57c8964f1efb2635d0bdca5684613a8d8736aed0/pyrightconfig.json
 [tool.pyright]
 include = [
     "src",
     "tests",
-    "discord/types",
-    "discord/ui",
-    "discord/ext",
-    "discord/ext/commands",
-    "discord/ext/tasks",
 ]
 exclude = [
     "**/__pycache__",
@@ -1033,9 +1221,52 @@ exclude = [
     "dist",
     "docs",
 ]
+defineConstant = {DEBUG = true}
+stubPath = "./typings"
+# https://github.com/microsoft/pyright/blob/main/docs/configuration.md#reportGeneralTypeIssues
 reportUnnecessaryTypeIgnoreComment = "warning"
 reportUnusedImport = "none"
 pythonVersion = "3.10"
-typeCheckingMode = "basic"
-# pythonPlatform = "All"
+verboseOutput = true
+reportUnnecessaryCast = true
+# typeCheckingMode = "basic"
+typeCheckingMode = "standard"
 reportMissingTypeStubs = "none"
+reportMissingImports = "error"
+reportImportCycles = "error"
+reportUnusedVariable = "none"
+reportUnknownMemberType = "none"
+reportUnusedFunction = "warning"
+reportUnusedClass = "warning"
+reportReturnType = "warning"
+# [boolean or string, optional]: Generate or suppress diagnostics for general type inconsistencies, unsupported operations, argument/parameter mismatches, etc. This covers all of the basic type-checking rules not covered by other rules. It does not include syntax errors. The default value for this setting is "error".
+reportGeneralTypeIssues = "none"
+reportArgumentType = "none"
+reportAttributeAccessIssue = "none"
+
+# SOURCE: https://github.com/Ruzzy77/python-template/blob/57c8964f1efb2635d0bdca5684613a8d8736aed0/pyproject.toml#L168C1-L189C2
+################################################################################
+# Docformatter Configuration
+# (docformatter doesn't support custom config file names)
+# [tool.docformatter]
+# black             = true
+# blank             = true
+# recursive         = true
+# style             = "google"
+# wrap-descriptions = 80
+# wrap-summaries    = 80       # 0: disable wrapping
+
+# # make_summary_multiline = false
+# # pre_summary_newline    = false
+# # pre_summary_space      = false
+
+# exclude = [
+#     ".venv",
+#     "build",
+#     "dist",
+#     "docs",
+#     "examples",
+#     "notebooks",
+#     "sample*",
+#     "test*",
+# ]
