@@ -74,3 +74,13 @@ local-open-coverage:
 
 pdm-info:
 	pdm info && pdm info --env
+
+# via: https://github.com/chipxsd/ormpoc/tree/237a76cf047582c23815888579a5c6a522f85544
+# pdm bootstrap
+bootstap:
+	pdm install
+	pdm use
+	pdm run main
+
+pdm-plugins:
+	pdm self add pdm-readiness

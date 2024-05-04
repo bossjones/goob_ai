@@ -13,6 +13,11 @@ classifiers = [
     "License :: OSI Approved :: Apache Software License",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
 ]
 keywords = [
     "python",
@@ -41,7 +46,7 @@ dependencies = [
     "langchain==0.1.16",
     "openai==1.10.0",
     "pydantic-settings==2.1.0",
-    "pydantic[dotenv,email]>=2.6.1",
+    "pydantic[dotenv,email]>=1.7.4,!=1.8,!=1.8.1,!=2.0.0,!=2.0.1,!=2.1.0,<3.0.0",
     "pypdf==4.0.1",
     "python-docx==1.1.0",
     "python-dotenv==1.0.1",
@@ -55,10 +60,8 @@ dependencies = [
     "aiofile>=3.8.8",
     "aiofiles>=23.2.1",
     "aiohttp>=3.9.5",
-    "aiohttp-json-rpc>=0.13.3",
     "aiomonitor>=0.7.0",
     "aioprometheus[starlette]>=23.12.0",
-    "aioreactive>=0.18.0",
     "aiosql>=10.1",
     "aiosqlite>=0.20.0",
     "attrs>=23.2.0",
@@ -66,23 +69,19 @@ dependencies = [
     "click-spinner>=0.1.10",
     "codetiming>=1.4.0",
     "discord-py>=2.3.2",
-    "dropbox>=11.36.2",
     "factory-boy>=3.3.0",
     "faker>=25.0.1",
     "fonttools[woff]>=4.51.0",
-    "fuzzywuzzy[speedup]>=0.18.0",
     "gallery-dl>=1.26.9",
     "google-auth>=2.29.0",
     "google-auth-oauthlib>=1.2.0",
     "gutter>=0.5.0",
-    "html5lib>=1.1",
     "imageio>=2.34.1",
     "imutils>=0.5.4",
     "logging-tree>=1.9",
     "loguru>=0.7.2",
     "lxml>=5.2.1",
     "markdown>=3.6",
-    "markdownify>=0.12.1",
     "matplotlib>=3.8.4",
     "md2pdf>=1.0.1",
     "memory-profiler>=0.61.0",
@@ -109,19 +108,16 @@ dependencies = [
     "soupsieve>=2.5",
     "streamlit>=1.34.0",
     "telnetlib3>=2.0.4",
-    "tomli>=2.0.1",
     "tqdm>=4.66.4",
     "transformers>=4.40.1",
     "typer>=0.12.3",
-    "Unidecode>=1.3.8",
     "uritemplate>=4.1.1",
     "uritools>=4.0.2",
     "validators>=0.28.1",
     "watchdog[watchmedo]>=4.0.0",
     "webcolors>=1.13",
     "websockets>=12.0",
-    "youtube-dl>=2021.12.17",
-    "yt-dlp>=2024.4.9",
+    "yt-dlp",
     "docutils>=0.21.2",
     "pyinvoke>=1.0.4",
     "pathlib-mate>=1.3.2",
@@ -132,12 +128,17 @@ dependencies = [
     "chromadb>=0.5.0",
     "duckduckgo-search>=5.3.0",
     "wikipedia>=1.4.0",
-    "youtube-transcript-api>=0.6.2",
     "pandas>=2.2.2",
 ]
-requires-python = ">=3.12"
+requires-python = ">=3.9,<3.11"
 readme = "README.md"
 license = {text = "MIT"}
+
+[project.urls]
+Homepage = "https://github.com/bossjones/goob_ai"
+Documentation = "https://goob_ai.bossjones.com/"
+Repository = "https://github.com/bossjones/goob_ai"
+
 
 [build-system]
 requires = ["pdm-backend"]
@@ -145,7 +146,15 @@ build-backend = "pdm.backend"
 
 
 [tool.pdm]
-distribution = false
+distribution = true
+# package-dir = "src"
+plugins = [
+    "pdm-multirun",
+    "pdm-plugin-torch",
+    "pdm-readiness"
+]
+
+
 
 
 [tool.pdm.dev-dependencies]
@@ -194,14 +203,23 @@ test = [
     "validate-pyproject[all,store]>=0.16",
     "pylint-per-file-ignores>=1.3.2",
 ]
-# "testvalidate-pyproject[all,store]==0.16" = []
 
-# [tool.pdm.package-dir]
-# goob_ai = "src/goob_ai"
+[tool.pdm.python]
+use_venv = true
 
+[tool.pdm.venv]
+in_project = true
+
+# SOURCE: https://github.com/pdm-project/pdm-backend/blob/9915cb686a46016528a1293acc803634e5f3553a/pyproject.toml#L10
+# SOURCE: includes = ["src/lacia"]
 [tool.pdm.build]
-package-dir = "src"
+# package-dir = "src"
 editable-backend = "editables"
+# includes = ["src/"]
+
+includes = ["src"]
+package-dir = "src"
+source-includes = ["tests"]
 
 [tool.pdm.version]
 source = "file"
@@ -210,7 +228,7 @@ path = "src/goob_ai/__version__.py"
 [tool.pdm.scripts]
 whoami = { shell = "echo `{pdm} -V` was called as '{pdm} -V'" }
 mypy-missing = "mypy --install-types"
-clean = "invoke ci.clean -vvv"
+clean = "inv ci.clean -vvv"
 
 [tool.coverage.report]
 omit = [
@@ -284,7 +302,7 @@ source = [
 # ===========================[ BLACK ]========================
 [tool.black]
 line-length = 120
-target-version = ["py311", "py312"]
+target-version = ["py39","py310","py311", "py312"]
 
 
 # ===========================[ MYPY ]========================
@@ -420,7 +438,7 @@ extend-exclude = [
 # https://docs.astral.sh/ruff/settings/#indent-width
 # The formatter wraps lines at a length of 88
 line-length = 120
-target-version = "py312"
+target-version = "py310"
 
 
 # ===========================[ RUFF lint ]========================
@@ -671,7 +689,7 @@ max-doc-length = 120
 
 # ===========================[ PYLINT ]========================
 [tool.pylint.MAIN]
-py-version = "3.12.*"
+py-version = "3.10.*"
 # Use a conservative default here; 2 should speed up most setups and not hurt
 # any too bad. Override on command line as appropriate.
 jobs = 0
