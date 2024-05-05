@@ -1,10 +1,11 @@
 # SOURCE: https://github.com/openai/openai-python/blob/aed1e43745cd6358b4bafd3a39b3dfeee5e31a03/.github/workflows/ci.yml
 name: CI
-on:
-  push:
-    branches:
-      - main
-  pull_request:
+# on:
+#   push:
+#     branches:
+#       - main
+#   pull_request:
+on: [push, pull_request]
 
 jobs:
   lint:
@@ -41,7 +42,7 @@ jobs:
           RYE_INSTALL_OPTION: '--yes'
 
 
-      - name: lint
+      - name: Run tests and collect coverage
         run: |
           cp -f env.sample .env
           rye config --set-bool behavior.use-uv=true
@@ -49,33 +50,6 @@ jobs:
           rye run lint
           # rye run typecheck
           rye run python -c 'import goob_ai'
-
-  test:
-    name: test
-    runs-on: ubuntu-latest
-    if: github.repository == 'bossjones/goob_ai'
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
-
-      - name: Install Rye
-        run: |
-          curl -sSf https://rye-up.com/get | bash
-          echo "$HOME/.rye/shims" >> $GITHUB_PATH
-        env:
-          RYE_VERSION: 0.33.0
-          RYE_INSTALL_OPTION: '--yes'
-
-      - name: Bootstrap
-        run: |
-          cp -f env.sample .env
-          rye config --set-bool behavior.use-uv=true
-          ./scripts/retry -t 4  -- rye sync
           rye run test
 
       - name: Upload coverage reports to Codecov
@@ -83,5 +57,6 @@ jobs:
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           verbose: true
+          flags: smart-tests
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
