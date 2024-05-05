@@ -172,5 +172,10 @@ def main():
     load_commands()
 
 
+def entry():
+    """Required entry point to enable hydra to work as a console_script."""
+    main()  # pylint: disable=E1120
+
+
 if __name__ == "__main__":
     APP()

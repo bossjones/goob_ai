@@ -1,0 +1,84 @@
+# SOURCE: https://github.com/openai/openai-python/blob/aed1e43745cd6358b4bafd3a39b3dfeee5e31a03/.github/workflows/ci.yml
+name: CI
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  lint:
+    strategy:
+        matrix:
+          setup:
+          - os: ubuntu-22.04
+            script_arguments: ''
+            python-version: ['3.10']
+    name: lint
+    runs-on: ${{ matrix.setup.os }}
+    if: github.repository == 'bossjones/goob_ai'
+
+    steps:
+
+      - name: Set up Git repository
+        # uses: actions/checkout@main
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      # - name: Set up Git repository
+      #   uses: actions/checkout@main
+
+      - name: Install Rye
+        run: |
+          curl -sSf https://rye-up.com/get | bash
+          echo "$HOME/.rye/shims" >> $GITHUB_PATH
+        env:
+          RYE_VERSION: 0.33.0
+          RYE_INSTALL_OPTION: '--yes'
+
+      - name: Bootstrap
+        run: |
+          rye config --set-bool behavior.use-uv=true
+
+      - name: Install dependencies
+        run: |
+          ./scripts/retry -t 4  -- rye sync --all-features
+
+      - name: Run lint
+        run: |
+          rye run lint
+
+      - name: Run type checking
+        run: |
+          rye run typecheck
+
+      - name: Ensure importable
+        run: |
+          rye run python -c 'import goob_ai'
+  test:
+    name: test
+    runs-on: ubuntu-latest
+    if: github.repository == 'bossjones/goob_ai'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rye
+        run: |
+          curl -sSf https://rye-up.com/get | bash
+          echo "$HOME/.rye/shims" >> $GITHUB_PATH
+        env:
+          RYE_VERSION: 0.33.0
+          RYE_INSTALL_OPTION: '--yes'
+
+      - name: Bootstrap
+        run: |
+          rye config --set-bool behavior.use-uv=true
+          ./scripts/retry -t 4  -- rye sync
+
+      - name: Run tests
+        run: rye run unittests

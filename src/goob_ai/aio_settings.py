@@ -1,9 +1,6 @@
 """aio_settings"""
-
 # pylint: disable=no-name-in-module
-# type: ignore[call-arg]
-# type: ignore[attr-defined]
-# type: ignore[pydantic-field]
+
 from __future__ import annotations
 
 from typing import Any, Callable, List, cast

@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """goob_ai.bot"""
 
 from __future__ import annotations
@@ -28,8 +27,6 @@ from goob_ai import db, helpers, shell, utils
 from goob_ai.aio_settings import aiosettings
 from goob_ai.bot_logger import get_logger, intercept_all_loggers
 from goob_ai.factories import guild_factory
-
-# from goob_ai.web import GoobBotMetricsApi
 
 HERE = os.path.dirname(__file__)
 
@@ -352,73 +349,7 @@ def extensions():
         yield file.as_posix()[:-3].replace("/", ".")
 
 
-# _bot: "GoobBot", message: discord.message.Message
-
-
-# def load_extensions(_bot: "GoobBot") -> None:
-#     """_summary_
-
-#     Args:
-#         _bot (GoobBot): _description_
-#     """
-#     for ext in extensions():
-#         try:
-#             _bot.load_extension(ext)
-#         except Exception as ex:
-#             print(f"Failed to load extension {ext} - exception: {ex}")
-#             exc_type, exc_value, exc_traceback = sys.exc_info()
-#             LOGGER.error(f"Error Class: {str(ex.__class__)}")
-#             output = f"[UNEXPECTED] {type(ex).__name__}: {ex}"
-#             LOGGER.warning(output)
-#             LOGGER.error(f"exc_type: {exc_type}")
-#             LOGGER.error(f"exc_value: {exc_value}")
-#             traceback.print_tb(exc_traceback)
-#             raise
-
-
 if __name__ == "__main__":
-    # GoobBot = GoobBot()
-    # # goob_ai/bot.py:528:4: E0237: Assigning to attribute 'members' not defined in class slots (assigning-non-slot)
-    # GoobBot.intents.members = True  # pylint: disable=assigning-non-slot
-    # # NOTE: https://github.com/makupi/cookiecutter-discord.py-postgres/blob/master/%7B%7Bcookiecutter.bot_slug%7D%7D/bot/__init__.py
-    # GoobBot.version = goob_ai.__version__
-    # GoobBot.guild_data = {}
-    # # load_extensions(GoobBot)
-    # # GoobBot.add_command(echo)
-    # # import bpdb; bpdb.set_trace()
-    # _cog = GoobBot.get_cog("Utility")
-    # utility_commands = _cog.get_commands()
-    # print([c.name for c in utility_commands])
-    # # print([c.name for c in commands])
-
-    # # it is possible to pass a dictionary with local variables
-    # # to the python console environment
-    # host, port = "localhost", 50101
-    # locals_ = {"port": port, "host": host}
-    # # init monitor just before run_app
-
-    # # intents = discord.Intents.default()
-    # # intents.members = True
-    # # DiscordBackend.client = discord.Client(intents=intents)
-
-    # # import rich
-    # # # cli.CLI()
-    # # temp_runner = CliRunner()
-    # # result: ClickResult
-    # # result = temp_runner.invoke(cli.CLI, ["dump-context"])
-    # # rich.print("Lets see if that populated the CTX cached value we need")
-    # # rich.print(cli.CACHE_CTX)
-    # # # rich.print(result)
-    # # import bpdb
-    # # bpdb.set_trace()
-
-    # aiodebug_log_slow_callbacks.enable(0.05)
-
-    # with aiomonitor.start_monitor(loop=GoobBot.loop, locals=locals_):
-    #     # TEMPCHANGE: GoobBot.run(DISCORD_TOKEN)
-    #     # TEMPCHANGE: replacing DISCORD_TOKEN with aiosettings.discord_token
-    #     GoobBot.run(aiosettings.discord_token)
-
     intents = discord.Intents.default()
     intents.message_content = True
 

@@ -13,17 +13,6 @@ from goob_ai.bot_logger import get_logger
 LOGGER = get_logger(__name__, provider="Debugger", level=logging.DEBUG)
 
 
-# def init_debugger():
-#     import sys
-
-#     from IPython.core import ultratb
-#     from IPython.core.debugger import Tracer  # noqa
-
-#     sys.excepthook = ultratb.FormattedTB(
-#         mode="Verbose", color_scheme="Linux", call_pdb=True, ostream=sys.__stdout__
-#     )
-
-
 # source: http://blender.stackexchange.com/questions/1879/is-it-possible-to-dump-an-objects-properties-and-methods
 def debug_dump(obj):
     for attr in dir(obj):
