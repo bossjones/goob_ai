@@ -13,6 +13,7 @@ import re
 
 from goob_ai.utils.misc import formatdoc
 
+
 sep = " "
 start = 1
 

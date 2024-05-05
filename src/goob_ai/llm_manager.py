@@ -1,18 +1,13 @@
 from __future__ import annotations
+
 import logging
 
+from langchain.schema.runnable import ConfigurableField, Runnable, RunnableBranch, RunnableLambda, RunnableMap
 from langchain_openai import ChatOpenAI
-from langchain.schema.runnable import (
-    ConfigurableField,
-    Runnable,
-    RunnableBranch,
-    RunnableLambda,
-    RunnableMap,
-)
-from goob_ai.aio_settings import aiosettings
+from loguru import logger as LOGGER
 from pydantic import BaseModel
 
-from loguru import logger as LOGGER
+from goob_ai.aio_settings import aiosettings
 
 
 class LlmManager(BaseModel):

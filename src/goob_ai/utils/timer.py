@@ -1,7 +1,9 @@
 """Utility class for simple Timer and TimerCollection classes."""
 
 from __future__ import annotations
+
 import time
+
 from typing import Dict, Optional
 
 

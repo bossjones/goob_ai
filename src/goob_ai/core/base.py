@@ -1,10 +1,10 @@
 """MltemplateBase class. Provides unified configuration, logging and context management."""
 
 from __future__ import annotations
+
 import logging
 
 # from mltemplate import Config
-
 from goob_ai import aio_settings
 
 

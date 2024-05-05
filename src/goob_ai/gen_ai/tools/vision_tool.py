@@ -1,33 +1,29 @@
 from __future__ import annotations
-import logging
-from typing import ClassVar
-import uuid
-import sys
-from langchain.pydantic_v1 import BaseModel, Field
-from langchain.tools import BaseTool
-from langchain_core.tools import ToolException
-from typing import Dict, Optional, Type
-from typing import ClassVar
-import logging
+
 import base64
 import logging
 import re
+import sys
+import uuid
 
+from typing import ClassVar, Dict, Optional, Type
 
 import requests
+
+
 # from clients.http_client import HttpClient
 # from config import FlexChecksSettings
-
-from langchain.callbacks.manager import (
-    AsyncCallbackManagerForToolRun,
-    CallbackManagerForToolRun,
-)
-from goob_ai.llm_manager import VisionModel
+from langchain.callbacks.manager import AsyncCallbackManagerForToolRun, CallbackManagerForToolRun
+from langchain.pydantic_v1 import BaseModel, Field
+from langchain.tools import BaseTool
+from langchain_core.tools import ToolException
 
 # LOGGER = logging.getLogger(__name__)
 from loguru import logger as LOGGER
+
 from goob_ai.aio_settings import aiosettings
 from goob_ai.clients.http_client import HttpClient
+from goob_ai.llm_manager import VisionModel
 
 
 class VisionToolInput(BaseModel):

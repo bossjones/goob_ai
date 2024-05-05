@@ -4,80 +4,43 @@
 # SOURCE: https://github.com/tiangolo/typer/issues/88#issuecomment-1732469681
 from __future__ import annotations
 
-import json
-import sys
-from importlib import import_module, metadata
-import subprocess
-import os
-
-from pathlib import Path
+import asyncio
 import inspect
+import json
+import logging
+import os
+import subprocess
+import sys
+
 from functools import partial, wraps
+from importlib import import_module, metadata
+from pathlib import Path
+from typing import Any, Awaitable, Callable, Dict, Iterable, List, Optional, Pattern, Sequence, Set, Tuple, Type, Union
 
 import anyio
 import asyncer
-import typer
-from typer import Typer
-import asyncio
-import logging
-from typing import (
-    Any,
-    Awaitable,
-    Callable,
-    Iterable,
-    List,
-    Optional,
-    Pattern,
-    Set,
-    Tuple,
-    Type,
-    Union,
-)
-
 import discord
-
-import rich
-from rich.pretty import pprint
-import typer
-
-import goob_ai
-from goob_ai import settings_validator
-from goob_ai.aio_settings import aiosettings, get_rich_console
-from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple, Type, Union
-from goob_ai.goob_bot import AsyncGoobBot
-
-from goob_ai.bot_logger import get_logger
-
-from typing import Any, Dict, Optional, Tuple
-
 import rich
 import typer
-from rich.console import Console
-from rich.table import Table
-from typing_extensions import Annotated
 
 from loguru import logger
-
-import json
-import logging
-import sys
-
-import typer
 from rich import print, print_json
-
-from goob_ai.asynctyper import AsyncTyper
-from typing import Any, Dict, Optional, Tuple
-
-import rich
-import typer
 from rich.console import Console
+from rich.pretty import pprint
 from rich.table import Table
+from typer import Typer
 from typing_extensions import Annotated
 
+import goob_ai
+
+from goob_ai import settings_validator
+from goob_ai.aio_settings import aiosettings, get_rich_console
+from goob_ai.asynctyper import AsyncTyper
 
 # LOGGER = get_logger(__name__, provider="CLI", level=logging.DEBUG)
-
 from goob_ai.bot_logger import get_logger, global_log_config
+from goob_ai.goob_bot import AsyncGoobBot
+
 
 global_log_config(
     log_level=logging.getLevelName("DEBUG"),

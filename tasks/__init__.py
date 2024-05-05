@@ -10,15 +10,11 @@ Show all tasks with::
 from __future__ import annotations
 
 import logging
-from invoke import Collection, Context, Config
-from invoke import task
-from .constants import ROOT_DIR, PROJECT_BIN_DIR, DATA_DIR, SCRIPT_DIR
 
-from . import local
+from invoke import Collection, Config, Context, task
 
-
-from . import ci
-from . import view
+from . import ci, local, view
+from .constants import DATA_DIR, PROJECT_BIN_DIR, ROOT_DIR, SCRIPT_DIR
 
 
 LOGGER = logging.getLogger()

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+
 BOTNAME = "Tensor"
 ALIASES = ["tensy", "Tensorsama"]
 

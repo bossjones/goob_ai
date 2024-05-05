@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import logging
 
+
 rootlogger = logging.getLogger()
 handler_logger = logging.getLogger("handler")
 
@@ -12,6 +13,7 @@ name_logger = logging.getLogger(__name__)
 asyncio_logger = logging.getLogger("asyncio").setLevel(logging.DEBUG)  # noqa
 
 from goob_ai.cli import main
+
 
 main()
 

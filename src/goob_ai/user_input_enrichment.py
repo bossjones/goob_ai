@@ -1,13 +1,13 @@
 from __future__ import annotations
+
 import json
 import logging
-
 
 from langchain.prompts import ChatPromptTemplate
 from langchain_core.runnables import RunnablePassthrough
 
-
 from goob_ai.llm_manager import LlmManager
+
 
 logger = logging.getLogger(__name__)
 

@@ -7,12 +7,15 @@ from __future__ import annotations
 
 import datetime
 import os
-from pathlib import PosixPath
 import posixpath
 import typing
 
+from pathlib import PosixPath
+
 from _pytest.monkeypatch import MonkeyPatch
+
 import pytest
+
 
 IS_RUNNING_ON_GITHUB_ACTIONS = bool(os.environ.get("GITHUB_ACTOR"))
 

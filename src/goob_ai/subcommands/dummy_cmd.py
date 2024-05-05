@@ -1,10 +1,13 @@
 """Generate dspy.Signatures"""
 
 from __future__ import annotations
-import typer
+
 import asyncio
 
+import typer
+
 from goob_ai.asynctyper import AsyncTyper
+
 
 # app = typer.Typer(help="dummy command")
 app = AsyncTyper(help="dummy command")

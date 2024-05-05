@@ -1,12 +1,15 @@
 from __future__ import annotations
+
 import json
 import os
+
 from typing import Callable, TypeVar
 
 from discord.ext import commands
 
 from goob_ai.exceptions import *
 from goob_ai.helpers import db_manager
+
 
 T = TypeVar("T")
 

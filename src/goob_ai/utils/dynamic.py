@@ -1,6 +1,7 @@
 """Utility methods relating to dynamically generating objects."""
 
 from __future__ import annotations
+
 import importlib
 
 

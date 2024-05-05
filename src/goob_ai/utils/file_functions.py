@@ -12,11 +12,14 @@ import os
 import pathlib
 import string
 import sys
+
 from typing import List, Tuple, Union
 
 import aiofiles
 import pandas as pd
 import rich
+
+from loguru import logger as LOGGER
 from rich.console import Console
 from rich.table import Table
 
@@ -32,7 +35,6 @@ from goob_ai.constants import (
     TWENTY_THOUSAND,
 )
 
-from loguru import logger as LOGGER
 
 PY2 = sys.version_info[0] == 2
 PY3 = sys.version_info[0] == 3

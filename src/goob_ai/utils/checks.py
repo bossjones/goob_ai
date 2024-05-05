@@ -1,6 +1,7 @@
 """Utility methods relating to general object checks."""
 
 from __future__ import annotations
+
 from typing import Any
 
 

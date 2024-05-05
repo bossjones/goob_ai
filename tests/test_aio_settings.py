@@ -1,13 +1,16 @@
 """test_settings"""
 
 from __future__ import annotations
-import os
-from pathlib import Path, PosixPath
 
-import pytest
+import os
+
+from pathlib import Path, PosixPath
 
 from goob_ai import aio_settings
 from goob_ai.utils.file_functions import tilda
+
+import pytest
+
 
 IS_RUNNING_ON_GITHUB_ACTIONS = bool(os.environ.get("GITHUB_ACTOR"))
 

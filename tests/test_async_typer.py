@@ -4,9 +4,10 @@ from __future__ import annotations
 
 import asyncio
 
+from goob_ai.asynctyper import AsyncTyper
+
 import pytest
 
-from goob_ai.asynctyper import AsyncTyper
 
 # SOURCE: https://github.com/blurry-dev/blurry/blob/6cd0541fd23659a615c7ce93d8212795c6d42a15/blurry/async_typer.py#L7
 # @pytest.mark.asyncio

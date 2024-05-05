@@ -1,17 +1,15 @@
 from __future__ import annotations
+
 import requests
-from requests import (
-    HTTPError,
-    RequestException,
-)
+
+from goob_ai.clients.http_client import HttpClient
+from requests import HTTPError, RequestException
 from requests_mock.mocker import Mocker
 from tenacity import RetryError
 
 # Pytest
 import pytest
 
-
-from goob_ai.clients.http_client import HttpClient
 
 # FIXME: Turn these into pytest fixtures going forward
 TEST_URL = "https://www.mydomainname.com"

@@ -1,8 +1,11 @@
 from __future__ import annotations
-import os
-import discord
-import aiosqlite
+
 import json
+import os
+
+import aiosqlite
+import discord
+
 
 DATABASE_PATH = f"{os.path.realpath(os.path.dirname(__file__))}/../database/database.db"
 MESSAGES_PATH = f"{os.path.realpath(os.path.dirname(__file__))}/../database/messages.db"

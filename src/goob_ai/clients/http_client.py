@@ -5,25 +5,20 @@ from __future__ import annotations
 import http.client as http_client
 import logging
 import sys
-from typing import (
-    Any,
-    Dict,
-)
 
+from typing import Any, Dict, Optional, Union
 
 import requests
 import tenacity
+
+from loguru import logger as LOGGER
 from pydantic import BaseModel
 from requests import Response
 from tenacity import retry_if_exception_type
 
-
-from typing import Dict, Any, Optional, Union
-
+from goob_ai.aio_settings import aiosettings
 from goob_ai.utils import retry
 
-from loguru import logger as LOGGER
-from goob_ai.aio_settings import aiosettings
 
 # from logging_utils import request_id_contextvar
 

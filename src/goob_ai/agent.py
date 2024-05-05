@@ -1,33 +1,31 @@
 from __future__ import annotations
-import logging
-from typing import Union, Any, List
 
+import logging
+
+from typing import Any, List, Union
 
 from boto3.session import Session as boto3_Session
 from langchain.agents import AgentExecutor
-from langchain.agents.agent import (
-    BaseMultiActionAgent,
-    BaseSingleActionAgent,
-)
+from langchain.agents.agent import BaseMultiActionAgent, BaseSingleActionAgent
 from langchain.agents.format_scratchpad.openai_tools import format_to_openai_tool_messages
 from langchain.agents.output_parsers.openai_tools import OpenAIToolsAgentOutputParser
 from langchain.callbacks.tracers import LoggingCallbackHandler
 from langchain.chains.conversation.memory import ConversationBufferWindowMemory
 from langchain.globals import set_debug
-from langchain.prompts import (
-    ChatPromptTemplate,
-    MessagesPlaceholder,
+from langchain.prompts import ChatPromptTemplate, MessagesPlaceholder
+from langchain_community.chat_message_histories import (
+    RedisChatMessageHistory,  # pyright: reportPrivateImportUsage=false
 )
-from langchain_community.chat_message_histories import RedisChatMessageHistory  # pyright: reportPrivateImportUsage=false
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.tools import BaseTool
 from langchain_core.utils.function_calling import convert_to_openai_tool
+from loguru import logger as LOGGER
 from pydantic import BaseModel
 from pydantic_settings import SettingsConfigDict
-from goob_ai.aio_settings import aiosettings, AioSettings
-from goob_ai.llm_manager import LlmManager
+
+from goob_ai.aio_settings import AioSettings, aiosettings
 from goob_ai.gen_ai.tools.vision_tool import VisionTool
-from loguru import logger as LOGGER
+from goob_ai.llm_manager import LlmManager
 
 
 class AiAgent(BaseModel):

@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
+from goob_ai.cli import APP
 from typer.testing import CliRunner
 
-from goob_ai.cli import APP
 
 runner = CliRunner()
 

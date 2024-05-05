@@ -2,16 +2,18 @@
 ci tasks
 """
 from __future__ import annotations
+
 import logging
 import sys
+
 from typing import Union
 
 import click
+
 from invoke import call, task
 
-from tasks.utils import get_compose_env
+from tasks.utils import COLOR_CAUTION, COLOR_SUCCESS, get_compose_env
 
-from tasks.utils import COLOR_CAUTION, COLOR_SUCCESS
 
 logger = logging.getLogger(__name__)
 logger.setLevel("DEBUG")

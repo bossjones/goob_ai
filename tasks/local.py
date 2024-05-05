@@ -2,22 +2,23 @@
 local tasks
 """
 from __future__ import annotations
+
 import logging
-from invoke import task, call
-from invoke.exceptions import Exit
 import pathlib
 
 # from sqlalchemy.engine.url import make_url
 import click
-from tasks.utils import get_compose_env
+import rich
+
+from invoke import call, task
+from invoke.exceptions import Exit
 
 # from goob_ai.utils import iops
 from tasks import iops
-from .utils import (
-    COLOR_SUCCESS,
-    COLOR_CAUTION,
-)
-import rich
+from tasks.utils import get_compose_env
+
+from .utils import COLOR_CAUTION, COLOR_SUCCESS
+
 
 logger = logging.getLogger(__name__)
 logger.setLevel("DEBUG")

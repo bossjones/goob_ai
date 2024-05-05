@@ -4,22 +4,13 @@ from __future__ import annotations
 
 # pyright: reportMissingImports=false, reportUnusedVariable=warning, reportUntypedBaseClass=error, reportGeneralTypeIssues=false
 import pathlib
+
 from types import TracebackType
-from typing import (
-    Any,
-    Callable,
-    Dict,
-    List,
-    Mapping,
-    NewType,
-    Sequence as Seq,
-    Tuple,
-    Type,
-    TypedDict,
-    Union,
-)
+from typing import Any, Callable, Dict, List, Mapping, NewType, Tuple, Type, TypedDict, Union
+from typing import Sequence as Seq
 
 import numpy as np
+
 
 # Human-readable type names.
 TYPES = {

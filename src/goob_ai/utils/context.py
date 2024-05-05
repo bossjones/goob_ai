@@ -1,19 +1,23 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Callable, Generic, Iterable, Protocol, TypeVar, Union, Optional
-from discord.ext import commands
 import asyncio
-import discord
 import io
+
+from typing import TYPE_CHECKING, Any, Callable, Generic, Iterable, Optional, Protocol, TypeVar, Union
+
+import discord
+
+from discord.ext import commands
 
 
 if TYPE_CHECKING:
-    from ..goob_bot import AsyncGoobBot
+    # from asyncpg import Pool, Connection
+    from types import TracebackType
+
     from aiohttp import ClientSession
     from redis.asyncio import ConnectionPool as RedisConnectionPool
 
-    # from asyncpg import Pool, Connection
-    from types import TracebackType
+    from ..goob_bot import AsyncGoobBot
 
 
 T = TypeVar("T")

@@ -5,34 +5,31 @@
 # pyright: reportOptionalIterable=false
 
 from __future__ import annotations
+
 import contextvars
-import logging
-from datetime import datetime
 import functools
 import gc
 import inspect
 import logging
-from logging import Logger, LogRecord
 import os
+import sys
+
+from datetime import datetime, timezone
+from logging import Logger, LogRecord
 from pathlib import Path
 from pprint import pformat
-
-import sys
+from sys import stdout
 from time import process_time
 from types import FrameType
-
 from typing import TYPE_CHECKING, Any, Deque, Dict, Optional, Union, cast
 
 import loguru
-from loguru import logger
-from loguru._defaults import LOGURU_FORMAT
-from sys import stdout
-from datetime import datetime, timezone
-import loguru
+
 from loguru import logger
 from loguru._defaults import LOGURU_FORMAT
 
 from goob_ai.models.loggers import LoggerModel, LoggerPatch
+
 
 # SOURCE: https://github.com/bossjones/sandbox/blob/8ad412d9726e8ffc76ea8822f32e18a0cb5fc84f/dancedetector/dancedetector/dbx_logger/__init__.py
 # References

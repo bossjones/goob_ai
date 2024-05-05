@@ -5,17 +5,20 @@
 from __future__ import annotations
 
 import asyncio
-from asyncio.subprocess import Process
 import os
 import pathlib
-from pathlib import Path
 import subprocess
 import sys
 import time
+
+from asyncio.subprocess import Process
+from pathlib import Path
 from typing import List, Tuple, Union
 
-from codetiming import Timer
 import uritools
+
+from codetiming import Timer
+
 
 HOME_PATH = os.environ.get("HOME")
 

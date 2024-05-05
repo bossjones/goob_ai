@@ -2,6 +2,7 @@
 
 # SOURCE: https://github.com/JeremyWurbs/mltemplate/tree/c05d7f19c6aa6599f9e82ff02f23b45eb8289ef3
 from __future__ import annotations
+
 import base64
 import io
 
@@ -9,6 +10,7 @@ import cv2
 import numpy as np
 import PIL
 import torch
+
 from PIL.Image import Image
 from torchvision.transforms.v2 import functional as F
 

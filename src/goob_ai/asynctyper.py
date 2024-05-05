@@ -2,40 +2,26 @@
 
 from __future__ import annotations
 
+import asyncio
 import inspect
+import logging
+
 from functools import partial, wraps
+from typing import Any, Awaitable, Callable, Dict, Iterable, List, Optional, Pattern, Sequence, Set, Tuple, Type, Union
 
 import anyio
 import asyncer
-import typer
-from typer import Typer
-import asyncio
-import logging
-from typing import (
-    Any,
-    Awaitable,
-    Callable,
-    Iterable,
-    List,
-    Optional,
-    Pattern,
-    Set,
-    Tuple,
-    Type,
-    Union,
-)
-
 import discord
-
 import rich
-from rich.pretty import pprint
 import typer
+
+from rich.pretty import pprint
+from typer import Typer
 
 import goob_ai
+
 from goob_ai import settings_validator
 from goob_ai.aio_settings import aiosettings, get_rich_console
-from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple, Type, Union
-
 from goob_ai.bot_logger import get_logger
 
 

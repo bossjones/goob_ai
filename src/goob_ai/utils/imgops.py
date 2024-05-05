@@ -444,9 +444,9 @@ from __future__ import annotations
 import gc
 import math
 import time
+
 from typing import List
 
-from PIL import Image
 import numpy as np
 
 # from tqdm.asyncio import tqdm
@@ -454,11 +454,14 @@ import pytz
 
 # import aiorwlock
 import rich
-from scipy.spatial import KDTree
 import torch  # type: ignore
+
+from PIL import Image
+from scipy.spatial import KDTree
 from torchvision.utils import make_grid
 from tqdm.auto import tqdm
 from webcolors import CSS3_HEX_TO_NAMES, hex_to_rgb
+
 
 # import aiohttp
 

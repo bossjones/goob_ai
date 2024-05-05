@@ -17,9 +17,11 @@
 # https://github.com/icholy/durationpy/
 from __future__ import annotations
 
-from datetime import timedelta
 import re
+
+from datetime import timedelta
 from typing import Optional
+
 
 _nanosecond_size = 1
 _microsecond_size = 1000 * _nanosecond_size

@@ -1,9 +1,11 @@
 """Utility methods for unit tests."""
 
 from __future__ import annotations
+
 from warnings import warn
 
 import PIL
+
 from PIL.Image import Image
 
 

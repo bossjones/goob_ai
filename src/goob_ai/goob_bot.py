@@ -3,39 +3,51 @@
 # pyright: reportImportCycles=false
 from __future__ import annotations
 
-from discord.ext import commands
-import discord
-import pathlib
+import asyncio
 import datetime
 import logging
-import traceback
-import aiohttp
-import sys
-from typing import TYPE_CHECKING, Any, AsyncIterator, Callable, Coroutine, Iterable, Optional, Union, Dict
-from collections import Counter, defaultdict
 import os
-import asyncio
-from goob_ai.bot_logger import get_logger
-from redis.asyncio import ConnectionPool as RedisConnectionPool
-from goob_ai.aio_settings import aiosettings
-from goob_ai.utils.context import Context
-import goob_ai
-from goob_ai import db, helpers, shell, utils
-from goob_ai.factories import guild_factory
-from typing import Any, Dict
-from typing import TYPE_CHECKING, Optional, TypeVar, cast, List, NoReturn
-from codetiming import Timer
-from discord.ext import commands
+import pathlib
+import sys
 import time
-from loguru import logger as LOGGER
-from goob_ai.agent import AiAgent
+import traceback
 
-from goob_ai.constants import (
-    INPUT_CLASSIFICATION_NOT_A_QUESTION,
-    INPUT_CLASSIFICATION_NOT_FOR_ME,
+from collections import Counter, defaultdict
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    AsyncIterator,
+    Callable,
+    Coroutine,
+    Dict,
+    Iterable,
+    List,
+    NoReturn,
+    Optional,
+    TypeVar,
+    Union,
+    cast,
 )
 
+import aiohttp
+import discord
+
+from codetiming import Timer
+from discord.ext import commands
+from loguru import logger as LOGGER
+from redis.asyncio import ConnectionPool as RedisConnectionPool
+
+import goob_ai
+
+from goob_ai import db, helpers, shell, utils
+from goob_ai.agent import AiAgent
+from goob_ai.aio_settings import aiosettings
+from goob_ai.bot_logger import get_logger
+from goob_ai.constants import INPUT_CLASSIFICATION_NOT_A_QUESTION, INPUT_CLASSIFICATION_NOT_FOR_ME
+from goob_ai.factories import guild_factory
 from goob_ai.user_input_enrichment import UserInputEnrichment
+from goob_ai.utils.context import Context
+
 
 DESCRIPTION = """An example bot to showcase the discord.ext.commands extension
 module.

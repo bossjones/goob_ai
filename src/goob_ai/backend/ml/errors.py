@@ -2,9 +2,10 @@
 
 from __future__ import annotations
 
-from collections.abc import Callable
 import sys
 import traceback
+
+from collections.abc import Callable
 
 
 def run(code: Callable, task: str) -> None:
