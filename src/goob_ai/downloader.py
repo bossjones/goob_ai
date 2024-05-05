@@ -15,7 +15,8 @@ import certifi
 
 from goob_ai.bot_logger import get_logger
 
-LOGGER = get_logger(__name__, provider="Downloader", level=logging.DEBUG)
+# LOGGER = get_logger(__name__, provider="Downloader", level=logging.DEBUG)
+from loguru import logger as LOGGER
 
 VERIFY_SSL = False
 

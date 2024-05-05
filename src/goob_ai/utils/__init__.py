@@ -33,7 +33,8 @@ from goob_ai import constants
 from goob_ai.aio_settings import aiosettings
 from goob_ai.bot_logger import get_logger
 
-LOGGER = get_logger("goob_ai.utils", provider="Utils", level=logging.DEBUG)
+# LOGGER = get_logger("goob_ai.utils", provider="Utils", level=logging.DEBUG)
+from loguru import logger as LOGGER
 
 _T = TypeVar("_T")
 _S = TypeVar("_S")

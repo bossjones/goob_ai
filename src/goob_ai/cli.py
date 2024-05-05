@@ -56,6 +56,7 @@ from rich.console import Console
 from rich.table import Table
 from typing_extensions import Annotated
 
+from loguru import logger
 
 import json
 import logging
@@ -74,7 +75,16 @@ from rich.table import Table
 from typing_extensions import Annotated
 
 
-LOGGER = get_logger(__name__, provider="CLI", level=logging.DEBUG)
+# LOGGER = get_logger(__name__, provider="CLI", level=logging.DEBUG)
+
+from goob_ai.bot_logger import get_logger, global_log_config
+
+global_log_config(
+    log_level=logging.getLevelName("DEBUG"),
+    json=False,
+)
+
+LOGGER = logger
 
 
 APP = AsyncTyper()
@@ -177,7 +187,7 @@ def main():
 
 def entry():
     """Required entry point to enable hydra to work as a console_script."""
-    main()  # pylint: disable=E1120
+    main()  # pylint: disable=no-value-for-parameter
 
 
 async def run_bot():

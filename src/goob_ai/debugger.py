@@ -8,9 +8,11 @@ from typing import Any
 import rich
 from rich import print
 
-from goob_ai.bot_logger import get_logger
+from loguru import logger as LOGGER
 
-LOGGER = get_logger(__name__, provider="Debugger", level=logging.DEBUG)
+# from goob_ai.bot_logger import get_logger
+
+# LOGGER = get_logger(__name__, provider="Debugger", level=logging.DEBUG)
 
 
 # source: http://blender.stackexchange.com/questions/1879/is-it-possible-to-dump-an-objects-properties-and-methods

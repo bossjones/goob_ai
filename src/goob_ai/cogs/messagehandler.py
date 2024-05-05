@@ -5,9 +5,12 @@ import re
 import discord
 from discord.ext import commands
 from discord import app_commands
-from goob_ai.helpers.constants import ALIASES
 
-from goob_ai.helpers.db_manager import log_message
+# from goob_ai.helpers.constants import ALIASES
+from goob_ai.helpers import constants
+
+# from goob_ai.helpers.db_manager import log_message
+from goob_ai.helpers import db_manager
 
 SLEEPTIMER = 5
 
@@ -84,7 +87,7 @@ class ListenerCog(commands.Cog, name="listener"):
             return False
 
     async def handle_image_message(self, message, mode=""):
-        await log_message(message)
+        await db_manager.log_message(message)
         image_response = await self.bot.get_cog("image_caption").image_comment(message, message.clean_content)
 
         if mode == "nr":
@@ -96,10 +99,10 @@ class ListenerCog(commands.Cog, name="listener"):
             if response:
                 async with message.channel.typing():
                     response_message = await message.channel.send(response)
-                    await log_message(response_message)
+                    await db_manager.log_message(response_message)
 
     async def handle_text_message(self, message, mode=""):
-        await log_message(message)
+        await db_manager.log_message(message)
         if mode == "nr":
             await self.bot.get_cog("chatbot").chat_command_nr(
                 message.author.display_name, message.channel.id, message.clean_content
@@ -109,7 +112,7 @@ class ListenerCog(commands.Cog, name="listener"):
             if response:
                 async with message.channel.typing():
                     response_message = await message.channel.send(response)
-                    await log_message(response_message)
+                    await db_manager.log_message(response_message)
 
     async def set_listen_only_mode_timer(self, channel_id):
         # Start the timer
@@ -146,7 +149,7 @@ class ListenerCog(commands.Cog, name="listener"):
 
         # Checking if the message contains the bot's name or any of the aliases
         contains_bot_name = self.bot.user.name.lower() in message.clean_content.lower() or any(
-            alias.lower() in message.clean_content.lower() for alias in ALIASES
+            alias.lower() in message.clean_content.lower() for alias in constants.ALIASES
         )
 
         # The message is considered directed at the bot if `is_reply_to_bot`, `mentions_bot`, or `contains_bot_name` is true,

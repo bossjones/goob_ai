@@ -20,7 +20,8 @@ from goob_ai.utils.file_functions import (
     run_aio_json_loads,
 )
 
-LOGGER = get_logger(__name__, provider="Events", level=logging.DEBUG)
+# LOGGER = get_logger(__name__, provider="Events", level=logging.DEBUG)
+from loguru import logger as LOGGER
 
 
 def css_syntax_highlight(text: str):

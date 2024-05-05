@@ -380,7 +380,7 @@ warn_unreachable = true
 # with this behavior.
 local_partial_types = true
 
-plugins = ["pydantic.mypy"]
+plugins = ["pydantic.mypy", "loguru_mypy"]
 
 [tool.pydantic-mypy]
 # NOTE: https://docs.pydantic.dev/latest/integrations/mypy/#configuring-the-plugin
@@ -488,6 +488,9 @@ module = [
     "zstandard.*",
     "aiodebug.*",
     "aiomonitor.*",
+    # "loguru.*",
+    "aiofiles.*",
+    "passlib.*",
 ]
 ignore_missing_imports = true
 ignore_errors = true
@@ -1227,7 +1230,7 @@ score = false
 # List of members which are set dynamically and missed by pylint inference
 # system, and so shouldn't trigger E1101 when accessed. Python regular
 # expressions are accepted.
-generated-members = 'numpy.*, torch.*, cv2.*, discord.*'
+generated-members = 'numpy.*, torch.*, cv2.*, discord.*, ,logging.root.*'
 ignored-classes = [
     "_CountingAttr", # for attrs
 ]
