@@ -201,7 +201,7 @@ async def run_bot():
         # bot.typerCtx = ctx
         # bot.typerCtx = ctx
         # bot.pool = pool
-        await bot.start(aiosettings.discord_token)
+        await bot.start()
     # log = logging.getLogger()
     # try:
     #     pool = await create_pool()

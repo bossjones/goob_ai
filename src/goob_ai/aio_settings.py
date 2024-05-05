@@ -114,8 +114,8 @@ class AioSettings(BaseSettings):
     # ***************************************************
     # NOTE: these are grouped together
     # ***************************************************
-    token: str = ""
-    prefix: str = "/"
+    # token: str = ""
+    prefix: str = "?"
 
     discord_admin_user_id: int | None = None
 
@@ -159,6 +159,7 @@ class AioSettings(BaseSettings):
     redis_user: Optional[str] = None
     redis_pass: Optional[str] = None
     redis_base: Optional[int] = None
+    enable_redis: bool = False
 
     @property
     def redis_url(self) -> URL:

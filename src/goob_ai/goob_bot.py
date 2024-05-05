@@ -219,6 +219,7 @@ class AsyncGoobBot(commands.AutoShardedBot):
             enable_debug_events=True,
         )
 
+        self.session = aiohttp.ClientSession()
         # ------------------------------------------------
         # from bot
         # ------------------------------------------------
@@ -247,7 +248,7 @@ class AsyncGoobBot(commands.AutoShardedBot):
 
         # self.current_task = None
 
-        self.client_id: str = aiosettings.client_id
+        self.client_id: str = aiosettings.discord_client_id
         # self.carbon_key: str = aiosettings.carbon_key
         # self.bots_key: str = aiosettings.bots_key
         # self.challonge_api_key: str = aiosettings.challonge_api_key
@@ -266,7 +267,6 @@ class AsyncGoobBot(commands.AutoShardedBot):
         self._auto_spam_count = Counter()
 
     async def setup_hook(self) -> None:
-        self.session = aiohttp.ClientSession()
         # guild_id: list
         # self.prefixes: Config[list[str]] = Config('prefixes.json')
 
@@ -280,7 +280,8 @@ class AsyncGoobBot(commands.AutoShardedBot):
         self.intents.members = True
         self.intents.message_content = True
 
-        self.db = db.init_worker_redis()
+        if aiosettings.enable_redis:
+            self.db = db.init_worker_redis()
 
         self.bot_app_info = await self.application_info()
         self.owner_id = self.bot_app_info.owner.id
@@ -493,7 +494,7 @@ class AsyncGoobBot(commands.AutoShardedBot):
         if not hasattr(self, "uptime"):
             self.uptime = discord.utils.utcnow()
 
-        LOGGER.info("Ready: %s (ID: %s)", self.user, self.user.id)
+        LOGGER.info(f"Ready: {self.user} (ID: {self.user.id})")
 
     async def on_shard_resumed(self, shard_id: int):
         LOGGER.info("Shard ID %s has resumed...", shard_id)
@@ -568,7 +569,7 @@ class AsyncGoobBot(commands.AutoShardedBot):
         await self.session.close()
 
     async def start(self) -> None:
-        await super().start(aiosettings.token, reconnect=True)
+        await super().start(aiosettings.discord_token, reconnect=True)
 
     async def my_background_task(self) -> None:
         """_summary_"""
