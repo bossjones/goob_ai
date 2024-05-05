@@ -69,7 +69,7 @@ jobs:
         run: |
           rye config --set-bool behavior.use-uv=true
           ./scripts/retry -t 4  -- rye sync
-          rye run unittests
+          rye run test
 
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v4.0.1

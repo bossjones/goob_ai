@@ -195,6 +195,10 @@ typecheck = {chain = [
 "typecheck:mypy" = "mypy ."
 unittests-debug = {cmd = "pytest --verbose --pdb --pdbcls bpdb:BPdb --showlocals --tb=short --cov-append --cov-report=term-missing --junitxml=junit/test-results.xml --cov-report=xml:cov.xml --cov-report=html:htmlcov --cov-report=annotate:cov_annotate --cov=."}
 unittests = {cmd = "pytest --verbose --showlocals --tb=short --cov-append --cov-report=term-missing --junitxml=junit/test-results.xml --cov-report=xml:cov.xml --cov-report=html:htmlcov --cov-report=annotate:cov_annotate --cov=."}
+test = {chain = [
+    "lint",
+    "unittests",
+]}
 # TODO: enable this
 # SOURCE: https://github.com/JacobCoffee/byte/blob/f863a146060165fe5c33a6343ee661b71f3ebf4a/pyproject.toml#L10
 # docs-serve = "sphinx-autobuild docs docs/_build/ -j auto --watch app --watch docs --watch tests --watch CONTRIBUTING.rst --port 8002"

@@ -118,10 +118,13 @@ class AioSettings(BaseSettings):
 
     discord_admin_user_invited: bool = False
 
-    better_exceptions: int = Field(..., env="BETTER_EXCEPTIONS", description="Enable better exceptions")
-    pythonasynciodebug: int = Field(..., env="PYTHONASYNCIODEBUG", description="enable or disable asyncio debugging")
-    langchain_debug_logs: int = Field(
-        ..., env="LANGCHAIN_DEBUG_LOGS", description="enable or disable langchain debug logs"
+    # pylint: disable=redundant-keyword-arg
+    better_exceptions: bool = Field(..., env="BETTER_EXCEPTIONS", description="Enable better exceptions", default=1)
+    pythonasynciodebug: bool = Field(
+        ..., env="PYTHONASYNCIODEBUG", description="enable or disable asyncio debugging", default=1
+    )
+    langchain_debug_logs: bool = Field(
+        ..., env="LANGCHAIN_DEBUG_LOGS", description="enable or disable langchain debug logs", default=0
     )
 
     enable_ai: bool = False
