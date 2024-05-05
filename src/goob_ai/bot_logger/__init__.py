@@ -5,7 +5,8 @@
 # pyright: reportOptionalIterable=false
 
 from __future__ import annotations
-
+import contextvars
+import logging
 from datetime import datetime
 import functools
 import gc
@@ -40,6 +41,14 @@ from goob_ai.models.loggers import LoggerModel, LoggerPatch
 #   https://github.com/pahntanapat/Unified-FastAPI-Gunicorn-Log
 #   https://github.com/Delgan/loguru/issues/365
 #   https://loguru.readthedocs.io/en/stable/api/logger.html#sink
+
+# request_id_contextvar is a context variable that will store the request id
+# ContextVar works with asyncio out of the box.
+# see https://docs.python.org/3/library/contextvars.html
+REQUEST_ID_CONTEXTVAR = contextvars.ContextVar("request_id", default=None)
+
+# initialize the context variable with a default value
+REQUEST_ID_CONTEXTVAR.set("notset")
 
 
 def set_log_extras(record):
@@ -147,6 +156,14 @@ def get_logger(
     return logger
 
 
+def request_id_filter(record: Dict[str, Any]):
+    """
+    Inject the request id from the context var to the log record. The logging
+    config format is defined in logger_config.yaml and has request_id as a field.
+    """
+    record["extra"]["request_id"] = REQUEST_ID_CONTEXTVAR.get()
+
+
 # FIXME: https://github.com/abnerjacobsen/fastapi-mvc-loguru-demo/blob/main/mvc_demo/core/loguru_logs.py
 # SOURCE: https://loguru.readthedocs.io/en/stable/api/logger.html#loguru._logger.Logger
 def global_log_config(log_level: Union[str, int] = logging.DEBUG, json: bool = False):
@@ -216,9 +233,23 @@ def global_log_config(log_level: Union[str, int] = logging.DEBUG, json: bool = F
                 # catch (bool, optional) - Whether errors occurring while sink handles logs messages should be automatically caught. If True, an exception message is displayed on sys.stderr but the exception is not propagated to the caller, preventing your app to crash.
                 "catch": True,
             }
-        ]
+        ],
+        # extra={"request_id": REQUEST_ID_CONTEXTVAR.get()},
     )
     # logger.configure(patcher=set_log_extras)
+
+    # SOURCE: https://github.com/Delgan/loguru/blob/7273a5eba32b08063d1426f8f022e4734d87afbe/docs/resources/recipes.rst#L721
+    # TODO: Do this
+    # You can also use ~loguru._logger.Logger.patch() for this, so the serialization function will be called only once in case you want to use it in multiple sinks:
+
+    # def patching(record):
+    #     record["extra"]["serialized"] = serialize(record)
+
+    # logger = logger.patch(patching)
+
+    # # Note that if "format" is not a function, possible exception will be appended to the message
+    # logger.add(sys.stderr, format="{extra[serialized]}")
+    # logger.add("file.log", format="{extra[serialized]}")
 
     return logger
 

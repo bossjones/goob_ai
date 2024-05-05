@@ -4,7 +4,7 @@
 from __future__ import annotations
 
 from typing import Any, Callable, List, cast
-from typing import Any, Callable, Set
+from typing import Any, Callable, Set, Union
 
 from pydantic import (
     AliasChoices,
@@ -160,6 +160,24 @@ class AioSettings(BaseSettings):
     redis_pass: Optional[str] = None
     redis_base: Optional[int] = None
     enable_redis: bool = False
+
+    # azure_openai_api_key: str
+    # openai_api_type: str
+    # openai_api_version: str
+    # azure_deployment: str
+    # azure_openai_endpoint: str
+    llm_temperature: float = 0.1
+    # vision_model: str = "gpt-4-turbo"
+    vision_model: str = "gpt-4-vision-preview"
+    chat_model: str = "gpt-3.5-turbo-0125"
+    # chat_model: str = "gpt-3.5-turbo-16k" # note another option
+    chat_history_buffer: int = 10
+
+    retry_stop_after_attempt: int = 3
+    retry_wait_exponential_multiplier: Union[int, float] = 2
+    retry_wait_exponential_max: Union[int, float] = 5
+    retry_wait_exponential_min: Union[int, float] = 1
+    retry_wait_fixed: Union[int, float] = 15
 
     @property
     def redis_url(self) -> URL:

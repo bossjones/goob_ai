@@ -27,6 +27,7 @@ from typing import TYPE_CHECKING, Optional, TypeVar, cast, List, NoReturn
 from codetiming import Timer
 from discord.ext import commands
 import time
+from loguru import logger as LOGGER
 
 DESCRIPTION = """An example bot to showcase the discord.ext.commands extension
 module.
@@ -37,7 +38,8 @@ HERE = os.path.dirname(__file__)
 
 INVITE_LINK = "https://discordapp.com/api/oauth2/authorize?client_id={}&scope=bot&permissions=0"
 
-LOGGER = get_logger(__name__, provider="Bot", level=logging.DEBUG)
+# LOGGER = get_logger(__name__, provider="Bot", level=logging.DEBUG)
+
 
 HOME_PATH = os.environ.get("HOME")
 
