@@ -195,6 +195,11 @@ typecheck = {chain = [
 "typecheck:mypy" = "mypy ."
 unittests-debug = {cmd = "pytest --verbose --pdb --pdbcls bpdb:BPdb --showlocals --tb=short --cov-append --cov-report=term-missing --junitxml=junit/test-results.xml --cov-report=xml:cov.xml --cov-report=html:htmlcov --cov-report=annotate:cov_annotate --cov=."}
 unittests = {cmd = "pytest"}
+# TODO: enable this
+# SOURCE: https://github.com/JacobCoffee/byte/blob/f863a146060165fe5c33a6343ee661b71f3ebf4a/pyproject.toml#L10
+# docs-serve = "sphinx-autobuild docs docs/_build/ -j auto --watch app --watch docs --watch tests --watch CONTRIBUTING.rst --port 8002"
+# changelog = "git cliff -c pyproject.toml -o docs/changelog.rst"
+# # TODO: Move more from makefile here
 
 # NOTE: THIS CAUSED EVERYTHING TO BE HELD BACK TO SUPER OLD VERSIONS
 # # https://github.com/astral-sh/rye/blob/ab8d5b433d5c4342c2bb125583c6bff4d29f5fbc/docs/guide/faq.md
@@ -321,7 +326,7 @@ warn_return_any = false
 
 # Enable optional errors.
 enable_error_code = [
-    "explicit-override",
+    # "explicit-override",
     "ignore-without-code",
     "redundant-expr",
     "redundant-self",
@@ -348,8 +353,11 @@ disable_error_code = [
     "operator",
     "type-var",
     "var-annotated",
+    "consider-using-with",
+    "union-attr",
 ]
 
+# Causes mypy to treat arguments with a None default value as having an implicit Optional type.
 follow_imports = "silent"
 
 # Warns about casting an expression to its inferred type.
@@ -357,6 +365,10 @@ warn_redundant_casts = true
 
 # Causes mypy to suppress errors caused by not being able to fully infer the types of global and class variables.
 allow_redefinition = true
+
+strict_optional = true
+
+# warn_unused_ignores = true
 
 # Display the codes needed for # type: ignore[code] annotations.
 show_error_codes = true
@@ -386,6 +398,15 @@ no_implicit_reexport = true
 ignore_errors = true
 # warn_untyped_fields = true
 
+# mypy \
+#   --ignore-missing-imports \
+#   --follow-imports=skip \
+#   --strict-optional \
+#   pydantic_mypy_test.py
+ignore_missing_imports = true
+follow_imports = "skip"
+strict_optional = true
+
 # ===========================[ MYPY OVERRIDES ]========================
 [[tool.mypy.overrides]]
 check_untyped_defs = true
@@ -413,6 +434,8 @@ module = [
     "coverage",
     "cv2.*",
     "dill",
+    "discord.*",
+    "discord.client.*",
     "enchant.*",
     "etils.*",
     "flatbuffers.*",
@@ -463,8 +486,11 @@ module = [
     "web_pdb.*",
     "wilds.*",
     "zstandard.*",
+    "aiodebug.*",
+    "aiomonitor.*",
 ]
 ignore_missing_imports = true
+ignore_errors = true
 
 
 # ===========================[ RUFF ]========================
@@ -719,6 +745,8 @@ known-third-party = [
 ]
 split-on-trailing-comma = false
 
+known-first-party = ["src", "tests"]
+
 known-local-folder = ["src/*"]
 
 section-order = [
@@ -826,7 +854,7 @@ fail-on = ["I"]
 load-plugins = [
     "pylint.extensions.code_style",
     "pylint.extensions.typing",
-    "pylint.extensions.no_self_use",
+    # "pylint.extensions.no_self_use",
     "pylint_per_file_ignores",
     # "pylint.extensions.bad_builtin",
     # "pylint.extensions.broad_try_clause",
@@ -1199,7 +1227,7 @@ score = false
 # List of members which are set dynamically and missed by pylint inference
 # system, and so shouldn't trigger E1101 when accessed. Python regular
 # expressions are accepted.
-generated-members = 'numpy.*, torch.*'
+generated-members = 'numpy.*, torch.*, cv2.*, discord.*'
 ignored-classes = [
     "_CountingAttr", # for attrs
 ]
@@ -1252,20 +1280,26 @@ reportUnusedImport = "none"
 pythonVersion = "3.10"
 verboseOutput = true
 reportUnnecessaryCast = true
-# typeCheckingMode = "basic"
-typeCheckingMode = "standard"
+typeCheckingMode = "basic"
+# typeCheckingMode = "standard"
 reportMissingTypeStubs = "none"
 reportMissingImports = "error"
 reportImportCycles = "error"
 reportUnusedVariable = "none"
-reportUnknownMemberType = "none"
-reportUnusedFunction = "warning"
-reportUnusedClass = "warning"
-reportReturnType = "warning"
+# reportUnknownMemberType = "none"
+reportUnusedFunction = "none"
+reportUnusedClass = "none"
+reportReturnType = "none"
 # [boolean or string, optional]: Generate or suppress diagnostics for general type inconsistencies, unsupported operations, argument/parameter mismatches, etc. This covers all of the basic type-checking rules not covered by other rules. It does not include syntax errors. The default value for this setting is "error".
-reportGeneralTypeIssues = "none"
+# reportGeneralTypeIssues = "none"
 reportArgumentType = "none"
 reportAttributeAccessIssue = "none"
+
+reportOptionalMemberAccess = false
+reportUnknownMemberType = false
+reportGeneralTypeIssues = true
+reportCallIssue = "none"
+
 
 # SOURCE: https://github.com/Ruzzy77/python-template/blob/57c8964f1efb2635d0bdca5684613a8d8736aed0/pyproject.toml#L168C1-L189C2
 ################################################################################

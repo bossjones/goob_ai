@@ -16,7 +16,7 @@ def cli_dummy_cmd(prompt: str):
     return f"dummy cmd: {prompt}"
 
 
-@app.cli_dummy_cmd()
+@app.command()
 async def aio_cli_dummy_cmd() -> str:
     """Returns information about the bot."""
     await asyncio.sleep(1)

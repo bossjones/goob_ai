@@ -20,6 +20,9 @@ import aiomonitor
 from codetiming import Timer
 import discord
 from discord.ext import commands
+from discord import Message as DiscordMessage
+from discord import Activity, Forbidden, Intents, Member, NotFound
+from discord.ext.commands import Bot, CommandError, Context, ExtensionAlreadyLoaded
 import torch
 
 import goob_ai
@@ -27,6 +30,12 @@ from goob_ai import db, helpers, shell, utils
 from goob_ai.aio_settings import aiosettings
 from goob_ai.bot_logger import get_logger, intercept_all_loggers
 from goob_ai.factories import guild_factory
+from typing import Any, Dict
+from typing import TYPE_CHECKING, Optional, TypeVar, cast
+
+if TYPE_CHECKING:
+    from redis.asyncio import ConnectionPool
+
 
 HERE = os.path.dirname(__file__)
 
@@ -101,6 +110,12 @@ async def worker(name: str, queue: asyncio.Queue) -> NoReturn:
 
 # SOURCE: https://realpython.com/python-async-features/#building-a-synchronous-web-server
 async def co_task(name: str, queue: asyncio.Queue):
+    """_summary_
+
+    Args:
+        name (str): _description_
+        queue (asyncio.Queue): _description_
+    """
     LOGGER.info(f"starting working ... {name}")
 
     timer = Timer(text=f"Task {name} elapsed time: {{:.1f}}")
@@ -114,7 +129,7 @@ async def co_task(name: str, queue: asyncio.Queue):
 
 
 # SOURCE: https://github.com/makupi/cookiecutter-discord.py-postgres/blob/master/%7B%7Bcookiecutter.bot_slug%7D%7D/bot/__init__.py
-async def get_prefix(_bot: "GoobBot", message: discord.message.Message):
+async def get_prefix(_bot: "GoobBot", message: DiscordMessage):
     """_summary_
 
     Args:
@@ -130,7 +145,7 @@ async def get_prefix(_bot: "GoobBot", message: discord.message.Message):
     prefix = (
         [aiosettings.prefix]
         if isinstance(message.channel, discord.DMChannel)
-        else [utils.get_guild_prefix(_bot, message.guild.id)]
+        else [utils.get_guild_prefix(_bot, message.guild.id)]  # type: ignore
     )
     LOGGER.info(f"prefix -> {prefix}")
     return commands.when_mentioned_or(*prefix)(_bot, message)
@@ -157,13 +172,13 @@ class GoobBot(commands.AutoShardedBot):
 
     def __init__(
         self,
-        *args,
+        *args: Any,
         # command_prefix=get_prefix,
         intents: discord.flags.Intents = discord.Intents.default(),
         # TEMPCHANGE: # command_prefix=commands.when_mentioned_or(constants.PREFIX),
         command_prefix=commands.when_mentioned_or(aiosettings.prefix),
         description="Better than the last one",
-        **kwargs,
+        **kwargs: Any,
     ):
         """_summary_
 
@@ -180,14 +195,12 @@ class GoobBot(commands.AutoShardedBot):
             command_prefix=command_prefix,
             description=description,
             **kwargs,
-        )
-
-        # self.session = aiohttp.ClientSession(loop=self.loop)
+        )  # type: ignore
 
         # Create a queue that we will use to store our "workload".
-        self.queue = asyncio.Queue()
+        self.queue = asyncio.Queue()  # type: ignore
 
-        self.tasks = []
+        self.tasks: list[Any] = []
 
         self.num_workers = 3
 
@@ -195,34 +208,17 @@ class GoobBot(commands.AutoShardedBot):
 
         self.start_time = datetime.datetime.now()
 
-        # self.metrics_api = GoobBotMetricsApi(metrics_host="0.0.0.0")
-
-        # DISABLED: 3/25/2023 temporary to figure some stuff out # self.loop.run_until_complete(self.metrics_api.start())
-
         self.typerCtx = None
 
         #### For upscaler
 
-        self.job_queue = {}
+        self.job_queue: Dict[Any, Any] = {}
 
-        # This group of variables are used in the upscaling process
-        self.last_model = None
-        self.last_in_nc = None
-        self.last_out_nc = None
-        self.last_nf = None
-        self.last_nb = None
-        self.last_scale = None
-        self.last_kind = None
-        self.model = None
-        self.autocrop_model = None
-        self.db = None
+        self.db: Optional[ConnectionPool] = None
 
-        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        if torch.cuda.is_available():
-            torch.set_default_tensor_type(torch.cuda.HalfTensor)
-
-        self.ml_models_path = f"{aiosettings.esgran_dir}"
-        self.my_custom_ml_models_path = f"{aiosettings.screencropnet_dir}/"
+        # self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        # if torch.cuda.is_available():
+        #     torch.set_default_tensor_type(torch.cuda.HalfTensor)
 
         self.current_task = None
 
@@ -230,7 +226,7 @@ class GoobBot(commands.AutoShardedBot):
         """_summary_"""
 
         self.version = goob_ai.__version__
-        self.guild_data = {}
+        self.guild_data: Dict[Any, Any] = {}
         self.intents.members = True
         self.intents.message_content = True
 

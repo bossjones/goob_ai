@@ -1,11 +1,10 @@
 # """test_bot"""
-# # pylint: disable=no-self-use
 # from __future__ import annotations
 # import asyncio
 # import os
 
 # import pytest
-# import torch  # type: ignore
+# import torch
 
 # from goob_ai import bot
 

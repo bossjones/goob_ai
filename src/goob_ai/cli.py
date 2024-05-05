@@ -1,5 +1,6 @@
 """goob_ai.cli"""
 
+# pylint: disable=no-value-for-parameter
 # SOURCE: https://github.com/tiangolo/typer/issues/88#issuecomment-1732469681
 from __future__ import annotations
 
@@ -103,6 +104,7 @@ def version_callback(version: bool) -> None:
 
 @APP.command()
 def about() -> None:
+    """about command"""
     typer.echo("This is GoobBot CLI")
 
 

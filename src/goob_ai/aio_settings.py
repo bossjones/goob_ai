@@ -78,90 +78,6 @@ def get_rich_console() -> Console:
     return Console()
 
 
-def add_rich_table_row(table: Table, config_name: str, config_value: Any, bot_settings: AioSettings) -> None:
-    """Format and add row to Rich table.
-
-    Args:
-        table (Table): _description_
-        config_name (str): _description_
-        config_value (Any): _description_
-        bot_settings (AioSettings): _description_
-    """
-    formatted_config_name = f"{config_name}"
-    formatted_config_value: str = f"{config_value}"
-    env_name = f"{bot_settings.Config.env_prefix}{config_name}".upper()
-    default_value = f"{bot_settings.__fields__[config_name].default}"
-    config_type: str = f"{bot_settings.__fields__[config_name].type_}"
-    table.add_row(formatted_config_name, env_name, formatted_config_value, config_type, default_value)
-
-
-def config_to_table(console: Console, bot_settings: AioSettings) -> None:
-    """_summary_
-
-    Args:
-        console (Console): _description_
-        bot_settings (AioSettings): _description_
-    """
-    # config name, env var name, Value, default
-    table = Table(show_header=True, header_style="bold magenta")
-    table.add_column("Config Name", style="dim")
-    table.add_column("Env Var Name")
-    table.add_column("Value")
-    table.add_column("Type")
-    table.add_column("Default Value")
-
-    # Iterating over values
-    for config_name, config_value in bot_settings.dict().items():
-        add_rich_table_row(table, config_name, config_value, bot_settings)
-
-    # # handle properties differently.
-    table.add_row("redis_url", "n/a", f"{bot_settings.redis_url}", f"{type(bot_settings.redis_url)}", "n/a")
-    table.add_row(
-        "aiomonitor_config_data",
-        "n/a",
-        f"{bot_settings.aiomonitor_config_data}",
-        f"{type(bot_settings.aiomonitor_config_data)}",
-        "n/a",
-    )
-    table.add_row(
-        "global_config_file",
-        "n/a",
-        f"{bot_settings.global_config_file}",
-        f"{type(bot_settings.global_config_file)}",
-        "n/a",
-    )
-    table.add_row(
-        "global_config_dir",
-        "n/a",
-        f"{bot_settings.global_config_dir}",
-        f"{type(bot_settings.global_config_dir)}",
-        "n/a",
-    )
-    table.add_row(
-        "global_models_dir",
-        "n/a",
-        f"{bot_settings.global_models_dir}",
-        f"{type(bot_settings.global_models_dir)}",
-        "n/a",
-    )
-    table.add_row(
-        "global_autoscan_dir",
-        "n/a",
-        f"{bot_settings.global_autoscan_dir}",
-        f"{type(bot_settings.global_autoscan_dir)}",
-        "n/a",
-    )
-    table.add_row(
-        "global_converted_ckpts_dir",
-        "n/a",
-        f"{bot_settings.global_converted_ckpts_dir}",
-        f"{type(bot_settings.global_converted_ckpts_dir)}",
-        "n/a",
-    )
-
-    console.print(table)
-
-
 class LogLevel(str, enum.Enum):  # noqa: WPS600
     """Possible log levels."""
 
@@ -181,8 +97,12 @@ class AioSettings(BaseSettings):
     with environment variables.
     """
 
-    # main directory to place models in etc eg. ~/cerebro
-    # cerebro_root: str = "~/cerebro"
+    # By default, the environment variable name is the same as the field name.
+
+    # You can change the prefix for all environment variables by setting the env_prefix config setting, or via the _env_prefix keyword argument on instantiation:
+
+    model_config = SettingsConfigDict(env_prefix="GOOB_AI_")
+
     monitor_host: str = "localhost"
     monitor_port: int = 50102
 
@@ -194,20 +114,17 @@ class AioSettings(BaseSettings):
     # ***************************************************
     token: str = ""
     prefix: str = "/"
-    # default_config = {"token": "", "prefix": constants.prefix}
-    # ***************************************************
 
-    # default_dropbox_folder: str = "/cerebro_downloads"
-    # default_tweetpik_options = {}
     discord_admin_user_id: str = ""
-    # TODO: ^ change this ->  to ^  and find all instances where it is called. discord_admin = os.environ.get("discord_admin_user_id")
+
     discord_general_channel: int = 908894727779258390
 
     discord_server_id: str = ""
-    # TODO: ^ change this ->  to ^  and find all instances where it is called. discord_guild: str = "" os.environ.get("discord_server_id")
+    discord_client_id: str = ""
 
-    # discord_server_id: Optional[str] = None
     discord_token: str = ""
+
+    openai_token: str = ""
 
     # Try loading patchmatch
     globals_try_patchmatch: bool = True
@@ -227,11 +144,6 @@ class AioSettings(BaseSettings):
 
     # logging tokenization everywhere
     globals_log_tokenization: bool = False
-
-    # ************************************************************************
-
-    # log_level: LogLevel = LogLevel.DEBUG.value
-    # log_level
 
     # Variables for Redis
     redis_host: str = "localhost"
@@ -266,10 +178,10 @@ class AioSettings(BaseSettings):
         """
         return {"port": self.monitor_port, "host": self.monitor_host}
 
-    class Config:  # sourcery skip: docstrings-for-classes
-        env_file = ".env"
-        env_prefix = "GOOB_AI_"
-        env_file_encoding = "utf-8"
+    # class Config:  # sourcery skip: docstrings-for-classes
+    #     env_file = ".env"
+    #     env_prefix = "GOOB_AI_"
+    #     env_file_encoding = "utf-8"
 
 
 aiosettings = AioSettings()  # sourcery skip: docstrings-for-classes, avoid-global-variables
