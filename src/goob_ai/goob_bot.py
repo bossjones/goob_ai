@@ -28,6 +28,14 @@ from codetiming import Timer
 from discord.ext import commands
 import time
 from loguru import logger as LOGGER
+from goob_ai.agent import AiAgent
+
+from goob_ai.constants import (
+    INPUT_CLASSIFICATION_NOT_A_QUESTION,
+    INPUT_CLASSIFICATION_NOT_FOR_ME,
+)
+
+from goob_ai.user_input_enrichment import UserInputEnrichment
 
 DESCRIPTION = """An example bot to showcase the discord.ext.commands extension
 module.
@@ -186,6 +194,7 @@ class AsyncGoobBot(commands.AutoShardedBot):
     logging_handler: Any
     bot_app_info: discord.AppInfo
     old_tree_error = Callable[[discord.Interaction, discord.app_commands.AppCommandError], Coroutine[Any, Any, None]]
+    ai_agent: AiAgent
 
     def __init__(self):
         allowed_mentions = discord.AllowedMentions(roles=False, everyone=False, users=True)
@@ -222,6 +231,7 @@ class AsyncGoobBot(commands.AutoShardedBot):
         )
 
         self.session = aiohttp.ClientSession()
+
         # ------------------------------------------------
         # from bot
         # ------------------------------------------------
@@ -244,6 +254,9 @@ class AsyncGoobBot(commands.AutoShardedBot):
 
         self.db: RedisConnectionPool | None = None
 
+        if aiosettings.enable_ai:
+            self.ai_agent: AiAgent = AiAgent()
+
         # self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         # if torch.cuda.is_available():
         #     torch.set_default_tensor_type(torch.cuda.HalfTensor)
@@ -251,9 +264,6 @@ class AsyncGoobBot(commands.AutoShardedBot):
         # self.current_task = None
 
         self.client_id: str = aiosettings.discord_client_id
-        # self.carbon_key: str = aiosettings.carbon_key
-        # self.bots_key: str = aiosettings.bots_key
-        # self.challonge_api_key: str = aiosettings.challonge_api_key
 
         # shard_id: List[datetime.datetime]
         # shows the last attempted IDENTIFYs and RESUMEs
@@ -558,6 +568,10 @@ class AsyncGoobBot(commands.AutoShardedBot):
         await self.invoke(ctx)
 
     async def on_message(self, message: discord.Message) -> None:
+        LOGGER.info(f"message = {message}")
+
+        # TODO: This is where all the AI logic is going to go
+        LOGGER.info(f"Thread message to process - {message.author}: {message.content[:50]}")
         if message.author.bot:
             return
         await self.process_commands(message)
@@ -640,6 +654,30 @@ class AsyncGoobBot(commands.AutoShardedBot):
 
         print("====")
         print(f"3 workers slept in parallel for {total_slept_for:.2f} seconds")
+
+    # TODO: Need to get this working 5/5/2024
+    def input_classifier(self, event) -> bool:
+        """
+        Determines whether the bot should respond to a message in a channel or group.
+
+        :param event: the incoming Slack event
+        :return: True if the bot should respond, False otherwise
+        """
+        try:
+            classification = UserInputEnrichment().input_classifier_tool(event.get("text", ""))
+
+            # Explicitly not respond to "Not a question" or "Not for me"
+            if classification.get("classification") in [
+                INPUT_CLASSIFICATION_NOT_A_QUESTION,
+                INPUT_CLASSIFICATION_NOT_FOR_ME,
+            ]:
+                return False
+        except Exception as e:
+            # Log the error but choose to respond since the classification is uncertain
+            LOGGER.error(f"Error during classification, but choosing to respond: {e}")
+
+            # Default behavior is to respond unless it's explicitly classified as "Not a question" or "Not for me"
+            return True
 
     # @property
     # def config(self):

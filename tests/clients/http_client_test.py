@@ -68,7 +68,7 @@ def test_post_throws(mocker):
     mocked_response.text.return_value = err_str
     mocked_response.body = err_str
 
-    _mock_client_post = mocker.patch("clients.http_client.HttpClient.post")
+    _mock_client_post = mocker.patch("goob_ai.clients.http_client.HttpClient.post")
     _mock_client_post.side_effect = [RequestException("Failed to connect"), mocked_response]
 
     test_http_client = HttpClient()
@@ -104,7 +104,7 @@ def test_get_throws(mocker: Mocker):
     mocked_response.ok.return_value = False
     mocked_response.text.return_value = err_str
     mocked_response.body = err_str
-    _mock_client_post = mocker.patch("clients.http_client.HttpClient.get")
+    _mock_client_post = mocker.patch("goob_ai.clients.http_client.HttpClient.get")
     _mock_client_post.side_effect = [RequestException("Failed to connect"), mocked_response]
     http_client = HttpClient()
     with pytest.raises((Exception, RetryError, HTTPError, RequestException)) as e:

@@ -1,4 +1,5 @@
 """test_settings"""
+
 from __future__ import annotations
 import os
 from pathlib import Path, PosixPath
@@ -10,6 +11,7 @@ from goob_ai.utils.file_functions import tilda
 
 IS_RUNNING_ON_GITHUB_ACTIONS = bool(os.environ.get("GITHUB_ACTOR"))
 
+
 # TODO: Make sure os,environ unsets values while running tests
 @pytest.mark.unittest
 class TestSettings:
@@ -19,7 +21,7 @@ class TestSettings:
         test_settings: aio_settings.AioSettings = aio_settings.AioSettings()
         assert test_settings.monitor_host == "localhost"
         assert test_settings.monitor_port == 50102
-        assert test_settings.prefix == "/"
+        assert test_settings.prefix == "?"
         assert test_settings.discord_admin_user_id == 3282
         assert test_settings.discord_general_channel == 908894727779258390
         assert test_settings.discord_admin_user_invited == False

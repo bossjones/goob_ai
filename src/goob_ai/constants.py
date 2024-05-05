@@ -25,3 +25,7 @@ MAX_RUNTIME_VIDEO_IMGUR = 20  # seconds
 
 # CURRENT_USER = "professorex.university@gmail.com"  # reactionmemestv@gmail.com # iamhoeslikememes@gmail.com
 CURRENT_USER = "n/a"  # reactionmemestv@gmail.com # iamhoeslikememes@gmail.com
+# Add constants for input classification schema
+INPUT_CLASSIFICATION_NOT_A_QUESTION = "Not a question"
+INPUT_CLASSIFICATION_NOT_FOR_ME = "Not for me"
+INPUT_CLASSIFICATION_PROVIDE_HELP = "Provide Help"

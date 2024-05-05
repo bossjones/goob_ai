@@ -133,6 +133,12 @@ class AioSettings(BaseSettings):
 
     better_exceptions: int = Field(..., env="BETTER_EXCEPTIONS", description="Enable better exceptions")
     pythonasynciodebug: int = Field(..., env="PYTHONASYNCIODEBUG", description="enable or disable asyncio debugging")
+    langchain_debug_logs: int = Field(
+        ..., env="LANGCHAIN_DEBUG_LOGS", description="enable or disable langchain debug logs"
+    )
+
+    enable_ai: bool = False
+    http_client_debug_enabled: bool = False
 
     # Try loading patchmatch
     globals_try_patchmatch: bool = True

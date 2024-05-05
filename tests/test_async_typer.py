@@ -1,4 +1,5 @@
 """Test the async Typer class."""
+
 from __future__ import annotations
 
 import asyncio
@@ -21,6 +22,7 @@ from goob_ai.asynctyper import AsyncTyper
 
 #     await hello()
 #     assert True
+
 
 @pytest.mark.asyncio
 async def test_async_command() -> None:

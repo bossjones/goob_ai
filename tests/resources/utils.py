@@ -1,4 +1,5 @@
 """Utility methods for unit tests."""
+
 from __future__ import annotations
 from warnings import warn
 
