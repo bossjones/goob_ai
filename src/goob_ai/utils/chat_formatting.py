@@ -1,14 +1,18 @@
 """goob_ai.utils.chat_formatting"""
 
+from __future__ import annotations
+
 import datetime
-from io import BytesIO
 import itertools
 import textwrap
+
+from io import BytesIO
 from typing import Iterator, List, Optional, Sequence, SupportsInt, Union
+
+import discord
 
 from babel.lists import format_list as babel_list
 from babel.numbers import format_decimal
-import discord
 
 
 def error(text: str) -> str:

@@ -1,295 +1,94 @@
 """goob_ai.cli"""
 
+# pylint: disable=no-value-for-parameter
+# SOURCE: https://github.com/tiangolo/typer/issues/88#issuecomment-1732469681
 from __future__ import annotations
 
+import asyncio
 import inspect
+import json
+import logging
+import os
+import subprocess
+import sys
+
 from functools import partial, wraps
+from importlib import import_module, metadata
+from pathlib import Path
+from typing import Any, Awaitable, Callable, Dict, Iterable, List, Optional, Pattern, Sequence, Set, Tuple, Type, Union
 
 import anyio
 import asyncer
-import typer
-from typer import Typer
-import asyncio
-import logging
-from typing import (
-    Any,
-    Awaitable,
-    Callable,
-    Iterable,
-    List,
-    Optional,
-    Pattern,
-    Set,
-    Tuple,
-    Type,
-    Union,
-)
-
 import discord
-
-import rich
-from rich.pretty import pprint
-import typer
-
-import goob_ai
-from goob_ai import settings_validator
-from goob_ai.aio_settings import aiosettings, config_to_table, get_rich_console
-from goob_ai.bot import GoobBot, aiomonitor  # , load_extensions
-from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple, Type, Union
-
-from goob_ai.bot_logger import get_logger
-
-from typing import Any, Dict, Optional, Tuple
-
 import rich
 import typer
+
+from loguru import logger
+from rich import print, print_json
 from rich.console import Console
+from rich.pretty import pprint
 from rich.table import Table
+from typer import Typer
 from typing_extensions import Annotated
 
-# SOURCE: https://github.com/Ce11an/tfl/blob/76b07a6f465e9c41c11f9eb812dc7d82e226ab3b/tfl/cli/main.py
+import goob_ai
 
-#####################
-# Trying to use AsyncTyper instead of old cerebocode
-
-# noqa: E402
-
+from goob_ai import settings_validator
+from goob_ai.aio_settings import aiosettings, get_rich_console
+from goob_ai.asynctyper import AsyncTyper
 
 # LOGGER = get_logger(__name__, provider="CLI", level=logging.DEBUG)
-
-# CACHE_CTX: Optional[Callable[..., Any]] = {}
-
-
-# async def co_get_ctx(ctxs: List[typer.Context]) -> None:
-#     """_summary_
-
-#     Args:
-#         ctxs (List[typer.Context]): _description_
-#     """
-#     await asyncio.sleep(1)
-#     for c in ctxs:
-#         CACHE_CTX[c.name] = c
-#     typer.echo(f"CACHE_CTX -> {CACHE_CTX}")
+from goob_ai.bot_logger import get_logger, global_log_config
+from goob_ai.goob_bot import AsyncGoobBot
 
 
-# # When you create an CLI = typer.Typer() it works as a group of commands.
-# CLI = typer.Typer(name="cerebroctl", callback=CACHE_CTX)
+global_log_config(
+    log_level=logging.getLevelName("DEBUG"),
+    json=False,
+)
 
-
-# @CLI.command()
-# def hello(ctx: typer.Context, name: Optional[str] = typer.Option(None)) -> None:
-#     """
-#     Dummy command
-#     """
-#     typer.echo(f"Hello {name}")
-
-
-# @CLI.command()
-# def dump_context(ctx: typer.Context) -> typer.Context:
-#     """
-#     Dump Context
-#     """
-#     typer.echo("\nDumping context:\n")
-#     pprint(ctx.meta)
-#     return ctx
-
-
-# @CLI.command()
-# def config_dump(ctx: typer.Context) -> typer.Context:
-#     """
-#     Dump GoobBot config info to STD out
-#     """
-#     assert ctx.meta
-#     typer.echo("\nDumping config:\n")
-#     console = get_rich_console()
-#     config_to_table(console, aiosettings)
-
-
-# @CLI.command()
-# def doctor(ctx: typer.Context) -> typer.Context:
-#     """
-#     Doctor checks your environment to verify it is ready to run GoobBot
-#     """
-#     assert ctx.meta
-#     typer.echo("\nRunning Doctor ...\n")
-#     settings_validator.get_rich_pretty_env_info()
-
-
-# @CLI.command()
-# def async_dump_context(ctx: typer.Context) -> None:
-#     """
-#     Dump Context
-#     """
-#     typer.echo("\nDumping context:\n")
-#     pprint(ctx.meta)
-#     asyncio.run(co_get_ctx(ctx))
-
-
-# @CLI.command()
-# def run(ctx: typer.Context) -> None:
-#     """
-#     Run cerebro bot
-#     """
-
-#     intents = discord.Intents.default()
-#     intents.message_content = True
-
-#     async def run_cerebro() -> None:
-#         async with GoobBot(intents=intents) as cerebro:
-#             cerebro.typerCtx = ctx
-#             await cerebro.start(aiosettings.discord_token)
-
-#     # For most use cases, after defining what needs to run, we can just tell asyncio to run it:
-#     asyncio.run(run_cerebro())
-
-
-# async def cerebro_initialized(ctx: typer.Context) -> None:
-#     """_summary_
-
-#     Args:
-#         ctx (_type_): _description_
-#     """
-#     ctx.ensure_object(dict)
-#     await asyncio.sleep(1)
-#     print("GoobBot Context Ready to Go")
-
-
-# class GoobBotContext:
-#     """_summary_
-
-#     Returns:
-#         _type_: _description_
-#     """
-
-#     @classmethod
-#     async def create(
-#         cls,
-#         ctx: typer.Context,
-#         debug: bool = True,
-#         run_bot: bool = True,
-#         run_web: bool = True,
-#         run_metrics: bool = True,
-#         run_aiodebug: bool = False,
-#     ) -> "GoobBotContext":
-#         """_summary_
-
-#         Args:
-#             ctx (typer.Context): _description_
-#             debug (bool, optional): _description_. Defaults to True.
-#             run_bot (bool, optional): _description_. Defaults to True.
-#             run_web (bool, optional): _description_. Defaults to True.
-#             run_metrics (bool, optional): _description_. Defaults to True.
-#             run_aiodebug (bool, optional): _description_. Defaults to False.
-
-#         Returns:
-#             GoobBotContext: _description_
-#         """
-#         # ctx.ensure_object(dict)
-#         await cerebro_initialized(ctx)
-#         self = GoobBotContext()
-#         self.ctx = ctx
-#         self.debug = debug
-#         self.run_bot = run_bot
-#         self.run_web = run_web
-#         self.run_metrics = run_metrics
-#         self.run_aiodebug = run_aiodebug
-#         self.debug = debug
-#         return self
-
-
-# @CLI.command(
-#     context_settings={
-#         "allow_extra_args": True,
-#         "ignore_unknown_options": True,
-#         "auto_envvar_prefix": "CEREBRO",
-#     }
-# )
-# @CLI.callback(invoke_without_command=True)
-# def main(
-#     ctx: typer.Context,
-#     debug: bool = True,
-#     run_bot: bool = True,
-#     run_web: bool = True,
-#     run_metrics: bool = True,
-#     run_aiodebug: bool = False,
-# ) -> typer.Context:
-#     """
-#     Manage users in the awesome CLI app.
-#     """
-
-#     ctx.ensure_object(dict)
-#     # ctx.obj = await GoobBotContext.create(
-#     #     ctx, debug, run_bot, run_web, run_metrics, run_aiodebug
-#     # )
-
-#     # SOURCE: http://click.palletsprojects.com/en/7.x/commands/?highlight=__main__
-#     # ensure that ctx.obj exists and is a dict (in case `cli()` is called
-#     # by means other than the `if` block below
-#     # asyncio.run(co_get_ctx_improved(ctx))
-
-#     ctx.meta["DEBUG"] = debug
-#     ctx.obj["DEBUG"] = debug
-
-#     ctx.meta["AIOMONITOR"] = run_metrics
-#     ctx.obj["AIOMONITOR"] = run_metrics
-
-#     for extra_arg in ctx.args:
-#         typer.echo(f"Got extra arg: {extra_arg}")
-#     typer.echo(f"About to execute command: {ctx.invoked_subcommand}")
-#     return ctx
-
-
-# # SOURCE: servox
-# def run_async(future: Union[asyncio.Future, asyncio.Task, Awaitable]) -> Any:
-#     """Run the asyncio event loop until Future is done.
-
-#     This function is a convenience alias for `asyncio.get_event_loop().run_until_complete(future)`.
-
-#     Args:
-#         future: The future to run.
-
-#     Returns:
-#         Any: The Future's result.
-
-#     Raises:
-#         Exception: Any exception raised during execution of the future.
-#     """
-#     return asyncio.get_event_loop().run_until_complete(future)
-
-
-# if __name__ == "__main__":
-#     _ctx = CLI()
-#     rich.print("CTX")
-#     rich.print(_ctx)
-
-
-#########################################################
-
-# SOURCE: https://github.com/tiangolo/typer/issues/88#issuecomment-1732469681
-import json
-import logging
-import sys
-
-import typer
-from rich import print, print_json
-
-from goob_ai.utils.asynctyper import AsyncTyper
-
-# from ..bot import bot
-# from ..config import settings
-
-# logging.basicConfig(stream=sys.stdout, level=logging.INFO)
+LOGGER = logger
 
 
 APP = AsyncTyper()
+console = Console()
+
+
+# Load existing subcommands
+def load_commands(directory: str = "subcommands"):
+    script_dir = Path(__file__).parent
+    subcommands_dir = script_dir / directory
+
+    LOGGER.info(f"Loading subcommands from {subcommands_dir}")
+
+    for filename in os.listdir(subcommands_dir):
+        if filename.endswith("_cmd.py"):
+            module_name = f'{__name__.split(".")[0]}.{directory}.{filename[:-3]}'
+            module = import_module(module_name)
+            if hasattr(module, "app"):
+                APP.add_typer(module.app, name=filename[:-7])
+
+
+def version_callback(version: bool) -> None:
+    """Print the version of goob_ai."""
+    if version:
+        rich.print(f"goob_ai version: {goob_ai.__version__}")
+        raise typer.Exit()
+
+
+@APP.command()
+def version() -> None:
+    """version command"""
+    rich.print(f"goob_ai version: {goob_ai.__version__}")
 
 
 @APP.command()
 def about() -> None:
-    typer.echo("This is a bot created from aulasoftwarelibre/telegram-bot-template")
+    """about command"""
+    typer.echo("This is GoobBot CLI")
 
 
-# @app.async_command()
+# @APP.async_command()
 # async def info() -> None:
 #     """Returns information about the bot."""
 #     result = await bot.get_me()
@@ -315,7 +114,7 @@ def about() -> None:
 #     await bot.close_session()
 
 
-# @app.async_command()
+# @APP.async_command()
 # async def install() -> None:
 #     """Install bot webhook"""
 #     # Remove webhook, it fails sometimes the set if there is a previous webhook
@@ -332,24 +131,117 @@ def about() -> None:
 #     await bot.close_session()
 
 
-@app.async_command()
-async def serve() -> None:
-    """Run polling bot version."""
-    logging.info("Starting...")
+# @APP.async_command()
+# async def serve() -> None:
+#     """Run polling bot version."""
+#     logging.info("Starting...")
 
-    await bot.remove_webhook()
-    await bot.infinity_polling(logger_level=logging.INFO)
-
-    await bot.close_session()
-
-
-# @app.async_command()
-# async def uninstall() -> None:
-#     """Uninstall bot webhook."""
 #     await bot.remove_webhook()
+#     await bot.infinity_polling(logger_level=logging.INFO)
 
 #     await bot.close_session()
 
 
+# # @APP.async_command()
+# # async def uninstall() -> None:
+# #     """Uninstall bot webhook."""
+# #     await bot.remove_webhook()
+
+
+# #     await bot.close_session()
+def main():
+    APP()
+    load_commands()
+
+
+def entry():
+    """Required entry point to enable hydra to work as a console_script."""
+    main()  # pylint: disable=no-value-for-parameter
+
+
+async def run_bot():
+    async with AsyncGoobBot() as bot:
+        # bot.typerCtx = ctx
+        # bot.typerCtx = ctx
+        # bot.pool = pool
+        await bot.start()
+    # log = logging.getLogger()
+    # try:
+    #     pool = await create_pool()
+    # except Exception:
+    #     click.echo('Could not set up PostgreSQL. Exiting.', file=sys.stderr)
+    #     log.exception('Could not set up PostgreSQL. Exiting.')
+    #     return
+
+    # async with RoboDanny() as bot:
+    #     bot.pool = pool
+    #     await bot.start()
+
+
+# @click.group(invoke_without_command=True, options_metavar='[options]')
+# @click.pass_context
+# def main(ctx):
+#     """Launches the bot."""
+#     if ctx.invoked_subcommand is None:
+#         with setup_logging():
+#             asyncio.run(run_bot())
+
+
+@APP.command()
+def go() -> None:
+    """Main entry point for GoobAI"""
+    typer.echo("Starting up GoobAI Bot")
+    asyncio.run(run_bot())
+
+
 if __name__ == "__main__":
-    app()
+    APP()
+
+
+# TODO: Add this
+# @CLI.command()
+# def run(ctx: typer.Context) -> None:
+#     """
+#     Run cerebro bot
+#     """
+
+#     # # SOURCE: http://click.palletsprojects.com/en/7.x/commands/?highlight=__main__
+#     # # ensure that ctx.obj exists and is a dict (in case `cli()` is called
+#     # # by means other than the `if` block below
+#     # # ctx.ensure_object(dict)
+
+#     # typer.echo("\nStarting bot...\n")
+#     # cerebro = Cerebro()
+#     # # cerebro_bot/bot.py:528:4: E0237: Assigning to attribute 'members' not defined in class slots (assigning-non-slot)
+#     # cerebro.intents.members = True  # pylint: disable=assigning-non-slot
+#     # # NOTE: https://github.com/makupi/cookiecutter-discord.py-postgres/blob/master/%7B%7Bcookiecutter.bot_slug%7D%7D/bot/__init__.py
+#     # cerebro.version = cerebro_bot.__version__
+#     # cerebro.guild_data = {}
+#     # cerebro.typerCtx = ctx
+#     # load_extensions(cerebro)
+#     # _cog = cerebro.get_cog("Utility")
+#     # utility_commands = _cog.get_commands()
+#     # print([c.name for c in utility_commands])
+
+#     # # TEMPCHANGE: 3/26/2023 - Trying to see if it loads settings in time.
+#     # # TEMPCHANGE: # it is possible to pass a dictionary with local variables
+#     # # TEMPCHANGE: # to the python console environment
+#     # # TEMPCHANGE: host, port = "localhost", 50101
+#     # # TEMPCHANGE: locals_ = {"port": port, "host": host}
+
+#     # locals_ = aiosettings.aiomonitor_config_data
+
+#     # # aiodebug_log_slow_callbacks.enable(0.05)
+#     # with aiomonitor.start_monitor(loop=cerebro.loop, locals=locals_):
+#     #     cerebro.run(aiosettings.discord_token)
+#     # run_async(aio_go_run_cerebro())
+#     intents = discord.Intents.default()
+#     intents.message_content = True
+
+#     async def run_cerebro() -> None:
+#         async with Cerebro(intents=intents) as cerebro:
+#             cerebro.typerCtx = ctx
+#             await cerebro.start(aiosettings.discord_token)
+
+#     # For most use cases, after defining what needs to run, we can just tell asyncio to run it:
+#     asyncio.run(run_cerebro())

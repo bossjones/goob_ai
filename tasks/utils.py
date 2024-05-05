@@ -5,10 +5,7 @@ supporting task functions
 # Passing an environment variable containing unicode literals to a subprocess
 # on Windows and Python2 raises a TypeError. Since there is no unicode
 # string in this script, we don't import unicode_literals to avoid the issue.
-from __future__ import absolute_import, division, print_function
-from contextlib import contextmanager
-from tempfile import mkdtemp
-from shutil import rmtree
+from __future__ import absolute_import, annotations, division, print_function
 
 import contextlib
 import copy
@@ -16,12 +13,16 @@ import errno
 import logging
 import os
 import shutil
-from shutil import which
 import stat
 import subprocess
 import sys
 
+from contextlib import contextmanager
+from shutil import rmtree, which
+from tempfile import mkdtemp
+
 from invoke import Exit
+
 
 COLOR_WARNING = "red"
 COLOR_DANGER = "red"

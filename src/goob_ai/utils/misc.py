@@ -6,12 +6,14 @@ from __future__ import annotations
 # import collections
 import inspect
 import itertools
-from os import PathLike, fspath, path
 import re
 import sys
+
+from os import PathLike, fspath, path
 from typing import TYPE_CHECKING, List, Optional, Sequence, Type, TypeVar
 
 import numpy as np
+
 
 if TYPE_CHECKING:
     import packaging.version

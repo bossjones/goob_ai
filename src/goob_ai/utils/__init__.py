@@ -1,14 +1,18 @@
 """goob_ai.utils"""
+# pyright: reportGeneralTypeIssues=false
+# pyright: reportOperatorIssue=false
+# pyright: reportOptionalIterable=false
 
 # NOTE: Via Red https://github.com/Cog-Creators/Red-DiscordBot/tree/V3/develop/redbot
 from __future__ import annotations
 
 import asyncio
+import json
+import logging
+
 from asyncio import Semaphore, as_completed
 from asyncio.futures import isfuture
 from itertools import chain
-import json
-import logging
 from pathlib import Path
 from typing import (
     Any,
@@ -29,11 +33,13 @@ from typing import (
 
 from discord.utils import maybe_coroutine
 
+# LOGGER = get_logger("goob_ai.utils", provider="Utils", level=logging.DEBUG)
+from loguru import logger as LOGGER
+
 from goob_ai import constants
 from goob_ai.aio_settings import aiosettings
 from goob_ai.bot_logger import get_logger
 
-LOGGER = get_logger("goob_ai.utils", provider="Utils", level=logging.DEBUG)
 
 _T = TypeVar("_T")
 _S = TypeVar("_S")

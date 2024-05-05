@@ -3,19 +3,21 @@
 
 from __future__ import annotations
 
-from asyncio import Semaphore, coroutines, ensure_future, gather, get_running_loop
-from asyncio.events import AbstractEventLoop
 import concurrent.futures
 import functools
 import logging
 import threading
 import time
+
+from asyncio import Semaphore, coroutines, ensure_future, gather, get_running_loop
+from asyncio.events import AbstractEventLoop
 from traceback import extract_stack
 from typing import Any, Awaitable, Callable, Coroutine, TypeVar
 
 from codetiming import Timer
 
 from goob_ai.bot_logger import get_logger
+
 
 _LOGGER = get_logger(__name__, provider="Async Logger", level=logging.DEBUG)
 

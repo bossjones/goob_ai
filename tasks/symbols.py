@@ -1,10 +1,14 @@
 # SOURCE: https://github.com/ManrajGrover/py-log-symbols
 
 """Provide log symbols for various log levels."""
+from __future__ import annotations
+
 import platform
 
 from enum import Enum
-from colorama import init, deinit, Fore
+
+from colorama import Fore, deinit, init
+
 
 init(autoreset=True)
 

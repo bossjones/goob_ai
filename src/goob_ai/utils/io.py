@@ -1,14 +1,19 @@
 """io.py"""
 
+from __future__ import annotations
+
 import csv
-from glob import glob
 import os
-from pathlib import Path
 import re
+
+from glob import glob
+from pathlib import Path
 from typing import List, Optional, Tuple, Union
 
-from dask import array as da, delayed
 import numpy as np
+
+from dask import array as da
+from dask import delayed
 
 from goob_ai.utils.misc import abspath_or_url
 

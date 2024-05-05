@@ -1,11 +1,15 @@
 # SOURCE: https://github.com/socialhourmobile/SD-hassan-ns/blob/3b6b266b17e0fd0a9b17374cd2afbf4c59b7c245/modules/devices.py
+from __future__ import annotations
+
 import argparse
 import contextlib
+
 from typing import Optional, Union
 
 import torch  # type: ignore
 
 from goob_ai.core import errors
+
 
 # from icecream import ic
 

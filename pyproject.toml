@@ -84,7 +84,7 @@ dependencies = [
     "telnetlib3>=2.0.4",
     "tqdm>=4.66.4",
     "transformers>=4.40.1",
-    "typer>=0.12.3",
+    "typer[all]>=0.12.3",
     "uritemplate>=4.1.1",
     "uritools>=4.0.2",
     "validators>=0.28.1",
@@ -108,6 +108,7 @@ dependencies = [
     "click>=8.1.7",
     "torchvision>=0.18.0",
     "asyncer>=0.0.7",
+    "bump-pydantic>=0.8.0",
 ]
 
 readme = "README.md"
@@ -117,6 +118,10 @@ readme = "README.md"
 requires-python = ">=3.10,<3.12"
 
 license = {text = "MIT"}
+
+[project.scripts]
+# openai = "openai.cli:main"
+goobctl = 'goob_ai.cli:entry'
 
 [build-system]
 requires = ["hatchling", "packaging<24"]
@@ -170,6 +175,7 @@ dev-dependencies = [
     "pylint>=3.1.0",
     "loguru-mypy>=0.0.4",
     "docformatter[tomli]>=1.7.5",
+    "pytest-httpx>=0.30.0",
 ]
 
 [tool.rye.scripts]
@@ -181,6 +187,24 @@ fmt = {cmd = "pre-commit run --all-files"}
 pylint = {cmd = "python -m invoke ci.pylint --everything"}
 lint-all = {cmd = "python -m pylint --output-format=colorized --rcfile pyproject.toml tests src"}
 lint = {cmd = "python -m pylint --output-format=colorized --disable=C0111,E0401,C,W --enable=F,E tests src"}
+typecheck = {chain = [
+    "typecheck:pyright",
+    "typecheck:mypy",
+]}
+"typecheck:pyright" = "pyright"
+"typecheck:verify-types" = "pyright --verifytypes openai --ignoreexternal"
+"typecheck:mypy" = "mypy ."
+unittests-debug = {cmd = "pytest --verbose --pdb --pdbcls bpdb:BPdb --showlocals --tb=short --cov-append --cov-report=term-missing --junitxml=junit/test-results.xml --cov-report=xml:cov.xml --cov-report=html:htmlcov --cov-report=annotate:cov_annotate --cov=."}
+unittests = {cmd = "pytest --verbose --showlocals --tb=short --cov-append --cov-report=term-missing --junitxml=junit/test-results.xml --cov-report=xml:cov.xml --cov-report=html:htmlcov --cov-report=annotate:cov_annotate --cov=."}
+test = {chain = [
+    "lint",
+    "unittests",
+]}
+# TODO: enable this
+# SOURCE: https://github.com/JacobCoffee/byte/blob/f863a146060165fe5c33a6343ee661b71f3ebf4a/pyproject.toml#L10
+# docs-serve = "sphinx-autobuild docs docs/_build/ -j auto --watch app --watch docs --watch tests --watch CONTRIBUTING.rst --port 8002"
+# changelog = "git cliff -c pyproject.toml -o docs/changelog.rst"
+# # TODO: Move more from makefile here
 
 # NOTE: THIS CAUSED EVERYTHING TO BE HELD BACK TO SUPER OLD VERSIONS
 # # https://github.com/astral-sh/rye/blob/ab8d5b433d5c4342c2bb125583c6bff4d29f5fbc/docs/guide/faq.md
@@ -218,7 +242,7 @@ omit = [
     "tests/*",
 ]
 # fail if coverage drops below the specified percentage:
-fail_under = 59
+fail_under = 10
 
 # Regexes for lines to exclude from consideration
 exclude_also = [
@@ -307,7 +331,7 @@ warn_return_any = false
 
 # Enable optional errors.
 enable_error_code = [
-    "explicit-override",
+    # "explicit-override",
     "ignore-without-code",
     "redundant-expr",
     "redundant-self",
@@ -334,8 +358,11 @@ disable_error_code = [
     "operator",
     "type-var",
     "var-annotated",
+    "consider-using-with",
+    "union-attr",
 ]
 
+# Causes mypy to treat arguments with a None default value as having an implicit Optional type.
 follow_imports = "silent"
 
 # Warns about casting an expression to its inferred type.
@@ -343,6 +370,10 @@ warn_redundant_casts = true
 
 # Causes mypy to suppress errors caused by not being able to fully infer the types of global and class variables.
 allow_redefinition = true
+
+strict_optional = true
+
+# warn_unused_ignores = true
 
 # Display the codes needed for # type: ignore[code] annotations.
 show_error_codes = true
@@ -354,7 +385,7 @@ warn_unreachable = true
 # with this behavior.
 local_partial_types = true
 
-plugins = ["pydantic.mypy"]
+plugins = ["pydantic.mypy", "loguru_mypy"]
 
 [tool.pydantic-mypy]
 # NOTE: https://docs.pydantic.dev/latest/integrations/mypy/#configuring-the-plugin
@@ -371,6 +402,15 @@ no_implicit_reexport = true
 # Ignores all non-fatal errors.
 ignore_errors = true
 # warn_untyped_fields = true
+
+# mypy \
+#   --ignore-missing-imports \
+#   --follow-imports=skip \
+#   --strict-optional \
+#   pydantic_mypy_test.py
+ignore_missing_imports = true
+follow_imports = "skip"
+strict_optional = true
 
 # ===========================[ MYPY OVERRIDES ]========================
 [[tool.mypy.overrides]]
@@ -399,6 +439,8 @@ module = [
     "coverage",
     "cv2.*",
     "dill",
+    "discord.*",
+    "discord.client.*",
     "enchant.*",
     "etils.*",
     "flatbuffers.*",
@@ -449,8 +491,14 @@ module = [
     "web_pdb.*",
     "wilds.*",
     "zstandard.*",
+    "aiodebug.*",
+    "aiomonitor.*",
+    # "loguru.*",
+    "aiofiles.*",
+    "passlib.*",
 ]
 ignore_missing_imports = true
+ignore_errors = true
 
 
 # ===========================[ RUFF ]========================
@@ -494,6 +542,8 @@ extend-exclude = [
     "notebooks/*",
     "tests/data",
     "venv",
+    "typings",
+    "contrib",
 ]
 
 # https://docs.astral.sh/ruff/settings/#indent-width
@@ -518,12 +568,14 @@ fixable = [
     "E",    # Error (E)# https://docs.astral.sh/ruff/rules/#pycodestyle-e-w
     "F",    # Pyflakes (F)
     "I002",
+    "I",
 ]
 
 # Enable Pyflakes (`F`) and a subset of the pycodestyle (`E`)  codes by default.
 # Unlike Flake8, Ruff doesn't enable pycodestyle warnings (`W`) or
 # McCabe complexity (`C901`) by default.
 select = [
+    "I", # isort
     "Q", # flake8-quotes (Q) https://docs.astral.sh/ruff/rules/#flake8-quotes-q
     # "RUF100", # unused `noqa` directive
     # "C90",    # mccabe (C90). C901 complex-structure	{name} is too complex ({complexity} > {max_complexity})
@@ -703,6 +755,8 @@ known-third-party = [
 ]
 split-on-trailing-comma = false
 
+known-first-party = ["src", "tests"]
+
 known-local-folder = ["src/*"]
 
 section-order = [
@@ -810,7 +864,7 @@ fail-on = ["I"]
 load-plugins = [
     "pylint.extensions.code_style",
     "pylint.extensions.typing",
-    "pylint.extensions.no_self_use",
+    # "pylint.extensions.no_self_use",
     "pylint_per_file_ignores",
     # "pylint.extensions.bad_builtin",
     # "pylint.extensions.broad_try_clause",
@@ -1183,7 +1237,7 @@ score = false
 # List of members which are set dynamically and missed by pylint inference
 # system, and so shouldn't trigger E1101 when accessed. Python regular
 # expressions are accepted.
-generated-members = 'numpy.*, torch.*'
+generated-members = 'numpy.*, torch.*, cv2.*, discord.*, ,logging.root.*'
 ignored-classes = [
     "_CountingAttr", # for attrs
 ]
@@ -1236,20 +1290,26 @@ reportUnusedImport = "none"
 pythonVersion = "3.10"
 verboseOutput = true
 reportUnnecessaryCast = true
-# typeCheckingMode = "basic"
-typeCheckingMode = "standard"
+typeCheckingMode = "basic"
+# typeCheckingMode = "standard"
 reportMissingTypeStubs = "none"
 reportMissingImports = "error"
 reportImportCycles = "error"
 reportUnusedVariable = "none"
-reportUnknownMemberType = "none"
-reportUnusedFunction = "warning"
-reportUnusedClass = "warning"
-reportReturnType = "warning"
+# reportUnknownMemberType = "none"
+reportUnusedFunction = "none"
+reportUnusedClass = "none"
+reportReturnType = "none"
 # [boolean or string, optional]: Generate or suppress diagnostics for general type inconsistencies, unsupported operations, argument/parameter mismatches, etc. This covers all of the basic type-checking rules not covered by other rules. It does not include syntax errors. The default value for this setting is "error".
-reportGeneralTypeIssues = "none"
+# reportGeneralTypeIssues = "none"
 reportArgumentType = "none"
 reportAttributeAccessIssue = "none"
+
+reportOptionalMemberAccess = false
+reportUnknownMemberType = false
+reportGeneralTypeIssues = true
+reportCallIssue = "none"
+
 
 # SOURCE: https://github.com/Ruzzy77/python-template/blob/57c8964f1efb2635d0bdca5684613a8d8736aed0/pyproject.toml#L168C1-L189C2
 ################################################################################

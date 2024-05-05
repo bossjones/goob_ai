@@ -1,8 +1,12 @@
 """
 ci tasks
 """
+from __future__ import annotations
+
 import logging
+
 from invoke import task
+
 from tasks.utils import get_compose_env
 
 

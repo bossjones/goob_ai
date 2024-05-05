@@ -3,6 +3,8 @@
 # SOURCE: https://github.com/Fogapod/KiwiBot/blob/49743118661abecaab86388cb94ff8a99f9011a8/modules/utils/module_screenshot.py
 # Python script containing the different algorithms used to download videos from
 # various sources
+from __future__ import annotations
+
 import asyncio
 import logging
 import pathlib
@@ -12,9 +14,12 @@ import aiofile
 import aiohttp
 import certifi
 
+
+# LOGGER = get_logger(__name__, provider="Downloader", level=logging.DEBUG)
+from loguru import logger as LOGGER
+
 from goob_ai.bot_logger import get_logger
 
-LOGGER = get_logger(__name__, provider="Downloader", level=logging.DEBUG)
 
 VERIFY_SSL = False
 

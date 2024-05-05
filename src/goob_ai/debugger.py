@@ -1,25 +1,20 @@
 """Debugging module. Import these functions in pdb or jupyter notebooks to figure step through code execution."""
 
+from __future__ import annotations
+
 import logging
+
 from typing import Any
 
 import rich
+
+from loguru import logger as LOGGER
 from rich import print
 
-from goob_ai.bot_logger import get_logger
 
-LOGGER = get_logger(__name__, provider="Debugger", level=logging.DEBUG)
+# from goob_ai.bot_logger import get_logger
 
-
-# def init_debugger():
-#     import sys
-
-#     from IPython.core import ultratb
-#     from IPython.core.debugger import Tracer  # noqa
-
-#     sys.excepthook = ultratb.FormattedTB(
-#         mode="Verbose", color_scheme="Linux", call_pdb=True, ostream=sys.__stdout__
-#     )
+# LOGGER = get_logger(__name__, provider="Debugger", level=logging.DEBUG)
 
 
 # source: http://blender.stackexchange.com/questions/1879/is-it-possible-to-dump-an-objects-properties-and-methods
@@ -45,9 +40,7 @@ def rich_inspect(obj) -> None:
 def dump_color(obj):
     # source: https://gist.github.com/EdwardBetts/0814484fdf7bbf808f6f
     from pygments import highlight
-    from pygments.formatters.terminal256 import (  # pylint: disable=no-name-in-module
-        Terminal256Formatter,
-    )
+    from pygments.formatters.terminal256 import Terminal256Formatter  # pylint: disable=no-name-in-module
 
     # Module name actually exists, but pygments loads things in a strange manner
     from pygments.lexers import Python3Lexer  # pylint: disable=no-name-in-module
@@ -81,9 +74,7 @@ def pprint_color(obj):
     from pprint import pformat
 
     from pygments import highlight
-    from pygments.formatters.terminal256 import (  # pylint: disable=no-name-in-module
-        Terminal256Formatter,
-    )
+    from pygments.formatters.terminal256 import Terminal256Formatter  # pylint: disable=no-name-in-module
 
     # Module name actually exists, but pygments loads things in a strange manner
     from pygments.lexers import PythonLexer  # pylint: disable=no-name-in-module

@@ -1,10 +1,15 @@
+from __future__ import annotations
+
+import re
+
+from io import BytesIO
+
 import discord
+import requests
+import torch  # type: ignore
+
 from discord.ext import commands
 from PIL import Image
-from io import BytesIO
-import requests
-import re
-import torch  # type: ignore
 from transformers import BlipForConditionalGeneration, BlipProcessor
 
 

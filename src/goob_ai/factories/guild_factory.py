@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from goob_ai.aio_settings import aiosettings
 
+
 # TEMPCHANGE: # DISCORD_TOKEN = os.environ.get("DISCORD_TOKEN")
 # TEMPCHANGE: # DISCORD_ADMIN = os.environ.get("DISCORD_ADMIN_USER_ID")
 # TEMPCHANGE: # DISCORD_GUILD = os.environ.get("DISCORD_SERVER_ID")

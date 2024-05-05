@@ -1,5 +1,7 @@
 """goob_ai.core.errors."""
 
+from __future__ import annotations
+
 import importlib.machinery
 import sys
 import traceback

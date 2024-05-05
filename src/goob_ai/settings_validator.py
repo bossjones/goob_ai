@@ -3,17 +3,19 @@
 # type: ignore
 from __future__ import annotations
 
-from collections import namedtuple
 import netrc
 import pathlib
 import platform
 import sys
+
+from collections import namedtuple
 from typing import Dict, Union
 
 from rich.console import Console
 
 from goob_ai.aio_settings import aiosettings
 from goob_ai.utils.file_functions import is_a_symlink, is_directory, is_file
+
 
 # System Environment Information
 SystemEnv = namedtuple(

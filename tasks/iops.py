@@ -9,6 +9,7 @@ from typing import List, Tuple, Union
 
 import pandas as pd
 
+
 PY2 = sys.version_info[0] == 2
 PY3 = sys.version_info[0] == 3
 

@@ -1,37 +1,21 @@
 """aio_settings"""
-
 # pylint: disable=no-name-in-module
-# type: ignore[call-arg]
-# type: ignore[attr-defined]
-# type: ignore[pydantic-field]
+
 from __future__ import annotations
-
-from typing import Any, Callable, List, cast
-from typing import Any, Callable, Set
-
-from pydantic import (
-    AliasChoices,
-    AmqpDsn,
-    BaseModel,
-    Field,
-    ImportString,
-    PostgresDsn,
-    RedisDsn,
-)
-
-from pydantic_settings import BaseSettings, SettingsConfigDict
-from typing_extensions import Annotated, TypedDict
 
 import enum
 import pathlib
+
 from pathlib import Path
 from tempfile import gettempdir
-from typing import Any, Dict, Optional
+from typing import Any, Callable, Dict, List, Optional, Set, Union, cast
 
-from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic import AliasChoices, AmqpDsn, BaseModel, Field, ImportString, PostgresDsn, RedisDsn
 from pydantic.functional_validators import field_validator
+from pydantic_settings import BaseSettings, SettingsConfigDict
 from rich.console import Console
 from rich.table import Table
+from typing_extensions import Annotated, TypedDict
 from yarl import URL
 
 
@@ -81,90 +65,6 @@ def get_rich_console() -> Console:
     return Console()
 
 
-def add_rich_table_row(table: Table, config_name: str, config_value: Any, bot_settings: AioSettings) -> None:
-    """Format and add row to Rich table.
-
-    Args:
-        table (Table): _description_
-        config_name (str): _description_
-        config_value (Any): _description_
-        bot_settings (AioSettings): _description_
-    """
-    formatted_config_name = f"{config_name}"
-    formatted_config_value: str = f"{config_value}"
-    env_name = f"{bot_settings.Config.env_prefix}{config_name}".upper()
-    default_value = f"{bot_settings.__fields__[config_name].default}"
-    config_type: str = f"{bot_settings.__fields__[config_name].type_}"
-    table.add_row(formatted_config_name, env_name, formatted_config_value, config_type, default_value)
-
-
-def config_to_table(console: Console, bot_settings: AioSettings) -> None:
-    """_summary_
-
-    Args:
-        console (Console): _description_
-        bot_settings (AioSettings): _description_
-    """
-    # config name, env var name, Value, default
-    table = Table(show_header=True, header_style="bold magenta")
-    table.add_column("Config Name", style="dim")
-    table.add_column("Env Var Name")
-    table.add_column("Value")
-    table.add_column("Type")
-    table.add_column("Default Value")
-
-    # Iterating over values
-    for config_name, config_value in bot_settings.dict().items():
-        add_rich_table_row(table, config_name, config_value, bot_settings)
-
-    # # handle properties differently.
-    table.add_row("redis_url", "n/a", f"{bot_settings.redis_url}", f"{type(bot_settings.redis_url)}", "n/a")
-    table.add_row(
-        "aiomonitor_config_data",
-        "n/a",
-        f"{bot_settings.aiomonitor_config_data}",
-        f"{type(bot_settings.aiomonitor_config_data)}",
-        "n/a",
-    )
-    table.add_row(
-        "global_config_file",
-        "n/a",
-        f"{bot_settings.global_config_file}",
-        f"{type(bot_settings.global_config_file)}",
-        "n/a",
-    )
-    table.add_row(
-        "global_config_dir",
-        "n/a",
-        f"{bot_settings.global_config_dir}",
-        f"{type(bot_settings.global_config_dir)}",
-        "n/a",
-    )
-    table.add_row(
-        "global_models_dir",
-        "n/a",
-        f"{bot_settings.global_models_dir}",
-        f"{type(bot_settings.global_models_dir)}",
-        "n/a",
-    )
-    table.add_row(
-        "global_autoscan_dir",
-        "n/a",
-        f"{bot_settings.global_autoscan_dir}",
-        f"{type(bot_settings.global_autoscan_dir)}",
-        "n/a",
-    )
-    table.add_row(
-        "global_converted_ckpts_dir",
-        "n/a",
-        f"{bot_settings.global_converted_ckpts_dir}",
-        f"{type(bot_settings.global_converted_ckpts_dir)}",
-        "n/a",
-    )
-
-    console.print(table)
-
-
 class LogLevel(str, enum.Enum):  # noqa: WPS600
     """Possible log levels."""
 
@@ -184,8 +84,14 @@ class AioSettings(BaseSettings):
     with environment variables.
     """
 
-    # main directory to place models in etc eg. ~/cerebro
-    # cerebro_root: str = "~/cerebro"
+    # By default, the environment variable name is the same as the field name.
+
+    # You can change the prefix for all environment variables by setting the env_prefix config setting, or via the _env_prefix keyword argument on instantiation:
+
+    model_config = SettingsConfigDict(
+        env_prefix="GOOB_AI_CONFIG_", env_file=(".env", ".envrc"), env_file_encoding="utf-8"
+    )
+
     monitor_host: str = "localhost"
     monitor_port: int = 50102
 
@@ -195,22 +101,34 @@ class AioSettings(BaseSettings):
     # ***************************************************
     # NOTE: these are grouped together
     # ***************************************************
-    token: str = ""
-    prefix: str = "/"
-    # default_config = {"token": "", "prefix": constants.prefix}
-    # ***************************************************
+    # token: str = ""
+    prefix: str = "?"
 
-    # default_dropbox_folder: str = "/cerebro_downloads"
-    # default_tweetpik_options = {}
-    discord_admin_user_id: str = ""
-    # TODO: ^ change this ->  to ^  and find all instances where it is called. discord_admin = os.environ.get("discord_admin_user_id")
+    discord_admin_user_id: int | None = None
+
     discord_general_channel: int = 908894727779258390
 
-    discord_server_id: str = ""
-    # TODO: ^ change this ->  to ^  and find all instances where it is called. discord_guild: str = "" os.environ.get("discord_server_id")
+    discord_server_id: int = 0
+    discord_client_id: int = 0
 
-    # discord_server_id: Optional[str] = None
     discord_token: str = ""
+
+    # openai_token: str = ""
+    openai_api_key: str = ""
+
+    discord_admin_user_invited: bool = False
+
+    # pylint: disable=redundant-keyword-arg
+    better_exceptions: bool = Field(env="BETTER_EXCEPTIONS", description="Enable better exceptions", default=1)
+    pythonasynciodebug: bool = Field(
+        env="PYTHONASYNCIODEBUG", description="enable or disable asyncio debugging", default=1
+    )
+    langchain_debug_logs: bool = Field(
+        env="LANGCHAIN_DEBUG_LOGS", description="enable or disable langchain debug logs", default=0
+    )
+
+    enable_ai: bool = False
+    http_client_debug_enabled: bool = False
 
     # Try loading patchmatch
     globals_try_patchmatch: bool = True
@@ -231,17 +149,31 @@ class AioSettings(BaseSettings):
     # logging tokenization everywhere
     globals_log_tokenization: bool = False
 
-    # ************************************************************************
-
-    # log_level: LogLevel = LogLevel.DEBUG.value
-    # log_level
-
     # Variables for Redis
     redis_host: str = "localhost"
     redis_port: int = 7600
     redis_user: Optional[str] = None
     redis_pass: Optional[str] = None
     redis_base: Optional[int] = None
+    enable_redis: bool = False
+
+    # azure_openai_api_key: str
+    # openai_api_type: str
+    # openai_api_version: str
+    # azure_deployment: str
+    # azure_openai_endpoint: str
+    llm_temperature: float = 0.1
+    # vision_model: str = "gpt-4-turbo"
+    vision_model: str = "gpt-4-vision-preview"
+    chat_model: str = "gpt-3.5-turbo-0125"
+    # chat_model: str = "gpt-3.5-turbo-16k" # note another option
+    chat_history_buffer: int = 10
+
+    retry_stop_after_attempt: int = 3
+    retry_wait_exponential_multiplier: Union[int, float] = 2
+    retry_wait_exponential_max: Union[int, float] = 5
+    retry_wait_exponential_min: Union[int, float] = 1
+    retry_wait_fixed: Union[int, float] = 15
 
     @property
     def redis_url(self) -> URL:
@@ -269,10 +201,10 @@ class AioSettings(BaseSettings):
         """
         return {"port": self.monitor_port, "host": self.monitor_host}
 
-    class Config:  # sourcery skip: docstrings-for-classes
-        env_file = ".env"
-        env_prefix = "GOOB_AI_"
-        env_file_encoding = "utf-8"
+    # class Config:  # sourcery skip: docstrings-for-classes
+    #     env_file = ".env"
+    #     env_prefix = "GOOB_AI_"
+    #     env_file_encoding = "utf-8"
 
 
 aiosettings = AioSettings()  # sourcery skip: docstrings-for-classes, avoid-global-variables

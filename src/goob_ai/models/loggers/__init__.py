@@ -1,20 +1,23 @@
 """goob_ai.models.loggers"""
 
+# pyright: reportAssignmentType=false
+# pyright: strictParameterNoneValue=false
+# pylint: disable=no-name-in-module
+
 # SOURCE: https://blog.bartab.fr/fastapi-logging-on-the-fly/
 from __future__ import annotations
 
-from typing import Any, List, Optional
+from typing import Any, ForwardRef, List, Optional
 
-# pylint: disable=no-name-in-module
 from pydantic import BaseModel
+
+
+LoggerModel = ForwardRef("LoggerModel")
 
 
 class LoggerPatch(BaseModel):
     name: str
     level: str
-
-
-# ListLoggerModel = ForwardRef("List[LoggerModel]")
 
 
 class LoggerModel(BaseModel):

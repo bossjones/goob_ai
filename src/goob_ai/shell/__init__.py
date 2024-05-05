@@ -1,18 +1,24 @@
 #!/usr/bin/env python
 """goob_ai.shell"""
+# pylint: disable=consider-using-with
+
+from __future__ import annotations
 
 import asyncio
-from asyncio.subprocess import Process
 import os
 import pathlib
-from pathlib import Path
 import subprocess
 import sys
 import time
+
+from asyncio.subprocess import Process
+from pathlib import Path
 from typing import List, Tuple, Union
 
-from codetiming import Timer
 import uritools
+
+from codetiming import Timer
+
 
 HOME_PATH = os.environ.get("HOME")
 
@@ -34,7 +40,7 @@ async def _aio_run_process_and_communicate(cmd: List[str], cwd: Union[str, None]
 
 
 def _stat_y_file(fname: str, env: dict = None, cwd: Union[str, None] = None) -> str:
-    """Get the timestamp of a file."""
+    # """Get the timestamp of a file."""
     if env is None:
         env = {}
     cmd_arg_without_str_fmt = """stat -c %y {fname}""".format(fname=fname)
@@ -58,6 +64,19 @@ def _stat_y_file(fname: str, env: dict = None, cwd: Union[str, None] = None) -> 
 
 
 def _popen(cmd_arg: Tuple, env: dict = None, cwd: Union[str, None] = None):
+    """_summary_
+
+    Args:
+        cmd_arg (Tuple): _description_
+        env (dict, optional): _description_. Defaults to None.
+        cwd (Union[str, None], optional): _description_. Defaults to None.
+
+    Raises:
+        RuntimeError: _description_
+
+    Returns:
+        _type_: _description_
+    """
     if env is None:
         env = {}
     with open("/dev/null") as devnull:
@@ -71,6 +90,19 @@ def _popen(cmd_arg: Tuple, env: dict = None, cwd: Union[str, None] = None):
 
 
 def _popen_communicate(cmd_arg: Tuple, env: dict = None, cwd: Union[str, None] = None):
+    """_summary_
+
+    Args:
+        cmd_arg (Tuple): _description_
+        env (dict, optional): _description_. Defaults to None.
+        cwd (Union[str, None], optional): _description_. Defaults to None.
+
+    Raises:
+        RuntimeError: _description_
+
+    Returns:
+        _type_: _description_
+    """
     if env is None:
         env = {}
     devnull = open("/dev/null")
@@ -90,10 +122,6 @@ def _popen_communicate(cmd_arg: Tuple, env: dict = None, cwd: Union[str, None] =
         except subprocess.TimeoutExpired:
             print("subprocess did not terminate in time")
 
-    # retval = cmd.stdout.read().strip()
-    # err = cmd.wait()
-    # cmd.stdout.close()
-    # devnull.close()
     if err:
         raise RuntimeError(f"Failed to close {cmd_arg} stream")
     return retval
@@ -110,6 +138,11 @@ class ShellConsole:  # pylint: disable=too-few-public-methods
 
     @classmethod
     def message(cls, str_format, *args):
+        """_summary_
+
+        Args:
+            str_format (_type_): _description_
+        """
         if cls.quiet:
             return
 
@@ -124,6 +157,18 @@ class ShellConsole:  # pylint: disable=too-few-public-methods
 
 
 def pquery(command: Union[str, list], stdin: bool = None, **kwargs):
+    """_summary_
+
+    Args:
+        command (Union[str, list]): _description_
+        stdin (bool, optional): _description_. Defaults to None.
+
+    Raises:
+        ProcessException: _description_
+
+    Returns:
+        _type_: _description_
+    """
     # SOURCE: https://github.com/ARMmbed/mbed-cli/blob/f168237fabd0e32edcb48e214fc6ce2250046ab3/test/util.py
     # Example:
     if type(command) == list:
@@ -145,6 +190,12 @@ def pquery(command: Union[str, list], stdin: bool = None, **kwargs):
 
 
 def _popen_stdout(cmd_arg: str, cwd: Union[str, None] = None):
+    """_summary_
+
+    Args:
+        cmd_arg (str): _description_
+        cwd (Union[str, None], optional): _description_. Defaults to None.
+    """
     # if passing a single string, either shell mut be True or else the string must simply name the program to be executed without specifying any arguments
     cmd = subprocess.Popen(
         cmd_arg,
@@ -167,6 +218,12 @@ def _popen_stdout(cmd_arg: str, cwd: Union[str, None] = None):
 
 
 def _popen_stdout_lock(cmd_arg: str, cwd: Union[str, None] = None):
+    """_summary_
+
+    Args:
+        cmd_arg (str): _description_
+        cwd (Union[str, None], optional): _description_. Defaults to None.
+    """
     # if passing a single string, either shell mut be True or else the string must simply name the program to be executed without specifying any arguments
     with subprocess.Popen(
         cmd_arg,
@@ -189,6 +246,16 @@ def _popen_stdout_lock(cmd_arg: str, cwd: Union[str, None] = None):
 
 
 async def run_coroutine_subprocess(cmd: str, uri: str, working_dir: str = f"{pathlib.Path('./').absolute()}"):
+    """_summary_
+
+    Args:
+        cmd (str): _description_
+        uri (str): _description_
+        working_dir (str, optional): _description_. Defaults to f"{pathlib.Path('./').absolute()}".
+
+    Returns:
+        _type_: _description_
+    """
     await asyncio.sleep(0.05)
 
     timer = Timer(text=f"Task {__name__} elapsed time: {{:.1f}}")

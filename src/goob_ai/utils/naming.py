@@ -1,5 +1,7 @@
 """Automatically generate names."""
 
+from __future__ import annotations
+
 import collections
 
 # try:  # python 3
@@ -10,6 +12,7 @@ import inspect
 import re
 
 from goob_ai.utils.misc import formatdoc
+
 
 sep = " "
 start = 1

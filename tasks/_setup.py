@@ -2,9 +2,11 @@
 Decides if vendor bundles are used or not.
 Setup python path accordingly.
 """
+from __future__ import annotations
 
 import os.path
 import sys
+
 
 # -----------------------------------------------------------------------------
 # DEFINES:

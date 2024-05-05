@@ -1,11 +1,11 @@
 """
 db tasks
 """
-import logging
-from invoke import task, call
-from invoke.exceptions import Failure
-import os
+from __future__ import annotations
+
 import glob
+import logging
+import os
 import sys
 import traceback
 
@@ -13,13 +13,14 @@ from urllib.parse import urlparse
 
 # from sqlalchemy.engine.url import make_url
 import click
+
+from invoke import call, task
+from invoke.exceptions import Failure
+
 from tasks.utils import get_compose_env
 
-from .utils import (
-    COLOR_DANGER,
-    COLOR_SUCCESS,
-    COLOR_CAUTION,
-)
+from .utils import COLOR_CAUTION, COLOR_DANGER, COLOR_SUCCESS
+
 
 # from tasks.core import clean, execute_sql
 

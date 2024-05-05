@@ -1,0 +1,25 @@
+# # SOURCE: https://github.com/shroominic/codebox-api/blob/3cc38375811c7e6c2cb65da1f92d34c7aa775469/.github/workflows/code-check.yml#L10
+# name: CodeCheck
+
+# on: [push]
+
+# jobs:
+#     pre-commit:
+#       strategy:
+#         matrix:
+#           python-version: ['3.10']
+#       runs-on: ubuntu-latest
+#       steps:
+#       - uses: actions/checkout@v4
+#       - uses: eifinger/setup-rye@v1
+#         with:
+#           enable-cache: true
+#           cache-prefix: 'venv-goob_ai'
+#       - name: pin version
+#         run: rye pin ${{ matrix.python-version }}
+#       - name: Sync rye
+#         run: rye sync
+#       - name: Run pre-commit
+#         run: rye run lint
+#       - name: Run tests
+#         run: rye run unittests

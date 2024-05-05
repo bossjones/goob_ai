@@ -1,4 +1,7 @@
+from __future__ import annotations
+
 import os
+
 
 ROOT_DIR = os.path.dirname(__file__)
 PROJECT_BIN_DIR = os.path.join(ROOT_DIR, "bin")

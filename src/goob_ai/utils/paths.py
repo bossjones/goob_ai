@@ -1,5 +1,8 @@
 # inspired by boucanpy
+from __future__ import annotations
+
 from os.path import abspath, dirname, join
+
 
 _utils_dir = abspath(dirname(__file__))
 
