@@ -1,3 +1,6 @@
+"""goob_ai.goob_bot"""
+
+# pyright: reportImportCycles=false
 from __future__ import annotations
 
 from discord.ext import commands
@@ -33,7 +36,6 @@ There are a number of utility commands being showcased here."""
 HERE = os.path.dirname(__file__)
 
 INVITE_LINK = "https://discordapp.com/api/oauth2/authorize?client_id={}&scope=bot&permissions=0"
-
 
 LOGGER = get_logger(__name__, provider="Bot", level=logging.DEBUG)
 
@@ -109,11 +111,11 @@ async def co_task(name: str, queue: asyncio.Queue):
 
 
 # SOURCE: https://github.com/makupi/cookiecutter-discord.py-postgres/blob/master/%7B%7Bcookiecutter.bot_slug%7D%7D/bot/__init__.py
-async def get_prefix(_bot: "GoobBot", message: discord.Message):
+async def get_prefix(_bot: AsyncGoobBot, message: discord.Message):
     """_summary_
 
     Args:
-        _bot (GoobBot): _description_
+        _bot (AsyncGoobBot): _description_
         message (discord.message.Message): _description_
 
     Returns:
@@ -196,6 +198,14 @@ class AsyncGoobBot(commands.AutoShardedBot):
         #     message_content=True,
         # )
         intents: discord.flags.Intents = discord.Intents.default()
+        intents.message_content = True
+        intents.guilds = True
+        intents.members = True
+        intents.bans = True
+        intents.emojis = True
+        intents.voice_states = True
+        intents.messages = True
+        intents.reactions = True
         super().__init__(
             # command_prefix=_prefix_callable,
             command_prefix=commands.when_mentioned_or(aiosettings.prefix),

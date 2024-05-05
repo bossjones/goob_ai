@@ -42,8 +42,9 @@ import typer
 
 import goob_ai
 from goob_ai import settings_validator
-from goob_ai.aio_settings import aiosettings, config_to_table, get_rich_console
+from goob_ai.aio_settings import aiosettings, get_rich_console
 from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple, Type, Union
+from goob_ai.goob_bot import AsyncGoobBot
 
 from goob_ai.bot_logger import get_logger
 
@@ -179,5 +180,89 @@ def entry():
     main()  # pylint: disable=E1120
 
 
+async def run_bot():
+    async with AsyncGoobBot() as bot:
+        # bot.typerCtx = ctx
+        # bot.typerCtx = ctx
+        # bot.pool = pool
+        await bot.start(aiosettings.discord_token)
+    # log = logging.getLogger()
+    # try:
+    #     pool = await create_pool()
+    # except Exception:
+    #     click.echo('Could not set up PostgreSQL. Exiting.', file=sys.stderr)
+    #     log.exception('Could not set up PostgreSQL. Exiting.')
+    #     return
+
+    # async with RoboDanny() as bot:
+    #     bot.pool = pool
+    #     await bot.start()
+
+
+# @click.group(invoke_without_command=True, options_metavar='[options]')
+# @click.pass_context
+# def main(ctx):
+#     """Launches the bot."""
+#     if ctx.invoked_subcommand is None:
+#         with setup_logging():
+#             asyncio.run(run_bot())
+
+
+@APP.command()
+def go() -> None:
+    """Main entry point for goobbot"""
+    typer.echo("Starting up GoobAI Bot")
+    asyncio.run(run_bot())
+
+
 if __name__ == "__main__":
     APP()
+
+
+# TODO: Add this
+# @CLI.command()
+# def run(ctx: typer.Context) -> None:
+#     """
+#     Run cerebro bot
+#     """
+
+#     # # SOURCE: http://click.palletsprojects.com/en/7.x/commands/?highlight=__main__
+#     # # ensure that ctx.obj exists and is a dict (in case `cli()` is called
+#     # # by means other than the `if` block below
+#     # # ctx.ensure_object(dict)
+
+#     # typer.echo("\nStarting bot...\n")
+#     # cerebro = Cerebro()
+#     # # cerebro_bot/bot.py:528:4: E0237: Assigning to attribute 'members' not defined in class slots (assigning-non-slot)
+#     # cerebro.intents.members = True  # pylint: disable=assigning-non-slot
+#     # # NOTE: https://github.com/makupi/cookiecutter-discord.py-postgres/blob/master/%7B%7Bcookiecutter.bot_slug%7D%7D/bot/__init__.py
+#     # cerebro.version = cerebro_bot.__version__
+#     # cerebro.guild_data = {}
+#     # cerebro.typerCtx = ctx
+#     # load_extensions(cerebro)
+#     # _cog = cerebro.get_cog("Utility")
+#     # utility_commands = _cog.get_commands()
+#     # print([c.name for c in utility_commands])
+
+#     # # TEMPCHANGE: 3/26/2023 - Trying to see if it loads settings in time.
+#     # # TEMPCHANGE: # it is possible to pass a dictionary with local variables
+#     # # TEMPCHANGE: # to the python console environment
+#     # # TEMPCHANGE: host, port = "localhost", 50101
+#     # # TEMPCHANGE: locals_ = {"port": port, "host": host}
+
+#     # locals_ = aiosettings.aiomonitor_config_data
+
+#     # # aiodebug_log_slow_callbacks.enable(0.05)
+#     # with aiomonitor.start_monitor(loop=cerebro.loop, locals=locals_):
+#     #     cerebro.run(aiosettings.discord_token)
+#     # run_async(aio_go_run_cerebro())
+#     intents = discord.Intents.default()
+#     intents.message_content = True
+
+#     async def run_cerebro() -> None:
+#         async with Cerebro(intents=intents) as cerebro:
+#             cerebro.typerCtx = ctx
+#             await cerebro.start(aiosettings.discord_token)
+
+#     # For most use cases, after defining what needs to run, we can just tell asyncio to run it:
+#     asyncio.run(run_cerebro())
