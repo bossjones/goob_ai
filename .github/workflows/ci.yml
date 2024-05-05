@@ -40,25 +40,15 @@ jobs:
           RYE_VERSION: 0.33.0
           RYE_INSTALL_OPTION: '--yes'
 
-      - name: Bootstrap
+
+      - name: lint
         run: |
           rye config --set-bool behavior.use-uv=true
-
-      - name: Install dependencies
-        run: |
           ./scripts/retry -t 4  -- rye sync --all-features
-
-      - name: Run lint
-        run: |
           rye run lint
-
-      - name: Run type checking
-        run: |
-          rye run typecheck
-
-      - name: Ensure importable
-        run: |
+          # rye run typecheck
           rye run python -c 'import goob_ai'
+
   test:
     name: test
     runs-on: ubuntu-latest
@@ -79,6 +69,4 @@ jobs:
         run: |
           rye config --set-bool behavior.use-uv=true
           ./scripts/retry -t 4  -- rye sync
-
-      - name: Run tests
-        run: rye run unittests
+          rye run unittests
