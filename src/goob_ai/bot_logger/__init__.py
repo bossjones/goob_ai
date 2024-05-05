@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 """dancedetector dbx_logger -- Setup loguru logging with stderr and file with click."""
+# pylint: disable=consider-using-tuple
+# pyright: reportOperatorIssue=false
+# pyright: reportOptionalIterable=false
 
 from __future__ import annotations
 
@@ -169,7 +172,7 @@ def global_log_config(log_level: Union[str, int] = logging.DEBUG, json: bool = F
 
     seen = set()
     for name in [
-        *logging.root.manager.loggerDict.keys(),
+        *logging.root.manager.loggerDict.keys(),  # pylint: disable=no-member
         # "requests.packages.urllib3.connectionpool",
         # "handler",
         "asyncio",

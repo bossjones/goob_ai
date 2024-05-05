@@ -1,4 +1,7 @@
 """goob_ai.file_functions"""
+# pyright: reportGeneralTypeIssues=false
+# pyright: reportOperatorIssue=false
+# pyright: reportOptionalIterable=false
 
 from __future__ import annotations
 
@@ -29,11 +32,6 @@ from goob_ai.constants import (
     TWENTY_THOUSAND,
 )
 
-# # from goob_ai.fileobject import FileInfo
-# # from goob_ai.utils.file_functions_mapping import FILE_FUNCTIONS_MAPPING
-# from goob_ai.shell import ShellConsole, _popen, _popen_stdout
-
-# LOGGER = get_logger(__name__, provider="File Functions", level=logging.DEBUG)
 from loguru import logger as LOGGER
 
 PY2 = sys.version_info[0] == 2

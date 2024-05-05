@@ -1,4 +1,7 @@
 """goob_ai.utils"""
+# pyright: reportGeneralTypeIssues=false
+# pyright: reportOperatorIssue=false
+# pyright: reportOptionalIterable=false
 
 # NOTE: Via Red https://github.com/Cog-Creators/Red-DiscordBot/tree/V3/develop/redbot
 from __future__ import annotations
