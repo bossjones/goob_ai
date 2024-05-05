@@ -8,7 +8,7 @@ import io
 
 
 if TYPE_CHECKING:
-    from goob_ai.goob_bot import AsyncGoobBot
+    from ..goob_bot import AsyncGoobBot
     from aiohttp import ClientSession
     from redis.asyncio import ConnectionPool as RedisConnectionPool
 

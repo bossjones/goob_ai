@@ -8,14 +8,22 @@ import logging
 import traceback
 import aiohttp
 import sys
-from typing import TYPE_CHECKING, Any, AsyncIterator, Callable, Coroutine, Iterable, Optional, Union
+from typing import TYPE_CHECKING, Any, AsyncIterator, Callable, Coroutine, Iterable, Optional, Union, Dict
 from collections import Counter, defaultdict
 import os
+import asyncio
 from goob_ai.bot_logger import get_logger
 from redis.asyncio import ConnectionPool as RedisConnectionPool
 from goob_ai.aio_settings import aiosettings
 from goob_ai.utils.context import Context
-
+import goob_ai
+from goob_ai import db, helpers, shell, utils
+from goob_ai.factories import guild_factory
+from typing import Any, Dict
+from typing import TYPE_CHECKING, Optional, TypeVar, cast, List, NoReturn
+from codetiming import Timer
+from discord.ext import commands
+import time
 
 DESCRIPTION = """An example bot to showcase the discord.ext.commands extension
 module.
@@ -24,7 +32,115 @@ There are a number of utility commands being showcased here."""
 
 HERE = os.path.dirname(__file__)
 
+INVITE_LINK = "https://discordapp.com/api/oauth2/authorize?client_id={}&scope=bot&permissions=0"
+
+
 LOGGER = get_logger(__name__, provider="Bot", level=logging.DEBUG)
+
+HOME_PATH = os.environ.get("HOME")
+
+COMMAND_RUNNER = {"dl_thumb": shell.run_coroutine_subprocess}
+
+
+# SOURCE: https://realpython.com/how-to-make-a-discord-bot-python/#responding-to-messages
+
+
+def filter_empty_string(a_list: List[str]) -> List[str]:
+    """_summary_
+
+    Args:
+        a_list (List[str]): _description_
+
+    Returns:
+        List[str]: _description_
+    """
+    # filter out empty strings
+    filter_object = filter(lambda x: x != "", a_list)
+
+    return list(filter_object)
+
+
+# SOURCE: https://docs.python.org/3/library/asyncio-queue.html
+async def worker(name: str, queue: asyncio.Queue) -> NoReturn:
+    """_summary_
+
+    Args:
+        name (str): _description_
+        queue (asyncio.Queue): _description_
+
+    Returns:
+        NoReturn: _description_
+    """
+    LOGGER.info(f"starting working ... {name}")
+
+    while True:
+        # Get a "work item" out of the queue.
+        co_cmd_task = await queue.get()
+        print(f"co_cmd_task = {co_cmd_task}")
+
+        # Sleep for the "co_cmd_task" seconds.
+
+        await COMMAND_RUNNER[co_cmd_task.name](cmd=co_cmd_task.cmd, uri=co_cmd_task.uri)
+
+        # Notify the queue that the "work item" has been processed.
+        queue.task_done()
+
+        print(f"{name} ran {co_cmd_task.name} with arguments {co_cmd_task}")
+
+
+# SOURCE: https://realpython.com/python-async-features/#building-a-synchronous-web-server
+async def co_task(name: str, queue: asyncio.Queue):
+    """_summary_
+
+    Args:
+        name (str): _description_
+        queue (asyncio.Queue): _description_
+    """
+    LOGGER.info(f"starting working ... {name}")
+
+    timer = Timer(text=f"Task {name} elapsed time: {{:.1f}}")
+    while not queue.empty():
+        co_cmd_task = await queue.get()
+        print(f"Task {name} running")
+        timer.start()
+        await COMMAND_RUNNER[co_cmd_task.name](cmd=co_cmd_task.cmd, uri=co_cmd_task.uri)
+        timer.stop()
+        yield
+
+
+# SOURCE: https://github.com/makupi/cookiecutter-discord.py-postgres/blob/master/%7B%7Bcookiecutter.bot_slug%7D%7D/bot/__init__.py
+async def get_prefix(_bot: "GoobBot", message: discord.Message):
+    """_summary_
+
+    Args:
+        _bot (GoobBot): _description_
+        message (discord.message.Message): _description_
+
+    Returns:
+        _type_: _description_
+    """
+    LOGGER.info(f"inside get_prefix(_bot, message) - > get_prefix({_bot}, {message})")
+    LOGGER.info(f"inside get_prefix(_bot, message) - > get_prefix({_bot}, {message})")
+    LOGGER.info(f"inside get_prefix(_bot, message) - > get_prefix({type(_bot)}, {type(message)})")
+    prefix = (
+        [aiosettings.prefix]
+        if isinstance(message.channel, discord.DMChannel)
+        else [utils.get_guild_prefix(_bot, message.guild.id)]  # type: ignore
+    )
+    LOGGER.info(f"prefix -> {prefix}")
+    return commands.when_mentioned_or(*prefix)(_bot, message)
+
+
+# SOURCE: https://github.com/makupi/cookiecutter-discord.py-postgres/blob/master/%7B%7Bcookiecutter.bot_slug%7D%7D/bot/__init__.py#L28
+async def preload_guild_data():
+    """_summary_
+
+    Returns:
+        _type_: _description_
+    """
+    LOGGER.info("preload_guild_data ... ")
+    guilds = [guild_factory.Guild()]
+    return {guild.id: {"prefix": guild.prefix} for guild in guilds}
 
 
 def extensions():
@@ -69,18 +185,20 @@ class AsyncGoobBot(commands.AutoShardedBot):
 
     def __init__(self):
         allowed_mentions = discord.AllowedMentions(roles=False, everyone=False, users=True)
-        intents = discord.Intents(
-            guilds=True,
-            members=True,
-            bans=True,
-            emojis=True,
-            voice_states=True,
-            messages=True,
-            reactions=True,
-            message_content=True,
-        )
+        # intents = discord.Intents(
+        #     guilds=True,
+        #     members=True,
+        #     bans=True,
+        #     emojis=True,
+        #     voice_states=True,
+        #     messages=True,
+        #     reactions=True,
+        #     message_content=True,
+        # )
+        intents: discord.flags.Intents = discord.Intents.default()
         super().__init__(
-            command_prefix=_prefix_callable,
+            # command_prefix=_prefix_callable,
+            command_prefix=commands.when_mentioned_or(aiosettings.prefix),
             description=DESCRIPTION,
             pm_help=None,
             help_attrs=dict(hidden=True),
@@ -90,6 +208,34 @@ class AsyncGoobBot(commands.AutoShardedBot):
             intents=intents,
             enable_debug_events=True,
         )
+
+        # ------------------------------------------------
+        # from bot
+        # ------------------------------------------------
+        # Create a queue that we will use to store our "workload".
+        self.queue: asyncio.Queue = asyncio.Queue()
+
+        self.tasks: list[Any] = []
+
+        self.num_workers = 3
+
+        self.total_sleep_time = 0
+
+        self.start_time = datetime.datetime.now()
+
+        self.typerCtx: Dict | None = None
+
+        #### For upscaler
+
+        self.job_queue: Dict[Any, Any] = {}
+
+        self.db: RedisConnectionPool | None = None
+
+        # self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        # if torch.cuda.is_available():
+        #     torch.set_default_tensor_type(torch.cuda.HalfTensor)
+
+        # self.current_task = None
 
         self.client_id: str = aiosettings.client_id
         # self.carbon_key: str = aiosettings.carbon_key
@@ -119,6 +265,13 @@ class AsyncGoobBot(commands.AutoShardedBot):
         # from using the bot
         # self.blacklist: Config[bool] = Config('blacklist.json')
 
+        self.version = goob_ai.__version__
+        self.guild_data: Dict[Any, Any] = {}
+        self.intents.members = True
+        self.intents.message_content = True
+
+        self.db = db.init_worker_redis()
+
         self.bot_app_info = await self.application_info()
         self.owner_id = self.bot_app_info.owner.id
 
@@ -135,12 +288,6 @@ class AsyncGoobBot(commands.AutoShardedBot):
                 LOGGER.error(f"exc_value: {exc_value}")
                 traceback.print_tb(exc_traceback)
                 raise
-
-        # for extension in initial_extensions:
-        #     try:
-        #         await self.load_extension(extension)
-        #     except Exception as e:
-        #         LOGGER.exception('Failed to load extension %s.', extension)
 
     @property
     def owner(self) -> discord.User:
@@ -320,6 +467,19 @@ class AsyncGoobBot(commands.AutoShardedBot):
                     yield member
 
     async def on_ready(self):
+        """Event is called when the bot has finished logging in and setting things up"""
+        print(f"Logged in as {self.user} (ID: {self.user.id})")
+        print("------")
+        self.invite = INVITE_LINK.format(self.user.id)
+        self.guild_data = await preload_guild_data()
+        print(
+            f"""Logged in as {self.user}..
+            Serving {len(self.users)} users in {len(self.guilds)} guilds
+            Invite: {INVITE_LINK.format(self.user.id)}
+        """
+        )
+        await self.change_presence(status=discord.Status.online, activity=discord.Game("GoobBot"))
+
         if not hasattr(self, "uptime"):
             self.uptime = discord.utils.utcnow()
 
@@ -399,6 +559,74 @@ class AsyncGoobBot(commands.AutoShardedBot):
 
     async def start(self) -> None:
         await super().start(aiosettings.token, reconnect=True)
+
+    async def my_background_task(self) -> None:
+        """_summary_"""
+        await self.wait_until_ready()
+        counter = 0
+        # TEMPCHANGE: # channel = self.get_channel(DISCORD_GENERAL_CHANNEL)  # channel ID goes here
+        channel = self.get_channel(aiosettings.discord_general_channel)  # channel ID goes here
+        while not self.is_closed():
+            counter += 1
+            await channel.send(counter)
+            await asyncio.sleep(60)  # task runs every 60 seconds
+
+    async def on_worker_monitor(self) -> None:
+        await self.wait_until_ready()
+        counter = 0
+        # channel = self.get_channel(DISCORD_GENERAL_CHANNEL)  # channel ID goes here
+        while not self.is_closed():
+            counter += 1
+            # await channel.send(counter)
+            print(f" self.tasks = {self.tasks}")
+            print(f" len(self.tasks) = {len(self.tasks)}")
+            await asyncio.sleep(10)  # task runs every 60 seconds
+
+    async def setup_workers(self) -> None:
+        await self.wait_until_ready()
+
+        # Create three worker tasks to process the queue concurrently.
+
+        for i in range(self.num_workers):
+            task = asyncio.create_task(worker(f"worker-{i}", self.queue))
+            self.tasks.append(task)
+
+        # Wait until the queue is fully processed.
+        started_at = time.monotonic()
+        await self.queue.join()
+        total_slept_for = time.monotonic() - started_at
+
+        # Cancel our worker tasks.
+        for task in self.tasks:
+            task.cancel()
+        # Wait until all worker tasks are cancelled.
+        await asyncio.gather(*self.tasks, return_exceptions=True)
+
+        print("====")
+        print(f"3 workers slept in parallel for {total_slept_for:.2f} seconds")
+
+    async def setup_co_tasks(self) -> None:
+        await self.wait_until_ready()
+
+        # Create three worker tasks to process the queue concurrently.
+
+        for i in range(self.num_workers):
+            task = asyncio.create_task(co_task(f"worker-{i}", self.queue))
+            self.tasks.append(task)
+
+        # Wait until the queue is fully processed.
+        started_at = time.monotonic()
+        await self.queue.join()
+        total_slept_for = time.monotonic() - started_at
+
+        # Cancel our worker tasks.
+        for task in self.tasks:
+            task.cancel()
+        # Wait until all worker tasks are cancelled.
+        await asyncio.gather(*self.tasks, return_exceptions=True)
+
+        print("====")
+        print(f"3 workers slept in parallel for {total_slept_for:.2f} seconds")
 
     # @property
     # def config(self):
