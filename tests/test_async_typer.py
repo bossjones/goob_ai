@@ -5,7 +5,7 @@ import asyncio
 
 import pytest
 
-from goob_ai.utils.asynctyper import AsyncTyper
+from goob_ai.asynctyper import AsyncTyper
 
 
 @pytest.mark.asyncio

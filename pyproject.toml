@@ -118,6 +118,10 @@ requires-python = ">=3.10,<3.12"
 
 license = {text = "MIT"}
 
+[project.scripts]
+# openai = "openai.cli:main"
+goobctl = 'goob_ai:main'
+
 [build-system]
 requires = ["hatchling", "packaging<24"]
 build-backend = "hatchling.build"
@@ -182,6 +186,13 @@ fmt = {cmd = "pre-commit run --all-files"}
 pylint = {cmd = "python -m invoke ci.pylint --everything"}
 lint-all = {cmd = "python -m pylint --output-format=colorized --rcfile pyproject.toml tests src"}
 lint = {cmd = "python -m pylint --output-format=colorized --disable=C0111,E0401,C,W --enable=F,E tests src"}
+typecheck = {chain = [
+    "typecheck:pyright",
+    "typecheck:mypy",
+]}
+"typecheck:pyright" = "pyright"
+"typecheck:verify-types" = "pyright --verifytypes openai --ignoreexternal"
+"typecheck:mypy" = "mypy ."
 
 # NOTE: THIS CAUSED EVERYTHING TO BE HELD BACK TO SUPER OLD VERSIONS
 # # https://github.com/astral-sh/rye/blob/ab8d5b433d5c4342c2bb125583c6bff4d29f5fbc/docs/guide/faq.md

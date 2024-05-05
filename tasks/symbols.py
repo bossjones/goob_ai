@@ -1,6 +1,7 @@
 # SOURCE: https://github.com/ManrajGrover/py-log-symbols
 
 """Provide log symbols for various log levels."""
+from __future__ import annotations
 import platform
 
 from enum import Enum

@@ -1,6 +1,7 @@
 """
 File-watching subroutines, built on watchdog.
 """
+from __future__ import annotations
 
 import sys
 import time

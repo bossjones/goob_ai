@@ -3,6 +3,13 @@
 # SOURCE: https://github.com/tiangolo/typer/issues/88#issuecomment-1732469681
 from __future__ import annotations
 
+import json
+import sys
+from importlib import import_module, metadata
+import subprocess
+import os
+
+from pathlib import Path
 import inspect
 from functools import partial, wraps
 
@@ -56,7 +63,7 @@ import sys
 import typer
 from rich import print, print_json
 
-from goob_ai.utils.asynctyper import AsyncTyper
+from goob_ai.asynctyper import AsyncTyper
 from typing import Any, Dict, Optional, Tuple
 
 import rich
@@ -294,6 +301,19 @@ APP = AsyncTyper()
 console = Console()
 
 
+# Load existing subcommands
+def load_commands(directory: str = "subcommands"):
+    script_dir = Path(__file__).parent
+    subcommands_dir = script_dir / directory
+
+    for filename in os.listdir(subcommands_dir):
+        if filename.endswith("_cmd.py"):
+            module_name = f'{__name__.split(".")[0]}.{directory}.{filename[:-3]}'
+            module = import_module(module_name)
+            if hasattr(module, "app"):
+                APP.add_typer(module.app, name=filename[:-7])
+
+
 def version_callback(version: bool) -> None:
     """Print the version of goob_ai."""
     if version:
@@ -365,8 +385,11 @@ def about() -> None:
 # #     """Uninstall bot webhook."""
 # #     await bot.remove_webhook()
 
+
 # #     await bot.close_session()
+def main():
+    APP()
 
 
-# if __name__ == "__main__":
-#     app()
+if __name__ == "__main__":
+    APP()

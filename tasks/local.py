@@ -1,6 +1,7 @@
 """
 local tasks
 """
+from __future__ import annotations
 import logging
 from invoke import task, call
 from invoke.exceptions import Exit

@@ -1,6 +1,7 @@
 """
 git tasks
 """
+from __future__ import annotations
 import logging
 from invoke import task
 import click

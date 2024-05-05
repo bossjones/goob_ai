@@ -7,6 +7,7 @@ Show all tasks with::
     * http://pyinvoke.org
     * https://github.com/pyinvoke/invoke
 """
+from __future__ import annotations
 
 import logging
 from invoke import Collection, Context, Config
