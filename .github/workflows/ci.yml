@@ -43,6 +43,7 @@ jobs:
 
       - name: lint
         run: |
+          cp -f env.sample .env
           rye config --set-bool behavior.use-uv=true
           ./scripts/retry -t 4  -- rye sync --all-features
           rye run lint
@@ -67,6 +68,7 @@ jobs:
 
       - name: Bootstrap
         run: |
+          cp -f env.sample .env
           rye config --set-bool behavior.use-uv=true
           ./scripts/retry -t 4  -- rye sync
           rye run test
