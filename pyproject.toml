@@ -120,7 +120,7 @@ license = {text = "MIT"}
 
 [project.scripts]
 # openai = "openai.cli:main"
-goobctl = 'goob_ai:cli:entry'
+goobctl = 'goob_ai.cli:entry'
 
 [build-system]
 requires = ["hatchling", "packaging<24"]
