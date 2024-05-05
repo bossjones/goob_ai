@@ -1,18 +1,20 @@
 """test_retry"""
-# pylint: disable=E1121
 # mypy: disable-error-code="arg-type"
+# pylint: disable=too-many-function-args
 
 from __future__ import annotations
+
 import logging
 import unittest.mock
+
 from typing import Union
 
 import tenacity
 
+from goob_ai.utils import retry
+
 import pytest
 
-
-from goob_ai.utils import retry
 
 MockType = Union[
     unittest.mock.MagicMock,

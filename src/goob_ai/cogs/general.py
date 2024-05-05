@@ -1,13 +1,15 @@
+# pylint: disable=no-name-in-module
 from __future__ import annotations
+
 import platform
 import random
 
 import aiohttp
 import discord
+
 from discord import app_commands
 from discord.ext import commands
 from discord.ext.commands import Context
-
 from goob_ai.helpers import checks
 
 
