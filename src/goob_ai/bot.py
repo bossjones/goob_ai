@@ -3,7 +3,6 @@
 
 from __future__ import annotations
 
-# SOURCE: https://realpython.com/how-to-make-a-discord-bot-python/#responding-to-messages
 
 import asyncio
 import datetime
@@ -22,7 +21,7 @@ import aiomonitor
 from codetiming import Timer
 import discord
 from discord.ext import commands
-import torch  # type: ignore
+import torch
 
 import goob_ai
 from goob_ai import db, helpers, shell, utils
@@ -55,6 +54,9 @@ There are a number of utility commands being showcased here."""
 HOME_PATH = os.environ.get("HOME")
 
 COMMAND_RUNNER = {"dl_thumb": shell.run_coroutine_subprocess}
+
+
+# SOURCE: https://realpython.com/how-to-make-a-discord-bot-python/#responding-to-messages
 
 
 def filter_empty_string(a_list: List[str]) -> List[str]:
@@ -173,10 +175,7 @@ class GoobBot(commands.AutoShardedBot):
             command_prefix (_type_, optional): _description_. Defaults to commands.when_mentioned_or(constants.PREFIX).
             description (str, optional): _description_. Defaults to "Better than the last one".
         """
-        # super().__init__(
-        #     *args, command_prefix=command_prefix, description=description, **kwargs
-        # )
-        # super(GoobBot, self).__init__(length, length)
+
         # https://realpython.com/python-super/#a-super-deep-dive
         super(GoobBot, self).__init__(
             *args,
