@@ -117,7 +117,7 @@ class AioSettings(BaseSettings):
     token: str = ""
     prefix: str = "/"
 
-    discord_admin_user_id: str = ""
+    discord_admin_user_id: int | None = None
 
     discord_general_channel: int = 908894727779258390
 

@@ -114,6 +114,12 @@ def version_callback(version: bool) -> None:
 
 
 @APP.command()
+def version() -> None:
+    """version command"""
+    rich.print(f"goob_ai version: {goob_ai.__version__}")
+
+
+@APP.command()
 def about() -> None:
     """about command"""
     typer.echo("This is GoobBot CLI")
@@ -220,7 +226,7 @@ async def run_bot():
 
 @APP.command()
 def go() -> None:
-    """Main entry point for goobbot"""
+    """Main entry point for GoobAI"""
     typer.echo("Starting up GoobAI Bot")
     asyncio.run(run_bot())
 

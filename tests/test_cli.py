@@ -13,7 +13,7 @@ class TestApp:
 
     def test_version(self) -> None:
         """Test the version command."""
-        result = runner.invoke(APP, ["--version"])
+        result = runner.invoke(APP, ["version"])
         assert result.exit_code == 0
         assert "goob_ai version:" in result.stdout
 
@@ -21,8 +21,9 @@ class TestApp:
         """Test the help command."""
         result = runner.invoke(APP, ["--help"])
         assert result.exit_code == 0
-        assert "goob_ai: A Python package for the Transport for London (TFL) API." in result.stdout
-
+        assert "about command"  in result.stdout
+        assert "Main entry point for GoobAI"  in result.stdout
+        assert "version command"  in result.stdout
 
     def test_about(self) -> None:
         """Test the help command."""
