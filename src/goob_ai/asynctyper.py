@@ -34,7 +34,6 @@ import typer
 import goob_ai
 from goob_ai import settings_validator
 from goob_ai.aio_settings import aiosettings, config_to_table, get_rich_console
-from goob_ai.bot import GoobBot, aiomonitor  # , load_extensions
 from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple, Type, Union
 
 from goob_ai.bot_logger import get_logger
@@ -74,6 +73,22 @@ class AsyncTyper(Typer):
         return partial(self.maybe_run_async, decorator)
 
 
+# SOURCE: https://github.com/blurry-dev/blurry/blob/6cd0541fd23659a615c7ce93d8212795c6d42a15/blurry/async_typer.py#L7
+# class AsyncTyper(Typer):
+#     def async_command(self, *args, **kwargs):
+#         def decorator(async_func):
+#             # Convert async function to synchronous
+#             @wraps(async_func)
+#             def sync_func(*_args, **_kwargs):
+#                 return asyncio.run(async_func(*_args, **_kwargs))
+
+#             # Register synchronous function
+#             self.command(*args, **kwargs)(sync_func)
+
+#             return async_func
+
+
+#         return decorator
 # app = AsyncTyper()
 
 

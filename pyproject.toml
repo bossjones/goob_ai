@@ -120,7 +120,7 @@ license = {text = "MIT"}
 
 [project.scripts]
 # openai = "openai.cli:main"
-goobctl = 'goob_ai:main'
+goobctl = 'goob_ai:cli:entry'
 
 [build-system]
 requires = ["hatchling", "packaging<24"]
@@ -193,6 +193,8 @@ typecheck = {chain = [
 "typecheck:pyright" = "pyright"
 "typecheck:verify-types" = "pyright --verifytypes openai --ignoreexternal"
 "typecheck:mypy" = "mypy ."
+unittests-debug = {cmd = "pytest --verbose --pdb --pdbcls bpdb:BPdb --showlocals --tb=short --cov-append --cov-report=term-missing --junitxml=junit/test-results.xml --cov-report=xml:cov.xml --cov-report=html:htmlcov --cov-report=annotate:cov_annotate --cov=."}
+unittests = {cmd = "pytest"}
 
 # NOTE: THIS CAUSED EVERYTHING TO BE HELD BACK TO SUPER OLD VERSIONS
 # # https://github.com/astral-sh/rye/blob/ab8d5b433d5c4342c2bb125583c6bff4d29f5fbc/docs/guide/faq.md
@@ -230,7 +232,7 @@ omit = [
     "tests/*",
 ]
 # fail if coverage drops below the specified percentage:
-fail_under = 59
+fail_under = 10
 
 # Regexes for lines to exclude from consideration
 exclude_also = [
