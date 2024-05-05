@@ -101,7 +101,9 @@ class AioSettings(BaseSettings):
 
     # You can change the prefix for all environment variables by setting the env_prefix config setting, or via the _env_prefix keyword argument on instantiation:
 
-    model_config = SettingsConfigDict(env_prefix="GOOB_AI_")
+    model_config = SettingsConfigDict(
+        env_prefix="GOOB_AI_CONFIG_", env_file=(".env", ".envrc"), env_file_encoding="utf-8"
+    )
 
     monitor_host: str = "localhost"
     monitor_port: int = 50102
@@ -124,7 +126,13 @@ class AioSettings(BaseSettings):
 
     discord_token: str = ""
 
-    openai_token: str = ""
+    # openai_token: str = ""
+    openai_api_key: str = ""
+
+    discord_admin_user_invited: bool = False
+
+    better_exceptions: int = Field(..., env="BETTER_EXCEPTIONS", description="Enable better exceptions")
+    pythonasynciodebug: int = Field(..., env="PYTHONASYNCIODEBUG", description="enable or disable asyncio debugging")
 
     # Try loading patchmatch
     globals_try_patchmatch: bool = True
