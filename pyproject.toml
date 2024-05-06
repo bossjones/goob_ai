@@ -176,7 +176,6 @@ dev-dependencies = [
     "loguru-mypy>=0.0.4",
     "docformatter[tomli]>=1.7.5",
     "pytest-httpx>=0.30.0",
-    "codecov-cli>=0.5.2",
 ]
 
 [tool.rye.scripts]
