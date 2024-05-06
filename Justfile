@@ -94,3 +94,6 @@ rye-tool-install:
 	rye install invoke
 	rye install pipdeptree
 	rye install click
+
+lint-github-actions:
+	actionlint
