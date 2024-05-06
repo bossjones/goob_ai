@@ -34,11 +34,15 @@ jobs:
     if: github.repository == 'bossjones/goob_ai'
     env:
       OS: ${{ matrix.setup.os }}
-      PYTHON: ${{ matrix.setup.python-version }}
+      PYTHON: 3.10
     steps:
 
       - name: Set up Git repository
         uses: actions/checkout@v4
+
+      - name: get version python
+        shell: bash  # use bash to run date command
+        run: echo "Py${{ matrix.setup.python-version }}"
 
       - name: Hash + Timestamp
         shell: bash  # use bash to run date command
