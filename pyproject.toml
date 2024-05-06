@@ -224,18 +224,24 @@ packages = ["src/goob_ai"]
 
 [tool.coverage.report]
 exclude_lines = [
+    '\s*\.\.\.$',
     "@(abc.)?abstractmethod",
     "@overload",
     "def __repr__",
     "def __str__",
+    "except ImportError:",
     "if __name__ == .__main__.:",
+    "if not _PANDAS_AVAILABLE:",
     "if self.debug",
     "if settings.DEBUG",
     "if TYPE_CHECKING",
+    "pragma: $TEST_PLATFORM no cover",
     "pragma: no cover",
+    "pragma: py$PYTHON_MAJOR_VERSION no cover",
     "raise AssertionError",
     "raise NotImplementedError",
     "return NotImplemented",
+    "if TYPE_CHECKING:",                        # ignoring type checking imports
 ]
 omit = [
     "test/*",
@@ -304,6 +310,9 @@ source = [
     "src/",
     "/src",
 ]
+[tool.coverage.run]
+branch = true
+source = ["goob_ai"]
 
 # dd=======================[ BLACK ]========================
 [tool.black]
