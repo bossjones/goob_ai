@@ -5,7 +5,21 @@ name: CI
 #     branches:
 #       - main
 #   pull_request:
-on: [push, pull_request]
+on:
+  # https://docs.github.com/en/webhooks-and-events/webhooks/webhook-events-and-payloads#push
+  push:
+    branches:
+      - main
+      - feature/**
+      - '[0-9].*.x'  # e.g., 4.14.x
+      - '[0-9][0-9].*.x'  # e.g., 23.3.x
+
+  # https://docs.github.com/en/webhooks-and-events/webhooks/webhook-events-and-payloads#pull_request
+  pull_request:
+
+  # https://docs.github.com/en/webhooks-and-events/webhooks/webhook-events-and-payloads#workflow_dispatch
+  workflow_dispatch:
+
 
 jobs:
   lint:
@@ -18,17 +32,24 @@ jobs:
     name: lint
     runs-on: ${{ matrix.setup.os }}
     if: github.repository == 'bossjones/goob_ai'
-
+    env:
+      OS: ${{ matrix.setup.os }}
+      PYTHON: '3.10'
     steps:
 
       - name: Set up Git repository
         # uses: actions/checkout@main
         uses: actions/checkout@v4
 
-      - name: Set up Python ${{ matrix.python-version }}
+      - name: Hash + Timestamp
+        shell: bash  # use bash to run date command
+        run: echo "HASH=${{ runner.os }}-${{ runner.arch }}-Py${{ matrix.setup.python-version }}-$(date -u "+%Y%m")" >> $GITHUB_ENV
+
+
+      - name: Set up Python ${{ matrix.setup.python-version }}
         uses: actions/setup-python@v5
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: ${{ matrix.setup.python-version }}
 
       # - name: Set up Git repository
       #   uses: actions/checkout@main
@@ -55,8 +76,22 @@ jobs:
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v4
         with:
-          token: ${{ secrets.CODECOV_TOKEN }}
+          # token: ${{ secrets.CODECOV_TOKEN }}
+          flags: ${{ runner.os }},${{ runner.arch }},${{ matrix.setup.python-version }}
           verbose: true
-          flags: smart-tests
+          directory: ./junit/
+          files: ./test-results.xml
+          # flags: smart-tests
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+      - name: Upload Test Results
+        if: '!cancelled()'
+        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
+        with:
+          name: test-results-${{ env.HASH }}
+          path: |
+            .coverage
+            tools\durations\${{ runner.os }}.json
+            junit/test-results.xml
+          retention-days: 1  # temporary, combined in aggregate below
