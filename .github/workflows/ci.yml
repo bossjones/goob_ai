@@ -34,7 +34,7 @@ jobs:
     if: github.repository == 'bossjones/goob_ai'
     env:
       OS: ${{ matrix.setup.os }}
-      PYTHON: ${{ matrix.steps.python-version }}
+      PYTHON: ${{ matrix.setup.python-version }}
     steps:
 
       - name: Set up Git repository
@@ -42,13 +42,13 @@ jobs:
 
       - name: Hash + Timestamp
         shell: bash  # use bash to run date command
-        run: echo "HASH=${{ runner.os }}-${{ runner.arch }}-Py${{ matrix.steps.python-version }}-$(date -u "+%Y%m")" >> $GITHUB_ENV
+        run: echo "HASH=${{ runner.os }}-${{ runner.arch }}-Py${{ matrix.setup.python-version }}-$(date -u "+%Y%m")" >> $GITHUB_ENV
 
 
-      - name: Set up Python ${{ matrix.steps.python-version }}
+      - name: Set up Python ${{ matrix.setup.python-version }}
         uses: actions/setup-python@v5
         with:
-          python-version: ${{ matrix.steps.python-version }}
+          python-version: ${{ matrix.setup.python-version }}
 
       - name: Install Rye
         run: |
@@ -78,7 +78,7 @@ jobs:
         uses: codecov/codecov-action@v4
         with:
           # token: ${{ secrets.CODECOV_TOKEN }}
-          flags: ${{ runner.os }},${{ runner.arch }},${{ matrix.steps.python-version }}
+          flags: ${{ runner.os }},${{ runner.arch }},${{ matrix.setup.python-version }}
           verbose: true
           fail_ci_if_error: true
           # directory: ./junit/
