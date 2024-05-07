@@ -1295,29 +1295,39 @@ defineConstant = {DEBUG = true}
 stubPath = "./typings"
 # https://github.com/microsoft/pyright/blob/main/docs/configuration.md#reportGeneralTypeIssues
 reportUnnecessaryTypeIgnoreComment = "warning"
-reportUnusedImport = "none"
 pythonVersion = "3.10"
 verboseOutput = true
-reportUnnecessaryCast = true
-typeCheckingMode = "basic"
-# typeCheckingMode = "standard"
-reportMissingTypeStubs = "none"
+reportUnusedImport = "none"
 reportMissingImports = "error"
 reportImportCycles = "error"
 reportUnusedVariable = "none"
-# reportUnknownMemberType = "none"
-reportUnusedFunction = "none"
-reportUnusedClass = "none"
-reportReturnType = "none"
-# [boolean or string, optional]: Generate or suppress diagnostics for general type inconsistencies, unsupported operations, argument/parameter mismatches, etc. This covers all of the basic type-checking rules not covered by other rules. It does not include syntax errors. The default value for this setting is "error".
-# reportGeneralTypeIssues = "none"
-reportArgumentType = "none"
-reportAttributeAccessIssue = "none"
-
-reportOptionalMemberAccess = false
+reportMissingTypeStubs = "none"
 reportUnknownMemberType = false
-reportGeneralTypeIssues = true
-reportCallIssue = "none"
+# -------------------------------------------------------------------------
+reportUnusedFunction = "warning" # this is what we use in ad
+reportUnusedClass = "warning"    # this is what we use in ad
+# -------------------------------------------------------------------------
+# reportUnusedFunction = "none" # this is what we use in goob-ai
+# reportUnusedClass = "none" # this is what we use in goob-ai
+# -------------------------------------------------------------------------
+
+# # TODO: Let's disable this for now
+# # ----------------------------------------------------------------------------
+# # GOOB_AI only values.  - start
+# # ----------------------------------------------------------------------------
+# reportUnnecessaryCast = true
+# typeCheckingMode = "basic"
+# reportReturnType = "none"
+# # [boolean or string, optional]: Generate or suppress diagnostics for general type inconsistencies, unsupported operations, argument/parameter mismatches, etc. This covers all of the basic type-checking rules not covered by other rules. It does not include syntax errors. The default value for this setting is "error".
+# # reportGeneralTypeIssues = "none"
+# reportArgumentType = "none"
+# reportAttributeAccessIssue = "none"
+# reportOptionalMemberAccess = false
+# reportGeneralTypeIssues = true
+# reportCallIssue = "none"
+# # ----------------------------------------------------------------------------
+# # GOOB_AI only values.  - end
+# # ----------------------------------------------------------------------------
 
 
 # SOURCE: https://github.com/Ruzzy77/python-template/blob/57c8964f1efb2635d0bdca5684613a8d8736aed0/pyproject.toml#L168C1-L189C2

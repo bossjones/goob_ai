@@ -1,3 +1,4 @@
+# pyright: reportPrivateImportUsage=false
 from __future__ import annotations
 
 import logging
@@ -13,9 +14,7 @@ from langchain.callbacks.tracers import LoggingCallbackHandler
 from langchain.chains.conversation.memory import ConversationBufferWindowMemory
 from langchain.globals import set_debug
 from langchain.prompts import ChatPromptTemplate, MessagesPlaceholder
-from langchain_community.chat_message_histories import (
-    RedisChatMessageHistory,  # pyright: reportPrivateImportUsage=false
-)
+from langchain_community.chat_message_histories import RedisChatMessageHistory
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.tools import BaseTool
 from langchain_core.utils.function_calling import convert_to_openai_tool
