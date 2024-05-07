@@ -28,6 +28,17 @@ def init_worker_redis() -> ConnectionPool:  # pragma: no cover
     return redis_pool
 
 
+def get_redis_conn_pool() -> ConnectionPool:  # pragma: no cover
+    """
+    Creates connection pool for redis.
+    """
+    redis_pool: ConnectionPool = ConnectionPool.from_url(
+        str(aiosettings.redis_url),
+    )
+
+    return redis_pool
+
+
 async def shutdown_worker_redis(redis_pool: ConnectionPool) -> None:  # pragma: no cover
     """
     Closes redis connection pool.

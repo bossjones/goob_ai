@@ -142,7 +142,7 @@ class Context(commands.Context):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.pool: RedisConnectionPool = self.bot.pool
+        self.pool: RedisConnectionPool | None = self.bot.pool
 
     async def entry_to_code(self, entries: Iterable[tuple[str, str]]) -> None:
         width = max(len(a) for a, b in entries)

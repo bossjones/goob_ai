@@ -264,7 +264,7 @@ class AsyncGoobBot(commands.AutoShardedBot):
 
         self.job_queue: Dict[Any, Any] = {}
 
-        self.db: RedisConnectionPool | None = None
+        # self.db: RedisConnectionPool | None = None
 
         if aiosettings.enable_ai:
             self.ai_agent: AiAgent = AiAgent()
@@ -304,8 +304,8 @@ class AsyncGoobBot(commands.AutoShardedBot):
         self.intents.members = True
         self.intents.message_content = True
 
-        if aiosettings.enable_redis:
-            self.db = db.init_worker_redis()
+        # if aiosettings.enable_redis:
+        #     self.db = db.init_worker_redis()
 
         self.bot_app_info = await self.application_info()
         self.owner_id = self.bot_app_info.owner.id

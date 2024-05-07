@@ -11,6 +11,8 @@ import logging
 import os
 import subprocess
 import sys
+import tempfile
+import traceback
 
 from functools import partial, wraps
 from importlib import import_module, metadata
@@ -19,11 +21,13 @@ from typing import Any, Awaitable, Callable, Dict, Iterable, List, Optional, Pat
 
 import anyio
 import asyncer
+import bpdb
 import discord
 import rich
 import typer
 
 from loguru import logger
+from redis.asyncio import ConnectionPool, Redis
 from rich import print, print_json
 from rich.console import Console
 from rich.pretty import pprint
@@ -33,11 +37,9 @@ from typing_extensions import Annotated
 
 import goob_ai
 
-from goob_ai import settings_validator
+from goob_ai import db, settings_validator
 from goob_ai.aio_settings import aiosettings, get_rich_console
 from goob_ai.asynctyper import AsyncTyper
-
-# LOGGER = get_logger(__name__, provider="CLI", level=logging.DEBUG)
 from goob_ai.bot_logger import get_logger, global_log_config
 from goob_ai.goob_bot import AsyncGoobBot
 
@@ -160,10 +162,23 @@ def entry():
 
 
 async def run_bot():
+    try:
+        pool: ConnectionPool = db.get_redis_conn_pool()
+    except Exception as ex:
+        print(f"{ex}")
+        exc_type, exc_value, exc_traceback = sys.exc_info()
+        print(f"Error Class: {ex.__class__}")
+        output = f"[UNEXPECTED] {type(ex).__name__}: {ex}"
+        print(output)
+        print(f"exc_type: {exc_type}")
+        print(f"exc_value: {exc_value}")
+        traceback.print_tb(exc_traceback)
+        bpdb.pm()
     async with AsyncGoobBot() as bot:
         # bot.typerCtx = ctx
         # bot.typerCtx = ctx
-        # bot.pool = pool
+        if aiosettings.enable_redis:
+            bot.pool = pool
         await bot.start()
     # log = logging.getLogger()
     # try:

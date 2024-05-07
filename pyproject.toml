@@ -271,7 +271,7 @@ exclude_also = [
 # (boolean, default False) Ignore source code that can't be found, emitting a warning instead of an exception.
 ignore_errors = true
 
-# ddddddddddddd=[ PYTEST INI OPTIONS ]dddddddddddd
+# =========================[ PYTEST INI OPTIONS ]========================
 [tool.pytest.ini_options]
 pythonpath = "."
 
@@ -301,7 +301,7 @@ testpaths = [
     "tests",
 ]
 
-# ddddddddddddd=[ PYTEST-COV ]dddddddddddd
+# =========================[ PYTEST-COV ]========================
 [tool.coverage.paths]
 # SOURCE: https://coverage.readthedocs.io/en/latest/config.html
 # the first path is the path on the local filesystem
@@ -649,7 +649,7 @@ ignore = [
     'PLR1702', # too-many-nested-blocks	Too many nested blocks ({nested_blocks} > {max_nested_blocks})
 
     # These are dependent on projects themselves
-    'AIR',
+    'AIR', # airflow
     'CPY', # flake8-copyright (CPY)#
     'D',   # pydocstyle (D)#
     'NPY', # NumPy-specific rules (NPY)#
@@ -797,7 +797,8 @@ keep-runtime-typing = true
 
 [tool.ruff.lint.pydocstyle]
 # NOTE: Enabling a convention will disable any rules that are not included in the specified convention. As such, the intended workflow is to enable a convention and then selectively enable or disable any additional rules on top of it. See: https://github.com/astral-sh/ruff/blob/c3e28f9d55b4484b0e7507d3bee6339b9fb83bb5/docs/faq.md
-convention = "pep257" # Accepts: "google", "numpy", or "pep257".
+# Accepts: "google", "numpy", or "pep257".
+convention = "pep257"
 
 # ===========================[ RUFF FORMAT ]========================
 [tool.ruff.format]
@@ -1246,7 +1247,7 @@ score = false
 # List of members which are set dynamically and missed by pylint inference
 # system, and so shouldn't trigger E1101 when accessed. Python regular
 # expressions are accepted.
-generated-members = 'numpy.*, torch.*, cv2.*, discord.*, ,logging.root.*'
+generated-members = 'numpy.*, torch.*, cv2.*, discord.*,logging.root.*'
 ignored-classes = [
     "_CountingAttr", # for attrs
 ]
@@ -1258,8 +1259,8 @@ expected-line-ending-format = "LF"
 # [tool.pylint.TYPING]
 # runtime-typing = false
 # Set to ``no`` if the app / library does **NOT* need to support runtime introspection of type annotations. If you use type annotations exclusively for type checking of an application, you're probably fine. For libraries, evaluate if some users want to access the type hints at runtime first, e.g., through typing.get_type_hints. Applies to Python versions 3.7 - 3.9*
-# [tool.pylint.TYPING]
-# runtime-typing = false
+[tool.pylint.TYPING]
+runtime-typing = false
 
 [tool.pylint.CODE_STYLE]
 # Max line length for which to sill emit suggestions.
