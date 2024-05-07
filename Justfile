@@ -34,38 +34,38 @@ which-python:
 autoreload-code:
 	watchmedo auto-restart --pattern "*.py" --recursive --signal SIGTERM python src/bot.py
 
-# via ada
-taplo-dry-run:
-	taplo format --check --config taplo.toml --verbose --diff pyproject.toml
+# # via ada
+# taplo-dry-run:
+# 	taplo format --check --config taplo.toml --verbose --diff pyproject.toml
 
-taplo:
-	taplo format --config taplo.toml pyproject.toml
+# taplo:
+# 	taplo format --config taplo.toml pyproject.toml
 
-# Try fomatting existing code using ruff but simply display the diff
-ruff-fmt-dry-run:
-	@echo "fix pyproject.toml first"
-	taplo format --check pyproject.toml
-	@echo "isort fixes first"
-	ruff check . --select I --diff --config=pyproject.toml
-	@echo "format everything else"
-	ruff format --check --diff --config=pyproject.toml .
+# # Try fomatting existing code using ruff but simply display the diff
+# ruff-fmt-dry-run:
+# 	@echo "fix pyproject.toml first"
+# 	taplo format --check pyproject.toml
+# 	@echo "isort fixes first"
+# 	ruff check . --select I --diff --config=pyproject.toml
+# 	@echo "format everything else"
+# 	ruff format --check --diff --config=pyproject.toml .
 
-ruff-config:
-	ruff check --config=pyproject.toml --show-settings
+# ruff-config:
+# 	ruff check --config=pyproject.toml --show-settings
 
-# Show config we would use to lint with ruff
-lint-show-settings:
-	ruff check --config=pyproject.toml --show-settings | pbcopy
+# # Show config we would use to lint with ruff
+# lint-show-settings:
+# 	ruff check --config=pyproject.toml --show-settings | pbcopy
 
-# Lint all files in the current directory (and any subdirectories).
-lint:
-	# TODO: Figure out if we want to use tapo or validate-pyproject instead.
-	taplo lint --schema=file:///$(PWD)/hack/jsonschema/pyproject.json pyproject.toml
-	ruff check --config=pyproject.toml --show-settings
+# # Lint all files in the current directory (and any subdirectories).
+# lint:
+# 	# TODO: Figure out if we want to use tapo or validate-pyproject instead.
+# 	taplo lint --schema=file:///$(PWD)/hack/jsonschema/pyproject.json pyproject.toml
+# 	ruff check --config=pyproject.toml --show-settings
 
-# run pre-commit on all files
-run-pre-commit-all:
-	git ls-files | xargs pre-commit run --files
+# # run pre-commit on all files
+# run-pre-commit-all:
+# 	git ls-files | xargs pre-commit run --files
 
 local-open-coverage:
 	./scripts/open-browser.py file://${PWD}/htmlcov/index.html
@@ -97,3 +97,18 @@ rye-tool-install:
 
 lint-github-actions:
 	actionlint
+
+fmt-python:
+	git ls-files '*.py' | xargs rye run pre-commit run --files
+
+fmt-pyproject:
+	rye run pre-commit run taplo-format --all-files
+
+# format all code using pre-commit config
+fmt: fmt-python fmt-pyproject
+
+# Lint all files in the current directory (and any subdirectories).
+lint:
+	rye run pre-commit run ruff --all-files
+	rye run pre-commit run taplo-lint --all-files
+	taplo check --schema=file:///$(PWD)/hack/jsonschema/pyproject.json pyproject.toml

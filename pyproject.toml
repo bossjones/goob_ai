@@ -200,6 +200,7 @@ test = {chain = [
     "lint",
     "unittests",
 ]}
+
 # TODO: enable this
 # SOURCE: https://github.com/JacobCoffee/byte/blob/f863a146060165fe5c33a6343ee661b71f3ebf4a/pyproject.toml#L10
 # docs-serve = "sphinx-autobuild docs docs/_build/ -j auto --watch app --watch docs --watch tests --watch CONTRIBUTING.rst --port 8002"
@@ -574,9 +575,8 @@ extend-unsafe-fixes = [
 # Only allow fix behavior for `E` and `F` rules. https://docs.astral.sh/ruff/settings/#lint_fixable
 
 fixable = [
-    "E",    # Error (E)# https://docs.astral.sh/ruff/rules/#pycodestyle-e-w
-    "F",    # Pyflakes (F)
-    "I002",
+    "E", # Error (E)# https://docs.astral.sh/ruff/rules/#pycodestyle-e-w
+    "F", # Pyflakes (F)
     "I",
 ]
 
