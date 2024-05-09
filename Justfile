@@ -65,6 +65,10 @@ rye-tool-install:
 lint-github-actions:
 	actionlint
 
+# check that taplo is installed to lint/format TOML
+check-taplo-installed:
+	@command -v taplo >/dev/null 2>&1 || { echo >&2 "taplo is required but it's not installed. run 'brew install taplo'"; exit 1; }
+
 fmt-python:
 	git ls-files '*.py' | xargs rye run pre-commit run --files
 
@@ -82,11 +86,6 @@ lint-python:
 # lint TOML files using taplo
 lint-toml: check-taplo-installed
 	pre-commit run taplo-lint --all-files
-
-# format all code using pre-commit config
-fmt: check-taplo-installed
-	$(MAKE) fmt-python
-	$(MAKE) fmt-toml
 
 # Lint all files in the current directory (and any subdirectories).
 lint: lint-python lint-toml
