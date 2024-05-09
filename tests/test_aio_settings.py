@@ -51,18 +51,21 @@ class TestSettings:
         assert test_settings.redis_base is None
         assert str(test_settings.redis_url) == "redis://localhost:7600"
 
+    @pytest.mark.integration
     @pytest_asyncio.fixture
     async def test_integration_with_deleted_envs(self, monkeypatch: MonkeyPatch) -> None:
+        # import bpdb
+        # bpdb.set_trace()
         # paranoid about weird libraries trying to read env vars during testing
-        monkeypatch.delenvs(["GOOB_AI_CONFIG_DISCORD_TOKEN", "fake_discord_token"], raising=False)
-        monkeypatch.delenvs(["GOOB_AI_CONFIG_DISCORD_TOKEN", "fake_discord_token"], raising=False)
-        monkeypatch.delenvs(["GOOB_AI_CONFIG_DISCORD_ADMIN_USER_ID", 1337], raising=False)
-        monkeypatch.delenvs(["GOOB_AI_CONFIG_DISCORD_SERVER_ID", 1337], raising=False)
-        monkeypatch.delenvs(["GOOB_AI_CONFIG_DISCORD_CLIENT_ID", 8008], raising=False)
-        monkeypatch.delenvs(["GOOB_AI_CONFIG_OPENAI_API_KEY", "fake_openai_key"], raising=False)
-        monkeypatch.delenvs(["OPENAI_API_KEY", "fake_openai_key"], raising=False)
-        monkeypatch.delenvs(["PINECONE_API_KEY", "fake_pinecone_key"], raising=False)
-        monkeypatch.delenvs(["PINECONE_INDEX", "fake_test_index"], raising=False)
+        monkeypatch.setenv("GOOB_AI_CONFIG_DISCORD_TOKEN", "fake_discord_token")
+        monkeypatch.setenv("GOOB_AI_CONFIG_DISCORD_TOKEN", "fake_discord_token")
+        monkeypatch.setenv("GOOB_AI_CONFIG_DISCORD_ADMIN_USER_ID", 1337)
+        monkeypatch.setenv("GOOB_AI_CONFIG_DISCORD_SERVER_ID", 1337)
+        monkeypatch.setenv("GOOB_AI_CONFIG_DISCORD_CLIENT_ID", 8008)
+        monkeypatch.setenv("GOOB_AI_CONFIG_OPENAI_API_KEY", "fake_openai_key")
+        monkeypatch.setenv("OPENAI_API_KEY", "fake_openai_key")
+        monkeypatch.setenv("PINECONE_API_KEY", "fake_pinecone_key")
+        monkeypatch.setenv("PINECONE_INDEX", "fake_test_index")
         await asyncio.sleep(0.05)
 
         test_settings: aio_settings.AioSettings = aio_settings.AioSettings()

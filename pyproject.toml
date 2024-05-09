@@ -179,6 +179,7 @@ dev-dependencies = [
     "docformatter[tomli]>=1.7.5",
     "pytest-httpx>=0.30.0",
     "coverage[toml]>=7.5.1",
+    "dpytest>=0.7.0",
 ]
 
 [tool.rye.scripts]
@@ -208,8 +209,16 @@ test = {chain = [
 coverage-combine = {cmd = "python -m coverage combine"}
 coverage-html = {cmd = "python -m coverage html --skip-covered --skip-empty"}
 coverage-pytest = {cmd = "coverage run --rcfile=pyproject.toml -m pytest tests"}
+coverage-pytest-debug = {cmd = "coverage run --rcfile=pyproject.toml -m pytest --verbose --pdb --pdbcls bpdb:BPdb --showlocals --tb=short --capture=no tests"}
 coverage-report = {chain = [
     "coverage-pytest",
+    "coverage-combine",
+    "coverage-show",
+    "coverage-html",
+    "coverage-open",
+]}
+coverage-report-debug = {chain = [
+    "coverage-pytest-debug",
     "coverage-combine",
     "coverage-show",
     "coverage-html",
@@ -255,9 +264,12 @@ packages = ["src/goob_ai"]
 
 [tool.coverage.report]
 exclude_lines = [
+    '\(Protocol\):$',
     '\s*\.\.\.$',
     "@(abc.)?abstractmethod",
     "@overload",
+    "@typing.overload",
+    "assert_never",
     "def __repr__",
     "def __str__",
     "except ImportError:",
@@ -265,14 +277,16 @@ exclude_lines = [
     "if not _PANDAS_AVAILABLE:",
     "if self.debug",
     "if settings.DEBUG",
+    "if TYPE_CHECKING:",
     "if TYPE_CHECKING",
+    "if typing.TYPE_CHECKING:",
     "pragma: $TEST_PLATFORM no cover",
     "pragma: no cover",
     "pragma: py$PYTHON_MAJOR_VERSION no cover",
     "raise AssertionError",
     "raise NotImplementedError",
     "return NotImplemented",
-    "if TYPE_CHECKING:",                        # ignoring type checking imports
+    "typing.assert_never",
 ]
 omit = [
     "test/*",
@@ -318,6 +332,7 @@ addopts = [
     '--cov-report=annotate:cov_annotate',
 ]
 
+# markers=["basic", "filetree", "suites", "markers", "parametrization", "buildmeta"]
 # allows you to conditionally call only a subset of pytest baased on the marker provided
 markers = [
     "configonly: marks tests that run code that utilizes the config module (deselect with '-m \"not configonly\"')",
@@ -334,6 +349,29 @@ markers = [
     "vectorstoronly: marks tests that run code that utilizes the flex_vector_store_tool module (deselect with '-m \"not vectorstoronly\"')",
     "webpagetoolonly: marks tests that run code that utilizes the fetch_webpage_tool module (deselect with '-m \"not webpagetoolonly\"')",
 ]
+# filterwarnings = [
+#     "error",
+#     # fastapi uses deprecated pydantic functions
+#     "ignore:`FieldValidationInfo` is deprecated.*:DeprecationWarning:pydantic_core:",
+#     "ignore:`general_(before|after|wrap|plain)_validator_function` is deprecated.*:DeprecationWarning:fastapi:",
+#     "ignore:`general_(before|after|wrap|plain)_validator_function` is deprecated.*:DeprecationWarning:pydantic_core:",
+#     # google packages are using deprecated APIs
+#     "ignore::DeprecationWarning:pkg_resources*:",
+#     "ignore::DeprecationWarning:google*:",
+#     "ignore:.* google._upb._message.*:DeprecationWarning",
+#     # OTEL uses some deprecated APIs
+#     "ignore:pkg_resources:DeprecationWarning:opentelemetry.instrumentation.dependencies*:",
+#     # To be able to test numpy.matrix
+#     "ignore:the matrix subclass is not the recommended way.*:PendingDeprecationWarning",
+#     # See test_filter_warnings in test_testing.py
+#     'ignore:(?s).*google/cloud/pubsub_v1/subscriber/_protocol/streaming_pull_manager.*scheduler\.shutdown.*IndexError. tuple index out of range:pytest.PytestUnhandledThreadExceptionWarning',
+#     'ignore:(?s).*aiosqlite/core\.py.*get_loop\(future\).call_soon_threadsafe.*RuntimeError. Event loop is closed:pytest.PytestUnhandledThreadExceptionWarning',
+#     # This problem is fixed in https://github.com/open-telemetry/opentelemetry-python-contrib/pull/2013, but not the warning.
+#     "ignore:The '__version__' attribute is deprecated and will be removed in Flask 3.1:DeprecationWarning",
+#     # ignore DeprecationWarning from httpx - Marcelo knows why this is happening
+#     "ignore:The 'app' shortcut is now deprecated.*:DeprecationWarning:httpx*:",
+# ]
+
 testpaths = [
     "tests",
 ]

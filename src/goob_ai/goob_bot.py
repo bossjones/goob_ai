@@ -241,9 +241,6 @@ class AsyncGoobBot(commands.AutoShardedBot):
             intents=intents,
             enable_debug_events=True,
         )
-
-        self.session = aiohttp.ClientSession()
-
         # ------------------------------------------------
         # from bot
         # ------------------------------------------------
@@ -291,6 +288,7 @@ class AsyncGoobBot(commands.AutoShardedBot):
         self._auto_spam_count = Counter()
 
     async def setup_hook(self) -> None:
+        self.session = aiohttp.ClientSession()
         # guild_id: list
         # self.prefixes: Config[list[str]] = Config('prefixes.json')
 

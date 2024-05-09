@@ -196,6 +196,7 @@ dill==0.3.8
     # via multiprocess
     # via pylint
 discord-py==2.3.2
+    # via dpytest
     # via goob-ai
 distlib==0.3.8
     # via virtualenv
@@ -214,6 +215,7 @@ docutils==0.21.2
     # via rich-rst
 dominate==2.9.1
     # via pytablewriter
+dpytest==0.7.0
 duckduckgo-search==5.3.0
     # via goob-ai
 durabledict==0.9.4
@@ -697,6 +699,7 @@ pyright==1.1.361
 pytablewriter==1.2.0
     # via goob-ai
 pytest==8.2.0
+    # via dpytest
     # via pytest-asyncio
     # via pytest-cov
     # via pytest-httpx
@@ -704,6 +707,7 @@ pytest==8.2.0
     # via pytest-rerunfailures
     # via pytest-sugar
 pytest-asyncio==0.23.6
+    # via dpytest
 pytest-cov==5.0.0
 pytest-httpx==0.30.0
 pytest-mock==3.14.0

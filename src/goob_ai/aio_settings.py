@@ -11,7 +11,8 @@ from tempfile import gettempdir
 from typing import Any, Callable, Dict, List, Optional, Set, Union, cast
 
 from pydantic import AliasChoices, AmqpDsn, BaseModel, Field, ImportString, PostgresDsn, RedisDsn
-from pydantic.functional_validators import field_validator
+
+# from pydantic.functional_validators import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from rich.console import Console
 from rich.table import Table
@@ -203,20 +204,6 @@ class AioSettings(BaseSettings):
             password=self.redis_pass,
             path=path,
         )
-
-    @property
-    def aiomonitor_config_data(self) -> Dict:
-        """_summary_
-
-        Returns:
-            Path: _description_
-        """
-        return {"port": self.monitor_port, "host": self.monitor_host}
-
-    # class Config:  # sourcery skip: docstrings-for-classes
-    #     env_file = ".env"
-    #     env_prefix = "GOOB_AI_"
-    #     env_file_encoding = "utf-8"
 
 
 aiosettings = AioSettings()  # sourcery skip: docstrings-for-classes, avoid-global-variables

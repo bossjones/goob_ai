@@ -23,6 +23,22 @@ if TYPE_CHECKING:
     from _pytest.fixtures import FixtureRequest
     from _pytest.monkeypatch import MonkeyPatch
 
+
+import glob
+import os
+
+import discord as dc
+
+# import discord.ext.test as dpytest
+import pytest_asyncio
+
+from discord.client import _LoopSentinel
+from discord.ext import commands
+from goob_ai.goob_bot import AsyncGoobBot
+
+import pytest
+
+
 # from prisma.utils import get_or_create_event_loop
 # from prisma.testing import reset_client
 
@@ -58,3 +74,37 @@ def posixpath_fixture(monkeypatch: MonkeyPatch) -> None:
 @pytest.fixture(name="user_homedir")
 def user_homedir() -> str:
     return "/Users/runner" if os.environ.get("GITHUB_ACTOR") else "/Users/malcolm"
+
+
+# # ---------------------------------------------------------------
+# # SOURCE: https://github.com/Zorua162/dpystest_minimal/blob/ebbe7f61c741498b8ea8897fc22a11781e4d67bf/conftest.py#L4
+# # ---------------------------------------------------------------
+# @pytest_asyncio.fixture
+# async def bot(event_loop):
+#     """Initialise bot to be able to run tests on it"""
+#     # Create the bot, similar to how it is done in start_bot
+#     bot = Bot(event_loop)
+#     bot.add_command(ping)
+#     bot.add_command(create_channel)
+#     bot.add_command(get_channel)
+#     bot.add_command(get_channel_history)
+
+#     if isinstance(bot.loop, _LoopSentinel):
+#         await bot._async_setup_hook()
+
+#     # Configure the bot to be in a test environment (similar to bot.run)
+#     dpytest.configure(bot)
+#     await bot.setup_hook()
+#     assert dpytest.get_message().content == "Message from setup hook"
+
+#     return bot
+
+# def pytest_sessionfinish():
+#     """Clean up files"""
+#     files = glob.glob('./dpytest_*.dat')
+#     for path in files:
+#         try:
+#             os.remove(path)
+#         except Exception as e:
+#             print(f"Error while deleting file {path}: {e}")
+# # ---------------------------------------------------------------
