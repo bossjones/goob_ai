@@ -28,8 +28,7 @@ import glob
 import os
 
 import discord as dc
-
-# import discord.ext.test as dpytest
+import discord.ext.test as dpytest
 import pytest_asyncio
 
 from discord.client import _LoopSentinel
@@ -108,3 +107,16 @@ def user_homedir() -> str:
 #         except Exception as e:
 #             print(f"Error while deleting file {path}: {e}")
 # # ---------------------------------------------------------------
+
+
+def pytest_sessionfinish(session, exitstatus):
+    """Code to execute after all tests."""
+
+    # dat files are created when using attachements
+    print("\n-------------------------\nClean dpytest_*.dat files")
+    fileList = glob.glob("./dpytest_*.dat")
+    for filePath in fileList:
+        try:
+            os.remove(filePath)
+        except Exception:
+            print("Error while deleting file : ", filePath)

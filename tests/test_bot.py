@@ -9,11 +9,13 @@ import os
 from pathlib import Path, PosixPath
 from typing import TYPE_CHECKING, Iterable, Iterator
 
+import discord
+import discord.ext.commands as commands
+import discord.ext.test as dpytest
 import pytest_asyncio
 
+from discord.ext.commands import Cog, command
 from goob_ai import aio_settings
-
-# import torch
 from goob_ai.goob_bot import AsyncGoobBot
 from goob_ai.utils.file_functions import tilda
 
@@ -27,6 +29,49 @@ if TYPE_CHECKING:
     from pytest_mock.plugin import MockerFixture
 
 IS_RUNNING_ON_GITHUB_ACTIONS = bool(os.environ.get("GITHUB_ACTOR"))
+
+
+class Misc(Cog):
+    @command()
+    async def ping(self, ctx):
+        await ctx.send("Pong !")
+
+    @command()
+    async def echo(self, ctx, text: str):
+        await ctx.send(text)
+
+
+@pytest_asyncio.fixture
+# async def bot(mocker: MockerFixture, monkeypatch: MonkeyPatch):
+async def bot():
+    # monkeypatch.setenv("GOOB_AI_CONFIG_DISCORD_TOKEN", "fake_discord_token")
+    # monkeypatch.setenv("GOOB_AI_CONFIG_DISCORD_TOKEN", "fake_discord_token")
+    # monkeypatch.setenv("GOOB_AI_CONFIG_DISCORD_ADMIN_USER_ID", 1337)
+    # monkeypatch.setenv("GOOB_AI_CONFIG_DISCORD_SERVER_ID", 1337)
+    # monkeypatch.setenv("GOOB_AI_CONFIG_DISCORD_CLIENT_ID", 8008)
+    # monkeypatch.setenv("GOOB_AI_CONFIG_OPENAI_API_KEY", "fake_openai_key")
+    # monkeypatch.setenv("OPENAI_API_KEY", "fake_openai_key")
+    # monkeypatch.setenv("PINECONE_API_KEY", "fake_pinecone_key")
+    # monkeypatch.setenv("PINECONE_INDEX", "fake_test_index")
+
+    # test_settings: aio_settings.AioSettings = aio_settings.AioSettings()
+
+    test_bot: AsyncGoobBot = AsyncGoobBot()
+    # # Setup
+    # intents = discord.Intents.default()
+    # intents.members = True
+    # intents.message_content = True
+    # # b = commands.Bot(command_prefix="!",
+    # #                  intents=intents)
+    await test_bot._async_setup_hook()  # setup the loop
+    await test_bot.add_cog(Misc())
+
+    dpytest.configure(test_bot)
+
+    yield test_bot
+
+    # Teardown
+    await dpytest.empty_queue()  # empty the global message queue as test teardown
 
 
 # @pytest.mark.skipif(
@@ -98,3 +143,16 @@ class TestBot:
         #     assert str(test_bot.device) == "cpu"
 
         # # await test_bot.metrics_api.stop()
+
+
+@pytest.mark.integration
+class TestBotWithDPyTest:
+    @pytest.mark.asyncio
+    async def test_ping(self, bot):
+        await dpytest.message("?ping")
+        assert dpytest.verify().message().content("Pong !")
+
+    @pytest.mark.asyncio
+    async def test_echo(self, bot):
+        await dpytest.message("?echo Hello world")
+        assert dpytest.verify().message().contains().content("Hello")

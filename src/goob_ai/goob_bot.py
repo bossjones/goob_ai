@@ -197,16 +197,17 @@ class ProxyObject(discord.Object):
         self.guild: Optional[discord.abc.Snowflake] = guild
 
 
-class AsyncGoobBot(commands.AutoShardedBot):
+# class AsyncGoobBot(commands.AutoShardedBot):
+class AsyncGoobBot(commands.Bot):
     user: discord.ClientUser
-    pool: RedisConnectionPool
+    # pool: RedisConnectionPool
     command_stats: Counter[str]
     socket_stats: Counter[str]
     command_types_used: Counter[bool]
     logging_handler: Any
     bot_app_info: discord.AppInfo
     old_tree_error = Callable[[discord.Interaction, discord.app_commands.AppCommandError], Coroutine[Any, Any, None]]
-    ai_agent: AiAgent
+    # ai_agent: AiAgent
 
     def __init__(self):
         allowed_mentions = discord.AllowedMentions(roles=False, everyone=False, users=True)
@@ -241,6 +242,8 @@ class AsyncGoobBot(commands.AutoShardedBot):
             intents=intents,
             enable_debug_events=True,
         )
+
+        self.pool: RedisConnectionPool | None = None
         # ------------------------------------------------
         # from bot
         # ------------------------------------------------
@@ -370,14 +373,14 @@ class AsyncGoobBot(commands.AutoShardedBot):
         else:
             await self.prefixes.put(guild.id, sorted(set(prefixes), reverse=True))
 
-    async def add_to_blacklist(self, object_id: int):
-        await self.blacklist.put(object_id, True)
+    # async def add_to_blacklist(self, object_id: int):
+    #     await self.blacklist.put(object_id, True)
 
-    async def remove_from_blacklist(self, object_id: int):
-        try:
-            await self.blacklist.remove(object_id)
-        except KeyError:
-            pass
+    # async def remove_from_blacklist(self, object_id: int):
+    #     try:
+    #         await self.blacklist.remove(object_id)
+    #     except KeyError:
+    #         pass
 
     async def query_member_named(
         self, guild: discord.Guild, argument: str, *, cache: bool = False
@@ -553,27 +556,27 @@ class AsyncGoobBot(commands.AutoShardedBot):
         if ctx.command is None:
             return
 
-        if ctx.author.id in self.blacklist:
-            return
+        # if ctx.author.id in self.blacklist:
+        #     return
 
-        if ctx.guild is not None and ctx.guild.id in self.blacklist:
-            return
+        # if ctx.guild is not None and ctx.guild.id in self.blacklist:
+        #     return
 
-        bucket = self.spam_control.get_bucket(message)
-        current = message.created_at.timestamp()
-        retry_after = bucket and bucket.update_rate_limit(current)
-        author_id = message.author.id
-        if retry_after and author_id != self.owner_id:
-            self._auto_spam_count[author_id] += 1
-            if self._auto_spam_count[author_id] >= 5:
-                await self.add_to_blacklist(author_id)
-                del self._auto_spam_count[author_id]
-                await self.log_spammer(ctx, message, retry_after, autoblock=True)
-            else:
-                await self.log_spammer(ctx, message, retry_after)
-            return
-        else:
-            self._auto_spam_count.pop(author_id, None)
+        # bucket = self.spam_control.get_bucket(message)
+        # current = message.created_at.timestamp()
+        # retry_after = bucket and bucket.update_rate_limit(current)
+        # author_id = message.author.id
+        # if retry_after and author_id != self.owner_id:
+        #     self._auto_spam_count[author_id] += 1
+        #     if self._auto_spam_count[author_id] >= 5:
+        #         # await self.add_to_blacklist(author_id)
+        #         del self._auto_spam_count[author_id]
+        #         await self.log_spammer(ctx, message, retry_after, autoblock=True)
+        #     else:
+        #         await self.log_spammer(ctx, message, retry_after)
+        #     return
+        # else:
+        #     self._auto_spam_count.pop(author_id, None)
 
         await self.invoke(ctx)
 
@@ -586,9 +589,9 @@ class AsyncGoobBot(commands.AutoShardedBot):
             return
         await self.process_commands(message)
 
-    async def on_guild_join(self, guild: discord.Guild) -> None:
-        if guild.id in self.blacklist:
-            await guild.leave()
+    # async def on_guild_join(self, guild: discord.Guild) -> None:
+    #     if guild.id in self.blacklist:
+    #         await guild.leave()
 
     async def close(self) -> None:
         await super().close()
