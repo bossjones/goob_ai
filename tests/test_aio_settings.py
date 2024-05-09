@@ -2,15 +2,22 @@
 
 from __future__ import annotations
 
+import asyncio
 import os
 
 from pathlib import Path, PosixPath
+from typing import TYPE_CHECKING, Iterable, Iterator
 
 from goob_ai import aio_settings
 from goob_ai.utils.file_functions import tilda
 
+# import pytest_asyncio
 import pytest
 
+
+if TYPE_CHECKING:
+    from _pytest.fixtures import FixtureRequest
+    from _pytest.monkeypatch import MonkeyPatch
 
 IS_RUNNING_ON_GITHUB_ACTIONS = bool(os.environ.get("GITHUB_ACTOR"))
 
@@ -42,3 +49,29 @@ class TestSettings:
         assert test_settings.redis_pass is None
         assert test_settings.redis_base is None
         assert str(test_settings.redis_url) == "redis://localhost:7600"
+
+    # @pytest_asyncio.fixture
+    # async def test_integration_with_deleted_envs(
+    #     self,
+    #     monkeypatch: MonkeyPatch
+    # ) -> None:
+    #     # paranoid about weird libraries trying to read env vars during testing
+    #     monkeypatch.delenvs(["GOOB_AI_CONFIG_DISCORD_TOKEN", "fake_discord_token"], raising=False)
+    #     monkeypatch.delenvs(["GOOB_AI_CONFIG_DISCORD_TOKEN", "fake_discord_token"], raising=False)
+    #     monkeypatch.delenvs(["GOOB_AI_CONFIG_DISCORD_ADMIN_USER_ID", 1337], raising=False)
+    #     monkeypatch.delenvs(["GOOB_AI_CONFIG_DISCORD_SERVER_ID", 1337], raising=False)
+    #     monkeypatch.delenvs(["GOOB_AI_CONFIG_DISCORD_CLIENT_ID", 8008], raising=False)
+    #     monkeypatch.delenvs(["GOOB_AI_CONFIG_OPENAI_API_KEY", "fake_openai_key"], raising=False)
+    #     monkeypatch.delenvs(["OPENAI_API_KEY", "fake_openai_key"], raising=False)
+    #     monkeypatch.delenvs(["PINECONE_API_KEY", "fake_pinecone_key"], raising=False)
+    #     monkeypatch.delenvs(["PINECONE_INDEX", "fake_test_index"], raising=False)
+    #     await asyncio.sleep(0.05)
+
+    #     test_settings: aio_settings.AioSettings = aio_settings.AioSettings()
+    #     assert test_settings.discord_admin_user_id == 1337
+    #     assert test_settings.discord_client_id == 8008
+    #     assert test_settings.discord_server_id == 1337
+    #     assert test_settings.discord_token == "fake_discord_token"
+    #     assert test_settings.openai_api_key == "fake_openai_key"
+    #     assert test_settings.pinecone_api_key == "fake_pinecone_key"
+    #     assert test_settings.pinecone_index == "fake_test_index"

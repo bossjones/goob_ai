@@ -1,20 +1,25 @@
 # pylint: disable=no-name-in-module
+# pyright: reportUnknownMemberType = error
 from __future__ import annotations
 
 import asyncio
 import re
 
 from datetime import datetime, timedelta
+from typing import TYPE_CHECKING, Any, Callable, Generic, Iterable, Optional, Protocol, TypeVar, Union
 
 import discord
 
 from discord import app_commands
 from discord.ext import commands
 from goob_ai import constants
-
-# from goob_ai.helpers.db_manager import log_message
+from goob_ai.goob_bot import AsyncGoobBot
 from goob_ai.helpers import db_manager
+from loguru import logger as LOGGER
 
+
+if TYPE_CHECKING:
+    from ..goob_bot import AsyncGoobBot
 
 SLEEPTIMER = 5
 
@@ -25,8 +30,8 @@ def embedder(msg):
 
 
 class ListenerCog(commands.Cog, name="listener"):
-    def __init__(self, bot):
-        self.bot = bot
+    def __init__(self, bot: AsyncGoobBot):
+        self.bot: AsyncGoobBot = bot
         # self.listen_only_mode needs to be a dictionary with the guild id as the key and the value as the boolean
         self.listen_only_mode = {int(guild_id): False for guild_id in self.bot.channel_list}
 

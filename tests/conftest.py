@@ -5,16 +5,35 @@ Global test fixtures definitions.
 # Taken from tedi and guid_tracker
 from __future__ import annotations
 
+import asyncio
 import datetime
 import os
 import posixpath
 import typing
 
-from pathlib import PosixPath
+from pathlib import Path, PosixPath
+from typing import TYPE_CHECKING, Iterable, Iterator
 
 from _pytest.monkeypatch import MonkeyPatch
 
 import pytest
+
+
+if TYPE_CHECKING:
+    from _pytest.fixtures import FixtureRequest
+    from _pytest.monkeypatch import MonkeyPatch
+
+# from prisma.utils import get_or_create_event_loop
+# from prisma.testing import reset_client
+
+# from ._utils import request_has_client
+
+# SOURCE: https://github.com/RobertCraigie/prisma-client-py/blob/da53c4280756f1a9bddc3407aa3b5f296aa8cc10/lib/testing/shared_conftest/_shared_conftest.py#L26-L30
+# @pytest.fixture(scope='session')
+# def event_loop() -> Iterable[asyncio.AbstractEventLoop]:
+#     loop = get_or_create_event_loop()
+#     yield loop
+#     loop.close()
 
 
 IS_RUNNING_ON_GITHUB_ACTIONS = bool(os.environ.get("GITHUB_ACTOR"))

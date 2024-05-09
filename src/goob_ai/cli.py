@@ -26,7 +26,7 @@ import discord
 import rich
 import typer
 
-from loguru import logger
+from loguru import logger as LOGGER
 from pinecone import Pinecone, ServerlessSpec
 from pinecone.core.client.model.describe_index_stats_response import DescribeIndexStatsResponse
 from pinecone.core.client.model.query_response import QueryResponse
@@ -53,8 +53,6 @@ global_log_config(
     log_level=logging.getLevelName("DEBUG"),
     json=False,
 )
-
-LOGGER = logger
 
 
 APP = AsyncTyper()

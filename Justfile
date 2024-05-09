@@ -90,3 +90,17 @@ fmt: check-taplo-installed
 
 # Lint all files in the current directory (and any subdirectories).
 lint: lint-python lint-toml
+
+# SOURCE: https://github.com/RobertCraigie/prisma-client-py/blob/da53c4280756f1a9bddc3407aa3b5f296aa8cc10/Makefile#L77
+clean:
+	rm -rf .cache
+	rm -rf `find . -name __pycache__`
+	rm -rf .tests_cache
+	rm -rf .mypy_cache
+	rm -rf htmlcov
+	rm -rf *.egg-info
+	rm -f .coverage
+	rm -f .coverage.*
+	rm -rf build
+	rm -rf dist
+	rm -f coverage.xml

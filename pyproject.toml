@@ -198,10 +198,30 @@ typecheck = {chain = [
 "typecheck:mypy" = "mypy ."
 unittests-debug = {cmd = "pytest --verbose --pdb --pdbcls bpdb:BPdb --showlocals --tb=short --cov-append --cov-report=term-missing --junitxml=junit/test-results.xml --cov-report=xml:cov.xml --cov-report=html:htmlcov --cov-report=annotate:cov_annotate --cov=."}
 unittests = {cmd = "pytest --verbose --showlocals --tb=short --cov-append --cov-report=term-missing --junitxml=junit/test-results.xml --cov-report=xml:cov.xml --cov-report=html:htmlcov --cov-report=annotate:cov_annotate --cov=."}
+new-unittests-debug = {cmd = "pytest --verbose --pdb --pdbcls bpdb:BPdb --showlocals --tb=short"}
 test = {chain = [
     "lint",
     "unittests",
 ]}
+# SOURCE: https://github.com/rayference/joseki/blob/5e9812a2f77be1476e09aef66a05fdc78e736aba/pyproject.toml#L62
+coverage-combine = {cmd = "python -m coverage combine"}
+coverage-html = {cmd = "python -m coverage html --skip-covered --skip-empty"}
+coverage-pytest = {cmd = "coverage run --rcfile=pyproject.toml -m pytest tests"}
+coverage-report = {chain = [
+    "coverage-pytest",
+    "coverage-combine",
+    "coverage-show",
+    "coverage-html",
+    "coverage-open",
+]}
+coverage-show = {cmd = "python -m coverage report --fail-under=5"}
+coverage-open = {cmd = "just local-open-coverage:"}
+
+
+# Private tasks used for chaining (https://github.com/charbonnierg/pytest-broadcaster/blob/e98456b2f6db7f99a034795f162ac0013a8001d7/pyproject.toml#L157C1-L158C15)
+__formatcheck = "rye fmt --check"
+
+# SOURCE: https://github.com/rayference/joseki/blob/5e9812a2f77be1476e09aef66a05fdc78e736aba/pyproject.toml#L62
 
 # TODO: enable this
 # SOURCE: https://github.com/JacobCoffee/byte/blob/f863a146060165fe5c33a6343ee661b71f3ebf4a/pyproject.toml#L10
@@ -215,6 +235,13 @@ test = {chain = [
 # name = "pytorch"
 # url = "https://download.pytorch.org/whl/cpu"
 
+[tool.coverage.html]
+directory = "htmlcov"
+
+[tool.coverage.xml]
+output = "cov.xml"
+
+# unittests-debug = {cmd = "pytest --verbose --pdb --pdbcls bpdb:BPdb --showlocals --tb=short --cov-append --cov-report=term-missing --junitxml=junit/test-results.xml --cov-report=xml:cov.xml --cov-report=html:htmlcov --cov-report=annotate:cov_annotate --cov=."}
 
 [tool.hatch.version]
 path = "src/goob_ai/__version__.py"
@@ -272,7 +299,11 @@ exclude_also = [
 ]
 
 # (boolean, default False) Ignore source code that can't be found, emitting a warning instead of an exception.
-ignore_errors = true
+ignore_errors = false
+# (boolean, default False) When running a summary report, show missing lines. See Coverage summary: coverage report for more information.
+show_missing = true
+# (boolean, default False) Don’t report files that are 100% covered. This helps you focus on files that need attention.
+skip_covered = false
 
 # =========================[ PYTEST INI OPTIONS ]========================
 [tool.pytest.ini_options]
@@ -282,6 +313,8 @@ addopts = [
     # Print runtimes of the slowest tests.
     '--durations=10',
     '--durations-min=0.05',
+    '--junitxml=junit/test-results.xml',
+    '--cov-report=annotate:cov_annotate',
 ]
 
 # allows you to conditionally call only a subset of pytest baased on the marker provided
@@ -314,8 +347,12 @@ source = [
     "/src",
 ]
 [tool.coverage.run]
+parallel = true
 branch = true
 source = ["goob_ai"]
+# NOTE: This might break some SHIT (5/8/2024)
+# SOURCE: https://github.com/anthonycorletti/snok/blob/039ae9aaf403485ce9b7fedb0e1943c25a250eed/snok/templates/__shared/_pyproject_toml#L130
+concurrency = ["thread", "greenlet", "multiprocessing"]
 
 # dd=======================[ BLACK ]========================
 [tool.black]
@@ -1189,7 +1226,7 @@ disable = [
     "missing-format-argument-key",
     "missing-format-attribute",
     "missing-kwoa",
-    "no-member",
+    # "no-member",
     "no-value-for-parameter",
     "non-iterator-returned",
     "non-str-assignment-to-dunder-name",
@@ -1293,7 +1330,19 @@ exclude = [
     "build",
     "dist",
     "docs",
+    "**/.venv",
+    "**/node_modules",
+    "**/__pycache__",
+    ".git",
+    "**/build",
 ]
+############################################################################
+# FIXME: THIS MIGHT BREAK SHIT
+# SOURCE: https://github.com/charbonnierg/pytest-broadcaster/blob/e98456b2f6db7f99a034795f162ac0013a8001d7/pyproject.toml#L157C1-L158C15
+venv = ".venv"
+venvPath = "."
+# FIXME: THIS MIGHT BREAK SHIT
+############################################################################
 defineConstant = {DEBUG = true}
 stubPath = "./typings"
 # https://github.com/microsoft/pyright/blob/main/docs/configuration.md#reportGeneralTypeIssues
@@ -1305,7 +1354,8 @@ reportMissingImports = "error"
 reportImportCycles = "error"
 reportUnusedVariable = "none"
 reportMissingTypeStubs = "none"
-reportUnknownMemberType = false
+# reportUnknownMemberType = "false" # ORIGINAL ONE
+# reportUnknownMemberType = "error"
 # -------------------------------------------------------------------------
 reportUnusedFunction = "warning" # this is what we use in ad
 reportUnusedClass = "warning"    # this is what we use in ad
@@ -1313,6 +1363,26 @@ reportUnusedClass = "warning"    # this is what we use in ad
 # reportUnusedFunction = "none" # this is what we use in goob-ai
 # reportUnusedClass = "none" # this is what we use in goob-ai
 # -------------------------------------------------------------------------
+
+# -------------------------------------------------------------------------
+# SOURCE: https://github.com/RobertCraigie/prisma-client-py/blob/main/pyproject.toml
+# -------------------------------------------------------------------------
+# NOTE: these should be periodically enabled and disabled
+# they are too stict for general usage as I don't want
+# pyright disable comments everywhere and I also don't
+# want to have to maintain my own stubs just to mark
+# some types as Any, however they can find potential
+# holes in our type information.
+reportUnknownVariableType = false
+reportUnknownMemberType = false
+reportUnknownArgumentType = false
+
+# very strict errors
+reportUnusedCallResult = false
+reportImplicitStringConcatenation = false
+reportCallInDefaultInitializer = true
+# -------------------------------------------------------------------------
+
 
 # # TODO: Let's disable this for now
 # # ----------------------------------------------------------------------------
