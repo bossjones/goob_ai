@@ -175,6 +175,18 @@ class AioSettings(BaseSettings):
     retry_wait_exponential_min: Union[int, float] = 1
     retry_wait_fixed: Union[int, float] = 15
 
+    pinecone_api_key: str = ""
+    pinecone_env: str = ""
+    pinecone_index: str = ""
+
+    pinecone_api_key: str = Field(env="PINECONE_API_KEY", description="pinecone api key", default="")
+    pinecone_env: str = Field(env="PINECONE_ENV", description="pinecone env", default="")
+    pinecone_index: str = Field(env="PINECONE_INDEX", description="pinecone index", default="")
+
+    # pinecone_api_key = os.environ.get("pinecone_api_key")
+    # pinecone_env = os.environ.get("pinecone_env")
+    # pinecone_index = os.environ.get("pinecone_index")
+
     @property
     def redis_url(self) -> URL:
         """

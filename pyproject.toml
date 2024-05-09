@@ -109,6 +109,8 @@ dependencies = [
     "torchvision>=0.18.0",
     "asyncer>=0.0.7",
     "bump-pydantic>=0.8.0",
+    "pinecone-client>=4.0.0",
+    "langserve[all]>=0.1.1",
 ]
 
 readme = "README.md"
