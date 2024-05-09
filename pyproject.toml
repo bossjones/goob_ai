@@ -178,6 +178,7 @@ dev-dependencies = [
     "loguru-mypy>=0.0.4",
     "docformatter[tomli]>=1.7.5",
     "pytest-httpx>=0.30.0",
+    "coverage[toml]>=7.5.1",
 ]
 
 [tool.rye.scripts]
