@@ -1,23 +1,20 @@
 """test_bot"""
 
 # pylint: disable=assigning-non-slot
+# pylint: disable=consider-using-from-import
 from __future__ import annotations
 
 import asyncio
 import os
 
-from pathlib import Path, PosixPath
-from typing import TYPE_CHECKING, Iterable, Iterator
+from typing import TYPE_CHECKING
 
-import discord
-import discord.ext.commands as commands
 import discord.ext.test as dpytest
 import pytest_asyncio
 
 from discord.ext.commands import Cog, command
 from goob_ai import aio_settings
 from goob_ai.goob_bot import AsyncGoobBot
-from goob_ai.utils.file_functions import tilda
 
 import pytest
 
