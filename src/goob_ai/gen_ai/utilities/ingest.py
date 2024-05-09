@@ -13,8 +13,8 @@ import pinecone
 from bs4 import BeautifulSoup
 from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain.vectorstores import Pinecone
 from loguru import logger as LOGGER
+from pinecone import Pinecone
 
 
 if TYPE_CHECKING:
