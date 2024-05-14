@@ -186,13 +186,13 @@ class AiAgent(BaseModel):
     def setup_agent_executor(self, session_id: str, user_task: str):
         # ttl_in_seconds = self.settings.dynamodb_ttl_days * 24 * 60 * 60
         # FIXME: replace foo with a proper session_id later
-        message_history = RedisChatMessageHistory("foo", url=f"{aiosettings.redis_url}")
+        message_history = RedisChatMessageHistory("foo", url=f"{aiosettings.redis_url}", key_prefix="goob:")
 
         memory = ConversationBufferWindowMemory(
             memory_key="chat_history",
             chat_memory=message_history,
             return_messages=True,
-            k=self.settings.chat_history_buffer_size,
+            k=self.settings.chat_history_buffer,
             output_key="output",
         )
 
