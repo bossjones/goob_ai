@@ -163,7 +163,7 @@ dev-dependencies = [
     "types-six>=1.16.21.20240513",
     "monkeytype>=23.3.0",
     "hunter>=3.7.0",
-    "sourcery>=1.16.0",
+    "sourcery>=1.18.0",
     "types-html5lib>=1.1.11.20240228",
     "types-pyasn1>=0.6.0.20240402",
     "types-python-jose>=3.3.4.20240106",
@@ -215,6 +215,9 @@ typecheck = {chain = [
     "ci:mypy",
     "open:mypy-coverage",
 ]}
+"sourcery:check" = "sourcery review --check --summary ."
+"sourcery:fix" = "sourcery review --fix ."
+"sourcery:hub" = "sourcery hub"
 "ci:mypy" = "mypy  --config-file=pyproject.toml --html-report typingcov ."
 "open:mypy-coverage" = " open typingcov/index.html"
 unittests-debug = {cmd = "pytest --verbose --pdb --pdbcls bpdb:BPdb --showlocals --tb=short --cov-append --cov-report=term-missing --junitxml=junit/test-results.xml --cov-report=xml:cov.xml --cov-report=html:htmlcov --cov-report=annotate:cov_annotate --cov=."}

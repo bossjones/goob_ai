@@ -881,7 +881,7 @@ snowballstemmer==2.2.0
 soupsieve==2.5
     # via beautifulsoup4
     # via goob-ai
-sourcery==1.16.0
+sourcery==1.18.0
 sqlalchemy==2.0.29
     # via langchain
     # via langchain-community
