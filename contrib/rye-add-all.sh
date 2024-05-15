@@ -156,4 +156,6 @@ rye add --dev pandas-stubs && \
 rye add --dev types-urllib3 && \
 rye add --dev types-protobuf  && \
 rye add --dev grpc-stubs && \
+rye add --dev types-contextvars && \
+rye add --dev types-dataclasses && \
 rye add --dev types-beautifulsoup4
