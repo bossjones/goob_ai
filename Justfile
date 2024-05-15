@@ -32,7 +32,7 @@ which-python:
 
 # when developing, you can use this to watch for changes and restart the server
 autoreload-code:
-	watchmedo auto-restart --pattern "*.py" --recursive --signal SIGTERM rye run goobctl go
+	rye run watchmedo auto-restart --pattern "*.py" --recursive --signal SIGTERM rye run goobctl go
 
 local-open-coverage:
 	./scripts/open-browser.py file://${PWD}/htmlcov/index.html

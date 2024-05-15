@@ -74,3 +74,5 @@ Tensor: Aight, you down for some Among Us or what? 🤪🚀 I promise I won't sc
 ### Response:
 {formatted_bot_message}
 {BOTNAME}:"""
+
+CHANNEL_ID = "1240294186201124929"

@@ -14,6 +14,7 @@ from langchain.callbacks.manager import AsyncCallbackManagerForToolRun, Callback
 from langchain.pydantic_v1 import BaseModel, Field
 from langchain.tools import BaseTool
 from langchain_core.tools import ToolException
+from langchain_openai import ChatOpenAI
 from loguru import logger as LOGGER
 
 from goob_ai.aio_settings import aiosettings
@@ -39,7 +40,7 @@ class VisionTool(BaseTool):
         self,
         image_path: str,
         prompt: str,
-    ) -> str:
+    ) -> str | bytes:
         """
         Use this tool to get more information about an image given a URL to an image file. Use for all urls for image files including discord urls.
 
@@ -51,13 +52,13 @@ class VisionTool(BaseTool):
         """
         try:
             # Initialize the Vision API client
-            client = VisionModel().vision_api
+            client: ChatOpenAI | None = VisionModel().vision_api
 
             # Initialize the discord settings
             discord_token = aiosettings.discord_token
 
             # Function to download image from discord and convert to base64
-            def fetch_image_from_discord(url: str) -> str:
+            def fetch_image_from_discord(url: str) -> str | bytes | None:
                 headers = {"Authorization": f"Bearer {discord_token}"}
 
                 try:

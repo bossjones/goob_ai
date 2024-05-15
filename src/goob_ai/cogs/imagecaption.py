@@ -9,6 +9,8 @@ import requests
 import torch
 
 from discord.ext import commands
+from goob_ai.factories import cmd_factory, guild_factory
+from loguru import logger as LOGGER
 from PIL import Image
 from transformers import BlipForConditionalGeneration, BlipProcessor  # pyright: ignore[reportAttributeAccessIssue]
 
@@ -20,6 +22,20 @@ class ImageCaptionCog(commands.Cog, name="image_caption"):
         self.model = BlipForConditionalGeneration.from_pretrained(
             "Salesforce/blip-image-captioning-base", torch_dtype=torch.float32
         ).to("cpu")
+
+        LOGGER.info(f" self.model = {self.model}")
+        LOGGER.info(f" type(self.model) = {type(self.model)}")
+        LOGGER.info(f" self.processor = {self.processor}")
+        LOGGER.info(f" type(self.processor) = {type(self.processor)}")
+
+    @commands.Cog.listener()
+    async def on_ready(self) -> None:
+        print(f"{type(self).__name__} Cog ready.")
+
+    @commands.Cog.listener()
+    async def on_guild_join(self, guild: guild_factory.Guild) -> None:
+        """Add new guilds to the database"""
+        _ = await guild_factory.Guild(id=guild.id)
 
     @commands.command(name="image_comment")
     async def image_comment(self, message: discord.Message, message_content) -> str:

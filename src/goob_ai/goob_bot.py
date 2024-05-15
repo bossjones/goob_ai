@@ -43,7 +43,7 @@ from goob_ai import db, helpers, shell, utils
 from goob_ai.agent import AiAgent
 from goob_ai.aio_settings import aiosettings
 from goob_ai.bot_logger import get_logger
-from goob_ai.constants import INPUT_CLASSIFICATION_NOT_A_QUESTION, INPUT_CLASSIFICATION_NOT_FOR_ME
+from goob_ai.constants import CHANNEL_ID, INPUT_CLASSIFICATION_NOT_A_QUESTION, INPUT_CLASSIFICATION_NOT_FOR_ME
 from goob_ai.factories import guild_factory
 from goob_ai.user_input_enrichment import UserInputEnrichment
 from goob_ai.utils.context import Context
@@ -289,6 +289,8 @@ class AsyncGoobBot(commands.Bot):
         # A counter to auto-ban frequent spammers
         # Triggering the rate limit 5 times in a row will auto-ban the user from the bot.
         self._auto_spam_count = Counter()
+
+        self.channel_list = [int(x) for x in CHANNEL_ID.split(",")]
 
     async def setup_hook(self) -> None:
         self.session = aiohttp.ClientSession()

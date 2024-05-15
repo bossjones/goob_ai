@@ -13,6 +13,7 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 from goob_ai import constants
+from goob_ai.factories import cmd_factory, guild_factory
 from goob_ai.goob_bot import AsyncGoobBot
 from goob_ai.helpers import db_manager
 from loguru import logger as LOGGER
@@ -33,11 +34,16 @@ class ListenerCog(commands.Cog, name="listener"):
     def __init__(self, bot: AsyncGoobBot):
         self.bot: AsyncGoobBot = bot
         # self.listen_only_mode needs to be a dictionary with the guild id as the key and the value as the boolean
+        # self.listen_only_mode = {int(guild_id): False for guild_id in self.bot.channel_list}
         self.listen_only_mode = {int(guild_id): False for guild_id in self.bot.channel_list}
 
     class ListenOnlyModeSelect(discord.ui.Select):
         def __init__(self, parent):
             self.parent = parent
+
+            LOGGER.info(f" self.parent = {self.parent}")
+            LOGGER.info(f" type(self.parent) = {type(self.parent)}")
+
             options = [
                 discord.SelectOption(label="Enable", description="Enable listen-only mode.", emoji="🙊"),
                 discord.SelectOption(label="Disable", description="Disable listen-only mode.", emoji="🐵"),
@@ -74,13 +80,22 @@ class ListenerCog(commands.Cog, name="listener"):
             super().__init__()
             self.add_item(ListenerCog.ListenOnlyModeSelect(parent))
 
+    @commands.Cog.listener()
+    async def on_ready(self) -> None:
+        print(f"{type(self).__name__} Cog ready.")
+
+    @commands.Cog.listener()
+    async def on_guild_join(self, guild: guild_factory.Guild) -> None:
+        """Add new guilds to the database"""
+        _ = await guild_factory.Guild(id=guild.id)
+
     # This command will toggle listen-only mode for the bot in the server it is used in.
     @app_commands.command(name="listen", description="listen-only mode")
     async def listen(self, interaction: discord.Interaction):
         view = self.ListenOnlyModeView(self)
         await interaction.response.send_message("Toggle listen-only mode:", view=view)
 
-    async def has_image_attachment(self, message_content):
+    async def has_image_attachment(self, message_content: discord.Message):
         url_pattern = re.compile(r"http[s]?://[^\s/$.?#].[^\s]*\.(jpg|jpeg|png|gif)", re.IGNORECASE)
         tenor_pattern = re.compile(r"https://tenor.com/view/[\w-]+")
         for attachment in message_content.attachments:
@@ -95,7 +110,7 @@ class ListenerCog(commands.Cog, name="listener"):
         else:
             return False
 
-    async def handle_image_message(self, message, mode=""):
+    async def handle_image_message(self, message: discord.Message, mode=""):
         await db_manager.log_message(message)
         image_response = await self.bot.get_cog("image_caption").image_comment(message, message.clean_content)
 
@@ -110,7 +125,7 @@ class ListenerCog(commands.Cog, name="listener"):
                     response_message = await message.channel.send(response)
                     await db_manager.log_message(response_message)
 
-    async def handle_text_message(self, message, mode=""):
+    async def handle_text_message(self, message: discord.Message, mode=""):
         await db_manager.log_message(message)
         if mode == "nr":
             await self.bot.get_cog("chatbot").chat_command_nr(
@@ -134,7 +149,7 @@ class ListenerCog(commands.Cog, name="listener"):
         self.listen_only_mode[channel_id] = False
 
     @commands.Cog.listener()
-    async def on_message(self, message):
+    async def on_message(self, message: discord.Message):
         # Ignore messages from the bot or that start with ".", "/", or are not in the bot's channels.
         if (
             message.author == self.bot.user

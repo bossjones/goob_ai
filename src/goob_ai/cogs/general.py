@@ -15,6 +15,7 @@ from discord import app_commands
 from discord.ext import commands
 from discord.ext.commands import Command, Context
 from goob_ai.aio_settings import aiosettings
+from goob_ai.factories import cmd_factory, guild_factory
 from goob_ai.goob_bot import AsyncGoobBot
 from goob_ai.helpers import checks
 
@@ -26,6 +27,15 @@ if TYPE_CHECKING:
 class General(commands.Cog, name="general"):
     def __init__(self, bot: AsyncGoobBot):
         self.bot: AsyncGoobBot = bot
+
+    @commands.Cog.listener()
+    async def on_ready(self) -> None:
+        print(f"{type(self).__name__} Cog ready.")
+
+    @commands.Cog.listener()
+    async def on_guild_join(self, guild: guild_factory.Guild) -> None:
+        """Add new guilds to the database"""
+        _ = await guild_factory.Guild(id=guild.id)
 
     @commands.hybrid_command(name="help", description="List all commands the bot has loaded.")
     # @checks.not_blacklisted()
