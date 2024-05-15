@@ -11,8 +11,6 @@ import discord
 import rich
 
 from discord.ext.commands.context import Context
-
-# LOGGER = get_logger(__name__, provider="Events", level=logging.DEBUG)
 from loguru import logger as LOGGER
 
 from goob_ai import downloader

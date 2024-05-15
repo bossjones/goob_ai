@@ -127,6 +127,7 @@ certifi==2024.2.2
     # via requests
     # via sentry-sdk
 cffi==1.16.0
+    # via cryptography
     # via curl-cffi
     # via pycares
     # via weasyprint
@@ -167,6 +168,9 @@ contourpy==1.2.1
     # via matplotlib
 coverage==7.5.1
     # via pytest-cov
+cryptography==42.0.7
+    # via types-pyopenssl
+    # via types-redis
 cssselect2==0.7.0
     # via weasyprint
 curl-cffi==0.6.3
@@ -282,8 +286,10 @@ googleapis-common-protos==1.63.0
     # via opentelemetry-exporter-otlp-proto-grpc
 greenlet==3.0.3
     # via bpython
+grpc-stubs==1.53.0.5
 grpcio==1.63.0
     # via chromadb
+    # via grpc-stubs
     # via opentelemetry-exporter-otlp-proto-grpc
     # via tensorboard
 gutter==0.5.0
@@ -404,7 +410,6 @@ logging-tree==1.10
     # via goob-ai
 loguru==0.7.2
     # via goob-ai
-loguru-mypy==0.0.4
 lxml==5.2.1
     # via goob-ai
     # via pypi-command-line
@@ -495,6 +500,7 @@ numpy==1.26.4
     # via onnxruntime
     # via opencv-python
     # via pandas
+    # via pandas-stubs
     # via pyarrow
     # via pydeck
     # via pyinspect
@@ -584,6 +590,7 @@ pandas==2.2.2
     # via goob-ai
     # via simpletransformers
     # via streamlit
+pandas-stubs==2.2.2.240514
 partd==1.4.1
     # via dask
 passlib==1.7.4
@@ -770,6 +777,7 @@ redis==5.0.4
 referencing==0.35.1
     # via jsonschema
     # via jsonschema-specifications
+    # via types-jsonschema
 regex==2024.4.28
     # via simpletransformers
     # via tiktoken
@@ -986,25 +994,42 @@ typer==0.12.3
 types-aiofiles==23.2.0.20240403
 types-awscrt==0.20.9
     # via botocore-stubs
-types-beautifulsoup4==4.12.0.20240504
+types-beautifulsoup4==4.12.0.20240511
 types-boto==2.49.18.20240205
+types-cffi==1.16.0.20240331
+    # via types-pyopenssl
 types-click==7.1.8
+types-click-spinner==0.1.13.20240311
 types-colorama==0.4.15.20240311
 types-dataclasses==0.6.6
 types-freezegun==1.1.10
 types-html5lib==1.1.11.20240228
     # via types-beautifulsoup4
+types-jsonschema==4.22.0.20240501
 types-mock==5.1.0.20240425
+types-mypy-extensions==1.0.0.20240311
 types-pillow==10.2.0.20240423
+types-protobuf==5.26.0.20240422
+types-psutil==5.9.5.20240511
 types-pyasn1==0.6.0.20240402
     # via types-python-jose
+types-pyopenssl==24.1.0.20240425
+    # via types-redis
 types-python-jose==3.3.4.20240106
 types-pytz==2024.1.0.20240417
+    # via pandas-stubs
 types-pyyaml==6.0.12.20240311
+types-redis==4.6.0.20240425
+types-regex==2024.5.10.20240512
 types-s3transfer==0.10.1
     # via boto3-stubs
 types-setuptools==69.5.0.20240423
-types-six==1.16.21.20240425
+    # via types-cffi
+types-six==1.16.21.20240513
+types-toml==0.10.8.20240310
+types-tqdm==4.66.0.20240417
+types-ujson==5.9.0.0
+types-urllib3==1.26.25.14
 typing-extensions==4.11.0
     # via aiodebug
     # via aiomonitor
@@ -1021,7 +1046,6 @@ typing-extensions==4.11.0
     # via fastapi
     # via huggingface-hub
     # via janus
-    # via loguru-mypy
     # via mypy
     # via mypy-boto3
     # via mypy-boto3-cloudformation

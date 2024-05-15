@@ -355,3 +355,4 @@ NOTES.md
 #.idea/
 database/database.db
 database/messages.db
+typingcov/

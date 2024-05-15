@@ -137,3 +137,23 @@ rye add --dev pytest-rerunfailures
 rye add --dev pytest-asyncio
 rye add --dev validate-pyproject\[all,store\]
 rye add --dev pylint-per-file-ignores
+
+
+rye add --dev types-ujson && \
+rye add --dev types-tqdm && \
+rye add --dev types-toml && \
+rye add --dev types-six && \
+rye add --dev types-regex && \
+rye add --dev types-redis && \
+rye add --dev types-psutil && \
+rye add --dev types-mypy-extensions && \
+rye add --dev types-jsonschema && \
+rye add --dev types-html5lib && \
+rye add --dev types-colorama && \
+rye add --dev types-click-spinner && \
+rye add --dev types-cffi && \
+rye add --dev pandas-stubs && \
+rye add --dev types-urllib3 && \
+rye add --dev types-protobuf  && \
+rye add --dev grpc-stubs && \
+rye add --dev types-beautifulsoup4
