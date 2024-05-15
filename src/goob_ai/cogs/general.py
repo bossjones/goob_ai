@@ -1,34 +1,44 @@
 # pylint: disable=no-name-in-module
+# mypy: disable-error-code="arg-type"
+# SOURCE: https://github.com/ausboss/DiscordLangAgent/blob/58a7289a49864fdadb3a70d8a106b2fc92c2ee7b/cogs/general.py#L13
 from __future__ import annotations
 
 import platform
 import random
+
+from typing import TYPE_CHECKING, Any, Callable, Generic, Iterable, List, Optional, Protocol, TypeVar, Union
 
 import aiohttp
 import discord
 
 from discord import app_commands
 from discord.ext import commands
-from discord.ext.commands import Context
+from discord.ext.commands import Command, Context
+from goob_ai.aio_settings import aiosettings
+from goob_ai.goob_bot import AsyncGoobBot
 from goob_ai.helpers import checks
 
 
+if TYPE_CHECKING:
+    from ..goob_bot import AsyncGoobBot
+
+
 class General(commands.Cog, name="general"):
-    def __init__(self, bot):
-        self.bot = bot
+    def __init__(self, bot: AsyncGoobBot):
+        self.bot: AsyncGoobBot = bot
 
     @commands.hybrid_command(name="help", description="List all commands the bot has loaded.")
     # @checks.not_blacklisted()
     async def help(self, context: Context) -> None:
-        prefix = self.bot.config["prefix"]
+        prefix = aiosettings.prefix
         embed = discord.Embed(title="Help", description="List of available commands:", color=0x9C84EF)
         for i in self.bot.cogs:
             cog = self.bot.get_cog(i.lower())
-            commands = cog.get_commands()
+            commands: List[Command] = cog.get_commands()
             data = []
             for command in commands:
-                description = command.description.partition("\n")[0]
-                data.append(f"{prefix}{command.name} - {description}")
+                description = command.description.partition("\n")[0]  # pyright: ignore[reportAttributeAccessIssue]
+                data.append(f"{prefix}{command.name} - {description}")  # pyright: ignore[reportAttributeAccessIssue]
             help_text = "\n".join(data)
             embed.add_field(name=i.capitalize(), value=f"```{help_text}```", inline=False)
         await context.send(embed=embed)
@@ -53,7 +63,7 @@ class General(commands.Cog, name="general"):
         embed.add_field(name="Python Version:", value=f"{platform.python_version()}", inline=True)
         embed.add_field(
             name="Prefix:",
-            value=f"/ (Slash Commands) or {self.bot.config['prefix']} for normal commands",
+            value=f"/ (Slash Commands) or {aiosettings.prefix} for normal commands",
             inline=False,
         )
         embed.set_footer(text=f"Requested by {context.author}")
@@ -104,27 +114,28 @@ class General(commands.Cog, name="general"):
         )
         await context.send(embed=embed)
 
-    @commands.hybrid_command(
-        name="invite",
-        description="Get the invite link of the bot to be able to invite it.",
-    )
-    # @checks.not_blacklisted()
-    async def invite(self, context: Context) -> None:
-        """
-        Get the invite link of the bot to be able to invite it.
+    # @commands.hybrid_command(
+    #     name="invite",
+    #     description="Get the invite link of the bot to be able to invite it.",
+    # )
+    # # @checks.not_blacklisted()
+    # async def invite(self, context: Context) -> None:
+    #     """
+    #     Get the invite link of the bot to be able to invite it.
 
-        :param context: The hybrid command context.
-        """
-        embed = discord.Embed(
-            description=f"Invite me by clicking [here](https://discordapp.com/oauth2/authorize?&client_id={self.bot.config['application_id']}&scope=bot+applications.commands&permissions={self.bot.config['permissions']}).",
-            color=0xD75BF4,
-        )
-        try:
-            # To know what permissions to give to your bot, please see here: https://discordapi.com/permissions.html and remember to not give Administrator permissions.
-            await context.author.send(embed=embed)
-            await context.send("I sent you a private message!")
-        except discord.Forbidden:
-            await context.send(embed=embed)
+    #     :param context: The hybrid command context.
+    #     """
+
+    #     embed = discord.Embed(
+    #         description=f"Invite me by clicking [here](https://discordapp.com/oauth2/authorize?&client_id={self.bot.config['application_id']}&scope=bot+applications.commands&permissions={self.bot.config['permissions']}).",
+    #         color=0xD75BF4,
+    #     )
+    #     try:
+    #         # To know what permissions to give to your bot, please see here: https://discordapi.com/permissions.html and remember to not give Administrator permissions.
+    #         await context.author.send(embed=embed)
+    #         await context.send("I sent you a private message!")
+    #     except discord.Forbidden:
+    #         await context.send(embed=embed)
 
     @commands.hybrid_command(
         name="server",
@@ -222,5 +233,5 @@ class General(commands.Cog, name="general"):
                 await context.send(embed=embed)
 
 
-async def setup(bot):
+async def setup(bot: AsyncGoobBot):
     await bot.add_cog(General(bot))

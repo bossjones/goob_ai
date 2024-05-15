@@ -6,11 +6,11 @@ from io import BytesIO
 
 import discord
 import requests
-import torch  # type: ignore
+import torch
 
 from discord.ext import commands
 from PIL import Image
-from transformers import BlipForConditionalGeneration, BlipProcessor
+from transformers import BlipForConditionalGeneration, BlipProcessor  # pyright: ignore[reportAttributeAccessIssue]
 
 
 class ImageCaptionCog(commands.Cog, name="image_caption"):
@@ -22,7 +22,7 @@ class ImageCaptionCog(commands.Cog, name="image_caption"):
         ).to("cpu")
 
     @commands.command(name="image_comment")
-    async def image_comment(self, message: discord.Message, message_content) -> None:
+    async def image_comment(self, message: discord.Message, message_content) -> str:
         # Check if the message content is a URL
         url_pattern = re.compile(r"http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+")
         if "https://tenor.com/view/" in message_content:
@@ -49,7 +49,7 @@ class ImageCaptionCog(commands.Cog, name="image_caption"):
             image = Image.open(BytesIO(response.content)).convert("RGB")
         else:
             # Download the image from the message and convert it to a PIL image
-            image_url = message.attachments[0].url
+            image_url = message.attachments[0].url  # pyright: ignore[reportAttributeAccessIssue]
             response = requests.get(image_url)
             image = Image.open(BytesIO(response.content)).convert("RGB")
 
