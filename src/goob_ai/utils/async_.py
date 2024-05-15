@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import concurrent.futures
 import functools
 import logging
@@ -11,15 +12,13 @@ import time
 
 from asyncio import Semaphore, coroutines, ensure_future, gather, get_running_loop
 from asyncio.events import AbstractEventLoop
+from concurrent.futures import ThreadPoolExecutor
 from traceback import extract_stack
 from typing import Any, Awaitable, Callable, Coroutine, TypeVar
 
 from codetiming import Timer
+from loguru import logger as LOGGER
 
-from goob_ai.bot_logger import get_logger
-
-
-_LOGGER = get_logger(__name__, provider="Async Logger", level=logging.DEBUG)
 
 _SHUTDOWN_RUN_CALLBACK_THREADSAFE = "_shutdown_run_callback_threadsafe"
 
@@ -243,3 +242,92 @@ def async_timer():
         return wrapped
 
     return wrapper
+
+
+#######################################
+# START: https://gist.github.com/iedmrc/2fbddeb8ca8df25356d8acc3d297e955
+# SOURCE: https://gist.github.com/iedmrc/2fbddeb8ca8df25356d8acc3d297e955
+#######################################
+
+
+def to_async(func):
+    """Turns a sync function to async function using event loop"""
+
+    @functools.wraps(func)
+    async def run(*args, loop=None, executor=None, **kwargs):
+        if loop is None:
+            loop = asyncio.get_event_loop()
+        pfunc = functools.partial(func, *args, **kwargs)
+        return await loop.run_in_executor(executor, pfunc)
+
+    return run
+
+
+def to_async_thread(fn):
+    """Turns a sync function to async function using threads"""
+    pool = ThreadPoolExecutor()
+
+    @functools.wraps(fn)
+    def wrapper(*args, **kwargs):
+        future = pool.submit(fn, *args, **kwargs)
+        return asyncio.wrap_future(future)  # make it awaitable
+
+    return wrapper
+
+
+def to_sync(fn):
+    """Turns an async function to sync function"""
+
+    @functools.wraps(fn)
+    def wrapper(*args, **kwargs):
+        res = fn(*args, **kwargs)
+        if asyncio.iscoroutine(res):
+            # return asyncio.get_event_loop().run_until_complete(res)
+            # loop = asyncio.get_running_loop()
+            if loop is None:
+                loop = asyncio.get_event_loop()
+            return loop.run_until_complete(res)
+        return res
+
+    return wrapper
+
+
+def force_async(fn):
+    """
+    turns a sync function to async function using threads
+    """
+    import asyncio
+
+    from concurrent.futures import ThreadPoolExecutor
+
+    pool = ThreadPoolExecutor()
+
+    @functools.wraps(fn)
+    def wrapper(*args, **kwargs):
+        future = pool.submit(fn, *args, **kwargs)
+        return asyncio.wrap_future(future)  # make it awaitable
+
+    return wrapper
+
+
+def force_sync(fn):
+    """
+    turn an async function to sync function
+    """
+    import asyncio
+
+    @functools.wraps(fn)
+    def wrapper(*args, **kwargs):
+        res = fn(*args, **kwargs)
+        if asyncio.iscoroutine(res):
+            loop = asyncio.get_running_loop()
+            return loop.run_until_complete(res)
+        return res
+
+    return wrapper
+
+
+#######################################
+# END: https://gist.github.com/iedmrc/2fbddeb8ca8df25356d8acc3d297e955
+# SOURCE: https://gist.github.com/iedmrc/2fbddeb8ca8df25356d8acc3d297e955
+#######################################

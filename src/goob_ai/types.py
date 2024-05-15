@@ -26,6 +26,10 @@ from typing_extensions import get_args as get_args
 from typing_extensions import runtime_checkable as runtime_checkable
 
 
+T = TypeVar("T")
+Coro = Coroutine[Any, Any, T]
+
+
 Method = Literal["GET", "POST"]
 
 CallableT = TypeVar("CallableT", bound="FuncType")

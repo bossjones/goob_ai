@@ -342,7 +342,7 @@ skip_covered = false
 # =========================[ PYTEST INI OPTIONS ]========================
 [tool.pytest.ini_options]
 pythonpath = "."
-
+asyncio_mode = "auto"
 addopts = [
     # Print runtimes of the slowest tests.
     '--durations=10',

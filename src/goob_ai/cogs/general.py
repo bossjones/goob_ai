@@ -18,6 +18,7 @@ from goob_ai.aio_settings import aiosettings
 from goob_ai.factories import cmd_factory, guild_factory
 from goob_ai.goob_bot import AsyncGoobBot
 from goob_ai.helpers import checks
+from loguru import logger as LOGGER
 
 
 if TYPE_CHECKING:

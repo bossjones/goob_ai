@@ -34,6 +34,7 @@ import discord
 
 from codetiming import Timer
 from discord.ext import commands
+from logging_tree import printout
 from loguru import logger as LOGGER
 from redis.asyncio import ConnectionPool as RedisConnectionPool
 
@@ -42,12 +43,14 @@ import goob_ai
 from goob_ai import db, helpers, shell, utils
 from goob_ai.agent import AiAgent
 from goob_ai.aio_settings import aiosettings
-from goob_ai.bot_logger import get_logger
+from goob_ai.bot_logger import generate_tree, get_lm_from_tree, get_logger
 from goob_ai.constants import CHANNEL_ID, INPUT_CLASSIFICATION_NOT_A_QUESTION, INPUT_CLASSIFICATION_NOT_FOR_ME
 from goob_ai.factories import guild_factory
 from goob_ai.user_input_enrichment import UserInputEnrichment
 from goob_ai.utils.context import Context
 
+
+LOGGER.add(sys.stderr, level="DEBUG")
 
 DESCRIPTION = """An example bot to showcase the discord.ext.commands extension
 module.
@@ -67,6 +70,16 @@ COMMAND_RUNNER = {"dl_thumb": shell.run_coroutine_subprocess}
 
 
 # SOURCE: https://realpython.com/how-to-make-a-discord-bot-python/#responding-to-messages
+def dump_logger_tree():
+    rootm = generate_tree()
+    LOGGER.debug(rootm)
+
+
+def dump_logger(logger_name: str):
+    LOGGER.debug(f"getting logger {logger_name}")
+    rootm = generate_tree()
+    lm = get_lm_from_tree(rootm, logger_name)
+    return lm
 
 
 def filter_empty_string(a_list: List[str]) -> List[str]:
@@ -524,6 +537,9 @@ class AsyncGoobBot(commands.Bot):
             self.uptime = discord.utils.utcnow()
 
         LOGGER.info(f"Ready: {self.user} (ID: {self.user.id})")
+
+        LOGGER.info("LOGGING TREE:")
+        printout()
 
     async def on_shard_resumed(self, shard_id: int):
         LOGGER.info("Shard ID %s has resumed...", shard_id)
