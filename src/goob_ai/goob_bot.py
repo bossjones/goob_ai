@@ -148,7 +148,7 @@ async def get_prefix(_bot: AsyncGoobBot, message: discord.Message):
     LOGGER.info(f"inside get_prefix(_bot, message) - > get_prefix({type(_bot)}, {type(message)})")
     prefix = (
         [aiosettings.prefix]
-        if isinstance(message.channel, discord.DMChannel)
+        if isinstance(message.channel, discord.DMChannel)  # pyright: ignore[reportAttributeAccessIssue]
         else [utils.get_guild_prefix(_bot, message.guild.id)]  # type: ignore
     )
     LOGGER.info(f"prefix -> {prefix}")
@@ -183,11 +183,11 @@ def extensions():
 def _prefix_callable(bot: AsyncGoobBot, msg: discord.Message):
     user_id = bot.user.id
     base = [f"<@!{user_id}> ", f"<@{user_id}> "]
-    if msg.guild is None:
+    if msg.guild is None:  # pyright: ignore[reportAttributeAccessIssue]
         base.append("!")
         base.append("?")
     else:
-        base.extend(bot.prefixes.get(msg.guild.id, ["?", "!"]))
+        base.extend(bot.prefixes.get(msg.guild.id, ["?", "!"]))  # pyright: ignore[reportAttributeAccessIssue]
     return base
 
 
@@ -275,7 +275,7 @@ class AsyncGoobBot(commands.Bot):
 
         # self.current_task = None
 
-        self.client_id: str = aiosettings.discord_client_id
+        self.client_id: int | str = aiosettings.discord_client_id
 
         # shard_id: List[datetime.datetime]
         # shows the last attempted IDENTIFYs and RESUMEs
@@ -294,6 +294,7 @@ class AsyncGoobBot(commands.Bot):
         self.session = aiohttp.ClientSession()
         # guild_id: list
         # self.prefixes: Config[list[str]] = Config('prefixes.json')
+        self.prefixes: list[str] = [aiosettings.prefix]
 
         # guild_id and user_id mapped to True
         # these are users and guilds globally blacklisted
@@ -308,8 +309,8 @@ class AsyncGoobBot(commands.Bot):
         # if aiosettings.enable_redis:
         #     self.db = db.init_worker_redis()
 
-        self.bot_app_info = await self.application_info()
-        self.owner_id = self.bot_app_info.owner.id
+        self.bot_app_info: discord.AppInfo = await self.application_info()
+        self.owner_id: int = self.bot_app_info.owner.id  # pyright: ignore[reportAttributeAccessIssue]
 
         for ext in extensions():
             try:
@@ -327,7 +328,7 @@ class AsyncGoobBot(commands.Bot):
 
     @property
     def owner(self) -> discord.User:
-        return self.bot_app_info.owner
+        return self.bot_app_info.owner  # pyright: ignore[reportAttributeAccessIssue]
 
     def _clear_gateway_data(self) -> None:
         one_week_ago = discord.utils.utcnow() - datetime.timedelta(days=7)
@@ -352,7 +353,7 @@ class AsyncGoobBot(commands.Bot):
         elif isinstance(error, commands.DisabledCommand):
             await ctx.author.send("Sorry. This command is disabled and cannot be used.")
         elif isinstance(error, commands.CommandInvokeError):
-            original = error.original
+            original = error.original  # pyright: ignore[reportAttributeAccessIssue]
             if not isinstance(original, discord.HTTPException):
                 LOGGER.exception("In %s:", ctx.command.qualified_name, exc_info=original)
         elif isinstance(error, commands.ArgumentParsingError):
@@ -362,16 +363,16 @@ class AsyncGoobBot(commands.Bot):
         proxy_msg = ProxyObject(guild)
         return local_inject(self, proxy_msg)  # type: ignore  # lying
 
-    def get_raw_guild_prefixes(self, guild_id: int) -> list[str]:
-        return self.prefixes.get(guild_id, ["?", "!"])
+    # def get_raw_guild_prefixes(self, guild_id: int) -> list[str]:
+    #     return self.prefixes.get(guild_id, ["?", "!"])
 
-    async def set_guild_prefixes(self, guild: discord.abc.Snowflake, prefixes: list[str]) -> None:
-        if len(prefixes) == 0:
-            await self.prefixes.put(guild.id, [])
-        elif len(prefixes) > 10:
-            raise RuntimeError("Cannot have more than 10 custom prefixes.")
-        else:
-            await self.prefixes.put(guild.id, sorted(set(prefixes), reverse=True))
+    # async def set_guild_prefixes(self, guild: discord.abc.Snowflake, prefixes: list[str]) -> None:
+    #     if len(prefixes) == 0:
+    #         await self.prefixes.put(guild.id, [])
+    #     elif len(prefixes) > 10:
+    #         raise RuntimeError("Cannot have more than 10 custom prefixes.")
+    #     else:
+    #         await self.prefixes.put(guild.id, sorted(set(prefixes), reverse=True))
 
     # async def add_to_blacklist(self, object_id: int):
     #     await self.blacklist.put(object_id, True)
@@ -407,7 +408,8 @@ class AsyncGoobBot(commands.Bot):
             return discord.utils.get(members, name=username, discriminator=discriminator)
         else:
             members = await guild.query_members(argument, limit=100, cache=cache)
-            return discord.utils.find(lambda m: m.name == argument or m.nick == argument, members)  # pylint: disable=consider-using-in
+
+            return discord.utils.find(lambda m: m.name == argument or m.nick == argument, members)  # pylint: disable=consider-using-in # pyright: ignore[reportAttributeAccessIssue]
 
     async def get_or_fetch_member(self, guild: discord.Guild, member_id: int) -> Optional[discord.Member]:
         """Looks up a member in cache or fetches if not found.
@@ -525,27 +527,27 @@ class AsyncGoobBot(commands.Bot):
         LOGGER.info("Shard ID %s has resumed...", shard_id)
         self.resumes[shard_id].append(discord.utils.utcnow())
 
-    @discord.utils.cached_property
-    def stats_webhook(self) -> discord.Webhook:
-        wh_id, wh_token = self.aiosettings.stat_webhook
-        hook = discord.Webhook.partial(id=wh_id, token=wh_token, session=self.session)
-        return hook
+    # @discord.utils.cached_property # pyright: ignore[reportAttributeAccessIssue]
+    # def stats_webhook(self) -> discord.Webhook:
+    #     wh_id, wh_token = self.aiosettings.stat_webhook
+    #     hook = discord.Webhook.partial(id=wh_id, token=wh_token, session=self.session)
+    #     return hook
 
-    async def log_spammer(self, ctx: Context, message: discord.Message, retry_after: float, *, autoblock: bool = False):
-        guild_name = getattr(ctx.guild, "name", "No Guild (DMs)")
-        guild_id = getattr(ctx.guild, "id", None)
-        fmt = "User %s (ID %s) in guild %r (ID %s) spamming, retry_after: %.2fs"
-        LOGGER.warning(fmt, message.author, message.author.id, guild_name, guild_id, retry_after)
-        if not autoblock:
-            return
+    # async def log_spammer(self, ctx: Context, message: discord.Message, retry_after: float, *, autoblock: bool = False):
+    #     guild_name = getattr(ctx.guild, "name", "No Guild (DMs)")
+    #     guild_id = getattr(ctx.guild, "id", None)
+    #     fmt = "User %s (ID %s) in guild %r (ID %s) spamming, retry_after: %.2fs"
+    #     LOGGER.warning(fmt, message.author, message.author.id, guild_name, guild_id, retry_after)
+    #     if not autoblock:
+    #         return
 
-        wh = self.stats_webhook
-        embed = discord.Embed(title="Auto-blocked Member", colour=0xDDA453)
-        embed.add_field(name="Member", value=f"{message.author} (ID: {message.author.id})", inline=False)
-        embed.add_field(name="Guild Info", value=f"{guild_name} (ID: {guild_id})", inline=False)
-        embed.add_field(name="Channel Info", value=f"{message.channel} (ID: {message.channel.id}", inline=False)
-        embed.timestamp = discord.utils.utcnow()
-        return await wh.send(embed=embed)
+    #     wh = self.stats_webhook
+    #     embed = discord.Embed(title="Auto-blocked Member", colour=0xDDA453)
+    #     embed.add_field(name="Member", value=f"{message.author} (ID: {message.author.id})", inline=False)
+    #     embed.add_field(name="Guild Info", value=f"{guild_name} (ID: {guild_id})", inline=False)
+    #     embed.add_field(name="Channel Info", value=f"{message.channel} (ID: {message.channel.id}", inline=False) # pyright: ignore[reportAttributeAccessIssue]
+    #     embed.timestamp = discord.utils.utcnow()
+    #     return await wh.send(embed=embed)
 
     async def get_context(self, origin: Union[discord.Interaction, discord.Message], /, *, cls=Context) -> Context:
         return await super().get_context(origin, cls=cls)
@@ -584,7 +586,7 @@ class AsyncGoobBot(commands.Bot):
         LOGGER.info(f"message = {message}")
 
         # TODO: This is where all the AI logic is going to go
-        LOGGER.info(f"Thread message to process - {message.author}: {message.content[:50]}")
+        LOGGER.info(f"Thread message to process - {message.author}: {message.content[:50]}")  # pyright: ignore[reportAttributeAccessIssue]
         if message.author.bot:
             return
         await self.process_commands(message)
@@ -608,7 +610,7 @@ class AsyncGoobBot(commands.Bot):
         channel = self.get_channel(aiosettings.discord_general_channel)  # channel ID goes here
         while not self.is_closed():
             counter += 1
-            await channel.send(counter)
+            await channel.send(counter)  # pyright: ignore[reportAttributeAccessIssue]
             await asyncio.sleep(60)  # task runs every 60 seconds
 
     async def on_worker_monitor(self) -> None:

@@ -110,7 +110,7 @@ class AioSettings(BaseSettings):
     discord_general_channel: int = 908894727779258390
 
     discord_server_id: int = 0
-    discord_client_id: int = 0
+    discord_client_id: int | str = 0
 
     discord_token: str = ""
 
