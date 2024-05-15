@@ -40,9 +40,9 @@ async def download_file(bot: AsyncGoobBot, session: aiohttp.ClientSession, url: 
             file_content = await response.read()
             with open(file_name, "wb") as file:
                 file.write(file_content)
-            LOGGER.debug(bot, f"Downloaded: {url}")
+            LOGGER.debug(f"Downloaded: {url}")
         else:
-            LOGGER.error(bot, f"Failed to download: {url}")
+            LOGGER.error(f"Failed to download: {url}")
 
 
 async def ingest(bot: AsyncGoobBot, url: str, namespace: str):
@@ -73,7 +73,7 @@ async def ingest(bot: AsyncGoobBot, url: str, namespace: str):
 
                     await asyncio.gather(*tasks)
                 else:
-                    LOGGER.error(bot, f"Failed to download: {base_url}")
+                    LOGGER.error(f"Failed to download: {base_url}")
 
         from langchain.document_loaders.readthedocs import ReadTheDocsLoader
 

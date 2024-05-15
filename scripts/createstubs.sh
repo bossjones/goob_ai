@@ -26,7 +26,7 @@ fi
 
 echo 'Creating stubs'
 
-mkdir -p typings/
+mkdir -p typings/ || true
 
 createstub pandas
 createstub plotly
@@ -40,17 +40,32 @@ createstub boolean
 createstub IPython
 
 
-if [ ! -d "typings/gym" ]; then
-    pyright --createstub gym
-    # Patch gym stubs
-    echo '    spaces = ...' >> typings/gym/spaces/dict.pyi
-    echo '    nvec = ...' >> typings/gym/spaces/space.pyi
-    echo '    spaces = ...' >> typings/gym/spaces/space.pyi
-    echo '    spaces = ...' >> typings/gym/spaces/tuple.pyi
-    echo '    n = ...' >> typings/gym/spaces/multi_binary.pyi
-else
-    echo stub gym already created
-fi
+
+# cat temp | sed -n 's/.*Stub file not found for "\([^"]*\)".*/\1/p'
+rye run typecheck | grep "Stub file not found for" | sed -n 's/.*Stub file not found for "\([^"]*\)".*/\1/p' | sed -n '/\./ s/\([^.]*\)\..*/\1/p' | sort | uniq | xargs -I {} echo "pyright --createstub {}"
+
+# pyright --createstub better_exceptions
+# pyright --createstub bpdb
+# pyright --createstub pinecone
+# pyright --createstub discord
+# pyright --createstub transformers
+# pyright --createstub uritools
+# pyright --createstub torchvision
+# pyright --createstub scipy
+# pyright --createstub webcolors
+# pyright --createstub logging_tree
+
+# if [ ! -d "typings/gym" ]; then
+#     pyright --createstub gym
+#     # Patch gym stubs
+#     echo '    spaces = ...' >> typings/gym/spaces/dict.pyi
+#     echo '    nvec = ...' >> typings/gym/spaces/space.pyi
+#     echo '    spaces = ...' >> typings/gym/spaces/space.pyi
+#     echo '    spaces = ...' >> typings/gym/spaces/tuple.pyi
+#     echo '    n = ...' >> typings/gym/spaces/multi_binary.pyi
+# else
+#     echo stub gym already created
+# fi
 
 
 echo 'Typing stub generation completed'

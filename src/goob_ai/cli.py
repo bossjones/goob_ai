@@ -47,6 +47,7 @@ from goob_ai.aio_settings import aiosettings, get_rich_console
 from goob_ai.asynctyper import AsyncTyper
 from goob_ai.bot_logger import get_logger, global_log_config
 from goob_ai.goob_bot import AsyncGoobBot
+from goob_ai.utils import repo_typing
 
 
 global_log_config(
@@ -297,6 +298,13 @@ def delete_index_quickstart() -> None:
     pc = Pinecone(api_key=aiosettings.pinecone_api_key)
     pc.delete_index(aiosettings.pinecone_index)
     typer.echo("Deleted!")
+
+
+@APP.command()
+def run_pyright() -> None:
+    """Generate typestubs GoobAI"""
+    typer.echo("Generating type stubs for GoobAI")
+    repo_typing.run_pyright()
 
 
 @APP.command()
