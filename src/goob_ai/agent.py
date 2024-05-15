@@ -1,10 +1,11 @@
 # pyright: reportPrivateImportUsage=false
 # pyright: reportGeneralTypeIssues=false
+
 from __future__ import annotations
 
 import logging
 
-from typing import Any, List, Union
+from typing import TYPE_CHECKING, Any, List, Union
 
 from boto3.session import Session as boto3_Session
 from langchain.agents import AgentExecutor
@@ -20,13 +21,16 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain_core.tools import BaseTool
 from langchain_core.utils.function_calling import convert_to_openai_tool
 from loguru import logger as LOGGER
-from pinecone import Pinecone, ServerlessSpec
 from pydantic import BaseModel
 from pydantic_settings import SettingsConfigDict
 
 from goob_ai.aio_settings import AioSettings, aiosettings
 from goob_ai.gen_ai.tools.vision_tool import VisionTool
 from goob_ai.llm_manager import LlmManager
+
+
+if TYPE_CHECKING:
+    from pinecone.control import Pinecone  # pyright: ignore[reportAttributeAccessIssue]
 
 
 class AiAgent(BaseModel):
@@ -63,7 +67,7 @@ class AiAgent(BaseModel):
         self.agent_personality = "You have a geeky and clever sense of humor"
 
     def init_tools(self):
-        self.custom_tools: list[BaseTool] | None = [VisionTool()]
+        self.custom_tools: Union[list[BaseTool], list[Any]] | None = [VisionTool()]
         # ***************************************************
         # NOTE: CustomTool Error handling
         # ***************************************************
@@ -155,7 +159,7 @@ class AiAgent(BaseModel):
              Very Important: If the question is about writing code use backticks (```) at the front and end of the code snippet and include the language use after the first ticks.
 
              If the user provides an image use Custom Tool vision_api to get more information about the image then pass the text along with the original question to vector_store_tool.
-             You remember {self.settings.chat_history_buffer_size} previous messages from the chat thread.
+             You remember {self.settings.chat_history_buffer} previous messages from the chat thread.
              If you use documents from any tools to provide a helpful answer to user question, please make sure to also return a valid URL of the document you used
              If you don't know the answer, just say so, and don't try to make anything up. DO NOT allow made up or fake answers.
              If the question is not related to the context, politely respond that you are tuned to only answer questions that are related to the context.
@@ -181,7 +185,7 @@ class AiAgent(BaseModel):
             | prompt
             | llm_with_tools
             | OpenAIToolsAgentOutputParser()
-        )
+        )  # pyright: ignore[reportAttributeAccessIssue]
 
     def setup_agent_executor(self, session_id: str, user_task: str):
         # ttl_in_seconds = self.settings.dynamodb_ttl_days * 24 * 60 * 60
@@ -198,7 +202,7 @@ class AiAgent(BaseModel):
 
         agent_executor = AgentExecutor(
             agent=self.agent, tools=self.all_tools, verbose=True, callbacks=[self.logging_handler], memory=memory
-        )
+        )  # mypy: disable-error-code="arg-type"
 
         return agent_executor
 

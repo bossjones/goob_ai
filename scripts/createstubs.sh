@@ -13,7 +13,8 @@ echo 'Creating stubs'
 
 mkdir -p typings/ || true
 
-rye run typecheck | grep "Stub file not found for" | sed -n 's/.*Stub file not found for "\([^"]*\)".*/\1/p' | sed -n '/\./ s/\([^.]*\)\..*/\1/p' | sort | uniq | xargs -I {} echo "rye run pyright --createstub {}"
+# rye run typecheck | grep "Stub file not found for" | sed -n 's/.*Stub file not found for "\([^"]*\)".*/\1/p' | sed -n '/\./ s/\([^.]*\)\..*/\1/p' | sort | uniq | xargs -I {} echo "rye run pyright --createstub {}"
+rye run typecheck | grep "Stub file not found for" | sed -n 's/.*Stub file not found for "\([^"]*\)".*/\1/p' | sort | uniq | xargs -I {} echo "rye run pyright --createstub {}"
 
 # Prompt the user for input
 read -p "Do you want to proceed? (yes/no): " response
@@ -24,7 +25,7 @@ response=$(echo "$response" | tr '[:upper:]' '[:lower:]')
 # Check the user's response
 if [[ "$response" == "yes" ]]; then
     echo "You chose yes. Proceeding..."
-    rye run typecheck | grep "Stub file not found for" | sed -n 's/.*Stub file not found for "\([^"]*\)".*/\1/p' | sed -n '/\./ s/\([^.]*\)\..*/\1/p' | sort | uniq | xargs -I {} rye run pyright --createstub {}
+    rye run typecheck | grep "Stub file not found for" | sed -n 's/.*Stub file not found for "\([^"]*\)".*/\1/p' | sort | uniq | xargs -I {} rye run pyright --createstub {}
     # Add the commands you want to execute if the user says yes
 elif [[ "$response" == "no" ]]; then
     echo "You chose no. Exiting..."

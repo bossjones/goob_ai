@@ -336,7 +336,7 @@ exclude_also = [
 ignore_errors = false
 # (boolean, default False) When running a summary report, show missing lines. See Coverage summary: coverage report for more information.
 show_missing = true
-# (boolean, default False) Don’t report files that are 100% covered. This helps you focus on files that need attention.
+# (boolean, default False) Don't report files that are 100% covered. This helps you focus on files that need attention.
 skip_covered = false
 
 # =========================[ PYTEST INI OPTIONS ]========================
@@ -474,7 +474,8 @@ disable_error_code = [
 ]
 
 # Causes mypy to treat arguments with a None default value as having an implicit Optional type.
-follow_imports = "silent"
+follow_imports = "skip"
+# follow_imports = "silent"
 
 # Warns about casting an expression to its inferred type.
 warn_redundant_casts = true
@@ -1399,6 +1400,7 @@ exclude = [
     ".git",
     "**/build",
     "tasks",
+    "typings",
 ]
 ############################################################################
 # FIXME: THIS MIGHT BREAK SHIT
@@ -1458,7 +1460,7 @@ reportCallInDefaultInitializer = true
 # # [boolean or string, optional]: Generate or suppress diagnostics for general type inconsistencies, unsupported operations, argument/parameter mismatches, etc. This covers all of the basic type-checking rules not covered by other rules. It does not include syntax errors. The default value for this setting is "error".
 # # reportGeneralTypeIssues = "none"
 # reportArgumentType = "none"
-# reportAttributeAccessIssue = "none"
+reportAttributeAccessIssue = "error"
 # reportOptionalMemberAccess = false
 # reportGeneralTypeIssues = true
 # reportCallIssue = "none"
