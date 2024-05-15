@@ -103,3 +103,7 @@ clean:
 	rm -rf build
 	rm -rf dist
 	rm -f coverage.xml
+
+# generate type stubs for the project
+createstubs:
+	./scripts/createstubs.sh

@@ -7,43 +7,34 @@
 
 set -e
 
-pushd "$(dirname "$0")"
-
 echo "$(tput setaf 2)Creating type stubs$(tput sgr0)"
-createstub() {
-    local name=$1
-    if [ ! -d "typings/$name" ]; then
-        pyright --createstub "$name"
-    else
-        echo stub "$name" already created
-    fi
-}
-param=$1
-if [[ $param == "--recreate" ]]; then
-    echo 'Deleting typing directory'
-    rm -Rf typings/
-fi
 
 echo 'Creating stubs'
 
 mkdir -p typings/ || true
 
-createstub pandas
-createstub plotly
-createstub progressbar
-createstub pytest
-createstub setuptools
-createstub ordered_set
-createstub asciichartpy
-createstub networkx
-createstub boolean
-createstub IPython
+rye run typecheck | grep "Stub file not found for" | sed -n 's/.*Stub file not found for "\([^"]*\)".*/\1/p' | sed -n '/\./ s/\([^.]*\)\..*/\1/p' | sort | uniq | xargs -I {} echo "rye run pyright --createstub {}"
 
+# Prompt the user for input
+read -p "Do you want to proceed? (yes/no): " response
 
+# Convert the response to lowercase
+response=$(echo "$response" | tr '[:upper:]' '[:lower:]')
 
-# cat temp | sed -n 's/.*Stub file not found for "\([^"]*\)".*/\1/p'
-rye run typecheck | grep "Stub file not found for" | sed -n 's/.*Stub file not found for "\([^"]*\)".*/\1/p' | sed -n '/\./ s/\([^.]*\)\..*/\1/p' | sort | uniq | xargs -I {} echo "pyright --createstub {}"
+# Check the user's response
+if [[ "$response" == "yes" ]]; then
+    echo "You chose yes. Proceeding..."
+    rye run typecheck | grep "Stub file not found for" | sed -n 's/.*Stub file not found for "\([^"]*\)".*/\1/p' | sed -n '/\./ s/\([^.]*\)\..*/\1/p' | sort | uniq | xargs -I {} rye run pyright --createstub {}
+    # Add the commands you want to execute if the user says yes
+elif [[ "$response" == "no" ]]; then
+    echo "You chose no. Exiting..."
+    # Add the commands you want to execute if the user says no
+else
+    echo "Invalid input. Please enter yes or no."
+    # Optionally, you can loop back and ask the user again
+fi
 
+# Example commands generated
 # pyright --createstub better_exceptions
 # pyright --createstub bpdb
 # pyright --createstub pinecone
@@ -55,19 +46,4 @@ rye run typecheck | grep "Stub file not found for" | sed -n 's/.*Stub file not f
 # pyright --createstub webcolors
 # pyright --createstub logging_tree
 
-# if [ ! -d "typings/gym" ]; then
-#     pyright --createstub gym
-#     # Patch gym stubs
-#     echo '    spaces = ...' >> typings/gym/spaces/dict.pyi
-#     echo '    nvec = ...' >> typings/gym/spaces/space.pyi
-#     echo '    spaces = ...' >> typings/gym/spaces/space.pyi
-#     echo '    spaces = ...' >> typings/gym/spaces/tuple.pyi
-#     echo '    n = ...' >> typings/gym/spaces/multi_binary.pyi
-# else
-#     echo stub gym already created
-# fi
-
-
 echo 'Typing stub generation completed'
-
-popd
