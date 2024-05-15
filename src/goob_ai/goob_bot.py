@@ -678,6 +678,8 @@ class AsyncGoobBot(commands.Bot):
         :param event: the incoming Slack event
         :return: True if the bot should respond, False otherwise
         """
+        LOGGER.info(f"event = {event}")
+        LOGGER.info(f"type(event) = {type(event)}")
         try:
             classification = UserInputEnrichment().input_classifier_tool(event.get("text", ""))
 

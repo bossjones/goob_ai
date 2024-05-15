@@ -10,15 +10,10 @@ from typing import ClassVar, Dict, Optional, Type
 
 import requests
 
-
-# from clients.http_client import HttpClient
-# from config import FlexChecksSettings
 from langchain.callbacks.manager import AsyncCallbackManagerForToolRun, CallbackManagerForToolRun
 from langchain.pydantic_v1 import BaseModel, Field
 from langchain.tools import BaseTool
 from langchain_core.tools import ToolException
-
-# LOGGER = logging.getLogger(__name__)
 from loguru import logger as LOGGER
 
 from goob_ai.aio_settings import aiosettings
