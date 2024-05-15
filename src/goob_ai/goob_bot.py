@@ -48,6 +48,7 @@ from goob_ai.constants import CHANNEL_ID, INPUT_CLASSIFICATION_NOT_A_QUESTION, I
 from goob_ai.factories import guild_factory
 from goob_ai.user_input_enrichment import UserInputEnrichment
 from goob_ai.utils.context import Context
+from goob_ai.utils.misc import CURRENTFUNCNAME
 
 
 LOGGER.add(sys.stderr, level="DEBUG")
@@ -608,6 +609,9 @@ class AsyncGoobBot(commands.Bot):
 
     async def on_message(self, message: discord.Message) -> None:
         LOGGER.info(f"message = {message}")
+
+        LOGGER.info(f"You are in function: {CURRENTFUNCNAME()}")
+        LOGGER.info(f"This function's caller was: {CURRENTFUNCNAME(1)}")
 
         # TODO: This is where all the AI logic is going to go
         LOGGER.info(f"Thread message to process - {message.author}: {message.content[:50]}")  # pyright: ignore[reportAttributeAccessIssue]

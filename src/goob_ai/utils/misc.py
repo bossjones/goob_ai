@@ -389,3 +389,13 @@ def divide_chunks(l: List[str], n: int = 10):
     # looping till length l
     for i in range(0, len(l), n):
         yield l[i : i + n]
+
+
+import sys
+
+
+# SOURCE: https://stackoverflow.com/questions/5067604/determine-function-name-from-within-that-function
+# for current func name, specify 0 or no argument.
+# for name of caller of current func, specify 1.
+# for name of caller of caller of current func, specify 2. etc.
+CURRENTFUNCNAME = lambda n=0: sys._getframe(n + 1).f_code.co_name
