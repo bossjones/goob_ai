@@ -119,6 +119,8 @@ class AioSettings(BaseSettings):
 
     discord_admin_user_invited: bool = False
 
+    debug: bool = True
+
     # pylint: disable=redundant-keyword-arg
     better_exceptions: bool = Field(env="BETTER_EXCEPTIONS", description="Enable better exceptions", default=1)
     pythonasynciodebug: bool = Field(
