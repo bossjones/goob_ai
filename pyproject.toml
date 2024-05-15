@@ -165,7 +165,6 @@ dev-dependencies = [
     "hunter>=3.7.0",
     "sourcery>=1.16.0",
     "types-html5lib>=1.1.11.20240228",
-    "types-pillow>=10.2.0.20240423",
     "types-pyasn1>=0.6.0.20240402",
     "types-python-jose>=3.3.4.20240106",
     "typing-extensions>=4.11.0",
