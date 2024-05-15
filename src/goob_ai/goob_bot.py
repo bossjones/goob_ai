@@ -67,6 +67,12 @@ INVITE_LINK = "https://discordapp.com/api/oauth2/authorize?client_id={}&scope=bo
 HOME_PATH = os.environ.get("HOME")
 
 COMMAND_RUNNER = {"dl_thumb": shell.run_coroutine_subprocess}
+from goob_ai.utils import async_
+
+
+@async_.to_async
+def get_logger_tree_printout() -> None:
+    printout()
 
 
 # SOURCE: https://realpython.com/how-to-make-a-discord-bot-python/#responding-to-messages
@@ -539,7 +545,7 @@ class AsyncGoobBot(commands.Bot):
         LOGGER.info(f"Ready: {self.user} (ID: {self.user.id})")
 
         LOGGER.info("LOGGING TREE:")
-        printout()
+        await get_logger_tree_printout()
 
     async def on_shard_resumed(self, shard_id: int):
         LOGGER.info("Shard ID %s has resumed...", shard_id)

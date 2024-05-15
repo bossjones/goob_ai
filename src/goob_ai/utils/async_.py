@@ -83,7 +83,7 @@ def run_callback_threadsafe(
             if future.set_running_or_notify_cancel():
                 future.set_exception(exc)
             else:
-                _LOGGER.warning("Exception on lost future: ", exc_info=True)
+                LOGGER.warning("Exception on lost future: ", exc_info=True)
 
     loop.call_soon_threadsafe(run_callback)
 
@@ -150,7 +150,7 @@ def check_loop() -> None:
     else:
         extra = ""
 
-    _LOGGER.warning(
+    LOGGER.warning(
         "Detected I/O inside the event loop. This is causing stability issues. Please report issue%s for %s doing I/O at %s, line %s: %s",
         extra,
         integration,
