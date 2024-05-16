@@ -1,16 +1,28 @@
 """Miscellaneous utility functions."""
 
+# SOURCE: https://github.com/napari/napari/blob/6ce45aed3c893c03a47dc1d743e43b342b7022cb/napari/utils/misc.py#L400
 # pylint: disable=no-member
 from __future__ import annotations
+
+import builtins
+import collections.abc
+import contextlib
+import importlib.metadata
 
 # import collections
 import inspect
 import itertools
+import os
 import re
 import sys
+import warnings
 
+from collections.abc import Iterable, Iterator, Sequence
+from enum import Enum, EnumMeta
 from os import PathLike, fspath, path
-from typing import TYPE_CHECKING, List, Optional, Sequence, Type, TypeVar
+from os import path as os_path
+from pathlib import Path
+from typing import TYPE_CHECKING, Any, Callable, List, Optional, Sequence, Type, TypeVar, Union
 
 import numpy as np
 
@@ -21,40 +33,84 @@ if TYPE_CHECKING:
 
 ROOT_DIR = path.dirname(path.dirname(__file__))
 
-try:
-    from importlib import metadata as importlib_metadata
-except ImportError:
-    import importlib_metadata  # noqa
+
+import importlib.metadata
 
 
-def parse_version(v) -> "packaging.version._BaseVersion":
+def parse_version(v: str) -> "packaging.version._BaseVersion":
     """Parse a version string and return a packaging.version.Version obj."""
     import packaging.version
 
-    # try:
-    return packaging.version.Version(v)
-    # except packaging.version.InvalidVersion:
-    # return packaging.version.LegacyVersion(v)
+    try:
+        return packaging.version.Version(v)
+    except packaging.version.InvalidVersion:
+        return packaging.version.LegacyVersion(v)  # type: ignore[attr-defined]
 
 
 def running_as_bundled_app() -> bool:
-    """Infer whether we are running as a briefcase bundle"""
+    """Infer whether we are running as a briefcase bundle."""
     # https://github.com/beeware/briefcase/issues/412
     # https://github.com/beeware/briefcase/pull/425
-    app_module = sys.modules["__main__"].__package__
+    # note that a module may not have a __package__ attribute
+    # From 0.4.12 we add a sentinel file next to the bundled sys.executable
+    if (Path(sys.executable).parent / ".napari_is_bundled").exists():
+        return True
+
     try:
-        metadata = importlib_metadata.metadata(app_module)
-    except importlib_metadata.PackageNotFoundError:
+        app_module = sys.modules["__main__"].__package__
+    except AttributeError:
+        return False
+
+    if not app_module:
+        return False
+
+    try:
+        metadata = importlib.metadata.metadata(app_module)
+    except importlib.metadata.PackageNotFoundError:
         return False
 
     return "Briefcase-Version" in metadata
 
 
+# def running_as_bundled_app(*, check_conda: bool = True) -> bool:
+#     """Infer whether we are running as a bundle."""
+#     # https://github.com/beeware/briefcase/issues/412
+#     # https://github.com/beeware/briefcase/pull/425
+#     # note that a module may not have a __package__ attribute
+#     # From 0.4.12 we add a sentinel file next to the bundled sys.executable
+#     warnings.warn(
+#         (
+#             "Briefcase installations are no longer supported as of v0.4.18. "
+#             "running_as_bundled_app() will be removed in a 0.6.0 release.",
+#         ),
+#         DeprecationWarning,
+#         stacklevel=2,
+#     )
+#     if check_conda and (Path(sys.executable).parent / ".napari_is_bundled").exists():
+#         return True
+
+#     # TODO: Remove from here on?
+#     try:
+#         app_module = sys.modules["__main__"].__package__
+#     except AttributeError:
+#         return False
+
+#     if not app_module:
+#         return False
+
+#     try:
+#         metadata = importlib.metadata.metadata(app_module)
+#     except importlib.metadata.PackageNotFoundError:
+#         return False
+
+#     return "Briefcase-Version" in metadata
+
+
 def bundle_bin_dir() -> Optional[str]:
     """Return path to briefcase app_packages/bin if it exists."""
-    bin = path.join(path.dirname(sys.exec_prefix), "app_packages", "bin")
-    if path.isdir(bin):
-        return bin
+    path_to_bin: builtins.str = os_path.join(os_path.dirname(sys.exec_prefix), "app_packages", "bin")
+    if path.isdir(path_to_bin):
+        return f"{path_to_bin}"
 
 
 # def in_jupyter() -> bool:
@@ -222,20 +278,21 @@ def abspath_or_url(relpath: T) -> T:
     raise TypeError("Argument must be a string, PathLike, or sequence thereof")
 
 
+# SOURCE: https://github.com/napari/napari/blob/6ce45aed3c893c03a47dc1d743e43b342b7022cb/napari/utils/misc.py#L400
 class CallDefault(inspect.Parameter):
-    def __str__(self):
+    def __str__(self) -> str:
         """wrap defaults"""
         kind = self.kind
-        formatted = self._name
+        formatted = self.name
 
         # Fill in defaults
-        if self._default is not inspect._empty or kind == inspect._KEYWORD_ONLY:
+        if self.default is not inspect._empty or kind == inspect.Parameter.KEYWORD_ONLY:
             formatted = f"{formatted}={formatted}"
 
-        if kind == inspect._VAR_POSITIONAL:
-            formatted = f"*{formatted}"
-        elif kind == inspect._VAR_KEYWORD:
-            formatted = f"**{formatted}"
+        if kind == inspect.Parameter.VAR_POSITIONAL:
+            formatted = "*" + formatted
+        elif kind == inspect.Parameter.VAR_KEYWORD:
+            formatted = "**" + formatted
 
         return formatted
 
@@ -332,3 +389,13 @@ def divide_chunks(l: List[str], n: int = 10):
     # looping till length l
     for i in range(0, len(l), n):
         yield l[i : i + n]
+
+
+import sys
+
+
+# SOURCE: https://stackoverflow.com/questions/5067604/determine-function-name-from-within-that-function
+# for current func name, specify 0 or no argument.
+# for name of caller of current func, specify 1.
+# for name of caller of caller of current func, specify 2. etc.
+CURRENTFUNCNAME = lambda n=0: sys._getframe(n + 1).f_code.co_name

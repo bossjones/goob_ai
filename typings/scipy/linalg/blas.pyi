@@ -206,11 +206,13 @@ BLAS Level 3 functions
    ztrsm
 
 """
+__all__ = ['get_blas_funcs', 'find_best_blas_type']
+HAS_ILP64 = ...
 empty_module = ...
 _type_score = ...
 _type_conv = ...
 _blas_alias = ...
-def find_best_blas_type(arrays=..., dtype=...): # -> tuple[Literal['s', 'd', 'c', 'z'], Unknown, Unknown | bool]:
+def find_best_blas_type(arrays=..., dtype=...): # -> tuple[Any, Any, Any | bool]:
     """Find best-matching BLAS/LAPACK type.
 
     Arrays are used to determine the optimal prefix of BLAS routines.
@@ -235,6 +237,7 @@ def find_best_blas_type(arrays=..., dtype=...): # -> tuple[Literal['s', 'd', 'c'
 
     Examples
     --------
+    >>> import numpy as np
     >>> import scipy.linalg.blas as bla
     >>> rng = np.random.default_rng()
     >>> a = rng.random((10,15))
@@ -250,7 +253,7 @@ def find_best_blas_type(arrays=..., dtype=...): # -> tuple[Literal['s', 'd', 'c'
     ...
 
 @_memoize_get_funcs
-def get_blas_funcs(names, arrays=..., dtype=..., ilp64=...): # -> list[Unknown]:
+def get_blas_funcs(names, arrays=..., dtype=..., ilp64=...): # -> list[Any]:
     """Return available BLAS function objects from names.
 
     Arrays are used to determine the optimal prefix of BLAS routines.
@@ -294,6 +297,7 @@ def get_blas_funcs(names, arrays=..., dtype=..., ilp64=...): # -> list[Unknown]:
 
     Examples
     --------
+    >>> import numpy as np
     >>> import scipy.linalg as LA
     >>> rng = np.random.default_rng()
     >>> a = rng.random((3,2))

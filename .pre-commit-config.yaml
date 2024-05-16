@@ -53,11 +53,17 @@ repos:
   #         additional_dependencies: [tomli]
   #         args: ["--in-place", "--recursive", "--diff", "."]
 
-
   # NOTE: This requires you to brew install taplo
   - repo: local
     hooks:
-      - id: taplo
+      - id: taplo-lint
+        name: taplo
+        entry: taplo lint  --config taplo.toml --schema=https://json.schemastore.org/pyproject.json pyproject.toml
+        language: system
+        types: [toml]
+        files: "^pyproject.*$"
+
+      - id: taplo-format
         name: taplo
         entry: taplo format --config taplo.toml
         language: system

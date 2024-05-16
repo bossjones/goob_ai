@@ -12,11 +12,6 @@ from loguru import logger as LOGGER
 from rich import print
 
 
-# from goob_ai.bot_logger import get_logger
-
-# LOGGER = get_logger(__name__, provider="Debugger", level=logging.DEBUG)
-
-
 # source: http://blender.stackexchange.com/questions/1879/is-it-possible-to-dump-an-objects-properties-and-methods
 def debug_dump(obj):
     for attr in dir(obj):
@@ -117,6 +112,15 @@ def dump_all(obj):
     dump_vars(obj)
 
 
+def run_inspect(obj: Any) -> None:
+    """_summary_
+
+    Args:
+        obj (Any): _description_
+    """
+    rich.inspect(obj, all=True)
+
+
 # TODO: Change this to use a Gauge
 # def enable(statsd_client: 'statsd.StatsClient', interval: float = 0.25, loop: asyncio.AbstractEventLoop = None) -> None:
 # 	'''
@@ -134,12 +138,3 @@ def dump_all(obj):
 # 			statsd_client.timing('aiodebug.monitor_loop_lag', lag * 1000)
 
 # 	loop.create_task(monitor())
-
-
-def run_inspect(obj: Any) -> None:
-    """_summary_
-
-    Args:
-        obj (Any): _description_
-    """
-    rich.inspect(obj, all=True)

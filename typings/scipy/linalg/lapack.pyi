@@ -11,10 +11,6 @@ Low-level LAPACK functions (:mod:`scipy.linalg.lapack`)
 
 This module contains low-level functions from the LAPACK library.
 
-The `*gegv` family of routines have been removed from LAPACK 3.6.0
-and have been deprecated in SciPy 0.17.0. They will be removed in
-a future release.
-
 .. versionadded:: 0.12.0
 
 .. note::
@@ -104,11 +100,6 @@ All functions
    dgeev_lwork
    cgeev_lwork
    zgeev_lwork
-
-   sgegv
-   dgegv
-   cgegv
-   zgegv
 
    sgehrd
    dgehrd
@@ -711,6 +702,9 @@ All functions
    ctgsen_lwork
    ztgsen_lwork
 
+   stgsyl
+   dtgsyl
+
    stpttf
    dtpttf
    ctpttf
@@ -720,6 +714,21 @@ All functions
    dtpttr
    ctpttr
    ztpttr
+
+   strexc
+   dtrexc
+   ctrexc
+   ztrexc
+
+   strsen
+   dtrsen
+   ctrsen
+   ztrsen
+
+   strsen_lwork
+   dtrsen_lwork
+   ctrsen_lwork
+   ztrsen_lwork
 
    strsyl
    dtrsyl
@@ -816,14 +825,9 @@ All functions
    ilaver
 
 """
-clapack = ...
-flapack = ...
+HAS_ILP64 = ...
 empty_module = ...
-_dep_message = ...
-cgegv = ...
-dgegv = ...
-sgegv = ...
-zgegv = ...
+__all__ = ['get_lapack_funcs']
 _lapack_alias = ...
 p1 = ...
 p2 = ...
@@ -831,7 +835,7 @@ def backtickrepl(m): # -> str:
     ...
 
 @_memoize_get_funcs
-def get_lapack_funcs(names, arrays=..., dtype=..., ilp64=...): # -> list[Unknown]:
+def get_lapack_funcs(names, arrays=..., dtype=..., ilp64=...): # -> list[Any]:
     """Return available LAPACK function objects from names.
 
     Arrays are used to determine the optimal prefix of LAPACK routines.
@@ -877,8 +881,10 @@ def get_lapack_funcs(names, arrays=..., dtype=..., ilp64=...): # -> list[Unknown
     norm of an array. We pass our array in order to get the correct 'lange'
     flavor.
 
+    >>> import numpy as np
     >>> import scipy.linalg as LA
     >>> rng = np.random.default_rng()
+
     >>> a = rng.random((3,2))
     >>> x_lange = LA.get_lapack_funcs('lange', (a,))
     >>> x_lange.typecode
@@ -893,8 +899,6 @@ def get_lapack_funcs(names, arrays=..., dtype=..., ilp64=...): # -> list[Unknown
     to the function which is often wrapped as a standalone function and
     commonly denoted as ``###_lwork``. Below is an example for ``?sysv``
 
-    >>> import scipy.linalg as LA
-    >>> rng = np.random.default_rng()
     >>> a = rng.random((1000, 1000))
     >>> b = rng.random((1000, 1)) * 1j
     >>> # We pick up zsysv and zsysv_lwork due to b array

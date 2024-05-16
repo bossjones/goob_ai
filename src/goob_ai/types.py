@@ -1,15 +1,91 @@
 """goob_ai.types"""
+# INSPIRATION  from https://github.com/RobertCraigie/prisma-client-py/blob/da53c4280756f1a9bddc3407aa3b5f296aa8cc10/src/prisma/_types.py
+# pyright: reportMissingImports=false
+# pyright: reportUnusedVariable=warning
+# pyright: reportUntypedBaseClass=error
+# pyright: reportGeneralTypeIssues=false
 
 from __future__ import annotations
 
-# pyright: reportMissingImports=false, reportUnusedVariable=warning, reportUntypedBaseClass=error, reportGeneralTypeIssues=false
 import pathlib
 
 from types import TracebackType
-from typing import Any, Callable, Dict, List, Mapping, NewType, Tuple, Type, TypedDict, Union
+from typing import Any, Callable, Coroutine, Dict, List, Mapping, NewType, Tuple, Type, TypedDict, TypeVar, Union
 from typing import Sequence as Seq
 
+import httpx
 import numpy as np
+
+from pydantic import BaseModel
+from typing_extensions import Literal as Literal
+from typing_extensions import NewType
+from typing_extensions import Protocol as Protocol
+from typing_extensions import TypedDict as TypedDict
+from typing_extensions import TypeGuard as TypeGuard
+from typing_extensions import get_args as get_args
+from typing_extensions import runtime_checkable as runtime_checkable
+
+
+T = TypeVar("T")
+Coro = Coroutine[Any, Any, T]
+
+
+Method = Literal["GET", "POST"]
+
+CallableT = TypeVar("CallableT", bound="FuncType")
+BaseModelT = TypeVar("BaseModelT", bound=BaseModel)
+
+# TODO: use a TypeVar everywhere
+FuncType = Callable[..., object]
+CoroType = Callable[..., Coroutine[Any, Any, object]]
+
+
+@runtime_checkable
+class InheritsGeneric(Protocol):
+    __orig_bases__: Tuple["_GenericAlias"]
+
+
+class _GenericAlias(Protocol):
+    __origin__: Type[object]
+
+
+# NOTE: we don't support some options as their type hints are not publicly exposed
+# https://github.com/encode/httpx/discussions/1977
+class HttpConfig(TypedDict, total=False):
+    app: Callable[[Mapping[str, Any], Any], Any]
+    http1: bool
+    http2: bool
+    limits: httpx.Limits
+    timeout: None | float | httpx.Timeout
+    trust_env: bool
+    max_redirects: int
+
+
+SortMode = Literal["default", "insensitive"]
+SortOrder = Literal["asc", "desc"]
+
+MetricsFormat = Literal["json", "prometheus"]
+
+
+class _DatasourceOverrideOptional(TypedDict, total=False):
+    env: str
+    name: str
+
+
+class DatasourceOverride(_DatasourceOverrideOptional):
+    url: str
+
+
+class _DatasourceOptional(TypedDict, total=False):
+    env: str
+
+
+class Datasource(_DatasourceOptional):
+    name: str
+    url: str
+
+
+TransactionId = NewType("TransactionId", str)
 
 
 # Human-readable type names.

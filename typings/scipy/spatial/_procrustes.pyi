@@ -8,7 +8,8 @@ This module provides functions to perform full Procrustes analysis.
 This code was originally written by Justin Kucynski and ported over from
 scikit-bio by Yoshiki Vazquez-Baeza.
 """
-def procrustes(data1, data2): # -> tuple[Unknown, Unknown, Unknown]:
+__all__ = ['procrustes']
+def procrustes(data1, data2): # -> tuple[Any, Any, Any]:
     r"""Procrustes analysis, a similarity test for two data sets.
 
     Each input matrix is a set of points or vectors (the rows of the matrix).
@@ -80,6 +81,7 @@ def procrustes(data1, data2): # -> tuple[Unknown, Unknown, Unknown]:
 
     Examples
     --------
+    >>> import numpy as np
     >>> from scipy.spatial import procrustes
 
     The matrix ``b`` is a rotated, shifted, scaled and mirrored version of

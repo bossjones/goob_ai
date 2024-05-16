@@ -11,6 +11,8 @@ import logging
 import os
 import subprocess
 import sys
+import tempfile
+import traceback
 
 from functools import partial, wraps
 from importlib import import_module, metadata
@@ -19,11 +21,18 @@ from typing import Any, Awaitable, Callable, Dict, Iterable, List, Optional, Pat
 
 import anyio
 import asyncer
+import bpdb
 import discord
 import rich
 import typer
 
-from loguru import logger
+from loguru import logger as LOGGER
+from pinecone import Pinecone, ServerlessSpec
+from pinecone.core.client.model.describe_index_stats_response import DescribeIndexStatsResponse
+from pinecone.core.client.model.query_response import QueryResponse
+from pinecone.core.client.model.upsert_response import UpsertResponse
+from pinecone.data.index import Index
+from redis.asyncio import ConnectionPool, Redis
 from rich import print, print_json
 from rich.console import Console
 from rich.pretty import pprint
@@ -33,21 +42,18 @@ from typing_extensions import Annotated
 
 import goob_ai
 
-from goob_ai import settings_validator
+from goob_ai import db, settings_validator
 from goob_ai.aio_settings import aiosettings, get_rich_console
 from goob_ai.asynctyper import AsyncTyper
-
-# LOGGER = get_logger(__name__, provider="CLI", level=logging.DEBUG)
 from goob_ai.bot_logger import get_logger, global_log_config
 from goob_ai.goob_bot import AsyncGoobBot
+from goob_ai.utils import repo_typing
 
 
 global_log_config(
     log_level=logging.getLevelName("DEBUG"),
     json=False,
 )
-
-LOGGER = logger
 
 
 APP = AsyncTyper()
@@ -160,10 +166,23 @@ def entry():
 
 
 async def run_bot():
+    try:
+        pool: ConnectionPool = db.get_redis_conn_pool()
+    except Exception as ex:
+        print(f"{ex}")
+        exc_type, exc_value, exc_traceback = sys.exc_info()
+        print(f"Error Class: {ex.__class__}")
+        output = f"[UNEXPECTED] {type(ex).__name__}: {ex}"
+        print(output)
+        print(f"exc_type: {exc_type}")
+        print(f"exc_value: {exc_value}")
+        traceback.print_tb(exc_traceback)
+        bpdb.pm()
     async with AsyncGoobBot() as bot:
         # bot.typerCtx = ctx
         # bot.typerCtx = ctx
-        # bot.pool = pool
+        if aiosettings.enable_redis:
+            bot.pool = pool
         await bot.start()
     # log = logging.getLogger()
     # try:
@@ -185,6 +204,107 @@ async def run_bot():
 #     if ctx.invoked_subcommand is None:
 #         with setup_logging():
 #             asyncio.run(run_bot())
+
+
+# SOURCE: https://docs.pinecone.io/guides/getting-started/quickstart
+@APP.command()
+def create_index_quickstart() -> None:
+    """Create a pinecone index"""
+    typer.echo("Creating pinecone index...")
+
+    typer.echo("1. Initialize your client connection")
+    pc = Pinecone(api_key=aiosettings.pinecone_api_key)
+
+    # 4. Create a serverless index
+    typer.echo("2. Create a serverless index")
+    pc.create_index(
+        name=aiosettings.pinecone_index,
+        dimension=8,
+        metric="cosine",
+        spec=ServerlessSpec(cloud="aws", region="us-east-1"),
+    )
+
+    # 5. Upsert vectors
+    typer.echo("3. Upsert vectors")
+    index: Index = pc.Index(aiosettings.pinecone_index)
+
+    ns1_upsert_resp: UpsertResponse = index.upsert(
+        vectors=[
+            {"id": "vec1", "values": [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]},
+            {"id": "vec2", "values": [0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2]},
+            {"id": "vec3", "values": [0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3]},
+            {"id": "vec4", "values": [0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4]},
+        ],
+        namespace="ns1",
+    )
+
+    ns2_upsert_resp: UpsertResponse = index.upsert(
+        vectors=[
+            {"id": "vec5", "values": [0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5]},
+            {"id": "vec6", "values": [0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6]},
+            {"id": "vec7", "values": [0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7]},
+            {"id": "vec8", "values": [0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8]},
+        ],
+        namespace="ns2",
+    )
+
+    # 6. Check the index
+    typer.echo("4. Check the index")
+    index_rsp: DescribeIndexStatsResponse = index.describe_index_stats()
+    # Returns:
+    # {'dimension': 8,
+    #  'index_fullness': 0.0,
+    #  'namespaces': {'ns1': {'vector_count': 4}, 'ns2': {'vector_count': 4}},
+    #  'total_vector_count': 8}
+    typer.echo("5. Run a similarity search")
+    n1_results: QueryResponse = index.query(
+        namespace="ns1", vector=[0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3], top_k=3, include_values=True
+    )
+
+    n2_results: QueryResponse = index.query(
+        namespace="ns2", vector=[0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7], top_k=3, include_values=True
+    )
+
+    # Returns:
+    # {'matches': [{'id': 'vec3',
+    #               'score': 0.0,
+    #               'values': [0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3]},
+    #              {'id': 'vec4',
+    #               'score': 0.0799999237,
+    #               'values': [0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4]},
+    #              {'id': 'vec2',
+    #               'score': 0.0800000429,
+    #               'values': [0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2]}],
+    #  'namespace': 'ns1',
+    #  'usage': {'read_units': 6}}
+    # {'matches': [{'id': 'vec7',
+    #               'score': 0.0,
+    #               'values': [0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7]},
+    #              {'id': 'vec8',
+    #               'score': 0.0799999237,
+    #               'values': [0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8]},
+    #              {'id': 'vec6',
+    #               'score': 0.0799999237,
+    #               'values': [0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6]}],
+    #  'namespace': 'ns2',
+    #  'usage': {'read_units': 6}}
+
+
+# SOURCE: https://docs.pinecone.io/guides/getting-started/quickstart
+@APP.command()
+def delete_index_quickstart() -> None:
+    """Delete a pinecone index"""
+    typer.echo("Deleting pinecone index...")
+    pc = Pinecone(api_key=aiosettings.pinecone_api_key)
+    pc.delete_index(aiosettings.pinecone_index)
+    typer.echo("Deleted!")
+
+
+@APP.command()
+def run_pyright() -> None:
+    """Generate typestubs GoobAI"""
+    typer.echo("Generating type stubs for GoobAI")
+    repo_typing.run_pyright()
 
 
 @APP.command()

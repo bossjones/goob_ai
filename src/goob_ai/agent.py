@@ -1,8 +1,11 @@
+# pyright: reportPrivateImportUsage=false
+# pyright: reportGeneralTypeIssues=false
+
 from __future__ import annotations
 
 import logging
 
-from typing import Any, List, Union
+from typing import TYPE_CHECKING, Any, List, Union
 
 from boto3.session import Session as boto3_Session
 from langchain.agents import AgentExecutor
@@ -13,14 +16,14 @@ from langchain.callbacks.tracers import LoggingCallbackHandler
 from langchain.chains.conversation.memory import ConversationBufferWindowMemory
 from langchain.globals import set_debug
 from langchain.prompts import ChatPromptTemplate, MessagesPlaceholder
-from langchain_community.chat_message_histories import (
-    RedisChatMessageHistory,  # pyright: reportPrivateImportUsage=false
-)
+
+# from pydantic import BaseModel
+from langchain.pydantic_v1 import BaseModel, Field
+from langchain_community.chat_message_histories import RedisChatMessageHistory
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.tools import BaseTool
 from langchain_core.utils.function_calling import convert_to_openai_tool
 from loguru import logger as LOGGER
-from pydantic import BaseModel
 from pydantic_settings import SettingsConfigDict
 
 from goob_ai.aio_settings import AioSettings, aiosettings
@@ -28,7 +31,12 @@ from goob_ai.gen_ai.tools.vision_tool import VisionTool
 from goob_ai.llm_manager import LlmManager
 
 
-class AiAgent(BaseModel):
+if TYPE_CHECKING:
+    from pinecone.control import Pinecone  # pyright: ignore[reportAttributeAccessIssue]
+
+
+# class AiAgent(BaseModel):
+class AiAgent:
     custom_tools: list[BaseTool] | None = None
     all_tools: list[BaseTool] | None = None
     agent: Union[BaseSingleActionAgent, BaseMultiActionAgent] | None = None
@@ -53,6 +61,7 @@ class AiAgent(BaseModel):
         if self.settings.langchain_debug_logs:
             set_debug(True)
 
+    # FIXME: Implement meme personality as well. https://chatgptaihub.com/chatgpt-prompts-for-memes/
     def init_agent_name(self):
         # Initialize the agent name, purpose, created by and personality
         self.agent_name = "Malcolm Jones Developer Assitant 'GOOBS' as an homage to his frenchbulldog Gaston aka GOOBS"
@@ -61,7 +70,7 @@ class AiAgent(BaseModel):
         self.agent_personality = "You have a geeky and clever sense of humor"
 
     def init_tools(self):
-        self.custom_tools: list[BaseTool] | None = [VisionTool()]
+        self.custom_tools: Union[list[BaseTool], list[Any]] | None = [VisionTool()]
         # ***************************************************
         # NOTE: CustomTool Error handling
         # ***************************************************
@@ -72,68 +81,6 @@ class AiAgent(BaseModel):
             t.handle_tool_error = True
 
         self.all_tools = self.custom_tools
-
-    # def init_dynamodb_session_and_table(self):
-    #     """
-    #     Initializes the dynamodb session and validates that the table exists
-    #     """
-    #     self.dynamodb_session = boto3_Session(region_name=self.settings.aws_region)
-
-    #     dynamodb_client = self.dynamodb_session.client("dynamodb", endpoint_url=self.settings.dynamodb_endpoint_url)
-    #     LOGGER.info(
-    #         f"Set up dynamodb client with endpoint: {self.settings.dynamodb_endpoint_url}, aws region: {self.settings.aws_region}"
-    #     )
-
-    #     try:
-    #         response = dynamodb_client.describe_table(TableName=self.settings.dynamodb_table_name)
-    #         if response["ResponseMetadata"]["HTTPStatusCode"] == 200:
-    #             LOGGER.info("DynamoDB table exists")
-    #         else:
-    #             LOGGER.error(
-    #                 f"DynamoDB table 'describe' action failed with code {response['ResponseMetadata']['HTTPStatusCode']}"
-    #             )
-    #             raise
-    #     except dynamodb_client.exceptions.ResourceNotFoundException:
-    #         if self.settings.env_name == LOCAL_ENV_NAME:
-    #             LOGGER.info("DynamoDB table doesn't exist and environment is local. Creating the table.")
-    #             self.create_dynamodb_table(dynamodb_client)
-    #             pass
-    #         else:
-    #             LOGGER.error("DynamoDB table doesn't exist and environment is not local. Exiting.")
-    #             raise
-
-    # def create_dynamodb_table(self, dynamodb_client):
-    #     """
-    #     Creates the DynamoDB table; should be called only for local environment
-    #     :param dynamodb_client:
-    #     :return:
-    #     """
-    #     try:
-    #         response = dynamodb_client.create_table(
-    #             AttributeDefinitions=[
-    #                 {
-    #                     "AttributeName": "SessionId",
-    #                     "AttributeType": "S",
-    #                 },
-    #             ],
-    #             KeySchema=[
-    #                 {
-    #                     "AttributeName": "SessionId",
-    #                     "KeyType": "HASH",
-    #                 },
-    #             ],
-    #             # BillingMode doesn't matter, this is done only for local env
-    #             BillingMode="PAY_PER_REQUEST",
-    #             TableName=self.settings.dynamodb_table_name,
-    #         )
-    #         if response["ResponseMetadata"]["HTTPStatusCode"] == 200:
-    #             LOGGER.info("DynamoDB table created")
-    #         else:
-    #             LOGGER.error("DynamoDB table creation failed ")
-    #             raise
-    #     except dynamodb_client.exceptions.ResourceInUseException:
-    #         LOGGER.info("DynamoDB table already exists")
-    #         pass
 
     def init_agent_executor(self):
         llm_with_tools = LlmManager().llm.bind_tools(tools=[convert_to_openai_tool(t) for t in self.all_tools])
@@ -146,14 +93,18 @@ class AiAgent(BaseModel):
                     f"system",
                     f"""
              You are a helpful AI assistant called {self.agent_name}.
+             Use the following pieces of context to answer the question at the end.
              You were created by {self.agent_created_by} to {self.agent_purpose}.
              You think step by step about the user request and provide a helpful and truthful response.
 
-             If the user provides an image use Custom Tool vision_api to get more information about the image then pass the text along with the original question to flex_vector_store_tool.
-             You remember {self.settings.chat_history_buffer_size} previous messages from the chat thread.
+             Very Important: If the question is about writing code use backticks (```) at the front and end of the code snippet and include the language use after the first ticks.
+
+             If the user provides an image use Custom Tool vision_api to get more information about the image then pass the text along with the original question to vector_store_tool.
+             You remember {self.settings.chat_history_buffer} previous messages from the chat thread.
              If you use documents from any tools to provide a helpful answer to user question, please make sure to also return a valid URL of the document you used
-             If you don't know the answer, just say so, and don't try to make anything up.
-             You can use the surface_info but don't echo it back to the user as they already know where they sent the message from.
+             If you don't know the answer, just say so, and don't try to make anything up. DO NOT allow made up or fake answers.
+             If the question is not related to the context, politely respond that you are tuned to only answer questions that are related to the context.
+             Use as much detail when as possible when responding.
              {self.agent_personality}.
              """,
                 ),
@@ -175,34 +126,36 @@ class AiAgent(BaseModel):
             | prompt
             | llm_with_tools
             | OpenAIToolsAgentOutputParser()
-        )
+        )  # pyright: ignore[reportAttributeAccessIssue]
 
+    # def setup_agent_executor(self, session_id: str, user_task: str):
     def setup_agent_executor(self, session_id: str, user_task: str):
-        ttl_in_seconds = self.settings.dynamodb_ttl_days * 24 * 60 * 60
+        LOGGER.debug(f"session_id = {session_id}")
+        LOGGER.debug(f"user_task = {user_task}")
+        # ttl_in_seconds = self.settings.dynamodb_ttl_days * 24 * 60 * 60
         # FIXME: replace foo with a proper session_id later
-        message_history = RedisChatMessageHistory("foo", url=f"{aiosettings.redis_url}")
+        message_history = RedisChatMessageHistory("foo", url=f"{aiosettings.redis_url}", key_prefix="goob:")
 
         memory = ConversationBufferWindowMemory(
             memory_key="chat_history",
             chat_memory=message_history,
             return_messages=True,
-            k=self.settings.chat_history_buffer_size,
+            k=self.settings.chat_history_buffer,
             output_key="output",
         )
 
         agent_executor = AgentExecutor(
             agent=self.agent, tools=self.all_tools, verbose=True, callbacks=[self.logging_handler], memory=memory
-        )
+        )  # mypy: disable-error-code="arg-type"
 
         return agent_executor
 
     def process_user_task(self, session_id: str, user_task: str) -> str:
         try:
             agent_executor = self.setup_agent_executor(session_id, user_task)
-            config = {"metadata": {"session_id": str(session_id)}}
+            config = {"metadata": {"session_id": session_id}}
             result = agent_executor.invoke({"input": user_task}, config=config)
-            agent_response = result.get("output", "No response generated by the agent.")
-            return agent_response
+            return result.get("output", "No response generated by the agent.")
         except Exception as e:
             LOGGER.exception(f"Error in process_user_task: {e}")
             return "An error occurred while processing the task."
@@ -262,10 +215,8 @@ class AiAgent(BaseModel):
             )
 
             # Put this in a chain
-            chain = prompt | llm | StrOutputParser()  # pyright: reportGeneralTypeIssues=false
-            result = chain.invoke({"user_input": user_input})
-
-            return result
+            chain = prompt | llm | StrOutputParser()
+            return chain.invoke({"user_input": user_input})
 
         except Exception as e:
             LOGGER.exception(f"Error during summarization of user task: {e}")

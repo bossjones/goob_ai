@@ -5,16 +5,6 @@ from __future__ import annotations
 from goob_ai.aio_settings import aiosettings
 
 
-# TEMPCHANGE: # DISCORD_TOKEN = os.environ.get("DISCORD_TOKEN")
-# TEMPCHANGE: # DISCORD_ADMIN = os.environ.get("DISCORD_ADMIN_USER_ID")
-# TEMPCHANGE: # DISCORD_GUILD = os.environ.get("DISCORD_SERVER_ID")
-# TEMPCHANGE: # DISCORD_GENERAL_CHANNEL = 908894727779258390
-
-# # https://stackoverflow.com/questions/6760685/creating-a-singleton-in-python
-# class Guild(metaclass=Singleton):
-#     pass
-
-
 # SOURCE: https://stackoverflow.com/a/63483209/814221
 class Singleton(type):
     # Inherit from "type" in order to gain access to method __call__
@@ -34,7 +24,7 @@ class Singleton(type):
 # SOURCE: https://stackoverflow.com/a/63483209/814221
 class Guild(metaclass=Singleton):
     # TEMPCHANGE: # def __init__(self, id=int(DISCORD_GUILD), prefix=constants.PREFIX):
-    def __init__(self, id=int(aiosettings.discord_server_id), prefix=aiosettings.prefix):
+    def __init__(self, id=aiosettings.discord_server_id, prefix=aiosettings.prefix):
         # print('Creating Guild')
         self.id = id
         self.prefix = prefix

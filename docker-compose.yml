@@ -3,7 +3,7 @@ version: '3.9'
 services:
   redis:
     image: bitnami/redis:6.2.10
-    hostname: "cerebro-redis"
+    hostname: "goob-redis"
     restart: always
     environment:
       ALLOW_EMPTY_PASSWORD: "yes"
@@ -16,8 +16,8 @@ services:
     ports:
     - "7600:7600"
     volumes:
-    - 'redis_data:/bitnami/redis/data'
+    - 'goob_redis_data:/bitnami/redis/data'
 
 volumes:
-  redis_data:
+  goob_redis_data:
     driver: local

@@ -48,6 +48,7 @@ anyio==4.3.0
     # via asyncer
     # via httpx
     # via openai
+    # via sse-starlette
     # via starlette
     # via watchfiles
 appdirs==1.4.4
@@ -122,9 +123,11 @@ certifi==2024.2.2
     # via httpcore
     # via httpx
     # via kubernetes
+    # via pinecone-client
     # via requests
     # via sentry-sdk
 cffi==1.16.0
+    # via cryptography
     # via curl-cffi
     # via pycares
     # via weasyprint
@@ -165,6 +168,9 @@ contourpy==1.2.1
     # via matplotlib
 coverage==7.5.1
     # via pytest-cov
+cryptography==42.0.7
+    # via types-pyopenssl
+    # via types-redis
 cssselect2==0.7.0
     # via weasyprint
 curl-cffi==0.6.3
@@ -194,6 +200,7 @@ dill==0.3.8
     # via multiprocess
     # via pylint
 discord-py==2.3.2
+    # via dpytest
     # via goob-ai
 distlib==0.3.8
     # via virtualenv
@@ -212,6 +219,7 @@ docutils==0.21.2
     # via rich-rst
 dominate==2.9.1
     # via pytablewriter
+dpytest==0.7.0
 duckduckgo-search==5.3.0
     # via goob-ai
 durabledict==0.9.4
@@ -232,6 +240,8 @@ fastapi==0.111.0
     # via chromadb
     # via fastapi-cli
     # via goob-ai
+    # via langserve
+    # via sse-starlette
 fastapi-cli==0.0.2
     # via fastapi
 fastjsonschema==2.19.1
@@ -276,8 +286,10 @@ googleapis-common-protos==1.63.0
     # via opentelemetry-exporter-otlp-proto-grpc
 greenlet==3.0.3
     # via bpython
+grpc-stubs==1.53.0.5
 grpcio==1.63.0
     # via chromadb
+    # via grpc-stubs
     # via opentelemetry-exporter-otlp-proto-grpc
     # via tensorboard
 gutter==0.5.0
@@ -298,6 +310,7 @@ httptools==0.6.1
 httpx==0.27.0
     # via fastapi
     # via goob-ai
+    # via langserve
     # via openai
     # via pytest-httpx
 huggingface-hub==0.23.0
@@ -373,10 +386,13 @@ langchain-core==0.1.50
     # via langchain-community
     # via langchain-openai
     # via langchain-text-splitters
+    # via langserve
 langchain-openai==0.1.6
     # via goob-ai
 langchain-text-splitters==0.0.1
     # via langchain
+langserve==0.1.1
+    # via goob-ai
 langsmith==0.1.54
     # via langchain
     # via langchain-community
@@ -394,7 +410,6 @@ logging-tree==1.10
     # via goob-ai
 loguru==0.7.2
     # via goob-ai
-loguru-mypy==0.0.4
 lxml==5.2.1
     # via goob-ai
     # via pypi-command-line
@@ -485,6 +500,7 @@ numpy==1.26.4
     # via onnxruntime
     # via opencv-python
     # via pandas
+    # via pandas-stubs
     # via pyarrow
     # via pydeck
     # via pyinspect
@@ -544,6 +560,7 @@ orjson==3.10.3
     # via chromadb
     # via duckduckgo-search
     # via fastapi
+    # via langserve
     # via langsmith
 overrides==7.7.0
     # via chromadb
@@ -573,6 +590,7 @@ pandas==2.2.2
     # via goob-ai
     # via simpletransformers
     # via streamlit
+pandas-stubs==2.2.2.240514
 partd==1.4.1
     # via dask
 passlib==1.7.4
@@ -590,6 +608,8 @@ pillow==10.3.0
     # via streamlit
     # via torchvision
     # via weasyprint
+pinecone-client==4.0.0
+    # via goob-ai
 platformdirs==4.2.1
     # via black
     # via pylint
@@ -602,6 +622,8 @@ posthog==3.5.0
     # via chromadb
 pre-commit==3.7.0
 prettytable==3.10.0
+    # via goob-ai
+prometheus-client==0.20.0
     # via goob-ai
 prompt-toolkit==3.0.43
     # via aiomonitor
@@ -641,6 +663,7 @@ pydantic==2.7.1
     # via goob-ai
     # via langchain
     # via langchain-core
+    # via langserve
     # via langsmith
     # via openai
     # via pydantic-settings
@@ -681,10 +704,11 @@ pypika==0.48.9
     # via chromadb
 pyproject-hooks==1.1.0
     # via build
-pyright==1.1.361
+pyright==1.1.363
 pytablewriter==1.2.0
     # via goob-ai
 pytest==8.2.0
+    # via dpytest
     # via pytest-asyncio
     # via pytest-cov
     # via pytest-httpx
@@ -692,6 +716,7 @@ pytest==8.2.0
     # via pytest-rerunfailures
     # via pytest-sugar
 pytest-asyncio==0.23.6
+    # via dpytest
 pytest-cov==5.0.0
 pytest-httpx==0.30.0
 pytest-mock==3.14.0
@@ -754,6 +779,7 @@ redis==5.0.4
 referencing==0.35.1
     # via jsonschema
     # via jsonschema-specifications
+    # via types-jsonschema
 regex==2024.4.28
     # via simpletransformers
     # via tiktoken
@@ -857,13 +883,16 @@ snowballstemmer==2.2.0
 soupsieve==2.5
     # via beautifulsoup4
     # via goob-ai
-sourcery==1.16.0
+sourcery==1.18.0
 sqlalchemy==2.0.29
     # via langchain
     # via langchain-community
+sse-starlette==1.8.2
+    # via langserve
 starlette==0.37.2
     # via aioprometheus
     # via fastapi
+    # via sse-starlette
 streamlit==1.34.0
     # via goob-ai
     # via simpletransformers
@@ -943,6 +972,7 @@ tqdm==4.66.4
     # via goob-ai
     # via huggingface-hub
     # via openai
+    # via pinecone-client
     # via scenedetect
     # via simpletransformers
     # via transformers
@@ -966,25 +996,42 @@ typer==0.12.3
 types-aiofiles==23.2.0.20240403
 types-awscrt==0.20.9
     # via botocore-stubs
-types-beautifulsoup4==4.12.0.20240504
+types-beautifulsoup4==4.12.0.20240511
 types-boto==2.49.18.20240205
+types-cffi==1.16.0.20240331
+    # via types-pyopenssl
 types-click==7.1.8
+types-click-spinner==0.1.13.20240311
 types-colorama==0.4.15.20240311
+types-contextvars==2.4.7.3
 types-dataclasses==0.6.6
 types-freezegun==1.1.10
 types-html5lib==1.1.11.20240228
     # via types-beautifulsoup4
+types-jsonschema==4.22.0.20240501
 types-mock==5.1.0.20240425
-types-pillow==10.2.0.20240423
+types-mypy-extensions==1.0.0.20240311
+types-protobuf==5.26.0.20240422
+types-psutil==5.9.5.20240511
 types-pyasn1==0.6.0.20240402
     # via types-python-jose
+types-pyopenssl==24.1.0.20240425
+    # via types-redis
 types-python-jose==3.3.4.20240106
 types-pytz==2024.1.0.20240417
+    # via pandas-stubs
 types-pyyaml==6.0.12.20240311
+types-redis==4.6.0.20240425
+types-regex==2024.5.10.20240512
 types-s3transfer==0.10.1
     # via boto3-stubs
 types-setuptools==69.5.0.20240423
-types-six==1.16.21.20240425
+    # via types-cffi
+types-six==1.16.21.20240513
+types-toml==0.10.8.20240310
+types-tqdm==4.66.0.20240417
+types-ujson==5.9.0.0
+types-urllib3==1.26.25.14
 typing-extensions==4.11.0
     # via aiodebug
     # via aiomonitor
@@ -1001,7 +1048,6 @@ typing-extensions==4.11.0
     # via fastapi
     # via huggingface-hub
     # via janus
-    # via loguru-mypy
     # via mypy
     # via mypy-boto3
     # via mypy-boto3-cloudformation
@@ -1013,6 +1059,7 @@ typing-extensions==4.11.0
     # via mypy-boto3-sqs
     # via openai
     # via opentelemetry-sdk
+    # via pinecone-client
     # via pydantic
     # via pydantic-core
     # via pypdf
@@ -1042,6 +1089,7 @@ url-normalize==1.4.3
 urllib3==2.2.1
     # via botocore
     # via kubernetes
+    # via pinecone-client
     # via requests
     # via requests-cache
     # via sentry-sdk
@@ -1050,6 +1098,7 @@ uvicorn==0.29.0
     # via fastapi
     # via fastapi-cli
     # via goob-ai
+    # via sse-starlette
 uvloop==0.19.0
     # via uvicorn
 validate-pyproject==0.16

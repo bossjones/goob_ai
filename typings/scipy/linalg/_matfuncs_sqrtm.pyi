@@ -10,11 +10,12 @@ Matrix square root for general matrices and for upper triangular matrices.
 This module exists to avoid cyclic imports.
 
 """
+__all__ = ['sqrtm']
 class SqrtmError(np.linalg.LinAlgError):
     ...
 
 
-def sqrtm(A, disp=..., blocksize=...): # -> Any | tuple[Any | Unknown, Unknown]:
+def sqrtm(A, disp=..., blocksize=...): # -> Any | NDArray[floating[_64Bit]] | NDArray[Any] | tuple[Any | NDArray[floating[_64Bit]] | NDArray[Any], Any | floating[Any] | float]:
     """
     Matrix square root.
 
@@ -32,7 +33,11 @@ def sqrtm(A, disp=..., blocksize=...): # -> Any | tuple[Any | Unknown, Unknown]:
     Returns
     -------
     sqrtm : (N, N) ndarray
-        Value of the sqrt function at `A`
+        Value of the sqrt function at `A`. The dtype is float or complex.
+        The precision (data size) is determined based on the precision of
+        input `A`. When the dtype is float, the precision is the same as `A`.
+        When the dtype is complex, the precision is double that of `A`. The
+        precision might be clipped by each dtype precision range.
 
     errest : float
         (if disp == False)
@@ -47,6 +52,7 @@ def sqrtm(A, disp=..., blocksize=...): # -> Any | tuple[Any | Unknown, Unknown]:
 
     Examples
     --------
+    >>> import numpy as np
     >>> from scipy.linalg import sqrtm
     >>> a = np.array([[1.0, 3.0], [1.0, 4.0]])
     >>> r = sqrtm(a)

@@ -32,40 +32,7 @@ which-python:
 
 # when developing, you can use this to watch for changes and restart the server
 autoreload-code:
-	watchmedo auto-restart --pattern "*.py" --recursive --signal SIGTERM python src/bot.py
-
-# via ada
-taplo-dry-run:
-	taplo format --check --config taplo.toml --verbose --diff pyproject.toml
-
-taplo:
-	taplo format --config taplo.toml pyproject.toml
-
-# Try fomatting existing code using ruff but simply display the diff
-ruff-fmt-dry-run:
-	@echo "fix pyproject.toml first"
-	taplo format --check pyproject.toml
-	@echo "isort fixes first"
-	ruff check . --select I --diff --config=pyproject.toml
-	@echo "format everything else"
-	ruff format --check --diff --config=pyproject.toml .
-
-ruff-config:
-	ruff check --config=pyproject.toml --show-settings
-
-# Show config we would use to lint with ruff
-lint-show-settings:
-	ruff check --config=pyproject.toml --show-settings | pbcopy
-
-# Lint all files in the current directory (and any subdirectories).
-lint:
-	# TODO: Figure out if we want to use tapo or validate-pyproject instead.
-	taplo lint --schema=file:///$(PWD)/hack/jsonschema/pyproject.json pyproject.toml
-	ruff check --config=pyproject.toml --show-settings
-
-# run pre-commit on all files
-run-pre-commit-all:
-	git ls-files | xargs pre-commit run --files
+	rye run watchmedo auto-restart --pattern "*.py" --recursive --signal SIGTERM rye run goobctl go
 
 local-open-coverage:
 	./scripts/open-browser.py file://${PWD}/htmlcov/index.html
@@ -97,3 +64,46 @@ rye-tool-install:
 
 lint-github-actions:
 	actionlint
+
+# check that taplo is installed to lint/format TOML
+check-taplo-installed:
+	@command -v taplo >/dev/null 2>&1 || { echo >&2 "taplo is required but it's not installed. run 'brew install taplo'"; exit 1; }
+
+fmt-python:
+	git ls-files '*.py' | xargs rye run pre-commit run --files
+
+# format pyproject.toml using taplo
+fmt-toml:
+	pre-commit run taplo-format --all-files
+
+# format all code using pre-commit config
+fmt: fmt-python fmt-toml
+
+# lint python files using ruff
+lint-python:
+	pre-commit run ruff --all-files
+
+# lint TOML files using taplo
+lint-toml: check-taplo-installed
+	pre-commit run taplo-lint --all-files
+
+# Lint all files in the current directory (and any subdirectories).
+lint: lint-python lint-toml
+
+# SOURCE: https://github.com/RobertCraigie/prisma-client-py/blob/da53c4280756f1a9bddc3407aa3b5f296aa8cc10/Makefile#L77
+clean:
+	rm -rf .cache
+	rm -rf `find . -name __pycache__`
+	rm -rf .tests_cache
+	rm -rf .mypy_cache
+	rm -rf htmlcov
+	rm -rf *.egg-info
+	rm -f .coverage
+	rm -f .coverage.*
+	rm -rf build
+	rm -rf dist
+	rm -f coverage.xml
+
+# generate type stubs for the project
+createstubs:
+	./scripts/createstubs.sh

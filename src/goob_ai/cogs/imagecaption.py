@@ -6,11 +6,13 @@ from io import BytesIO
 
 import discord
 import requests
-import torch  # type: ignore
+import torch
 
 from discord.ext import commands
+from goob_ai.factories import cmd_factory, guild_factory
+from loguru import logger as LOGGER
 from PIL import Image
-from transformers import BlipForConditionalGeneration, BlipProcessor
+from transformers import BlipForConditionalGeneration, BlipProcessor  # pyright: ignore[reportAttributeAccessIssue]
 
 
 class ImageCaptionCog(commands.Cog, name="image_caption"):
@@ -21,8 +23,22 @@ class ImageCaptionCog(commands.Cog, name="image_caption"):
             "Salesforce/blip-image-captioning-base", torch_dtype=torch.float32
         ).to("cpu")
 
+        LOGGER.info(f" self.model = {self.model}")
+        LOGGER.info(f" type(self.model) = {type(self.model)}")
+        LOGGER.info(f" self.processor = {self.processor}")
+        LOGGER.info(f" type(self.processor) = {type(self.processor)}")
+
+    @commands.Cog.listener()
+    async def on_ready(self) -> None:
+        print(f"{type(self).__name__} Cog ready.")
+
+    @commands.Cog.listener()
+    async def on_guild_join(self, guild: guild_factory.Guild) -> None:
+        """Add new guilds to the database"""
+        _ = await guild_factory.Guild(id=guild.id)
+
     @commands.command(name="image_comment")
-    async def image_comment(self, message: discord.Message, message_content) -> None:
+    async def image_comment(self, message: discord.Message, message_content) -> str:
         # Check if the message content is a URL
         url_pattern = re.compile(r"http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+")
         if "https://tenor.com/view/" in message_content:
@@ -49,7 +65,7 @@ class ImageCaptionCog(commands.Cog, name="image_caption"):
             image = Image.open(BytesIO(response.content)).convert("RGB")
         else:
             # Download the image from the message and convert it to a PIL image
-            image_url = message.attachments[0].url
+            image_url = message.attachments[0].url  # pyright: ignore[reportAttributeAccessIssue]
             response = requests.get(image_url)
             image = Image.open(BytesIO(response.content)).convert("RGB")
 

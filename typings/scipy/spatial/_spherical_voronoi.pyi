@@ -8,7 +8,8 @@ Spherical Voronoi Code
 .. versionadded:: 0.18.0
 
 """
-def calculate_solid_angles(R):
+__all__ = ['SphericalVoronoi']
+def calculate_solid_angles(R): # -> Any:
     """Calculates the solid angles of plane triangles. Implements the method of
     Van Oosterom and Strackee [VanOosterom]_ with some modifications. Assumes
     that input points have unit norm."""
@@ -92,6 +93,7 @@ class SphericalVoronoi:
     --------
     Do some imports and take some points on a cube:
 
+    >>> import numpy as np
     >>> import matplotlib.pyplot as plt
     >>> from scipy.spatial import SphericalVoronoi, geometric_slerp
     >>> from mpl_toolkits.mplot3d import proj3d
@@ -177,7 +179,7 @@ class SphericalVoronoi:
         """
         ...
     
-    def calculate_areas(self):
+    def calculate_areas(self): # -> Any:
         """Calculates the areas of the Voronoi regions.
 
         For 2D point sets, the regions are circular arcs. The sum of the areas

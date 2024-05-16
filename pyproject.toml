@@ -109,6 +109,9 @@ dependencies = [
     "torchvision>=0.18.0",
     "asyncer>=0.0.7",
     "bump-pydantic>=0.8.0",
+    "pinecone-client>=4.0.0",
+    "langserve[all]>=0.1.1",
+    "prometheus-client>=0.20.0",
 ]
 
 readme = "README.md"
@@ -147,7 +150,7 @@ dev-dependencies = [
     "requests-mock>=1.12.1",
     "rich>=13.7.1",
     "ruff>=0.4.3",
-    "types-beautifulsoup4>=4.12.0.20240504",
+    "types-beautifulsoup4>=4.12.0.20240511",
     "types-boto>=2.49.18.20240205",
     "types-mock>=5.1.0.20240425",
     "types-pyyaml>=6.0.12.20240311",
@@ -158,24 +161,39 @@ dev-dependencies = [
     "types-freezegun>=1.1.10",
     "types-pytz>=2024.1.0.20240417",
     "types-setuptools>=69.5.0.20240423",
-    "types-six>=1.16.21.20240425",
+    "types-six>=1.16.21.20240513",
     "monkeytype>=23.3.0",
     "hunter>=3.7.0",
-    "sourcery>=1.16.0",
+    "sourcery>=1.18.0",
     "types-html5lib>=1.1.11.20240228",
-    "types-pillow>=10.2.0.20240423",
     "types-pyasn1>=0.6.0.20240402",
     "types-python-jose>=3.3.4.20240106",
     "typing-extensions>=4.11.0",
-    "pyright>=1.1.361",
+    "pyright>=1.1.363",
     "pytest-rerunfailures>=14.0",
     "pytest-asyncio>=0.23.6",
     "validate-pyproject[all,store]>=0.16",
     "pylint-per-file-ignores>=1.3.2",
     "pylint>=3.1.0",
-    "loguru-mypy>=0.0.4",
     "docformatter[tomli]>=1.7.5",
     "pytest-httpx>=0.30.0",
+    "coverage[toml]>=7.5.1",
+    "dpytest>=0.7.0",
+    "types-ujson>=5.9.0.0",
+    "types-tqdm>=4.66.0.20240417",
+    "types-toml>=0.10.8.20240310",
+    "types-regex>=2024.5.10.20240512",
+    "types-redis>=4.6.0.20240425",
+    "types-psutil>=5.9.5.20240511",
+    "types-mypy-extensions>=1.0.0.20240311",
+    "types-jsonschema>=4.22.0.20240501",
+    "types-click-spinner>=0.1.13.20240311",
+    "types-cffi>=1.16.0.20240331",
+    "pandas-stubs>=2.2.2.240514",
+    "types-urllib3>=1.26.25.14",
+    "grpc-stubs>=1.53.0.5",
+    "types-protobuf>=5.26.0.20240422",
+    "types-contextvars>=2.4.7.3",
 ]
 
 [tool.rye.scripts]
@@ -185,21 +203,60 @@ mypy-missing = {cmd = "mypy --install-types"}
 clean = {cmd = "python -m invoke ci.clean -vvv"}
 fmt = {cmd = "pre-commit run --all-files"}
 pylint = {cmd = "python -m invoke ci.pylint --everything"}
+pylint-error-only = {cmd = "pylint --output-format=colorized --generated-members=torch.*,numpy.*,cv2.* --disable=all --max-line-length=120 --enable=F,E --rcfile pyproject.toml src tests"}
 lint-all = {cmd = "python -m pylint --output-format=colorized --rcfile pyproject.toml tests src"}
 lint = {cmd = "python -m pylint --output-format=colorized --disable=C0111,E0401,C,W --enable=F,E tests src"}
 typecheck = {chain = [
     "typecheck:pyright",
     "typecheck:mypy",
 ]}
-"typecheck:pyright" = "pyright"
+"typecheck:pyright" = "pyright -p pyproject.toml ."
 "typecheck:verify-types" = "pyright --verifytypes openai --ignoreexternal"
-"typecheck:mypy" = "mypy ."
+"typecheck:mypy" = {chain = [
+    "ci:mypy",
+    "open:mypy-coverage",
+]}
+"sourcery:check" = "sourcery review --config .sourcery.yaml --check --summary ."
+"sourcery:diff" = "sourcery review --config .sourcery.yaml --diff 'git diff main' --verbose ."
+"sourcery:fix" = "sourcery review --config .sourcery.yaml --fix ."
+"sourcery:hub" = "sourcery hub"
+"ci:mypy" = "mypy  --config-file=pyproject.toml --html-report typingcov ."
+"open:mypy-coverage" = " open typingcov/index.html"
 unittests-debug = {cmd = "pytest --verbose --pdb --pdbcls bpdb:BPdb --showlocals --tb=short --cov-append --cov-report=term-missing --junitxml=junit/test-results.xml --cov-report=xml:cov.xml --cov-report=html:htmlcov --cov-report=annotate:cov_annotate --cov=."}
 unittests = {cmd = "pytest --verbose --showlocals --tb=short --cov-append --cov-report=term-missing --junitxml=junit/test-results.xml --cov-report=xml:cov.xml --cov-report=html:htmlcov --cov-report=annotate:cov_annotate --cov=."}
+new-unittests-debug = {cmd = "pytest --verbose --pdb --pdbcls bpdb:BPdb --showlocals --tb=short"}
 test = {chain = [
     "lint",
     "unittests",
 ]}
+# SOURCE: https://github.com/rayference/joseki/blob/5e9812a2f77be1476e09aef66a05fdc78e736aba/pyproject.toml#L62
+coverage-combine = {cmd = "python -m coverage combine"}
+coverage-html = {cmd = "python -m coverage html --skip-covered --skip-empty"}
+coverage-pytest = {cmd = "coverage run --rcfile=pyproject.toml -m pytest tests"}
+coverage-pytest-debug = {cmd = "coverage run --rcfile=pyproject.toml -m pytest --verbose --pdb --pdbcls bpdb:BPdb --showlocals --tb=short --capture=no tests"}
+coverage-report = {chain = [
+    "coverage-pytest",
+    "coverage-combine",
+    "coverage-show",
+    "coverage-html",
+    "coverage-open",
+]}
+coverage-report-debug = {chain = [
+    "coverage-pytest-debug",
+    "coverage-combine",
+    "coverage-show",
+    "coverage-html",
+    "coverage-open",
+]}
+coverage-show = {cmd = "python -m coverage report --fail-under=5"}
+coverage-open = {cmd = "just local-open-coverage"}
+
+
+# Private tasks used for chaining (https://github.com/charbonnierg/pytest-broadcaster/blob/e98456b2f6db7f99a034795f162ac0013a8001d7/pyproject.toml#L157C1-L158C15)
+__formatcheck = "rye fmt --check"
+
+# SOURCE: https://github.com/rayference/joseki/blob/5e9812a2f77be1476e09aef66a05fdc78e736aba/pyproject.toml#L62
+
 # TODO: enable this
 # SOURCE: https://github.com/JacobCoffee/byte/blob/f863a146060165fe5c33a6343ee661b71f3ebf4a/pyproject.toml#L10
 # docs-serve = "sphinx-autobuild docs docs/_build/ -j auto --watch app --watch docs --watch tests --watch CONTRIBUTING.rst --port 8002"
@@ -212,6 +269,13 @@ test = {chain = [
 # name = "pytorch"
 # url = "https://download.pytorch.org/whl/cpu"
 
+[tool.coverage.html]
+directory = "htmlcov"
+
+[tool.coverage.xml]
+output = "cov.xml"
+
+# unittests-debug = {cmd = "pytest --verbose --pdb --pdbcls bpdb:BPdb --showlocals --tb=short --cov-append --cov-report=term-missing --junitxml=junit/test-results.xml --cov-report=xml:cov.xml --cov-report=html:htmlcov --cov-report=annotate:cov_annotate --cov=."}
 
 [tool.hatch.version]
 path = "src/goob_ai/__version__.py"
@@ -224,9 +288,12 @@ packages = ["src/goob_ai"]
 
 [tool.coverage.report]
 exclude_lines = [
+    '\(Protocol\):$',
     '\s*\.\.\.$',
     "@(abc.)?abstractmethod",
     "@overload",
+    "@typing.overload",
+    "assert_never",
     "def __repr__",
     "def __str__",
     "except ImportError:",
@@ -234,14 +301,16 @@ exclude_lines = [
     "if not _PANDAS_AVAILABLE:",
     "if self.debug",
     "if settings.DEBUG",
+    "if TYPE_CHECKING:",
     "if TYPE_CHECKING",
+    "if typing.TYPE_CHECKING:",
     "pragma: $TEST_PLATFORM no cover",
     "pragma: no cover",
     "pragma: py$PYTHON_MAJOR_VERSION no cover",
     "raise AssertionError",
     "raise NotImplementedError",
     "return NotImplemented",
-    "if TYPE_CHECKING:",                        # ignoring type checking imports
+    "typing.assert_never",
 ]
 omit = [
     "test/*",
@@ -269,18 +338,25 @@ exclude_also = [
 ]
 
 # (boolean, default False) Ignore source code that can't be found, emitting a warning instead of an exception.
-ignore_errors = true
+ignore_errors = false
+# (boolean, default False) When running a summary report, show missing lines. See Coverage summary: coverage report for more information.
+show_missing = true
+# (boolean, default False) Don't report files that are 100% covered. This helps you focus on files that need attention.
+skip_covered = false
 
-# ddddddddddddd=[ PYTEST INI OPTIONS ]dddddddddddd
+# =========================[ PYTEST INI OPTIONS ]========================
 [tool.pytest.ini_options]
 pythonpath = "."
-
+asyncio_mode = "auto"
 addopts = [
     # Print runtimes of the slowest tests.
     '--durations=10',
     '--durations-min=0.05',
+    '--junitxml=junit/test-results.xml',
+    '--cov-report=annotate:cov_annotate',
 ]
 
+# markers=["basic", "filetree", "suites", "markers", "parametrization", "buildmeta"]
 # allows you to conditionally call only a subset of pytest baased on the marker provided
 markers = [
     "configonly: marks tests that run code that utilizes the config module (deselect with '-m \"not configonly\"')",
@@ -297,11 +373,34 @@ markers = [
     "vectorstoronly: marks tests that run code that utilizes the flex_vector_store_tool module (deselect with '-m \"not vectorstoronly\"')",
     "webpagetoolonly: marks tests that run code that utilizes the fetch_webpage_tool module (deselect with '-m \"not webpagetoolonly\"')",
 ]
+# filterwarnings = [
+#     "error",
+#     # fastapi uses deprecated pydantic functions
+#     "ignore:`FieldValidationInfo` is deprecated.*:DeprecationWarning:pydantic_core:",
+#     "ignore:`general_(before|after|wrap|plain)_validator_function` is deprecated.*:DeprecationWarning:fastapi:",
+#     "ignore:`general_(before|after|wrap|plain)_validator_function` is deprecated.*:DeprecationWarning:pydantic_core:",
+#     # google packages are using deprecated APIs
+#     "ignore::DeprecationWarning:pkg_resources*:",
+#     "ignore::DeprecationWarning:google*:",
+#     "ignore:.* google._upb._message.*:DeprecationWarning",
+#     # OTEL uses some deprecated APIs
+#     "ignore:pkg_resources:DeprecationWarning:opentelemetry.instrumentation.dependencies*:",
+#     # To be able to test numpy.matrix
+#     "ignore:the matrix subclass is not the recommended way.*:PendingDeprecationWarning",
+#     # See test_filter_warnings in test_testing.py
+#     'ignore:(?s).*google/cloud/pubsub_v1/subscriber/_protocol/streaming_pull_manager.*scheduler\.shutdown.*IndexError. tuple index out of range:pytest.PytestUnhandledThreadExceptionWarning',
+#     'ignore:(?s).*aiosqlite/core\.py.*get_loop\(future\).call_soon_threadsafe.*RuntimeError. Event loop is closed:pytest.PytestUnhandledThreadExceptionWarning',
+#     # This problem is fixed in https://github.com/open-telemetry/opentelemetry-python-contrib/pull/2013, but not the warning.
+#     "ignore:The '__version__' attribute is deprecated and will be removed in Flask 3.1:DeprecationWarning",
+#     # ignore DeprecationWarning from httpx - Marcelo knows why this is happening
+#     "ignore:The 'app' shortcut is now deprecated.*:DeprecationWarning:httpx*:",
+# ]
+
 testpaths = [
     "tests",
 ]
 
-# ddddddddddddd=[ PYTEST-COV ]dddddddddddd
+# =========================[ PYTEST-COV ]========================
 [tool.coverage.paths]
 # SOURCE: https://coverage.readthedocs.io/en/latest/config.html
 # the first path is the path on the local filesystem
@@ -311,8 +410,12 @@ source = [
     "/src",
 ]
 [tool.coverage.run]
+parallel = true
 branch = true
 source = ["goob_ai"]
+# NOTE: This might break some SHIT (5/8/2024)
+# SOURCE: https://github.com/anthonycorletti/snok/blob/039ae9aaf403485ce9b7fedb0e1943c25a250eed/snok/templates/__shared/_pyproject_toml#L130
+concurrency = ["thread", "greenlet", "multiprocessing"]
 
 # dd=======================[ BLACK ]========================
 [tool.black]
@@ -328,6 +431,10 @@ target-version = ["py39", "py310", "py311", "py312"]
 [tool.mypy]
 exclude = [
     "tasks/",
+    "typings",
+    ".venv",
+    "contrib",
+    "scripts",
 ]
 mypy_path = "typings"
 # disable_error_code = import-untyped
@@ -367,12 +474,13 @@ disable_error_code = [
     "operator",
     "type-var",
     "var-annotated",
-    "consider-using-with",
+    # "consider-using-with",
     "union-attr",
 ]
 
 # Causes mypy to treat arguments with a None default value as having an implicit Optional type.
-follow_imports = "silent"
+follow_imports = "skip"
+# follow_imports = "silent"
 
 # Warns about casting an expression to its inferred type.
 warn_redundant_casts = true
@@ -394,7 +502,8 @@ warn_unreachable = true
 # with this behavior.
 local_partial_types = true
 
-plugins = ["pydantic.mypy", "loguru_mypy"]
+# plugins = ["pydantic.mypy", "loguru_mypy"]
+plugins = ["pydantic.mypy"]
 
 [tool.pydantic-mypy]
 # NOTE: https://docs.pydantic.dev/latest/integrations/mypy/#configuring-the-plugin
@@ -434,6 +543,7 @@ module = "tests.*"
 
 [[tool.mypy.overrides]]
 module = [
+    "prometheus_client.*",
     "_pytest.*",
     "_string",
     "absl.*",
@@ -509,6 +619,133 @@ module = [
 ignore_missing_imports = true
 ignore_errors = true
 
+[[tool.mypy.overrides]]
+module = [
+    "pandas._config.config",                      # TODO
+    "pandas._libs.*",
+    "pandas._testing.*",                          # TODO
+    "pandas.compat.numpy.function",               # TODO
+    "pandas.compat.compressors",                  # TODO
+    "pandas.core._numba.executor",                # TODO
+    "pandas.core.array_algos.masked_reductions",  # TODO
+    "pandas.core.array_algos.putmask",            # TODO
+    "pandas.core.array_algos.quantile",           # TODO
+    "pandas.core.array_algos.replace",            # TODO
+    "pandas.core.array_algos.take",               # TODO
+    "pandas.core.arrays.*",                       # TODO
+    "pandas.core.computation.*",                  # TODO
+    "pandas.core.dtypes.astype",                  # TODO
+    "pandas.core.dtypes.cast",                    # TODO
+    "pandas.core.dtypes.common",                  # TODO
+    "pandas.core.dtypes.concat",                  # TODO
+    "pandas.core.dtypes.dtypes",                  # TODO
+    "pandas.core.dtypes.generic",                 # TODO
+    "pandas.core.dtypes.missing",                 # TODO
+    "pandas.core.groupby.generic",                # TODO
+    "pandas.core.groupby.grouper",                # TODO
+    "pandas.core.groupby.groupby",                # TODO
+    "pandas.core.groupby.ops",                    # TODO
+    "pandas.core.indexers.*",                     # TODO
+    "pandas.core.indexes.*",                      # TODO
+    "pandas.core.interchange.column",             # TODO
+    "pandas.core.interchange.dataframe_protocol", # TODO
+    "pandas.core.interchange.from_dataframe",     # TODO
+    "pandas.core.internals.*",                    # TODO
+    "pandas.core.ops.array_ops",                  # TODO
+    "pandas.core.ops.common",                     # TODO
+    "pandas.core.ops.missing",                    # TODO
+    "pandas.core.reshape.*",                      # TODO
+    "pandas.core.strings.*",                      # TODO
+    "pandas.core.tools.*",                        # TODO
+    "pandas.core.window.common",                  # TODO
+    "pandas.core.window.ewm",                     # TODO
+    "pandas.core.window.expanding",               # TODO
+    "pandas.core.window.numba_",                  # TODO
+    "pandas.core.window.online",                  # TODO
+    "pandas.core.window.rolling",                 # TODO
+    "pandas.core.accessor",                       # TODO
+    "pandas.core.algorithms",                     # TODO
+    "pandas.core.apply",                          # TODO
+    "pandas.core.arraylike",                      # TODO
+    "pandas.core.base",                           # TODO
+    "pandas.core.common",                         # TODO
+    "pandas.core.construction",                   # TODO
+    "pandas.core.flags",                          # TODO
+    "pandas.core.frame",                          # TODO
+    "pandas.core.generic",                        # TODO
+    "pandas.core.indexing",                       # TODO
+    "pandas.core.missing",                        # TODO
+    "pandas.core.nanops",                         # TODO
+    "pandas.core.resample",                       # TODO
+    "pandas.core.roperator",                      # TODO
+    "pandas.core.sample",                         # TODO
+    "pandas.core.series",                         # TODO
+    "pandas.core.sorting",                        # TODO
+    "pandas.errors",                              # TODO
+    "pandas.io.clipboard",                        # TODO
+    "pandas.io.excel._base",                      # TODO
+    "pandas.io.excel._odfreader",                 # TODO
+    "pandas.io.excel._openpyxl",                  # TODO
+    "pandas.io.excel._pyxlsb",                    # TODO
+    "pandas.io.excel._xlrd",                      # TODO
+    "pandas.io.excel._xlsxwriter",                # TODO
+    "pandas.io.formats.excel",                    # TODO
+    "pandas.io.formats.format",                   # TODO
+    "pandas.io.formats.style",                    # TODO
+    "pandas.io.formats.style_render",             # TODO
+    "pandas.io.formats.xml",                      # TODO
+    "pandas.io.json.*",                           # TODO
+    "pandas.io.parsers.*",                        # TODO
+    "pandas.io.sas.sas_xport",                    # TODO
+    "pandas.io.sas.sas7bdat",                     # TODO
+    "pandas.io.clipboards",                       # TODO
+    "pandas.io.html",                             # TODO
+    "pandas.io.parquet",                          # TODO
+    "pandas.io.pytables",                         # TODO
+    "pandas.io.sql",                              # TODO
+    "pandas.io.xml",                              # TODO
+    "pandas.plotting.*",                          # TODO
+    "pandas.tests.*",
+    "pandas.tseries.frequencies",                 # TODO
+    "pandas.tseries.holiday",                     # TODO
+    "pandas.util._decorators",                    # TODO
+    "pandas.util._doctools",                      # TODO
+    "pandas.util._test_decorators",               # TODO
+    "pandas.util._validators",                    # TODO
+    "pandas.util",                                # TODO
+    "pandas._version",
+    "pandas.conftest",
+    "pandas",
+]
+disallow_untyped_calls = false
+disallow_untyped_defs = false
+disallow_incomplete_defs = false
+
+[[tool.mypy.overrides]]
+module = [
+    "pandas.tests.*",
+    "pandas._version",
+    "pandas.io.clipboard",
+]
+check_untyped_defs = false
+
+[[tool.mypy.overrides]]
+module = [
+    "pandas.tests.apply.test_series_apply",
+    "pandas.tests.arithmetic.conftest",
+    "pandas.tests.arrays.sparse.test_combine_concat",
+    "pandas.tests.dtypes.test_common",
+    "pandas.tests.frame.methods.test_to_records",
+    "pandas.tests.groupby.test_rank",
+    "pandas.tests.groupby.transform.test_transform",
+    "pandas.tests.indexes.interval.test_interval",
+    "pandas.tests.indexing.test_categorical",
+    "pandas.tests.io.excel.test_writers",
+    "pandas.tests.reductions.test_reductions",
+    "pandas.tests.test_expressions",
+]
+ignore_errors = true
+
 
 # ===========================[ RUFF ]========================
 # SOURCE: https://docs.astral.sh/ruff/settings/#tab-size
@@ -574,9 +811,8 @@ extend-unsafe-fixes = [
 # Only allow fix behavior for `E` and `F` rules. https://docs.astral.sh/ruff/settings/#lint_fixable
 
 fixable = [
-    "E",    # Error (E)# https://docs.astral.sh/ruff/rules/#pycodestyle-e-w
-    "F",    # Pyflakes (F)
-    "I002",
+    "E", # Error (E)# https://docs.astral.sh/ruff/rules/#pycodestyle-e-w
+    "F", # Pyflakes (F)
     "I",
 ]
 
@@ -649,7 +885,7 @@ ignore = [
     'PLR1702', # too-many-nested-blocks	Too many nested blocks ({nested_blocks} > {max_nested_blocks})
 
     # These are dependent on projects themselves
-    'AIR',
+    'AIR', # airflow
     'CPY', # flake8-copyright (CPY)#
     'D',   # pydocstyle (D)#
     'NPY', # NumPy-specific rules (NPY)#
@@ -797,7 +1033,8 @@ keep-runtime-typing = true
 
 [tool.ruff.lint.pydocstyle]
 # NOTE: Enabling a convention will disable any rules that are not included in the specified convention. As such, the intended workflow is to enable a convention and then selectively enable or disable any additional rules on top of it. See: https://github.com/astral-sh/ruff/blob/c3e28f9d55b4484b0e7507d3bee6339b9fb83bb5/docs/faq.md
-convention = "pep257" # Accepts: "google", "numpy", or "pep257".
+# Accepts: "google", "numpy", or "pep257".
+convention = "pep257"
 
 # ===========================[ RUFF FORMAT ]========================
 [tool.ruff.format]
@@ -1186,7 +1423,7 @@ disable = [
     "missing-format-argument-key",
     "missing-format-attribute",
     "missing-kwoa",
-    "no-member",
+    # "no-member",
     "no-value-for-parameter",
     "non-iterator-returned",
     "non-str-assignment-to-dunder-name",
@@ -1246,7 +1483,7 @@ score = false
 # List of members which are set dynamically and missed by pylint inference
 # system, and so shouldn't trigger E1101 when accessed. Python regular
 # expressions are accepted.
-generated-members = 'numpy.*, torch.*, cv2.*, discord.*, ,logging.root.*'
+generated-members = 'numpy.*, torch.*, cv2.*, discord.*,logging.root.*'
 ignored-classes = [
     "_CountingAttr", # for attrs
 ]
@@ -1258,8 +1495,8 @@ expected-line-ending-format = "LF"
 # [tool.pylint.TYPING]
 # runtime-typing = false
 # Set to ``no`` if the app / library does **NOT* need to support runtime introspection of type annotations. If you use type annotations exclusively for type checking of an application, you're probably fine. For libraries, evaluate if some users want to access the type hints at runtime first, e.g., through typing.get_type_hints. Applies to Python versions 3.7 - 3.9*
-# [tool.pylint.TYPING]
-# runtime-typing = false
+[tool.pylint.TYPING]
+runtime-typing = false
 
 [tool.pylint.CODE_STYLE]
 # Max line length for which to sill emit suggestions.
@@ -1290,34 +1527,79 @@ exclude = [
     "build",
     "dist",
     "docs",
+    "**/.venv",
+    "**/node_modules",
+    "**/__pycache__",
+    ".git",
+    "**/build",
+    "tasks",
+    "typings",
 ]
+############################################################################
+# FIXME: THIS MIGHT BREAK SHIT
+# SOURCE: https://github.com/charbonnierg/pytest-broadcaster/blob/e98456b2f6db7f99a034795f162ac0013a8001d7/pyproject.toml#L157C1-L158C15
+venv = ".venv"
+venvPath = "."
+# FIXME: THIS MIGHT BREAK SHIT
+############################################################################
 defineConstant = {DEBUG = true}
 stubPath = "./typings"
 # https://github.com/microsoft/pyright/blob/main/docs/configuration.md#reportGeneralTypeIssues
 reportUnnecessaryTypeIgnoreComment = "warning"
-reportUnusedImport = "none"
 pythonVersion = "3.10"
 verboseOutput = true
-reportUnnecessaryCast = true
-typeCheckingMode = "basic"
-# typeCheckingMode = "standard"
-reportMissingTypeStubs = "none"
+reportUnusedImport = "none"
 reportMissingImports = "error"
 reportImportCycles = "error"
 reportUnusedVariable = "none"
-# reportUnknownMemberType = "none"
-reportUnusedFunction = "none"
-reportUnusedClass = "none"
-reportReturnType = "none"
-# [boolean or string, optional]: Generate or suppress diagnostics for general type inconsistencies, unsupported operations, argument/parameter mismatches, etc. This covers all of the basic type-checking rules not covered by other rules. It does not include syntax errors. The default value for this setting is "error".
-# reportGeneralTypeIssues = "none"
-reportArgumentType = "none"
-reportAttributeAccessIssue = "none"
+reportMissingTypeStubs = "warning"
+# reportUnknownMemberType = "false" # ORIGINAL ONE
+# reportUnknownMemberType = "error"
+# -------------------------------------------------------------------------
+reportUnusedFunction = "warning" # this is what we use in ad
+reportUnusedClass = "warning"    # this is what we use in ad
+# -------------------------------------------------------------------------
+# reportUnusedFunction = "none" # this is what we use in goob-ai
+# reportUnusedClass = "none" # this is what we use in goob-ai
+# -------------------------------------------------------------------------
 
-reportOptionalMemberAccess = false
+# -------------------------------------------------------------------------
+# SOURCE: https://github.com/RobertCraigie/prisma-client-py/blob/main/pyproject.toml
+# -------------------------------------------------------------------------
+# NOTE: these should be periodically enabled and disabled
+# they are too stict for general usage as I don't want
+# pyright disable comments everywhere and I also don't
+# want to have to maintain my own stubs just to mark
+# some types as Any, however they can find potential
+# holes in our type information.
+reportUnknownVariableType = false
 reportUnknownMemberType = false
-reportGeneralTypeIssues = true
-reportCallIssue = "none"
+reportUnknownArgumentType = false
+
+# very strict errors
+reportUnusedCallResult = false
+reportImplicitStringConcatenation = false
+reportCallInDefaultInitializer = true
+# -------------------------------------------------------------------------
+
+
+# # TODO: Let's disable this for now
+# # ----------------------------------------------------------------------------
+# # GOOB_AI only values.  - start
+# # ----------------------------------------------------------------------------
+# reportUnnecessaryCast = true
+# typeCheckingMode = "basic"
+# reportReturnType = "none"
+# # [boolean or string, optional]: Generate or suppress diagnostics for general type inconsistencies, unsupported operations, argument/parameter mismatches, etc. This covers all of the basic type-checking rules not covered by other rules. It does not include syntax errors. The default value for this setting is "error".
+# # reportGeneralTypeIssues = "none"
+# reportArgumentType = "none"
+reportAttributeAccessIssue = "error"
+# reportOptionalMemberAccess = false
+# reportGeneralTypeIssues = true
+# reportCallIssue = "none"
+# # ----------------------------------------------------------------------------
+# # GOOB_AI only values.  - end
+# # ----------------------------------------------------------------------------
 
 
 # SOURCE: https://github.com/Ruzzy77/python-template/blob/57c8964f1efb2635d0bdca5684613a8d8736aed0/pyproject.toml#L168C1-L189C2

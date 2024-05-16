@@ -7,18 +7,24 @@ import pathlib
 import sys
 import traceback
 
+from typing import TYPE_CHECKING, List, Optional, Union
+
 import discord
 import rich
 
-from discord.ext.commands.context import Context
 
-# LOGGER = get_logger(__name__, provider="Events", level=logging.DEBUG)
+# from discord.ext.commands.context import Context
 from loguru import logger as LOGGER
 
 from goob_ai import downloader
 from goob_ai.bot_logger import get_logger
 from goob_ai.factories import cmd_factory
 from goob_ai.utils.file_functions import get_all_media_files_to_upload, glob_file_by_extension, run_aio_json_loads
+
+
+if TYPE_CHECKING:
+    from discord.ext.commands import Context
+    from discord.types.message import Message
 
 
 def css_syntax_highlight(text: str):
@@ -87,8 +93,8 @@ async def aio_download_event(
         LOGGER.error(f"exc_value: {exc_value}")
         traceback.print_tb(exc_traceback)
 
-    current_message: discord.Message
-    current_message = ctx.message
+    # current_message: Message
+    current_message: Message = ctx.message  # pyright: ignore[reportAttributeAccessIssue]
     current_channel: discord.TextChannel
     current_channel = ctx.channel
     current_guild: discord.Guild
@@ -105,7 +111,7 @@ async def aio_download_event(
             description = f"{full_description[:75]}.." if len(full_description) > 75 else full_description
             embed_event = discord.Embed(
                 title=f"Downloaded: '{json_data['fulltitle']}' in channel #{current_channel.name}",
-                url=f"{current_message.jump_url}",
+                url=f"{current_message.jump_url}",  # pyright: ignore[reportAttributeAccessIssue]
                 description=css_syntax_highlight(description),
                 color=discord.Color.blue(),
             )
@@ -195,7 +201,7 @@ async def aio_download_event(
             description = f"{full_description[:75]}.." if len(full_description) > 75 else full_description
             embed_event = discord.Embed(
                 title=f"Downloaded: '{description}' in channel #{current_channel.name}",
-                url=f"{current_message.jump_url}",
+                url=f"{current_message.jump_url}",  # pyright: ignore[reportAttributeAccessIssue]
                 description=css_syntax_highlight(description),
                 color=discord.Color.blue(),
             )
@@ -277,7 +283,7 @@ async def aio_download_event(
             description = f"{full_description[:75]}.." if len(full_description) > 75 else full_description
             embed_event = discord.Embed(
                 title=f"Downloaded: '{json_data_title}' in channel #{current_channel.name}",
-                url=f"{current_message.jump_url}",
+                url=f"{current_message.jump_url}",  # pyright: ignore[reportAttributeAccessIssue]
                 description=css_syntax_highlight(description),
                 color=discord.Color.blue(),
             )
@@ -343,7 +349,7 @@ async def aio_download_event(
             description = f"{full_description[:75]}.." if len(full_description) > 75 else full_description
             embed_event = discord.Embed(
                 title=f"Downloaded: '{json_data['title']}' in channel #{current_channel.name}",
-                url=f"{current_message.jump_url}",
+                url=f"{current_message.jump_url}",  # pyright: ignore[reportAttributeAccessIssue]
                 description=css_syntax_highlight(description),
                 color=discord.Color.blue(),
             )
@@ -405,7 +411,7 @@ async def aio_download_event(
             description = f"{full_description[:75]}.." if len(full_description) > 75 else full_description
             embed_event = discord.Embed(
                 title=f"Downloaded: '{json_data['title']}' in channel #{current_channel.name}",
-                url=f"{current_message.jump_url}",
+                url=f"{current_message.jump_url}",  # pyright: ignore[reportAttributeAccessIssue]
                 description=css_syntax_highlight(description),
                 color=discord.Color.blue(),
             )

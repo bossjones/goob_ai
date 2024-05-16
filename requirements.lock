@@ -48,6 +48,7 @@ anyio==4.3.0
     # via asyncer
     # via httpx
     # via openai
+    # via sse-starlette
     # via starlette
     # via watchfiles
 appdirs==1.4.4
@@ -112,6 +113,7 @@ certifi==2024.2.2
     # via httpcore
     # via httpx
     # via kubernetes
+    # via pinecone-client
     # via requests
     # via sentry-sdk
 cffi==1.16.0
@@ -206,6 +208,8 @@ fastapi==0.111.0
     # via chromadb
     # via fastapi-cli
     # via goob-ai
+    # via langserve
+    # via sse-starlette
 fastapi-cli==0.0.2
     # via fastapi
 filelock==3.14.0
@@ -266,6 +270,7 @@ httptools==0.6.1
 httpx==0.27.0
     # via fastapi
     # via goob-ai
+    # via langserve
     # via openai
 huggingface-hub==0.23.0
     # via datasets
@@ -333,10 +338,13 @@ langchain-core==0.1.50
     # via langchain-community
     # via langchain-openai
     # via langchain-text-splitters
+    # via langserve
 langchain-openai==0.1.6
     # via goob-ai
 langchain-text-splitters==0.0.1
     # via langchain
+langserve==0.1.1
+    # via goob-ai
 langsmith==0.1.54
     # via langchain
     # via langchain-community
@@ -474,6 +482,7 @@ orjson==3.10.3
     # via chromadb
     # via duckduckgo-search
     # via fastapi
+    # via langserve
     # via langsmith
 overrides==7.7.0
     # via chromadb
@@ -513,12 +522,16 @@ pillow==10.3.0
     # via streamlit
     # via torchvision
     # via weasyprint
+pinecone-client==4.0.0
+    # via goob-ai
 platformdirs==4.2.1
     # via requests-cache
     # via scenedetect
 posthog==3.5.0
     # via chromadb
 prettytable==3.10.0
+    # via goob-ai
+prometheus-client==0.20.0
     # via goob-ai
 prompt-toolkit==3.0.43
     # via aiomonitor
@@ -556,6 +569,7 @@ pydantic==2.7.1
     # via goob-ai
     # via langchain
     # via langchain-core
+    # via langserve
     # via langsmith
     # via openai
     # via pydantic-settings
@@ -743,9 +757,12 @@ soupsieve==2.5
 sqlalchemy==2.0.29
     # via langchain
     # via langchain-community
+sse-starlette==1.8.2
+    # via langserve
 starlette==0.37.2
     # via aioprometheus
     # via fastapi
+    # via sse-starlette
 streamlit==1.34.0
     # via goob-ai
     # via simpletransformers
@@ -811,6 +828,7 @@ tqdm==4.66.4
     # via goob-ai
     # via huggingface-hub
     # via openai
+    # via pinecone-client
     # via scenedetect
     # via simpletransformers
     # via transformers
@@ -844,6 +862,7 @@ typing-extensions==4.11.0
     # via janus
     # via openai
     # via opentelemetry-sdk
+    # via pinecone-client
     # via pydantic
     # via pydantic-core
     # via pypdf
@@ -871,6 +890,7 @@ url-normalize==1.4.3
 urllib3==2.2.1
     # via botocore
     # via kubernetes
+    # via pinecone-client
     # via requests
     # via requests-cache
     # via sentry-sdk
@@ -879,6 +899,7 @@ uvicorn==0.29.0
     # via fastapi
     # via fastapi-cli
     # via goob-ai
+    # via sse-starlette
 uvloop==0.19.0
     # via uvicorn
 validators==0.28.1

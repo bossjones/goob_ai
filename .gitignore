@@ -344,3 +344,15 @@ No_I_Dont_Think_You_Understand_Shorts-*
 *.pth
 *.zip
 NOTES.md
+
+
+# SOURCE: https://github.com/ausboss/DiscordLangAgent/tree/58a7289a49864fdadb3a70d8a106b2fc92c2ee7b
+# PyCharm
+#  JetBrains specific template is maintainted in a separate JetBrains.gitignore that can
+#  be found at https://github.com/github/gitignore/blob/main/Global/JetBrains.gitignore
+#  and can be added to the global gitignore or merged into this file.  For a more nuclear
+#  option (not recommended) you can uncomment the following to ignore the entire idea folder.
+#.idea/
+database/database.db
+database/messages.db
+typingcov/

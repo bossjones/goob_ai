@@ -3,6 +3,7 @@
 # pylint: disable=consider-using-tuple
 # pyright: reportOperatorIssue=false
 # pyright: reportOptionalIterable=false
+# SOURCE: https://betterstack.com/community/guides/logging/loguru/
 
 from __future__ import annotations
 

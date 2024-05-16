@@ -13,7 +13,7 @@ import pathlib
 import string
 import sys
 
-from typing import List, Tuple, Union
+from typing import TYPE_CHECKING, List, Optional, Tuple, Union
 
 import aiofiles
 import pandas as pd
@@ -34,6 +34,10 @@ from goob_ai.constants import (
     THIRTY_THOUSAND,
     TWENTY_THOUSAND,
 )
+
+
+if TYPE_CHECKING:
+    from pandas import DataFrame
 
 
 PY2 = sys.version_info[0] == 2
@@ -185,14 +189,14 @@ def filter_pdf(working_dir: List[str]) -> List[str]:
     return filter_pdfs(working_dir)
 
 
-def get_dataframe_from_csv(filename: str, return_parent_folder_name: bool = False) -> pd.core.frame.DataFrame:
+def get_dataframe_from_csv(filename: str, return_parent_folder_name: bool = False) -> DataFrame:
     """Open csv files and return a dataframe from pandas
 
     Args:
         filename (str): path to file
     """
-    src = pathlib.Path(f"{filename}").resolve()
-    df = pd.read_csv(f"{src}")
+    src: pathlib.Path = pathlib.Path(f"{filename}").resolve()
+    df: DataFrame = pd.read_csv(f"{src}")
 
     # import bpdb
     # bpdb.set_trace()
@@ -200,19 +204,19 @@ def get_dataframe_from_csv(filename: str, return_parent_folder_name: bool = Fals
     return (df, f"{src.parent.stem}") if return_parent_folder_name else df
 
 
-def sort_dataframe(df: pd.core.frame.DataFrame, columns: list = None, ascending: Tuple = ()) -> pd.core.frame.DataFrame:
+def sort_dataframe(df: DataFrame, columns: list = None, ascending: Tuple = ()) -> DataFrame:
     """Return dataframe sorted via columns
 
     Args:
-        df (pd.core.frame.DataFrame): existing dataframe
+        df (DataFrame): existing dataframe
         columns (list, optional): [description]. Defaults to []. Eg. ["Total Followers", "Total Likes", "Total Comments", "ERDay", "ERpost"]
         ascending (Tuple, optional): [description]. Defaults to (). Eg. (False, False, False, False, False)
 
     Returns:
-        pd.core.frame.DataFrame: [description]
+        DataFrame: [description]
     """
     if columns is None:
-        columns = []
+        columns = []  # type: ignore
     df = df.sort_values(columns, ascending=ascending)
     return df
 
@@ -270,7 +274,7 @@ def rich_likes_or_comments(val: int) -> str:
         return f"[bold bright_white]{val}[/bold bright_white]"
 
 
-def rich_display_meme_pull_list(df: pd.core.frame.DataFrame):  # noqa
+def rich_display_meme_pull_list(df: DataFrame):  # noqa
     console = Console()
 
     table = Table(show_header=True, header_style="bold magenta")
@@ -323,7 +327,7 @@ def rich_display_meme_pull_list(df: pd.core.frame.DataFrame):  # noqa
     console.print(table)
 
 
-def rich_display_popstars_analytics(df: pd.core.frame.DataFrame):  # noqa
+def rich_display_popstars_analytics(df: DataFrame):  # noqa
     console = Console()
 
     table = Table(show_header=True, header_style="bold magenta")

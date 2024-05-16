@@ -11,7 +11,8 @@ from tempfile import gettempdir
 from typing import Any, Callable, Dict, List, Optional, Set, Union, cast
 
 from pydantic import AliasChoices, AmqpDsn, BaseModel, Field, ImportString, PostgresDsn, RedisDsn
-from pydantic.functional_validators import field_validator
+
+# from pydantic.functional_validators import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from rich.console import Console
 from rich.table import Table
@@ -109,7 +110,7 @@ class AioSettings(BaseSettings):
     discord_general_channel: int = 908894727779258390
 
     discord_server_id: int = 0
-    discord_client_id: int = 0
+    discord_client_id: int | str = 0
 
     discord_token: str = ""
 
@@ -117,6 +118,8 @@ class AioSettings(BaseSettings):
     openai_api_key: str = ""
 
     discord_admin_user_invited: bool = False
+
+    debug: bool = True
 
     # pylint: disable=redundant-keyword-arg
     better_exceptions: bool = Field(env="BETTER_EXCEPTIONS", description="Enable better exceptions", default=1)
@@ -175,6 +178,10 @@ class AioSettings(BaseSettings):
     retry_wait_exponential_min: Union[int, float] = 1
     retry_wait_fixed: Union[int, float] = 15
 
+    pinecone_api_key: str = Field(env="PINECONE_API_KEY", description="pinecone api key", default="")
+    pinecone_env: str = Field(env="PINECONE_ENV", description="pinecone env", default="")
+    pinecone_index: str = Field(env="PINECONE_INDEX", description="pinecone index", default="")
+
     @property
     def redis_url(self) -> URL:
         """
@@ -191,20 +198,6 @@ class AioSettings(BaseSettings):
             password=self.redis_pass,
             path=path,
         )
-
-    @property
-    def aiomonitor_config_data(self) -> Dict:
-        """_summary_
-
-        Returns:
-            Path: _description_
-        """
-        return {"port": self.monitor_port, "host": self.monitor_host}
-
-    # class Config:  # sourcery skip: docstrings-for-classes
-    #     env_file = ".env"
-    #     env_prefix = "GOOB_AI_"
-    #     env_file_encoding = "utf-8"
 
 
 aiosettings = AioSettings()  # sourcery skip: docstrings-for-classes, avoid-global-variables

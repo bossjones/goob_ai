@@ -32,6 +32,7 @@ class RotationSpline:
     Examples
     --------
     >>> from scipy.spatial.transform import Rotation, RotationSpline
+    >>> import numpy as np
 
     Define the sequence of times and rotations from the Euler angles:
 
@@ -82,7 +83,7 @@ class RotationSpline:
     def __init__(self, times, rotations) -> None:
         ...
     
-    def __call__(self, times, order=...):
+    def __call__(self, times, order=...): # -> Any:
         """Compute interpolated values.
 
         Parameters

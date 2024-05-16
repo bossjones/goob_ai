@@ -12,6 +12,26 @@ class LowLevelCallable(tuple):
     """
     Low-level callback function.
 
+    Some functions in SciPy take as arguments callback functions, which
+    can either be python callables or low-level compiled functions. Using
+    compiled callback functions can improve performance somewhat by
+    avoiding wrapping data in Python objects.
+
+    Such low-level functions in SciPy are wrapped in `LowLevelCallable`
+    objects, which can be constructed from function pointers obtained from
+    ctypes, cffi, Cython, or contained in Python `PyCapsule` objects.
+
+    .. seealso::
+
+       Functions accepting low-level callables:
+
+       `scipy.integrate.quad`, `scipy.ndimage.generic_filter`,
+       `scipy.ndimage.generic_filter1d`, `scipy.ndimage.geometric_transform`
+
+       Usage examples:
+
+       :ref:`ndimage-ccallbacks`, :ref:`quad-callbacks`
+
     Parameters
     ----------
     function : {PyCapsule, ctypes function pointer, cffi function pointer}
@@ -63,29 +83,29 @@ class LowLevelCallable(tuple):
 
     """
     __slots__ = ...
-    def __new__(cls, function, user_data=..., signature=...): # -> LowLevelCallable:
+    def __new__(cls, function, user_data=..., signature=...): # -> Self:
         ...
     
     def __repr__(self): # -> str:
         ...
     
     @property
-    def function(self): # -> _T_co@tuple:
+    def function(self):
         ...
     
     @property
-    def user_data(self): # -> _T_co@tuple:
+    def user_data(self):
         ...
     
     @property
     def signature(self):
         ...
     
-    def __getitem__(self, idx): # -> NoReturn:
+    def __getitem__(self, idx):
         ...
     
     @classmethod
-    def from_cython(cls, module, name, user_data=..., signature=...): # -> LowLevelCallable:
+    def from_cython(cls, module, name, user_data=..., signature=...): # -> Self:
         """
         Create a low-level callback function from an exported Cython function.
 

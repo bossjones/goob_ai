@@ -5,11 +5,12 @@ import logging
 
 from langchain.prompts import ChatPromptTemplate
 from langchain_core.runnables import RunnablePassthrough
+from loguru import logger as LOGGER
 
 from goob_ai.llm_manager import LlmManager
 
 
-logger = logging.getLogger(__name__)
+# logger = logging.getLogger(__name__)
 
 
 class UserInputEnrichment:
@@ -73,7 +74,7 @@ class UserInputEnrichment:
                 content = function_call.get("arguments", content)
 
             content_dict = json.loads(content)
-            logger.info(f"Content dict from input classifier: {content_dict}")
+            LOGGER.info(f"Content dict from input classifier: {content_dict}")
             return content_dict
         except json.JSONDecodeError as e:
             raise ValueError(f"Error parsing JSON response: {e}")
