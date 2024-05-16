@@ -16,12 +16,14 @@ from langchain.callbacks.tracers import LoggingCallbackHandler
 from langchain.chains.conversation.memory import ConversationBufferWindowMemory
 from langchain.globals import set_debug
 from langchain.prompts import ChatPromptTemplate, MessagesPlaceholder
+
+# from pydantic import BaseModel
+from langchain.pydantic_v1 import BaseModel, Field
 from langchain_community.chat_message_histories import RedisChatMessageHistory
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.tools import BaseTool
 from langchain_core.utils.function_calling import convert_to_openai_tool
 from loguru import logger as LOGGER
-from pydantic import BaseModel
 from pydantic_settings import SettingsConfigDict
 
 from goob_ai.aio_settings import AioSettings, aiosettings
@@ -33,7 +35,8 @@ if TYPE_CHECKING:
     from pinecone.control import Pinecone  # pyright: ignore[reportAttributeAccessIssue]
 
 
-class AiAgent(BaseModel):
+# class AiAgent(BaseModel):
+class AiAgent:
     custom_tools: list[BaseTool] | None = None
     all_tools: list[BaseTool] | None = None
     agent: Union[BaseSingleActionAgent, BaseMultiActionAgent] | None = None
@@ -78,68 +81,6 @@ class AiAgent(BaseModel):
             t.handle_tool_error = True
 
         self.all_tools = self.custom_tools
-
-    # def init_dynamodb_session_and_table(self):
-    #     """
-    #     Initializes the dynamodb session and validates that the table exists
-    #     """
-    #     self.dynamodb_session = boto3_Session(region_name=self.settings.aws_region)
-
-    #     dynamodb_client = self.dynamodb_session.client("dynamodb", endpoint_url=self.settings.dynamodb_endpoint_url)
-    #     LOGGER.info(
-    #         f"Set up dynamodb client with endpoint: {self.settings.dynamodb_endpoint_url}, aws region: {self.settings.aws_region}"
-    #     )
-
-    #     try:
-    #         response = dynamodb_client.describe_table(TableName=self.settings.dynamodb_table_name)
-    #         if response["ResponseMetadata"]["HTTPStatusCode"] == 200:
-    #             LOGGER.info("DynamoDB table exists")
-    #         else:
-    #             LOGGER.error(
-    #                 f"DynamoDB table 'describe' action failed with code {response['ResponseMetadata']['HTTPStatusCode']}"
-    #             )
-    #             raise
-    #     except dynamodb_client.exceptions.ResourceNotFoundException:
-    #         if self.settings.env_name == LOCAL_ENV_NAME:
-    #             LOGGER.info("DynamoDB table doesn't exist and environment is local. Creating the table.")
-    #             self.create_dynamodb_table(dynamodb_client)
-    #             pass
-    #         else:
-    #             LOGGER.error("DynamoDB table doesn't exist and environment is not local. Exiting.")
-    #             raise
-
-    # def create_dynamodb_table(self, dynamodb_client):
-    #     """
-    #     Creates the DynamoDB table; should be called only for local environment
-    #     :param dynamodb_client:
-    #     :return:
-    #     """
-    #     try:
-    #         response = dynamodb_client.create_table(
-    #             AttributeDefinitions=[
-    #                 {
-    #                     "AttributeName": "SessionId",
-    #                     "AttributeType": "S",
-    #                 },
-    #             ],
-    #             KeySchema=[
-    #                 {
-    #                     "AttributeName": "SessionId",
-    #                     "KeyType": "HASH",
-    #                 },
-    #             ],
-    #             # BillingMode doesn't matter, this is done only for local env
-    #             BillingMode="PAY_PER_REQUEST",
-    #             TableName=self.settings.dynamodb_table_name,
-    #         )
-    #         if response["ResponseMetadata"]["HTTPStatusCode"] == 200:
-    #             LOGGER.info("DynamoDB table created")
-    #         else:
-    #             LOGGER.error("DynamoDB table creation failed ")
-    #             raise
-    #     except dynamodb_client.exceptions.ResourceInUseException:
-    #         LOGGER.info("DynamoDB table already exists")
-    #         pass
 
     def init_agent_executor(self):
         llm_with_tools = LlmManager().llm.bind_tools(tools=[convert_to_openai_tool(t) for t in self.all_tools])
@@ -187,7 +128,10 @@ class AiAgent(BaseModel):
             | OpenAIToolsAgentOutputParser()
         )  # pyright: ignore[reportAttributeAccessIssue]
 
+    # def setup_agent_executor(self, session_id: str, user_task: str):
     def setup_agent_executor(self, session_id: str, user_task: str):
+        LOGGER.debug(f"session_id = {session_id}")
+        LOGGER.debug(f"user_task = {user_task}")
         # ttl_in_seconds = self.settings.dynamodb_ttl_days * 24 * 60 * 60
         # FIXME: replace foo with a proper session_id later
         message_history = RedisChatMessageHistory("foo", url=f"{aiosettings.redis_url}", key_prefix="goob:")

@@ -31,6 +31,23 @@ jobs:
   test:
     name: test
     runs-on: ubuntu-22.04
+
+    # Service containers to run with `runner-job`
+    services:
+      # Label used to access the service container
+      redis:
+        # Docker Hub image
+        image: redis
+        # Set health checks to wait until redis has started
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          # Maps port 7600 on service container to the host
+          - 7600:7600
+
     if: github.repository == 'bossjones/goob_ai'
     env:
       OS: ubuntu-22.04

@@ -111,6 +111,7 @@ dependencies = [
     "bump-pydantic>=0.8.0",
     "pinecone-client>=4.0.0",
     "langserve[all]>=0.1.1",
+    "prometheus-client>=0.20.0",
 ]
 
 readme = "README.md"
@@ -215,8 +216,9 @@ typecheck = {chain = [
     "ci:mypy",
     "open:mypy-coverage",
 ]}
-"sourcery:check" = "sourcery review --check --summary ."
-"sourcery:fix" = "sourcery review --fix ."
+"sourcery:check" = "sourcery review --config .sourcery.yaml --check --summary ."
+"sourcery:diff" = "sourcery review --config .sourcery.yaml --diff 'git diff main' --verbose ."
+"sourcery:fix" = "sourcery review --config .sourcery.yaml --fix ."
 "sourcery:hub" = "sourcery hub"
 "ci:mypy" = "mypy  --config-file=pyproject.toml --html-report typingcov ."
 "open:mypy-coverage" = " open typingcov/index.html"
@@ -541,6 +543,7 @@ module = "tests.*"
 
 [[tool.mypy.overrides]]
 module = [
+    "prometheus_client.*",
     "_pytest.*",
     "_string",
     "absl.*",

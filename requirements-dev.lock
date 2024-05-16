@@ -623,6 +623,8 @@ posthog==3.5.0
 pre-commit==3.7.0
 prettytable==3.10.0
     # via goob-ai
+prometheus-client==0.20.0
+    # via goob-ai
 prompt-toolkit==3.0.43
     # via aiomonitor
     # via questionary
