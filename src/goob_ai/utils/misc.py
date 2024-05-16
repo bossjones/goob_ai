@@ -290,9 +290,9 @@ class CallDefault(inspect.Parameter):
             formatted = f"{formatted}={formatted}"
 
         if kind == inspect.Parameter.VAR_POSITIONAL:
-            formatted = "*" + formatted
+            formatted = f"*{formatted}"
         elif kind == inspect.Parameter.VAR_KEYWORD:
-            formatted = "**" + formatted
+            formatted = f"**{formatted}"
 
         return formatted
 
@@ -363,10 +363,8 @@ def ensure_layer_data_tuple(val):
 
 def ensure_list_of_layer_data_tuple(val):
     if isinstance(val, list) and len(val):
-        try:
+        with contextlib.suppress(TypeError):
             return [ensure_layer_data_tuple(v) for v in val]
-        except TypeError:
-            pass
     raise TypeError("Not a valid list of layer data tuples!")
 
 

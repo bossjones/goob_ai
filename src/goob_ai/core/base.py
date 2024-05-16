@@ -24,7 +24,7 @@ class GoobAIBase:
 
     @property
     def unique_name(self) -> str:
-        return self.__module__ + "." + type(self).__name__
+        return f"{self.__module__}.{type(self).__name__}"
 
     @property
     def name(self) -> str:

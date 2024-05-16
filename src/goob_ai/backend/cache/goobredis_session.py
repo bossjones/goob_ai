@@ -63,10 +63,7 @@ class RedisSessionManagerUtility:
         session_key = f"{self._prefix}:{ident}:{session}"
         LOGGER.debug(f"Existing session: session_key={session_key}")
         value = await self._driver.get(session_key)
-        if value is not None:
-            return True
-        else:
-            return False
+        return value is not None
 
     async def drop_session(self, ident: str, session: str):
         session_key = f"{self._prefix}:{ident}:{session}"

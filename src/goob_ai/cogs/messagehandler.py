@@ -26,8 +26,7 @@ SLEEPTIMER = 5
 
 
 def embedder(msg):
-    embed = discord.Embed(description=f"{msg}", color=0x9C84EF)
-    return embed
+    return discord.Embed(description=f"{msg}", color=0x9C84EF)
 
 
 class ListenerCog(commands.Cog, name="listener"):
@@ -58,21 +57,15 @@ class ListenerCog(commands.Cog, name="listener"):
         async def callback(self, interaction: discord.Interaction):
             channel_id = interaction.channel_id
             if channel_id in self.parent.bot.channel_list:
-                if self.values[0] == "Enable":
-                    self.parent.listen_only_mode[channel_id] = True
-                    await interaction.response.send_message(
-                        embed=embedder(f".Listen-only mode is now set to {self.parent.listen_only_mode[channel_id]}"),
-                        delete_after=5,
-                    )
-                else:
-                    self.parent.listen_only_mode[channel_id] = False
-                    await interaction.response.send_message(
-                        embed=embedder(f".Listen-only mode is now set to {self.parent.listen_only_mode[channel_id]}"),
-                        delete_after=5,
-                    )
+                self.parent.listen_only_mode[channel_id] = self.values[0] == "Enable"
+                await interaction.response.send_message(
+                    embed=embedder(f".Listen-only mode is now set to {self.parent.listen_only_mode[channel_id]}"),
+                    delete_after=5,
+                )
             else:
                 await interaction.response.send_message(
-                    embed=embedder(f".Listen-only mode is not enabled in this channel"), delete_after=5
+                    embed=embedder(".Listen-only mode is not enabled in this channel"),
+                    delete_after=5,
                 )
 
     class ListenOnlyModeView(discord.ui.View):

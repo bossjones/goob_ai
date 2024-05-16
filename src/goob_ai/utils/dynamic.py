@@ -9,8 +9,7 @@ def dynamic_instantiation(module_name: str, class_name: str) -> object:
     """Dynamically instantiates a class from a module."""
     module = importlib.import_module(module_name)
     class_ = getattr(module, class_name)
-    instance = class_()
-    return instance
+    return class_()
 
 
 def instantiate_target(target: str):

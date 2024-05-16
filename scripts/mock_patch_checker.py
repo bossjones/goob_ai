@@ -70,12 +70,15 @@ class MockChecker(ast.NodeVisitor):
 
     def visit_Call(self, node):
         try:
-            if (self.imported_patch and self._call_uses_patch(node)) or (
-                self.imported_mock and self._call_uses_mock_patch(node)
-            ):
-                if not any([keyword for keyword in node.keywords if keyword.arg == "autospec"]):
-                    print("%s:%d: Found a mock without an autospec!" % (self.current_filename, node.lineno))
-                    self.errors += 1
+            if ((self.imported_patch and self._call_uses_patch(node)) or (
+                            self.imported_mock and self._call_uses_mock_patch(node)
+                        )) and not any(
+                                keyword
+                                for keyword in node.keywords
+                                if keyword.arg == "autospec"
+                            ):
+                print("%s:%d: Found a mock without an autospec!" % (self.current_filename, node.lineno))
+                self.errors += 1
         except AttributeError:
             pass
         self.generic_visit(node)

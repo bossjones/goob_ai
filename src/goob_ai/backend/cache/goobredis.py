@@ -153,9 +153,9 @@ class GoobRedisClient:
             try:
                 with watch("delete_many"):
                     await self._pool.delete(key)
-                LOGGER.debug("Deleted cache keys {}".format(keys))
+                LOGGER.debug(f"Deleted cache keys {keys}")
             except Exception:
-                LOGGER.warning("Error deleting cache keys {}".format(keys), exc_info=True)
+                LOGGER.warning(f"Error deleting cache keys {keys}", exc_info=True)
 
     async def flushall(self, *, async_op: bool = False):
         if self._pool is None:
@@ -176,8 +176,7 @@ class GoobRedisClient:
         if self._pool is None:
             raise NoRedisConfigured()
 
-        p = self._pubsub_channels.pop(channel_name, None)
-        if p:
+        if p := self._pubsub_channels.pop(channel_name, None):
             try:
                 await p.unsubscribe(channel_name)
             except ConnectionError:
@@ -318,11 +317,10 @@ async def get_driver() -> GoobRedisClient:
     global _driver
     if _DRIVER is None:
         raise Exception("Not added goob_ai.contrib.redis on applications")
-    else:
-        if _DRIVER.initialized is False:
-            loop = asyncio.get_event_loop()
-            await _DRIVER.initialize(loop)
-        return _DRIVER
+    if _DRIVER.initialized is False:
+        loop = asyncio.get_event_loop()
+        await _DRIVER.initialize(loop)
+    return _DRIVER
 
 
 # redis_client = await get_driver()

@@ -144,5 +144,5 @@ class HttpClient(BaseModel):
         }
         # Add additional headers if they are provided
         if additional_headers is not None:
-            headers.update(additional_headers)
+            headers |= additional_headers
         return headers

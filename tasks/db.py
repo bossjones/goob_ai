@@ -139,11 +139,7 @@ def autogen(ctx, loc="local", verbose=0, clean=False, dry_run=True, comment=""):
                 _msg = "[autogen] (dry-run) would run rm -fv {dbfile}".format(dbfile=dbfile)
                 click.secho(_msg, fg=COLOR_CAUTION)
 
-        # open alembic.ini and get path to migration
-
-        versions = glob.glob("goob_ai/migrations/versions/*.py")
-
-        if len(versions) > 0:
+        if versions := glob.glob("goob_ai/migrations/versions/*.py"):
             for i in versions:
                 if verbose >= 1:
                     _msg = "[autogen] git deleting file '{i}'".format(i=i)
@@ -256,11 +252,7 @@ def alembic(ctx, loc="local", verbose=0, clean=False, dry_run=True, comment="", 
                 _msg = "[alembic] (dry-run) would run rm -fv {dbfile}".format(dbfile=dbfile)
                 click.secho(_msg, fg=COLOR_CAUTION)
 
-        # open alembic.ini and get path to migration
-
-        versions = glob.glob("goob_ai/migrations/versions/*.py")
-
-        if len(versions) > 0:
+        if versions := glob.glob("goob_ai/migrations/versions/*.py"):
             for i in versions:
                 if verbose >= 1:
                     _msg = "[alembic] git deleting file '{i}'".format(i=i)

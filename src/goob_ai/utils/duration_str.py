@@ -54,7 +54,7 @@ def microseconds_from_duration_str(duration: str) -> float:
     """
     Parse a duration string into a microseconds float value.
     """
-    if duration in ("0", "+0", "-0"):
+    if duration in {"0", "+0", "-0"}:
         return 0
 
     pattern = re.compile(r"([\d\.]+)([a-zµμ]+)")
@@ -70,8 +70,8 @@ def microseconds_from_duration_str(duration: str) -> float:
             raise ValueError(f"Unknown unit '{unit}' in duration '{duration}'")
         try:
             total += float(value) * units[unit]
-        except Exception:
-            raise ValueError(f"Invalid value '{value}' in duration '{duration}'")
+        except Exception as e:
+            raise ValueError(f"Invalid value '{value}' in duration '{duration}'") from e
 
     return sign * (total / _microsecond_size)
 
@@ -136,13 +136,11 @@ def _to_str_small(nanoseconds: Optional[float], extended: bool = False) -> str:
     if not nanoseconds:
         return "0"
 
-    milliseconds = int(nanoseconds / _millisecond_size)
-    if milliseconds:
+    if milliseconds := int(nanoseconds / _millisecond_size):
         nanoseconds -= _millisecond_size * milliseconds
         result_str += "{:g}ms".format(milliseconds)
 
-    microseconds = int(nanoseconds / _microsecond_size)
-    if microseconds:
+    if microseconds := int(nanoseconds / _microsecond_size):
         nanoseconds -= _microsecond_size * microseconds
         result_str += "{:g}us".format(microseconds)
 
@@ -156,33 +154,27 @@ def _to_str_large(nanoseconds: float, extended: bool = False) -> str:
     result_str = ""
 
     if extended:
-        years = int(nanoseconds / _year_size)
-        if years:
+        if years := int(nanoseconds / _year_size):
             nanoseconds -= _year_size * years
             result_str += "{:g}y".format(years)
 
-        months = int(nanoseconds / _month_size)
-        if months:
+        if months := int(nanoseconds / _month_size):
             nanoseconds -= _month_size * months
             result_str += "{:g}mm".format(months)
 
-        days = int(nanoseconds / _day_size)
-        if days:
+        if days := int(nanoseconds / _day_size):
             nanoseconds -= _day_size * days
             result_str += "{:g}d".format(days)
 
-    hours = int(nanoseconds / _hour_size)
-    if hours:
+    if hours := int(nanoseconds / _hour_size):
         nanoseconds -= _hour_size * hours
         result_str += "{:g}h".format(hours)
 
-    minutes = int(nanoseconds / _minute_size)
-    if minutes:
+    if minutes := int(nanoseconds / _minute_size):
         nanoseconds -= _minute_size * minutes
         result_str += "{:g}m".format(minutes)
 
-    seconds = float(nanoseconds) / float(_second_size)
-    if seconds:
+    if seconds := nanoseconds / float(_second_size):
         nanoseconds -= _second_size * seconds
         result_str += "{:g}s".format(seconds)
 

@@ -108,11 +108,7 @@ async def ingest(bot: AsyncGoobBot, url: str, namespace: str):
                     if text is not None:
                         break
 
-                if text is not None:
-                    text = text.get_text()
-                else:
-                    text = ""
-
+                text = text.get_text() if text is not None else ""
                 return "\n".join([t for t in text.split("\n") if t])
 
         loader = MyReadThedbLoader(temp_dir, features="html.parser", encoding="utf-8")
