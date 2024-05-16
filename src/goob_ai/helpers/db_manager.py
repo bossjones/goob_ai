@@ -46,8 +46,7 @@ async def get_blacklisted_users() -> list:
     """
     async with aiosqlite.connect(DATABASE_PATH) as db:
         async with db.execute("SELECT user_id, strftime('%s', created_at) FROM blacklist") as cursor:
-            result = await cursor.fetchall()
-            return result
+            return await cursor.fetchall()
 
 
 async def log_message(message: discord.Message):
@@ -212,7 +211,4 @@ async def get_warnings(user_id: int, server_id: int) -> list:
         )
         async with rows as cursor:
             result = await cursor.fetchall()
-            result_list = []
-            for row in result:
-                result_list.append(row)
-            return result_list
+            return list(result)

@@ -79,6 +79,4 @@ def return_outcome_result(retry_state: tenacity.RetryCallState) -> Any:
     when the retry stop condition is reached.
     """
     # https://github.com/jd/tenacity#custom-callbacks
-    if retry_state.outcome is not None:  # apparently retry_state.outcome is Optional[Any]?
-        return retry_state.outcome.result()
-    return None
+    return None if retry_state.outcome is None else retry_state.outcome.result()

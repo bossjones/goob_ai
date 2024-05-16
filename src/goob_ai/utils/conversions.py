@@ -30,8 +30,7 @@ def pil_to_ascii(image: Image) -> str:
     imageio = io.BytesIO()
     image.save(imageio, "png")
     bytes_image = base64.b64encode(imageio.getvalue())
-    ascii_image = bytes_image.decode("ascii")
-    return ascii_image
+    return bytes_image.decode("ascii")
 
 
 def ascii_to_pil(ascii_image: str) -> Image:
@@ -63,8 +62,7 @@ def pil_to_bytes(image: Image) -> bytes:
     """
     imageio = io.BytesIO()
     image.save(imageio, "png")
-    image_stream = imageio.getvalue()
-    return image_stream
+    return imageio.getvalue()
 
 
 def bytes_to_pil(bytes_image: bytes) -> Image:
@@ -134,21 +132,17 @@ def pil_to_ndarray(image: Image, image_format="RGB") -> np.ndarray:
     Returns:
         An np.ndarray image in the specified format.
     """
-    if image.mode in ["LA", "RGBA"]:  # Alpha channel present
-        if image_format == "L":
-            image = image.convert(mode="L")
-            return np.array(image)
-        else:
+    if image_format == "L":
+        image = image.convert(mode="L")
+        return np.array(image)
+    else:
+        if image.mode in ["LA", "RGBA"]:
             image = image.convert(mode="RGBA")
             if image_format == "RGB":
                 return np.array(image)
             elif image_format == "BGR":
                 return cv2.cvtColor(np.array(image), cv2.COLOR_RGBA2BGRA)
 
-    else:  # No alpha channel
-        if image_format == "L":
-            image = image.convert(mode="L")
-            return np.array(image)
         else:
             image = image.convert(mode="RGB")
             if image_format == "RGB":

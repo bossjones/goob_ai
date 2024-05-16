@@ -52,7 +52,7 @@ def takes_arguments(function, *named_arguments):
 
 def takes_all_arguments(function, *named_arguments):
     """Returns True if all supplied arguments are found in the function"""
-    return bool(takes_arguments(function, *named_arguments) == set(named_arguments))
+    return takes_arguments(function, *named_arguments) == set(named_arguments)
 
 
 def generate_accepted_kwargs(function, *named_arguments):

@@ -92,12 +92,10 @@ def test_takes_args():
 
 def test_takes_arguments():
     """Test to ensure hug introspection can correctly identify which arguments supplied a function will take"""
-    assert introspect.takes_arguments(function_with_kwargs, "argument1", "argument3") == set(("argument1",))
+    assert introspect.takes_arguments(function_with_kwargs, "argument1", "argument3") == {"argument1"}
     assert introspect.takes_arguments(function_with_args, "bacon") == set()
-    assert introspect.takes_arguments(function_with_neither, "argument1", "argument2") == set(
-        ("argument1", "argument2")
-    )
-    assert introspect.takes_arguments(function_with_both, "argument3", "bacon") == set(("argument3",))
+    assert introspect.takes_arguments(function_with_neither, "argument1", "argument2") == {"argument1", "argument2"}
+    assert introspect.takes_arguments(function_with_both, "argument3", "bacon") == {"argument3"}
 
 
 def test_takes_all_arguments():

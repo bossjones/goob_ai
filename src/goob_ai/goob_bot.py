@@ -85,8 +85,7 @@ def dump_logger_tree():
 def dump_logger(logger_name: str):
     LOGGER.debug(f"getting logger {logger_name}")
     rootm = generate_tree()
-    lm = get_lm_from_tree(rootm, logger_name)
-    return lm
+    return get_lm_from_tree(rootm, logger_name)
 
 
 def filter_empty_string(a_list: List[str]) -> List[str]:
@@ -204,8 +203,7 @@ def _prefix_callable(bot: AsyncGoobBot, msg: discord.Message):
     user_id = bot.user.id
     base = [f"<@!{user_id}> ", f"<@{user_id}> "]
     if msg.guild is None:  # pyright: ignore[reportAttributeAccessIssue]
-        base.append("!")
-        base.append("?")
+        base.extend(("!", "?"))
     else:
         base.extend(bot.prefixes.get(msg.guild.id, ["?", "!"]))  # pyright: ignore[reportAttributeAccessIssue]
     return base
@@ -463,9 +461,7 @@ class AsyncGoobBot(commands.Bot):
                 return member
 
         members = await guild.query_members(limit=1, user_ids=[member_id], cache=True)
-        if not members:
-            return None
-        return members[0]
+        return members[0] if members else None
 
     async def resolve_member_ids(
         self, guild: discord.Guild, member_ids: Iterable[int]

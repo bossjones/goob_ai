@@ -68,9 +68,8 @@ class ConfirmationView(discord.ui.View):
     async def interaction_check(self, interaction: discord.Interaction) -> bool:
         if interaction.user and interaction.user.id == self.author_id:
             return True
-        else:
-            await interaction.response.send_message("This confirmation dialog is not for you.", ephemeral=True)
-            return False
+        await interaction.response.send_message("This confirmation dialog is not for you.", ephemeral=True)
+        return False
 
     async def on_timeout(self) -> None:
         if self.delete_after and self.message:
@@ -147,16 +146,14 @@ class Context(commands.Context):
     async def entry_to_code(self, entries: Iterable[tuple[str, str]]) -> None:
         width = max(len(a) for a, b in entries)
         output = ["```"]
-        for name, entry in entries:
-            output.append(f"{name:<{width}}: {entry}")
+        output.extend(f"{name:<{width}}: {entry}" for name, entry in entries)
         output.append("```")
         await self.send("\n".join(output))
 
     async def indented_entry_to_code(self, entries: Iterable[tuple[str, str]]) -> None:
         width = max(len(a) for a, b in entries)
         output = ["```"]
-        for name, entry in entries:
-            output.append(f"\u200b{name:>{width}}: {entry}")
+        output.extend(f"\u200b{name:>{width}}: {entry}" for name, entry in entries)
         output.append("```")
         await self.send("\n".join(output))
 
@@ -183,7 +180,7 @@ class Context(commands.Context):
         return None
 
     async def disambiguate(self, matches: list[T], entry: Callable[[T], Any], *, ephemeral: bool = False) -> T:
-        if len(matches) == 0:
+        if not matches:
             raise ValueError("No results found.")
 
         if len(matches) == 1:
@@ -246,9 +243,7 @@ class Context(commands.Context):
             None: "<:greyTick:563231201280917524>",
         }
         emoji = lookup.get(opt, "<:redTick:330090723011592193>")
-        if label is not None:
-            return f"{emoji}: {label}"
-        return emoji
+        return f"{emoji}: {label}" if label is not None else emoji
 
     @property
     def db(self) -> RedisConnectionPool:
@@ -273,12 +268,11 @@ class Context(commands.Context):
         if escape_mentions:
             content = discord.utils.escape_mentions(content)
 
-        if len(content) > 2000:
-            fp = io.BytesIO(content.encode())
-            kwargs.pop("file", None)
-            return await self.send(file=discord.File(fp, filename="message_too_long.txt"), **kwargs)
-        else:
+        if len(content) <= 2000:
             return await self.send(content)
+        fp = io.BytesIO(content.encode())
+        kwargs.pop("file", None)
+        return await self.send(file=discord.File(fp, filename="message_too_long.txt"), **kwargs)
 
 
 class GuildContext(Context):

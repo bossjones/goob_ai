@@ -58,12 +58,14 @@ class watch:
             if exc_value is None:
                 error = ERROR_NONE
             else:
-                for error_type, mapped_exc_type in self.error_mappings.items():
-                    if isinstance(exc_value, mapped_exc_type):
-                        error = error_type
-                        break
-                else:
-                    error = ERROR_GENERAL_EXCEPTION
+                error = next(
+                    (
+                        error_type
+                        for error_type, mapped_exc_type in self.error_mappings.items()
+                        if isinstance(exc_value, mapped_exc_type)
+                    ),
+                    ERROR_GENERAL_EXCEPTION,
+                )
             self.counter.labels(error=error, **self.labels).inc()
 
 

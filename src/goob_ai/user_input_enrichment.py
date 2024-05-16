@@ -15,7 +15,7 @@ from goob_ai.llm_manager import LlmManager
 
 class UserInputEnrichment:
     def input_classifier_schema(self):
-        input_classifier_schema = [
+        return [
             {
                 "name": "input_classifier",
                 "description": """
@@ -32,14 +32,17 @@ class UserInputEnrichment:
                             For everything else, respond with "Provide Help"
                             If the incoming text is directed towards ADA (or Goob or goob), but you are not sure if it is a question or not, respond with "Provide Help"
                             DO NOT EVER ANSWER THE QUESTION OR STATEMENT DIRECTLY.""",
-                            "enum": ["Not a question", "Not for me", "Provide Help"],
+                            "enum": [
+                                "Not a question",
+                                "Not for me",
+                                "Provide Help",
+                            ],
                         }
                     },
                     "required": ["classification"],
                 },
             }
         ]
-        return input_classifier_schema
 
     def input_classifier_tool(self, user_input: str) -> dict:
         """
@@ -77,7 +80,7 @@ class UserInputEnrichment:
             LOGGER.info(f"Content dict from input classifier: {content_dict}")
             return content_dict
         except json.JSONDecodeError as e:
-            raise ValueError(f"Error parsing JSON response: {e}")
+            raise ValueError(f"Error parsing JSON response: {e}") from e
         except Exception as e:
             # Handle other potential exceptions
-            raise ValueError(f"An error occurred during classification: {e}")
+            raise ValueError(f"An error occurred during classification: {e}") from e

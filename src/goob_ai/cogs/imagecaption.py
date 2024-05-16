@@ -56,9 +56,7 @@ class ImageCaptionCog(commands.Cog, name="image_caption"):
             # Join the words into a sentence
             sentence = " ".join(words)
             message_content = f"{message_content} [{message.author.display_name} posts an animated {sentence} ]"
-            message_content = message_content.replace(tenor_url, "")
-            return message_content
-
+            return message_content.replace(tenor_url, "")
         elif url_pattern.match(message_content):
             # Download the image from the URL and convert it to a PIL image
             response = requests.get(message_content)
@@ -77,9 +75,7 @@ class ImageCaptionCog(commands.Cog, name="image_caption"):
     def caption_image(self, raw_image):
         inputs = self.processor(raw_image.convert("RGB"), return_tensors="pt").to("cpu", torch.float32)
         out = self.model.generate(**inputs, max_new_tokens=50)
-        caption = self.processor.decode(out[0], skip_special_tokens=True)
-
-        return caption
+        return self.processor.decode(out[0], skip_special_tokens=True)
 
 
 async def setup(bot):

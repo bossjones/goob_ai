@@ -168,14 +168,7 @@ def filter_images(working_dir: List[str]) -> List[str]:
 
 def filter_pdfs(working_dir: List[str]) -> List[str]:
     return [
-        f
-        for f in working_dir
-        if (pathlib.Path(f"{f}").is_file())
-        and pathlib.Path(f"{f}").suffix
-        in [
-            ".pdf",
-            ".PDF",
-        ]
+        f for f in working_dir if (pathlib.Path(f"{f}").is_file()) and pathlib.Path(f"{f}").suffix in {".pdf", ".PDF"}
     ]
 
 
@@ -449,7 +442,7 @@ def is_file(path: str):
     Returns:
         _type_: _description_
     """
-    return bool(pathlib.Path(path).is_file())
+    return pathlib.Path(path).is_file()
 
 
 def is_directory(path: str):
@@ -461,7 +454,7 @@ def is_directory(path: str):
     Returns:
         _type_: _description_
     """
-    return bool(pathlib.Path(path).is_dir())
+    return pathlib.Path(path).is_dir()
 
 
 def is_a_symlink(path: str):
@@ -473,7 +466,7 @@ def is_a_symlink(path: str):
     Returns:
         _type_: _description_
     """
-    return bool(pathlib.Path(path).is_symlink())
+    return pathlib.Path(path).is_symlink()
 
 
 def expand_path_str(path: str) -> pathlib.PosixPath:

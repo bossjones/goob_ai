@@ -89,7 +89,7 @@ async def test_redis_pubsub():
     await driver.publish("test::pubsub", "dummydata")
     await asyncio.sleep(0.1)
 
-    assert len(RESULTS) > 0
+    assert RESULTS
     assert RESULTS[0] == b"dummydata"
 
     task.cancel()

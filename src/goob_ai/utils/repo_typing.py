@@ -22,7 +22,7 @@ def run_pyright() -> None:
         match = re.match(MISSING_TYPESTUB_PATTERN, line)
         print(f"math: {match}")
         if match:
-            group = match.group(1)
+            group = match[1]
             group = re.sub(r"\..*", "", group)
             modulesMissingStubs.add(group)
 

@@ -90,7 +90,7 @@ class AiAgent:
         prompt = ChatPromptTemplate.from_messages(
             [
                 (
-                    f"system",
+                    "system",
                     f"""
              You are a helpful AI assistant called {self.agent_name}.
              Use the following pieces of context to answer the question at the end.
@@ -144,11 +144,13 @@ class AiAgent:
             output_key="output",
         )
 
-        agent_executor = AgentExecutor(
-            agent=self.agent, tools=self.all_tools, verbose=True, callbacks=[self.logging_handler], memory=memory
-        )  # mypy: disable-error-code="arg-type"
-
-        return agent_executor
+        return AgentExecutor(
+            agent=self.agent,
+            tools=self.all_tools,
+            verbose=True,
+            callbacks=[self.logging_handler],
+            memory=memory,
+        )
 
     def process_user_task(self, session_id: str, user_task: str) -> str:
         try:

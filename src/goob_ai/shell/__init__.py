@@ -260,9 +260,7 @@ async def run_coroutine_subprocess(cmd: str, uri: str, working_dir: str = f"{pat
 
     timer = Timer(text=f"Task {__name__} elapsed time: {{:.1f}}")
 
-    env = {}
-    env |= os.environ
-
+    env = dict(os.environ)
     dl_uri = uritools.urisplit(uri)
 
     result = "0"

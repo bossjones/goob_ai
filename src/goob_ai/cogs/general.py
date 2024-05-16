@@ -152,7 +152,6 @@ class General(commands.Cog, name="general"):
         name="server",
         description="Get the invite link of the discord server of the bot for some support.",
     )
-    # @checks.not_blacklisted()
     async def server(self, context: Context) -> None:
         """
         Get the invite link of the discord server of the bot for some support.
@@ -160,7 +159,7 @@ class General(commands.Cog, name="general"):
         :param context: The hybrid command context.
         """
         embed = discord.Embed(
-            description=f"Join the support server for the bot by clicking [here](https://discord.gg/mTBrXyWxAF).",
+            description="Join the support server for the bot by clicking [here](https://discord.gg/mTBrXyWxAF).",
             color=0xD75BF4,
         )
         try:
