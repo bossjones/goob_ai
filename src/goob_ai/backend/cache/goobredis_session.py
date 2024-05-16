@@ -1,5 +1,6 @@
 # pyright: reportPrivateImportUsage=false
 # pyright: reportGeneralTypeIssues=false
+# pylint: disable=simplifiable-if-statement
 # SOURCE: https://github.com/dataelement/bisheng/blob/main/src/backend/bisheng/cache/redis.py
 # SOURCE: https://github.com/plone/guillotina/tree/4bf16089dab1065fa39211b45d1a5101d6ea5e84
 
@@ -30,7 +31,7 @@ from goob_ai.aio_settings import AioSettings, aiosettings
 
 
 class RedisSessionManagerUtility:
-    def __init__(self, settings=None):
+    def __init__(self):
         self._ttl = 3660
         self._prefix = "session"
         self._driver = None
