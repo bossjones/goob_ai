@@ -103,4 +103,3 @@ def magic_name(value, *, path_prefix):
         # https://docs.python.org/3/library/inspect.html#the-interpreter-stack
         # https://bugs.python.org/issue543148
         del frame
-        del frame

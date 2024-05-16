@@ -7,11 +7,7 @@ import logging
 
 import aiofiles
 
-
-# LOGGER = get_logger(__name__, provider="Writer", level=logging.DEBUG)
 from loguru import logger as LOGGER
-
-from goob_ai.bot_logger import get_logger
 
 
 async def write_file(fname: str, body: bytes, filetype: str, directory: str):

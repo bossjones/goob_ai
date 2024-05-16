@@ -440,7 +440,6 @@
 
 from __future__ import annotations
 
-# import aiofile
 import gc
 import math
 import time
@@ -448,11 +447,7 @@ import time
 from typing import List
 
 import numpy as np
-
-# from tqdm.asyncio import tqdm
 import pytz
-
-# import aiorwlock
 import rich
 import torch  # type: ignore
 
@@ -461,14 +456,6 @@ from scipy.spatial import KDTree
 from torchvision.utils import make_grid
 from tqdm.auto import tqdm
 from webcolors import CSS3_HEX_TO_NAMES, hex_to_rgb
-
-
-# import aiohttp
-
-
-# import aiosqlite
-
-# from icecream import ic
 
 
 utc = pytz.utc
@@ -563,9 +550,6 @@ def rgba_to_bgra(image: torch.Tensor) -> torch.Tensor:
     return bgra_to_rgba(image)
 
 
-# TODO: Could also automatically detect the possible range with min and max, like in def ssim()
-
-
 def denorm(x, min_max=(-1.0, 1.0)):
     """
     Denormalize from [-1,1] range to [0,1]
@@ -598,9 +582,6 @@ def norm(x):
             "Got unexpected object type, expected torch.Tensor or \
         np.ndarray"
         )
-
-
-# 2tensor
 
 
 async def np2tensor(
