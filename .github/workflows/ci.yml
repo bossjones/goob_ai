@@ -57,27 +57,18 @@ jobs:
       - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
       - run: echo "🐧 This job is now running on a ${{ runner.os }} server hosted by GitHub!"
       - run: echo "🔎 The name of your branch is ${{ github.ref_name }} and your repository is ${{ github.repository }}."
-      # - name: Install dependencies
-      #   run: |
-
-      #     set -x
-      #     sudo apt install -y libgc-dev tmux git rsync curl imagemagick redis
-      #     sudo systemctl start redis
-      #     sleep 2
-      #     redis-cli ping
 
       - name: Set up Git repository
         uses: actions/checkout@v4
-
-
-
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
       - name: Start Redis
+        id: redis-docker-compose-up
         run: |
           docker-compose up -d
           docker ps -a
+        continue-on-error: true
 
       - name: Checkout
         uses: actions/checkout@v4
