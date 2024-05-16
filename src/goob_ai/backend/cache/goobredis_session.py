@@ -37,7 +37,7 @@ class RedisSessionManagerUtility:
         self._driver = None
         self._initialized = False
 
-    async def initialize(self, app=None):
+    async def initialize(self):
         from goob_ai.backend.cache import goobredis
 
         loop = asyncio.get_event_loop()
@@ -51,6 +51,7 @@ class RedisSessionManagerUtility:
     async def new_session(self, ident: str, data: str = "") -> str:
         session = uuid.uuid4().hex
         session_key = f"{self._prefix}:{ident}:{session}"
+        LOGGER.debug(f"Creating new session: session_key={session_key}")
         await self._driver.set(session_key, data, expire=self._ttl)
         return session
 
@@ -60,6 +61,7 @@ class RedisSessionManagerUtility:
         if ident is None:
             return False
         session_key = f"{self._prefix}:{ident}:{session}"
+        LOGGER.debug(f"Existing session: session_key={session_key}")
         value = await self._driver.get(session_key)
         if value is not None:
             return True
@@ -68,6 +70,7 @@ class RedisSessionManagerUtility:
 
     async def drop_session(self, ident: str, session: str):
         session_key = f"{self._prefix}:{ident}:{session}"
+        LOGGER.debug(f"Drop session: session_key={session_key}")
         value = await self._driver.get(session_key)
         if value is not None:
             await self._driver.delete(session_key)
@@ -76,9 +79,12 @@ class RedisSessionManagerUtility:
 
     async def refresh_session(self, ident: str, session: str):
         session_key = f"{self._prefix}:{ident}:{session}"
+        LOGGER.debug(f"Refresh session: session_key={session_key}")
         value = await self._driver.get(session_key)
         if value is not None:
             await self._driver.expire(session_key, self._ttl)
+            LOGGER.debug(f"Refreshed: session_key={session_key}")
+            LOGGER.debug(f"Refreshed: value={value}")
             return session
         else:
             raise KeyError("Invalid session")
@@ -87,12 +93,15 @@ class RedisSessionManagerUtility:
         if ident is None:
             return []
         session_key = f"{self._prefix}:{ident}"
+        LOGGER.debug(f"List session: session_key={session_key}")
         value = await self._driver.keys_startswith(session_key)
+        LOGGER.debug(f"List session: value={value}")
         return [x.split(b":")[2].decode("utf-8") for x in value]
 
     async def get_session(self, ident: str | None, session: str | None):
         if ident is None:
             return []
         session_key = f"{self._prefix}:{ident}:{session}"
+        LOGGER.debug(f"Get session: session_key={session_key}")
         value = await self._driver.get(session_key)
         return value.decode("utf-8")  # pyright: ignore[reportAttributeAccessIssue]
