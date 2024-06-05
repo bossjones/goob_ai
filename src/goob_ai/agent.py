@@ -69,25 +69,13 @@ class AiAgent:
         self.agent_purpose = "help our developers build better software faster"
         self.agent_personality = "You have a geeky and clever sense of humor"
 
-    def init_tools(self):
-        self.custom_tools: Union[list[BaseTool], list[Any]] | None = [VisionTool()]
-        # ***************************************************
-        # NOTE: CustomTool Error handling
-        # ***************************************************
-        # See: https://python.langchain.com/docs/modules/tools/custom_tools/#handling-tool-error
-        # To ensure continuous execution when a tool encounters an error, raise a ToolException and set handle_tool_error.
-        # Here is why: https://github.com/langchain-ai/langchain/issues/7715
-        for t in self.custom_tools:
-            t.handle_tool_error = True
-
-        self.all_tools = self.custom_tools
-
-    def init_agent_executor(self):
-        llm_with_tools = LlmManager().llm.bind_tools(tools=[convert_to_openai_tool(t) for t in self.all_tools])
-
-        # FIXME: Once we start doing document retrival from other vector stores, we need to update the prompt and remove "You think step by step about the user request and provide a helpful and truthful response. You must use flex_vector_store_tool to get documents related to Flex, Ethos, Argo, Argocd, Argo Workflows, Argo Rollouts, or Argo events.". The proper way to do this is to use either logical or semantic routing in langchain.
+    def get_prompt(self) -> ChatPromptTemplate:
+        # write a docstring using pep257 conventions
+        """
+        Define the chat prompt for the agent.
+        """
         # Define the chat prompt
-        prompt = ChatPromptTemplate.from_messages(
+        return ChatPromptTemplate.from_messages(
             [
                 (
                     "system",
@@ -114,6 +102,24 @@ class AiAgent:
             ]
         )
 
+    def init_tools(self):
+        self.custom_tools: Union[list[BaseTool], list[Any]] | None = [VisionTool()]
+        # ***************************************************
+        # NOTE: CustomTool Error handling
+        # ***************************************************
+        # See: https://python.langchain.com/docs/modules/tools/custom_tools/#handling-tool-error
+        # To ensure continuous execution when a tool encounters an error, raise a ToolException and set handle_tool_error.
+        # Here is why: https://github.com/langchain-ai/langchain/issues/7715
+        for t in self.custom_tools:
+            t.handle_tool_error = True
+
+        self.all_tools = self.custom_tools
+
+    def init_agent_executor(self):
+        llm_with_tools = LlmManager().llm.bind_tools(tools=[convert_to_openai_tool(t) for t in self.all_tools])
+
+        self.prompt = self.get_prompt()
+
         self.logging_handler = LoggingCallbackHandler(logger=LOGGER)
 
         # Define the agent
@@ -123,7 +129,7 @@ class AiAgent:
                 "agent_scratchpad": lambda x: format_to_openai_tool_messages(x["intermediate_steps"]),
                 "chat_history": lambda x: x["chat_history"],
             }
-            | prompt
+            | self.prompt
             | llm_with_tools
             | OpenAIToolsAgentOutputParser()
         )  # pyright: ignore[reportAttributeAccessIssue]

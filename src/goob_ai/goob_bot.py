@@ -605,6 +605,7 @@ class AsyncGoobBot(commands.Bot):
 
     async def on_message(self, message: discord.Message) -> None:
         LOGGER.info(f"message = {message}")
+        LOGGER.info(f"ITS THIS ONE BOSS")
 
         LOGGER.info(f"You are in function: {CURRENTFUNCNAME()}")
         LOGGER.info(f"This function's caller was: {CURRENTFUNCNAME(1)}")
