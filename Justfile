@@ -111,3 +111,12 @@ createstubs:
 # sweep init
 sweep-init:
 	rye run sweep init
+
+# TODO: We should try out trunk
+# By default, we use the following config that runs Trunk, an opinionated super-linter that installs all the common formatters and linters for your codebase. You can set up and configure Trunk for yourself by following https://docs.trunk.io/get-started.
+# sandbox:
+#   install:
+#     - trunk init
+#   check:
+#     - trunk fmt {file_path}
+#     - trunk check {file_path}
