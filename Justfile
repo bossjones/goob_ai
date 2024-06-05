@@ -107,3 +107,7 @@ clean:
 # generate type stubs for the project
 createstubs:
 	./scripts/createstubs.sh
+
+# sweep init
+sweep-init:
+	rye run sweep init

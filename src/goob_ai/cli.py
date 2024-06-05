@@ -36,6 +36,7 @@ from redis.asyncio import ConnectionPool, Redis
 from rich import print, print_json
 from rich.console import Console
 from rich.pretty import pprint
+from rich.prompt import Prompt
 from rich.table import Table
 from typer import Typer
 from typing_extensions import Annotated
@@ -58,6 +59,7 @@ global_log_config(
 
 APP = AsyncTyper()
 console = Console()
+cprint = console.print
 
 
 # Load existing subcommands
@@ -92,6 +94,12 @@ def version() -> None:
 def about() -> None:
     """about command"""
     typer.echo("This is GoobBot CLI")
+
+
+@APP.command()
+def show() -> None:
+    """show command"""
+    cprint(f"\nShow goob_ai", style="yellow")
 
 
 # @APP.async_command()
