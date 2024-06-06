@@ -554,8 +554,6 @@ def resize_image_and_bbox(
 def pred_and_store(
     paths: List[pathlib.Path],
     model: torch.nn.Module,
-    # transform: torchvision.transforms,
-    # class_names: List[str],
     device: torch.device = DEVICE,
 ) -> List[Dict]:
     # 3. Loop through target paths
@@ -569,7 +567,7 @@ def pred_and_store(
         targetSize = Dimensions.HEIGHT
         # 7. Open image path
 
-        img: ImageNdarrayBGR
+        img: ImageNdarrayBGR  # type: ignore
 
         img_channel: int
         img_height: int

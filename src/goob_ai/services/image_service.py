@@ -21,199 +21,199 @@ class ImageService:
     def __init__(self):
         pass
 
-    @staticmethod
-    async def encapsulated_send(
-        image_service_cog,
-        user_id,
-        prompt,
-        ctx,
-        response_message=None,
-        vary=None,
-        draw_from_optimizer=None,
-        custom_api_key=None,
-        dalle_3=False,
-        quality=None,
-        image_size=None,
-        style=None,
-    ):
-        """service function that takes input and returns an image generation
+    # @staticmethod
+    # async def encapsulated_send(
+    #     image_service_cog,
+    #     user_id,
+    #     prompt,
+    #     ctx,
+    #     response_message=None,
+    #     vary=None,
+    #     draw_from_optimizer=None,
+    #     custom_api_key=None,
+    #     dalle_3=False,
+    #     quality=None,
+    #     image_size=None,
+    #     style=None,
+    # ):
+    #     """service function that takes input and returns an image generation
 
-        Args:
-            image_service_cog (Cog): The cog which contains draw related commands
-            user_id (int): A discord user id
-            prompt (string): Prompt for the model
-            ctx (ApplicationContext): A discord ApplicationContext, from an interaction
-            response_message (Message, optional): A discord message. Defaults to None.
-            vary (bool, optional): If the image is a variation of another one. Defaults to None.
-            draw_from_optimizer (bool, optional): If the prompt is passed from the optimizer command. Defaults to None.
-            custom_api_key (str, optional): User defined OpenAI API key. Defaults to None.
-        """
-        await asyncio.sleep(0)
-        # send the prompt to the model
-        from_context = isinstance(ctx, discord.ApplicationContext)
+    #     Args:
+    #         image_service_cog (Cog): The cog which contains draw related commands
+    #         user_id (int): A discord user id
+    #         prompt (string): Prompt for the model
+    #         ctx (ApplicationContext): A discord ApplicationContext, from an interaction
+    #         response_message (Message, optional): A discord message. Defaults to None.
+    #         vary (bool, optional): If the image is a variation of another one. Defaults to None.
+    #         draw_from_optimizer (bool, optional): If the prompt is passed from the optimizer command. Defaults to None.
+    #         custom_api_key (str, optional): User defined OpenAI API key. Defaults to None.
+    #     """
+    #     await asyncio.sleep(0)
+    #     # send the prompt to the model
+    #     from_context = isinstance(ctx, discord.ApplicationContext)
 
-        try:
-            if not dalle_3:
-                file, image_urls = await image_service_cog.model.send_image_request_old(
-                    ctx,
-                    prompt,
-                    vary=vary if not draw_from_optimizer else None,
-                    custom_api_key=custom_api_key,
-                )
-            else:
-                file, image_urls = await image_service_cog.model.send_image_request(
-                    ctx,
-                    prompt,
-                    quality,
-                    image_size,
-                    style,
-                    custom_api_key=custom_api_key,
-                )
+    #     try:
+    #         if not dalle_3:
+    #             file, image_urls = await image_service_cog.model.send_image_request_old(
+    #                 ctx,
+    #                 prompt,
+    #                 vary=vary if not draw_from_optimizer else None,
+    #                 custom_api_key=custom_api_key,
+    #             )
+    #         else:
+    #             file, image_urls = await image_service_cog.model.send_image_request(
+    #                 ctx,
+    #                 prompt,
+    #                 quality,
+    #                 image_size,
+    #                 style,
+    #                 custom_api_key=custom_api_key,
+    #             )
 
-        # Error catching for API errors
-        except aiohttp.ClientResponseError as e:
-            message = f"The API returned an invalid response: **{e.status}: {e.message}**"
-            if not from_context:
-                await ctx.channel.send(message)
-            else:
-                await ctx.respond(message, ephemeral=True)
-            return
+    #     # Error catching for API errors
+    #     except aiohttp.ClientResponseError as e:
+    #         message = f"The API returned an invalid response: **{e.status}: {e.message}**"
+    #         if not from_context:
+    #             await ctx.channel.send(message)
+    #         else:
+    #             await ctx.respond(message, ephemeral=True)
+    #         return
 
-        except ValueError as e:
-            message = f"Error: {e}. Please try again with a different prompt."
-            if not from_context:
-                await ctx.channel.send(message)
-            else:
-                await ctx.respond(message, ephemeral=True)
+    #     except ValueError as e:
+    #         message = f"Error: {e}. Please try again with a different prompt."
+    #         if not from_context:
+    #             await ctx.channel.send(message)
+    #         else:
+    #             await ctx.respond(message, ephemeral=True)
 
-            return
+    #         return
 
-        # Start building an embed to send to the user with the results of the image generation
-        embed = discord.Embed(
-            title=(
-                "Image Generation Results"
-                if not vary
-                else (
-                    "Image Generation Results (Varying)"
-                    if not draw_from_optimizer
-                    else "Image Generation Results (Drawing from Optimizer)"
-                )
-            ),
-            description=f"{prompt}",
-            color=0xC730C7,
-        )
+    #     # Start building an embed to send to the user with the results of the image generation
+    #     embed = discord.Embed(
+    #         title=(
+    #             "Image Generation Results"
+    #             if not vary
+    #             else (
+    #                 "Image Generation Results (Varying)"
+    #                 if not draw_from_optimizer
+    #                 else "Image Generation Results (Drawing from Optimizer)"
+    #             )
+    #         ),
+    #         description=f"{prompt}",
+    #         color=0xC730C7,
+    #     )
 
-        # Add the image file to the embed
-        embed.set_image(url=f"attachment://{file.filename}")
+    #     # Add the image file to the embed
+    #     embed.set_image(url=f"attachment://{file.filename}")
 
-        if not response_message:  # Original generation case
-            # Start an interaction with the user, we also want to send data embed=embed, file=file,
-            # view=SaveView(image_urls, image_service_cog, image_service_cog.converser_cog)
-            result_message = (
-                await ctx.channel.send(
-                    embed=embed,
-                    file=file,
-                )
-                if not from_context
-                else await ctx.respond(embed=embed, file=file)
-            )
+    #     if not response_message:  # Original generation case
+    #         # Start an interaction with the user, we also want to send data embed=embed, file=file,
+    #         # view=SaveView(image_urls, image_service_cog, image_service_cog.converser_cog)
+    #         result_message = (
+    #             await ctx.channel.send(
+    #                 embed=embed,
+    #                 file=file,
+    #             )
+    #             if not from_context
+    #             else await ctx.respond(embed=embed, file=file)
+    #         )
 
-            await result_message.edit(
-                view=SaveView(
-                    ctx,
-                    image_urls,
-                    image_service_cog,
-                    image_service_cog.converser_cog,
-                    result_message,
-                    custom_api_key=custom_api_key,
-                    dalle_3=dalle_3,
-                )
-            )
+    #         await result_message.edit(
+    #             view=SaveView(
+    #                 ctx,
+    #                 image_urls,
+    #                 image_service_cog,
+    #                 image_service_cog.converser_cog,
+    #                 result_message,
+    #                 custom_api_key=custom_api_key,
+    #                 dalle_3=dalle_3,
+    #             )
+    #         )
 
-            image_service_cog.converser_cog.users_to_interactions[user_id] = []
-            image_service_cog.converser_cog.users_to_interactions[user_id].append(result_message.id)
+    #         image_service_cog.converser_cog.users_to_interactions[user_id] = []
+    #         image_service_cog.converser_cog.users_to_interactions[user_id].append(result_message.id)
 
-            # Get the actual result message object
-            if from_context:
-                result_message = await ctx.fetch_message(result_message.id)
+    #         # Get the actual result message object
+    #         if from_context:
+    #             result_message = await ctx.fetch_message(result_message.id)
 
-            image_service_cog.redo_users[user_id] = RedoUser(
-                prompt=prompt,
-                message=ctx,
-                ctx=ctx,
-                response=result_message,
-                instruction=None,
-                paginator=None,
-                dalle_3=dalle_3,
-                quality=quality,
-                image_size=image_size,
-                style=style,
-            )
+    #         image_service_cog.redo_users[user_id] = RedoUser(
+    #             prompt=prompt,
+    #             message=ctx,
+    #             ctx=ctx,
+    #             response=result_message,
+    #             instruction=None,
+    #             paginator=None,
+    #             dalle_3=dalle_3,
+    #             quality=quality,
+    #             image_size=image_size,
+    #             style=style,
+    #         )
 
-        else:
-            if not vary:  # Editing case
-                message = await response_message.edit(
-                    embed=embed,
-                    file=file,
-                )
-                await message.edit(
-                    view=SaveView(
-                        ctx,
-                        image_urls,
-                        image_service_cog,
-                        image_service_cog.converser_cog,
-                        message,
-                        custom_api_key=custom_api_key,
-                        dalle_3=dalle_3,
-                    )
-                )
-            else:  # Varying case
-                if not draw_from_optimizer:
-                    result_message = await response_message.edit_original_response(
-                        content="Image variation completed!",
-                        embed=embed,
-                        file=file,
-                    )
-                    await result_message.edit(
-                        view=SaveView(
-                            ctx,
-                            image_urls,
-                            image_service_cog,
-                            image_service_cog.converser_cog,
-                            result_message,
-                            True,
-                            custom_api_key=custom_api_key,
-                        )
-                    )
+    #     else:
+    #         if not vary:  # Editing case
+    #             message = await response_message.edit(
+    #                 embed=embed,
+    #                 file=file,
+    #             )
+    #             await message.edit(
+    #                 view=SaveView(
+    #                     ctx,
+    #                     image_urls,
+    #                     image_service_cog,
+    #                     image_service_cog.converser_cog,
+    #                     message,
+    #                     custom_api_key=custom_api_key,
+    #                     dalle_3=dalle_3,
+    #                 )
+    #             )
+    #         else:  # Varying case
+    #             if not draw_from_optimizer:
+    #                 result_message = await response_message.edit_original_response(
+    #                     content="Image variation completed!",
+    #                     embed=embed,
+    #                     file=file,
+    #                 )
+    #                 await result_message.edit(
+    #                     view=SaveView(
+    #                         ctx,
+    #                         image_urls,
+    #                         image_service_cog,
+    #                         image_service_cog.converser_cog,
+    #                         result_message,
+    #                         True,
+    #                         custom_api_key=custom_api_key,
+    #                     )
+    #                 )
 
-                else:
-                    result_message = await response_message.edit_original_response(
-                        content="I've drawn the optimized prompt!",
-                        embed=embed,
-                        file=file,
-                    )
-                    await result_message.edit(
-                        view=SaveView(
-                            ctx,
-                            image_urls,
-                            image_service_cog,
-                            image_service_cog.converser_cog,
-                            result_message,
-                            custom_api_key=custom_api_key,
-                        )
-                    )
+    #             else:
+    #                 result_message = await response_message.edit_original_response(
+    #                     content="I've drawn the optimized prompt!",
+    #                     embed=embed,
+    #                     file=file,
+    #                 )
+    #                 await result_message.edit(
+    #                     view=SaveView(
+    #                         ctx,
+    #                         image_urls,
+    #                         image_service_cog,
+    #                         image_service_cog.converser_cog,
+    #                         result_message,
+    #                         custom_api_key=custom_api_key,
+    #                     )
+    #                 )
 
-                    image_service_cog.redo_users[user_id] = RedoUser(
-                        prompt=prompt,
-                        message=ctx,
-                        ctx=ctx,
-                        response=result_message,
-                        instruction=None,
-                        paginator=None,
-                    )
+    #                 image_service_cog.redo_users[user_id] = RedoUser(
+    #                     prompt=prompt,
+    #                     message=ctx,
+    #                     ctx=ctx,
+    #                     response=result_message,
+    #                     instruction=None,
+    #                     paginator=None,
+    #                 )
 
-                image_service_cog.converser_cog.users_to_interactions[user_id].append(response_message.id)
-                image_service_cog.converser_cog.users_to_interactions[user_id].append(result_message.id)
+    #             image_service_cog.converser_cog.users_to_interactions[user_id].append(response_message.id)
+    #             image_service_cog.converser_cog.users_to_interactions[user_id].append(result_message.id)
 
 
 # class SaveView(discord.ui.View):
