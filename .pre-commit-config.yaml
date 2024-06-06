@@ -30,7 +30,7 @@ repos:
   #         # additional_dependencies: ["prettier", "prettier-plugin-multiline-arrays"]
   # SOURCE: https://github.com/astral-sh/ruff-pre-commit
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.4.3
+    rev: v0.4.8
     hooks:
       # Run the linter.
       - id: ruff
