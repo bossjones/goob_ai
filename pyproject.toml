@@ -200,6 +200,7 @@ dev-dependencies = [
     "grpc-stubs>=1.53.0.5",
     "types-protobuf>=5.26.0.20240422",
     "types-contextvars>=2.4.7.3",
+    "pytest-aiohttp>=1.0.5",
 ]
 
 [tool.rye.scripts]
@@ -851,6 +852,7 @@ select = [
 ]
 
 ignore = [
+    # "R1730",
     # "I",      # isort, ruff doesn't have enough support for isort yet.
     "TID",     # flake8-tidy-imports (TID)#
     "F401",    # unused-import	{name} imported but unused; consider using importlib.util.find_spec to test for availability

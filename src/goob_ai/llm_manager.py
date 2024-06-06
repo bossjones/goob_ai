@@ -5,6 +5,7 @@ import logging
 from langchain.schema.runnable import ConfigurableField, Runnable, RunnableBranch, RunnableLambda, RunnableMap
 from langchain_openai import ChatOpenAI
 from loguru import logger as LOGGER
+from openai import Client
 from pydantic import BaseModel
 
 from goob_ai.aio_settings import aiosettings
@@ -41,15 +42,16 @@ class LlmManager(BaseModel):
 
 
 class VisionModel(BaseModel):
-    vision_api: ChatOpenAI | None = None
+    vision_api: ChatOpenAI | Client | None = None
 
     def __init__(self):
         super().__init__()
-        self.vision_api = ChatOpenAI(
-            model=aiosettings.vision_model,
-            max_tokens=900,
-            temperature=aiosettings.llm_temperature,
-        )
+        # self.vision_api = ChatOpenAI(
+        #     model=aiosettings.vision_model,
+        #     max_tokens=900,
+        #     temperature=aiosettings.llm_temperature,
+        # )
+        self.vision_api = Client(api_key=aiosettings.openai_api_key)
 
     # Pydantic doesn't seem to know the types to handle AzureOpenAI, so we need to tell it to allow arbitrary types
     class Config:
