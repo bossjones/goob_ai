@@ -27,7 +27,7 @@ import rich
 import typer
 
 from loguru import logger as LOGGER
-from pinecone import Pinecone, ServerlessSpec
+from pinecone import Pinecone, ServerlessSpec  # pyright: ignore[reportAttributeAccessIssue]
 from pinecone.core.client.model.describe_index_stats_response import DescribeIndexStatsResponse
 from pinecone.core.client.model.query_response import QueryResponse
 from pinecone.core.client.model.upsert_response import UpsertResponse
@@ -48,6 +48,7 @@ from goob_ai.aio_settings import aiosettings, get_rich_console
 from goob_ai.asynctyper import AsyncTyper
 from goob_ai.bot_logger import get_logger, global_log_config
 from goob_ai.goob_bot import AsyncGoobBot
+from goob_ai.services.screencrop_service import ImageService
 from goob_ai.utils import repo_typing
 
 
@@ -313,6 +314,18 @@ def run_pyright() -> None:
     """Generate typestubs GoobAI"""
     typer.echo("Generating type stubs for GoobAI")
     repo_typing.run_pyright()
+
+
+@APP.command()
+def run_screencrop() -> None:
+    """Manually run screncrop service and get bounding boxes"""
+    # typer.echo("Generating type stubs for GoobAI")
+    # repo_typing.run_pyright()
+    asyncio.run(
+        ImageService.bindingbox_handler(
+            "/Users/malcolm/dev/bossjones/goob_ai/tests/fixtures/screenshot_image_larger.JPEG"
+        )
+    )
 
 
 @APP.command()

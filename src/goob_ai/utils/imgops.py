@@ -479,6 +479,7 @@ from webcolors import CSS3_HEX_TO_NAMES, hex_to_rgb
 
 from goob_ai.utils import file_functions
 from goob_ai.utils.devices import get_device
+from goob_ai.utils.torchutils import load_model
 
 
 IMG_SIZE_CUTOFF = 1080
@@ -504,6 +505,211 @@ OPENCV_RED = (255, 0, 0)
 
 
 utc = pytz.utc
+
+
+def setup_model():
+    """
+    Summary:
+    Set up a model for image processing.
+
+    Explanation:
+    This function loads a model for image processing using a predefined device and model name, and returns the loaded model.
+    """
+    model = load_model(device=DEVICE, model_name="ScreenNetV1.pth")
+    return model
+
+
+###########################################################################3
+###########################################################################3
+###########################################################################3
+###########################################################################3
+###########################################################################3
+###########################################################################3
+###########################################################################3
+
+
+def handle_autocrop(
+    images_filepaths: List[str],
+    cols=5,
+    model=None,
+    device: torch.device = DEVICE,
+    args=None,
+    resize=False,
+    predict_results=None,
+):
+    cropped_image_file_paths = []
+    for i, image_filepath in enumerate(images_filepaths):
+        image, bboxes = predict_results[i]
+        # image, bboxes = predict_from_file(image_filepath, model, device)
+        img_as_array = np.asarray(image)
+        img_as_array = cv2.cvtColor(img_as_array, cv2.COLOR_RGB2BGR)
+
+        # get fullsize bboxes
+        xmin_fullsize, ymin_fullsize, xmax_fullsize, ymax_fullsize = bboxes[0]
+
+        startY = int(ymin_fullsize)
+        endY = int(ymax_fullsize)
+        startX = int(xmin_fullsize)
+        endX = int(xmax_fullsize)
+
+        cropped_image = img_as_array[startY:endY, startX:endX]
+
+        # import bpdb
+        # bpdb.set_trace()
+
+        image_path_api = pathlib.Path(image_filepath).resolve()
+        fname = f"{image_path_api.parent}/cropped-{model.name}-{image_path_api.stem}{image_path_api.suffix}"
+
+        cv2.imwrite(fname, cropped_image)
+
+        cropped_full_path = file_functions.fix_path(fname)
+
+        cropped_image_file_paths.append(cropped_full_path)
+
+    return cropped_image_file_paths
+
+
+def handle_autocrop_one(
+    images_filepath: str,
+    cols=5,
+    model=None,
+    device: torch.device = DEVICE,
+    args=None,
+    resize=False,
+    predict_results=None,
+):
+    # cropped_image_file_paths = []
+    # for i, image_filepath in enumerate(images_filepaths):
+
+    # import bpdb
+    # bpdb.set_trace()
+
+    image, bboxes = predict_results
+    temp = image.copy()
+    # image, bboxes = predict_from_file(image_filepath, model, device)
+    img_as_array = np.asarray(temp)
+    img_as_array = cv2.cvtColor(img_as_array, cv2.COLOR_RGB2BGR)
+
+    # get fullsize bboxes
+    xmin_fullsize, ymin_fullsize, xmax_fullsize, ymax_fullsize = bboxes[0]
+
+    # if we have a negative point to make a rectange with, set it to 0
+    startY = max(int(ymin_fullsize), 0)
+    endY = max(int(ymax_fullsize), 0)
+    startX = max(int(xmin_fullsize), 0)
+    endX = max(int(xmax_fullsize), 0)
+
+    rich.print(startY, endY, startX, endX)
+
+    cropped_image = img_as_array[startY:endY, startX:endX]
+
+    image_path_api = pathlib.Path(images_filepath).resolve()
+    fname = f"{image_path_api.parent}/cropped-{model.name}-{image_path_api.stem}{image_path_api.suffix}"
+
+    cv2.imwrite(fname, cropped_image)
+
+    return file_functions.fix_path(fname)
+
+
+def handle_resize(
+    images_filepaths: List[str],
+    cols=5,
+    model=None,
+    device: torch.device = DEVICE,
+    args=None,
+    resize=False,
+):
+    resized_image_file_paths = []
+    for i, image_filepath in enumerate(images_filepaths):
+        image_path_api = pathlib.Path(image_filepath).resolve()
+        fname = f"{image_path_api.parent}/cropped-{model.name}-{image_path_api.stem}{image_path_api.suffix}"
+
+        cropped_full_path = file_functions.fix_path(fname)
+
+        if resize:
+            to_resize = Image.open(cropped_full_path).convert("RGB")
+            resized_pil_image = resize_and_pillarbox(to_resize, 1080, 1350, background=resize)
+            if f"{image_path_api.suffix}".lower() == ".png":
+                # https://pillow.readthedocs.io/en/stable/handbook/image-file-formats.html
+                resized_pil_image.save(fname, optimize=True, compress_level=9)
+            elif f"{image_path_api.suffix}".lower() == (".jpg" or ".jpeg"):
+                resized_pil_image.save(fname, quality="web_medium")
+
+        resized_image_file_paths.append(cropped_full_path)
+
+    return resized_image_file_paths
+
+
+def handle_resize_one(
+    images_filepath: str,
+    cols=5,
+    model=None,
+    device: torch.device = DEVICE,
+    args=None,
+    resize=False,
+):
+    image_path_api = pathlib.Path(images_filepath).resolve()
+    fname = f"{image_path_api.parent}/cropped-{model.name}-{image_path_api.stem}{image_path_api.suffix}"
+
+    cropped_full_path = file_functions.fix_path(fname)
+
+    if resize:
+        to_resize = Image.open(cropped_full_path).convert("RGB")
+        resized_pil_image = resize_and_pillarbox(to_resize, 1080, 1350, background=resize)
+        if f"{image_path_api.suffix}".lower() == ".png":
+            # https://pillow.readthedocs.io/en/stable/handbook/image-file-formats.html
+            resized_pil_image.save(fname, optimize=True, compress_level=9)
+        elif f"{image_path_api.suffix}".lower() == (".jpg" or ".jpeg"):
+            resized_pil_image.save(fname, quality="web_medium")
+
+    return cropped_full_path
+
+
+def handle_predict(
+    images_filepaths: List[str],
+    cols=5,
+    model=None,
+    device: torch.device = DEVICE,
+    args=None,
+    resize=False,
+):
+    image_and_bboxes_list = []
+    for image_filepath in images_filepaths:
+        image, bboxes = predict_from_file(image_filepath, model, device)
+        image_and_bboxes_list.append([image, bboxes])
+    return image_and_bboxes_list
+
+
+def handle_predict_one(
+    images_filepath: str,
+    cols: int = 5,
+    model: torch.nn.Module | None = None,
+    device: torch.device = DEVICE,
+    args=None,
+    resize=False,
+):
+    assert cols
+    image, bboxes = predict_from_file(images_filepath, model, device)
+    return image, bboxes
+
+
+###########################################################################################
+###########################################################################################
+###########################################################################################
+###########################################################################################
+###########################################################################################
+###########################################################################################
+###########################################################################################
+###########################################################################################
+###########################################################################################
+###########################################################################################
+###########################################################################################
+###########################################################################################
+###########################################################################################
+###########################################################################################
+###########################################################################################
+###########################################################################################
+###########################################################################################
 
 
 def resize_image_and_bbox(
