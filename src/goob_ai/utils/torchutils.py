@@ -22,6 +22,14 @@ from goob_ai.gen_ai.arch.ScreenCropNet import ObjLocModel as ScreenCropNet_ObjLo
 
 # NOTE: https://pytorch.org/tutorials/beginner/saving_loading_models.html#saving-loading-model-for-inference
 def load_model_for_inference(save_path: str | PathLike, device: str) -> nn.Module:
+    """
+    Summary:
+    Load a model for inference from a specified path and device.
+
+    Explanation:
+    This function loads a neural network model for inference from the provided path and device. It adjusts the state dictionary keys, loads the model parameters, and returns the loaded model for inference.
+    """
+
     # LOGGER.info(f"model = {model}")
     LOGGER.info(f"device = {device}")
     LOGGER.info(f"type(device) = {type(device)}")
