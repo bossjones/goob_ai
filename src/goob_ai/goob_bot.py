@@ -725,15 +725,13 @@ class AsyncGoobBot(commands.Bot):
         :param is_dm: whether the message is a direct message.
         :return: the session ID
         """
-        if str(message.channel.type) == "private":  # pyright: ignore[reportAttributeAccessIssue]
-            is_dm = True
-        else:
-            is_dm = False
-
-        user_id = message.author.id  # pyright: ignore[reportAttributeAccessIssue]
+        is_dm: bool = str(message.channel.type) == "private"  # pyright: ignore[reportAttributeAccessIssue]
+        user_id: int = message.author.id  # pyright: ignore[reportAttributeAccessIssue]
 
         if is_dm:
             return f"discord_{user_id}"
+        else:
+            return f"discord_{message.channel.id}"  # pyright: ignore[reportAttributeAccessIssue]
 
         # TODO: ENABLE THIS AND THREAD HANDLING
         # channel_id = message.channel.id
