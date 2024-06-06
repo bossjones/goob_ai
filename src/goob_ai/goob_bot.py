@@ -761,7 +761,7 @@ class AsyncGoobBot(commands.Bot):
         user_name = message.author.name  # pyright: ignore[reportAttributeAccessIssue]
         agent_input = self.prepare_agent_input(message, user_name, surface_info_dict)
         session_id = self.get_session_id(message)
-        LOGGER.info(f"session_id: {session_id} Agent input: " + json.dumps(agent_input))
+        LOGGER.info(f"session_id: {session_id} Agent input: {json.dumps(agent_input)}")
 
         temp_message = (
             "Processing your request, please wait... (this could take up to 1min, depending on the response size)"
@@ -769,7 +769,7 @@ class AsyncGoobBot(commands.Bot):
         # thread_ts is None for direct messages, so we use the ts of the original message
         orig_msg = await ctx.send(
             embed=discord.Embed(description=temp_message),
-            delete_after=30.0,
+            # delete_after=30.0,
         )
         # response = client.chat_postMessage(channel=channel_id, thread_ts=thread_ts, text=temp_message)
         # response_ts = response["ts"]
@@ -780,8 +780,9 @@ class AsyncGoobBot(commands.Bot):
         # Update the slack response with the agent response
         # client.chat_update(channel=channel_id, ts=response_ts, text=agent_response_text)
 
-        await orig_msg.edit(content=agent_response_text)
-        LOGGER.info(f"session_id: {session_id} Agent response: " + json.dumps(agent_response_text))
+        # await orig_msg.edit(content=agent_response_text)
+        await orig_msg.edit(embed=discord.Embed(description=agent_response_text))
+        LOGGER.info(f"session_id: {session_id} Agent response: {json.dumps(agent_response_text)}")
 
         # Evaluate the response against the question
         eval_result = Evaluator().evaluate_prediction(agent_input, agent_response_text)
@@ -912,6 +913,10 @@ class AsyncGoobBot(commands.Bot):
         #     return
         # else:
         #     self._auto_spam_count.pop(author_id, None)
+
+        # its a dm
+        if str(message.channel.type) == "private":  # pyright: ignore[reportAttributeAccessIssue]
+            await self.handle_dm_from_user(message)
 
         await self.invoke(ctx)
 
