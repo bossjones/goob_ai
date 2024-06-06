@@ -437,28 +437,383 @@
 
 # Creative Commons may be contacted at creativecommons.org.
 # NOTE: For more examples tqdm + aiofile, search https://github.com/search?l=Python&q=aiofile+tqdm&type=Code
+# pylint: disable=no-member
 
 from __future__ import annotations
 
+import asyncio
+import concurrent.futures
+import functools
 import gc
+import logging
 import math
+import os
+import os.path
+import pathlib
+import sys
+import tempfile
 import time
+import traceback
+import typing
 
-from typing import List
+from enum import IntEnum
+from typing import Dict, List, NewType, Optional
 
+import cv2
 import numpy as np
 import pytz
 import rich
-import torch  # type: ignore
+import torch
+import torchvision.transforms as transforms
+import torchvision.transforms.functional as FT
+import torchvision.transforms.functional as pytorch_transforms_functional
 
+from loguru import logger as LOGGER
 from PIL import Image
 from scipy.spatial import KDTree
+from torch import nn
 from torchvision.utils import make_grid
 from tqdm.auto import tqdm
 from webcolors import CSS3_HEX_TO_NAMES, hex_to_rgb
 
+from goob_ai.utils import file_functions
+from goob_ai.utils.devices import get_device
+
+
+IMG_SIZE_CUTOFF = 1080
+
+TYPE_IMAGE_ARRAY = typing.Union[np.ndarray, typing.Any]
+
+TYPE_SCALE = typing.Union[str, int]
+
+DEVICE = get_device()
+
+
+class Dimensions(IntEnum):
+    HEIGHT = 224
+    WIDTH = 224
+
+
+ImageNdarrayBGR = NewType("ImageBGR", np.ndarray)
+ImageNdarrayHWC = NewType("ImageHWC", np.ndarray)
+TensorCHW = NewType("TensorCHW", torch.Tensor)
+
+OPENCV_GREEN = (0, 255, 0)
+OPENCV_RED = (255, 0, 0)
+
 
 utc = pytz.utc
+
+
+def resize_image_and_bbox(
+    image: torch.Tensor,
+    boxes: torch.Tensor,
+    dims=(300, 300),
+    return_percent_coords=False,
+    device: torch.device = DEVICE,
+):
+    """
+    Resize image. For the SSD300, resize to (300, 300).
+    Since percent/fractional coordinates are calculated for the bounding boxes (w.r.t image dimensions) in this process,
+    you may choose to retain them.
+    :param image: image, a PIL Image
+    :param boxes: bounding boxes in boundary coordinates, a tensor of dimensions (n_objects, 4)
+    :return: resized image, updated bounding box coordinates (or fractional coordinates, in which case they remain the same)
+    """
+
+    image_tensor_to_resize_height = image.shape[1]
+    image_tensor_to_resize_width = image.shape[2]
+
+    # Resize image
+    new_image = FT.resize(image, dims)
+
+    # Resize bounding boxes
+    old_dims = (
+        torch.FloatTensor(
+            [
+                image_tensor_to_resize_width,
+                image_tensor_to_resize_height,
+                image_tensor_to_resize_width,
+                image_tensor_to_resize_height,
+            ]
+        )
+        .unsqueeze(0)
+        .to(device)
+    )
+    new_boxes = boxes / old_dims  # percent coordinates
+
+    if not return_percent_coords:
+        new_dims = torch.FloatTensor([dims[1], dims[0], dims[1], dims[0]]).unsqueeze(0).to(device)
+        new_boxes = new_boxes * new_dims
+
+    return new_image, new_boxes
+
+
+# SOURCE: https://www.learnpytorch.io/09_pytorch_model_deployment/
+# 1. Create a function to return a list of dictionaries with sample, truth label, prediction, prediction probability and prediction time
+def pred_and_store(
+    paths: List[pathlib.Path],
+    model: torch.nn.Module,
+    # transform: torchvision.transforms,
+    # class_names: List[str],
+    device: torch.device = DEVICE,
+) -> List[Dict]:
+    # 3. Loop through target paths
+    for path in tqdm(paths):
+        # 4. Create empty dictionary to store prediction information for each sample
+        pred_dict = {"image_path": path}
+
+        # 6. Start the prediction timer
+        # timer()
+
+        targetSize = Dimensions.HEIGHT
+        # 7. Open image path
+
+        img: ImageNdarrayBGR
+
+        img_channel: int
+        img_height: int
+        img_width: int
+
+        # import bpdb
+        # bpdb.set_trace()
+
+        img, img_channel, img_height, img_width = read_image_to_bgr(f"{paths[0]}")
+
+        resized = cv2.resize(img, (targetSize, targetSize), interpolation=cv2.INTER_AREA)
+        print(resized.shape)
+
+        # normalize and change output to (c, h, w)
+        resized_tensor: torch.Tensor = torch.from_numpy(resized).permute(2, 0, 1) / 255.0
+
+        # 9. Prepare model for inference by sending it to target device and turning on eval() mode
+        model.to(device)
+        model.eval()
+
+        with torch.inference_mode():
+            # Convert to (bs, c, h, w)
+            unsqueezed_tensor = resized_tensor.unsqueeze(0).to(device)
+
+            # predict
+            out_bbox: torch.Tensor = model(unsqueezed_tensor)
+
+            # ic(out_bbox)
+
+            xmin, ymin, xmax, ymax = out_bbox[0]
+            pt1 = (int(xmin), int(ymin))
+            pt2 = (int(xmax), int(ymax))
+
+            starting_point = pt1
+            end_point = pt2
+            color = (255, 0, 0)
+            thickness = 2
+
+            # import bpdb
+            # bpdb.set_trace()
+
+            # img = image.astype("uint8")
+            # generate the image with bounding box on it
+            out_img = cv2.rectangle(
+                unsqueezed_tensor.squeeze().permute(1, 2, 0).cpu().numpy().astype("uint8"),
+                starting_point,
+                end_point,
+                color,
+                thickness,
+            )
+
+            # TODO: Enable this?
+            # if --display
+            # plt.imshow(out_img)
+
+            # NOTE: At this point we have our bounding box for the smaller image, lets figure out what the values would be for a larger image.
+            # First setup variables we need
+            # -------------------------------------------------------
+            image_tensor_to_resize = resized_tensor
+            resized_bboxes_tensor = out_bbox[0]
+            resized_height = img_height
+            resized_width = img_width
+            resized_dims = (resized_height, resized_width)
+
+            image_tensor_to_resize.shape[0]
+            image_tensor_to_resize.shape[1]
+            image_tensor_to_resize.shape[2]
+
+            # perform fullsize transformation
+            fullsize_image, fullsize_bboxes = resize_image_and_bbox(
+                image_tensor_to_resize,
+                resized_bboxes_tensor,
+                dims=resized_dims,
+                return_percent_coords=False,
+                device=device,
+            )
+
+            # get fullsize bboxes
+            (
+                xmin_fullsize,
+                ymin_fullsize,
+                xmax_fullsize,
+                ymax_fullsize,
+            ) = fullsize_bboxes[0]
+
+            (int(xmin_fullsize), int(ymin_fullsize))
+            (int(xmax_fullsize), int(ymax_fullsize))
+
+            color = OPENCV_RED
+            thickness = 1
+
+    print(fullsize_bboxes)
+
+    return fullsize_bboxes
+
+
+def get_pil_image_channels(image_path: str) -> int:
+    """Open an image and get the number of channels it has.
+
+    Args:
+        image_path (str): _description_
+
+    Returns:
+        int: _description_
+    """
+    # load pillow image
+    pil_img = Image.open(image_path)
+
+    # Converts a PIL Image (H x W x C) to a Tensor of shape (C x H x W).
+    pil_img_tensor = transforms.PILToTensor()(pil_img)
+
+    return pil_img_tensor.shape[0]
+
+
+def convert_pil_image_to_rgb_channels(image_path: str):
+    """Convert Pil image to have the appropriate number of color channels
+
+    Args:
+        image_path (str): _description_
+
+    Returns:
+        _type_: _description_
+    """
+    return Image.open(image_path).convert("RGB") if get_pil_image_channels(image_path) != 4 else Image.open(image_path)
+
+
+def read_image_to_bgr(image_path: str):
+    """Read the image from image id.
+
+    returns ImageNdarrayBGR.
+
+    Opencv returns ndarry in format = row (height) x column (width) x color (3)
+    """
+
+    # image = cv2.imread(image_path, cv2.IMREAD_COLOR)
+    # image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB).astype(np.float32)
+    # image /= 255.0  # Normalize
+
+    image = cv2.imread(image_path)
+    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+    # import bpdb
+    # bpdb.set_trace()
+    # img_shape = image.shape
+    img_channel = image.shape[2]
+    img_height = image.shape[0]
+    img_width = image.shape[1]
+    return image, img_channel, img_height, img_width
+
+
+def convert_image_from_hwc_to_chw(img: ImageNdarrayBGR) -> torch.Tensor:
+    img: torch.Tensor = torch.from_numpy(img).permute(2, 0, 1) / 255.0  # (h,w,c) -> (c,h,w)
+    return img
+
+
+# convert image back and forth if needed: https://stackoverflow.com/questions/68207510/how-to-use-torchvision-io-read-image-with-image-as-variable-not-stored-file
+def convert_pil_image_to_torch_tensor(pil_image: Image) -> torch.Tensor:
+    """Convert PIL image to pytorch tensor
+
+    Args:
+        pil_image (PIL.Image): _description_
+
+    Returns:
+        torch.Tensor: _description_
+    """
+    return pytorch_transforms_functional.to_tensor(pil_image)
+
+
+# convert image back and forth if needed: https://stackoverflow.com/questions/68207510/how-to-use-torchvision-io-read-image-with-image-as-variable-not-stored-file
+def convert_tensor_to_pil_image(tensor_image: torch.Tensor) -> Image:
+    """Convert tensor image to Pillow object
+
+    Args:
+        tensor_image (torch.Tensor): _description_
+
+    Returns:
+        PIL.Image: _description_
+    """
+    return pytorch_transforms_functional.to_pil_image(tensor_image)
+
+
+def predict_from_file(path_to_image_from_cli: str, model: torch.nn.Module, device: torch.device):
+    """wrapper function to perform predictions on individual files
+
+    Args:
+        path_to_image_from_cli (str): eg.  "/Users/malcolm/Downloads/2020-11-25_10-47-32_867.jpeg
+        model (torch.nn.Module): _description_
+        transform (torchvision.transforms): _description_
+        class_names (List[str]): _description_
+        device (torch.device): _description_
+        args (argparse.Namespace): _description_
+    """
+    # ic(f"Predict | individual file {path_to_image_from_cli} ...")
+    image_path_api = pathlib.Path(path_to_image_from_cli).resolve()
+    # ic(image_path_api)
+
+    paths = [image_path_api]
+    img = convert_pil_image_to_rgb_channels(f"{paths[0]}")
+
+    bboxes = pred_and_store(paths, model, device=device)
+
+    return img, bboxes
+
+
+def get_pixel_rgb(image_pil: Image):
+    """Get first pixel in image and return a humanreadable name of what color is represented
+
+    Args:
+        image_pil (Image): _description_
+
+    Returns:
+        _type_: _description_
+    """
+    r, g, b = image_pil.getpixel((1, 1))  # pyright: ignore[reportAttributeAccessIssue]
+    # ic(r,g,b)
+
+    color = "white" if (r, g, b) == (255, 255, 255) else "darkmode"
+    print(f"GOT COLOR {color} -- {r},{g},{b}")
+    return color
+
+
+def resize_and_pillarbox(image_pil: Image, width: int, height: int, background="white"):
+    """
+    Resize PIL image keeping ratio and using white background.
+    """
+    autodetect_background = get_pixel_rgb(image_pil)
+
+    ratio_w = width / image_pil.width  # pyright: ignore[reportAttributeAccessIssue]
+    ratio_h = height / image_pil.height  # pyright: ignore[reportAttributeAccessIssue]
+    if ratio_w < ratio_h:
+        # It must be fixed by width
+        resize_width = width
+        resize_height = round(ratio_w * image_pil.height)  # pyright: ignore[reportAttributeAccessIssue]
+    else:
+        # Fixed by height
+        resize_width = round(ratio_h * image_pil.width)  # pyright: ignore[reportAttributeAccessIssue]
+        resize_height = height
+    image_resize = image_pil.resize((resize_width, resize_height), Image.Resampling.LANCZOS)  # pyright: ignore[reportAttributeAccessIssue]
+    if background and autodetect_background == "white":
+        background = Image.new("RGBA", (width, height), (255, 255, 255, 255))
+    elif background and autodetect_background == "darkmode":
+        background = Image.new("RGBA", (width, height), (22, 32, 42, 1))
+    offset = (round((width - resize_width) / 2), round((height - resize_height) / 2))
+    background.paste(image_resize, offset)  # pyright: ignore[reportAttributeAccessIssue]
+    return background.convert("RGB")  # pyright: ignore[reportAttributeAccessIssue]
 
 
 def convert_rgb_to_names(rgb_tuple):
@@ -498,6 +853,8 @@ def get_all_corners_color(urls):
 
 
 def rgb2hex(r, g, b):
+    LOGGER.info(f"RGB2HEX: {r} {g} {b}")
+    LOGGER.info(f"TYPE RGB2HEX: {type(r)} {type(g)} {type(b)}")
     return "#{:02x}{:02x}{:02x}".format(r, g, b)
 
 

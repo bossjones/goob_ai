@@ -283,11 +283,14 @@ googleapis-common-protos==1.63.0
     # via google-api-core
     # via grpcio-status
     # via opentelemetry-exporter-otlp-proto-grpc
+    # via pinecone-client
+    # via protoc-gen-openapiv2
 grpcio==1.63.0
     # via chromadb
     # via google-api-core
     # via grpcio-status
     # via opentelemetry-exporter-otlp-proto-grpc
+    # via pinecone-client
     # via tensorboard
 grpcio-status==1.62.2
     # via google-api-core
@@ -418,6 +421,8 @@ lxml==5.2.1
     # via pypi-command-line
     # via python-docx
     # via yfinance
+lz4==4.3.3
+    # via pinecone-client
 markdown==3.6
     # via goob-ai
     # via tensorboard
@@ -581,8 +586,10 @@ pillow==10.3.0
     # via streamlit
     # via torchvision
     # via weasyprint
-pinecone-client==4.0.0
+pinecone-client==4.1.1
     # via goob-ai
+pinecone-plugin-interface==0.0.7
+    # via pinecone-client
 platformdirs==4.2.1
     # via requests-cache
     # via scenedetect
@@ -607,11 +614,15 @@ protobuf==4.25.3
     # via grpcio-status
     # via onnxruntime
     # via opentelemetry-proto
+    # via pinecone-client
     # via proto-plus
+    # via protoc-gen-openapiv2
     # via streamlit
     # via tensorboard
     # via tensorboardx
     # via wandb
+protoc-gen-openapiv2==0.0.1
+    # via pinecone-client
 psutil==5.9.8
     # via memory-profiler
     # via wandb
