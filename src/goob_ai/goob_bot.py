@@ -11,7 +11,9 @@ import json
 import logging
 import os
 import pathlib
+import re
 import sys
+import tempfile
 import time
 import traceback
 import typing
@@ -41,8 +43,10 @@ import rich
 
 from codetiming import Timer
 from discord.ext import commands
+from langchain.text_splitter import RecursiveCharacterTextSplitter
 from logging_tree import printout
 from loguru import logger as LOGGER
+from PIL import Image
 from redis.asyncio import ConnectionPool as RedisConnectionPool
 from starlette.responses import JSONResponse, StreamingResponse
 
@@ -57,7 +61,7 @@ from goob_ai.constants import CHANNEL_ID, INPUT_CLASSIFICATION_NOT_A_QUESTION, I
 from goob_ai.factories import guild_factory
 from goob_ai.gen_ai.utilities.agent_criteria_evaluator import Evaluator
 from goob_ai.user_input_enrichment import UserInputEnrichment
-from goob_ai.utils import async_
+from goob_ai.utils import async_, file_functions
 from goob_ai.utils.context import Context
 from goob_ai.utils.misc import CURRENTFUNCNAME
 
@@ -77,6 +81,106 @@ INVITE_LINK = "https://discordapp.com/api/oauth2/authorize?client_id={}&scope=bo
 HOME_PATH = os.environ.get("HOME")
 
 COMMAND_RUNNER = {"dl_thumb": shell.run_coroutine_subprocess}
+
+
+def unlink_orig_file(a_filepath: str):
+    """_summary_
+
+    Args:
+        a_filepath (str): _description_
+
+    Returns:
+        _type_: _description_
+    """
+    # for orig_to_rm in media_filepaths:
+    rich.print(f"deleting ... {a_filepath}")
+    os.unlink(f"{a_filepath}")
+    return a_filepath
+
+
+# https://github.com/discord-math/bot/blob/babb41b71a68b4b099684b3e1ed583f84083f971/plugins/log.py#L63
+def path_for(attm: discord.Attachment, basedir: str = "./") -> pathlib.Path:
+    p = pathlib.Path(basedir, str(attm.filename))  # pyright: ignore[reportAttributeAccessIssue]
+    LOGGER.debug(f"path_for: p -> {p}")
+    return p
+
+
+# https://github.com/discord-math/bot/blob/babb41b71a68b4b099684b3e1ed583f84083f971/plugins/log.py#L63
+async def save_attachment(attm: discord.Attachment, basedir: str = "./") -> None:
+    path = path_for(attm, basedir=basedir)
+    LOGGER.debug(f"save_attachment: path -> {path}")
+    path.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        ret_code = await attm.save(path, use_cached=True)
+        await asyncio.sleep(5)
+    except discord.HTTPException:
+        await attm.save(path)
+
+
+# TODO: Remove this when we eventually upgrade to 2.0 discord.py
+def attachment_to_dict(attm: discord.Attachment):
+    """Converts a discord.Attachment object to a dictionary.
+
+    Args:
+        attm (discord.Attachment): _description_
+
+    Returns:
+        _type_: _description_
+    """
+    result = {
+        "filename": attm.filename,  # pyright: ignore[reportAttributeAccessIssue]
+        "id": attm.id,
+        "proxy_url": attm.proxy_url,  # pyright: ignore[reportAttributeAccessIssue]
+        "size": attm.size,  # pyright: ignore[reportAttributeAccessIssue]
+        "url": attm.url,  # pyright: ignore[reportAttributeAccessIssue]
+        "spoiler": attm.is_spoiler(),
+    }
+    if attm.height:  # pyright: ignore[reportAttributeAccessIssue]
+        result["height"] = attm.height  # pyright: ignore[reportAttributeAccessIssue]
+    if attm.width:  # pyright: ignore[reportAttributeAccessIssue]
+        result["width"] = attm.width  # pyright: ignore[reportAttributeAccessIssue]
+    if attm.content_type:  # pyright: ignore[reportAttributeAccessIssue]
+        result["content_type"] = attm.content_type  # pyright: ignore[reportAttributeAccessIssue]
+
+    result["attachment_obj"] = attm
+
+    return result
+
+
+def file_to_local_data_dict(fname: str, dir_root: str):
+    """Convert a file to a dictionary.
+
+    Args:
+        fname (str): _description_
+        dir_root (str): _description_
+
+    Returns:
+        _type_: _description_
+    """
+    file_api = pathlib.Path(fname)
+    return {
+        "filename": f"{dir_root}/{file_api.stem}{file_api.suffix}",
+        "size": file_api.stat().st_size,
+        "ext": f"{file_api.suffix}",
+        "api": file_api,
+    }
+
+
+async def handle_save_attachment_locally(attm_data_dict, dir_root):
+    """Save an attachment locally.
+
+    Args:
+        attm_data_dict (_type_): _description_
+        dir_root (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
+    fname = f"{dir_root}/orig_{attm_data_dict['id']}_{attm_data_dict['filename']}"
+    rich.print(f"Saving to ... {fname}")
+    await attm_data_dict["attachment_obj"].save(fname, use_cached=True)
+    await asyncio.sleep(1)
+    return fname
 
 
 # SOURCE: https://github.com/CrosswaveOmega/NikkiBot/blob/75c7ecd307f50390cfc798d39098fdb78535650c/cogs/AiCog.py#L237
@@ -291,90 +395,90 @@ async def details_from_file(path_to_media_from_cli: str, cwd: typing.Union[str, 
     return full_path_input_file, full_path_output_file, get_timestamp
 
 
-def unlink_orig_file(a_filepath: str):
-    """_summary_
+# def unlink_orig_file(a_filepath: str):
+#     """_summary_
 
-    Args:
-        a_filepath (str): _description_
+#     Args:
+#         a_filepath (str): _description_
 
-    Returns:
-        _type_: _description_
-    """
-    # for orig_to_rm in media_filepaths:
-    rich.print(f"deleting ... {a_filepath}")
-    os.unlink(f"{a_filepath}")
-    return a_filepath
-
-
-# https://github.com/discord-math/bot/blob/babb41b71a68b4b099684b3e1ed583f84083f971/plugins/log.py#L63
-def path_for(attm: discord.Attachment, basedir: str = "./") -> pathlib.Path:
-    """
-    Summary:
-    Generate a pathlib.Path object for an attachment with a specified base directory.
-
-    Explanation:
-    This function constructs a pathlib.Path object for a given attachment 'attm' using the specified base directory 'basedir'. It logs the generated path for debugging purposes and returns the pathlib.Path object.
-
-    Args:
-    - attm (discord.Attachment): The attachment for which the path is generated.
-    - basedir (str): The base directory path where the attachment file will be located. Default is the current directory.
-
-    Returns:
-    - pathlib.Path: A pathlib.Path object representing the path for the attachment file.
-    """
-    p = pathlib.Path(basedir, str(attm.filename))  # pyright: ignore[reportAttributeAccessIssue]
-    LOGGER.debug(f"path_for: p -> {p}")
-    return p
+#     Returns:
+#         _type_: _description_
+#     """
+#     # for orig_to_rm in media_filepaths:
+#     rich.print(f"deleting ... {a_filepath}")
+#     os.unlink(f"{a_filepath}")
+#     return a_filepath
 
 
-# SOURCE: https://github.com/discord-math/bot/blob/babb41b71a68b4b099684b3e1ed583f84083f971/plugins/log.py#L63
-async def save_attachment(attm: discord.Attachment, basedir: str = "./") -> None:
-    """
-    Summary:
-    Save a Discord attachment to a specified directory.
+# # https://github.com/discord-math/bot/blob/babb41b71a68b4b099684b3e1ed583f84083f971/plugins/log.py#L63
+# def path_for(attm: discord.Attachment, basedir: str = "./") -> pathlib.Path:
+#     """
+#     Summary:
+#     Generate a pathlib.Path object for an attachment with a specified base directory.
 
-    Explanation:
-    This asynchronous function saves a Discord attachment 'attm' to the specified base directory 'basedir'. It constructs the path for the attachment, creates the necessary directories, and saves the attachment to the generated path. If an HTTPException occurs during saving, it retries the save operation.
-    """
+#     Explanation:
+#     This function constructs a pathlib.Path object for a given attachment 'attm' using the specified base directory 'basedir'. It logs the generated path for debugging purposes and returns the pathlib.Path object.
 
-    path = path_for(attm, basedir=basedir)
-    LOGGER.debug(f"save_attachment: path -> {path}")
-    path.parent.mkdir(parents=True, exist_ok=True)
-    try:
-        ret_code = await attm.save(path, use_cached=True)
-        await asyncio.sleep(5)
-    except discord.HTTPException:
-        await attm.save(path)
+#     Args:
+#     - attm (discord.Attachment): The attachment for which the path is generated.
+#     - basedir (str): The base directory path where the attachment file will be located. Default is the current directory.
+
+#     Returns:
+#     - pathlib.Path: A pathlib.Path object representing the path for the attachment file.
+#     """
+#     p = pathlib.Path(basedir, str(attm.filename))  # pyright: ignore[reportAttributeAccessIssue]
+#     LOGGER.debug(f"path_for: p -> {p}")
+#     return p
 
 
-# TODO: Remove this when we eventually upgrade to 2.0 discord.py
-def attachment_to_dict(attm: discord.Attachment):
-    """Converts a discord.Attachment object to a dictionary.
+# # SOURCE: https://github.com/discord-math/bot/blob/babb41b71a68b4b099684b3e1ed583f84083f971/plugins/log.py#L63
+# async def save_attachment(attm: discord.Attachment, basedir: str = "./") -> None:
+#     """
+#     Summary:
+#     Save a Discord attachment to a specified directory.
 
-    Args:
-        attm (discord.Attachment): _description_
+#     Explanation:
+#     This asynchronous function saves a Discord attachment 'attm' to the specified base directory 'basedir'. It constructs the path for the attachment, creates the necessary directories, and saves the attachment to the generated path. If an HTTPException occurs during saving, it retries the save operation.
+#     """
 
-    Returns:
-        _type_: _description_
-    """
-    result = {
-        "filename": attm.filename,  # pyright: ignore[reportAttributeAccessIssue]
-        "id": attm.id,
-        "proxy_url": attm.proxy_url,  # pyright: ignore[reportAttributeAccessIssue]
-        "size": attm.size,  # pyright: ignore[reportAttributeAccessIssue]
-        "url": attm.url,  # pyright: ignore[reportAttributeAccessIssue]
-        "spoiler": attm.is_spoiler(),
-    }
-    if attm.height:  # pyright: ignore[reportAttributeAccessIssue]
-        result["height"] = attm.height  # pyright: ignore[reportAttributeAccessIssue]
-    if attm.width:  # pyright: ignore[reportAttributeAccessIssue]
-        result["width"] = attm.width  # pyright: ignore[reportAttributeAccessIssue]
-    if attm.content_type:  # pyright: ignore[reportAttributeAccessIssue]
-        result["content_type"] = attm.content_type  # pyright: ignore[reportAttributeAccessIssue]
+#     path = path_for(attm, basedir=basedir)
+#     LOGGER.debug(f"save_attachment: path -> {path}")
+#     path.parent.mkdir(parents=True, exist_ok=True)
+#     try:
+#         ret_code = await attm.save(path, use_cached=True)
+#         await asyncio.sleep(5)
+#     except discord.HTTPException:
+#         await attm.save(path)
 
-    result["attachment_obj"] = attm
 
-    return result
+# # TODO: Remove this when we eventually upgrade to 2.0 discord.py
+# def attachment_to_dict(attm: discord.Attachment):
+#     """Converts a discord.Attachment object to a dictionary.
+
+#     Args:
+#         attm (discord.Attachment): _description_
+
+#     Returns:
+#         _type_: _description_
+#     """
+#     result = {
+#         "filename": attm.filename,  # pyright: ignore[reportAttributeAccessIssue]
+#         "id": attm.id,
+#         "proxy_url": attm.proxy_url,  # pyright: ignore[reportAttributeAccessIssue]
+#         "size": attm.size,  # pyright: ignore[reportAttributeAccessIssue]
+#         "url": attm.url,  # pyright: ignore[reportAttributeAccessIssue]
+#         "spoiler": attm.is_spoiler(),
+#     }
+#     if attm.height:  # pyright: ignore[reportAttributeAccessIssue]
+#         result["height"] = attm.height  # pyright: ignore[reportAttributeAccessIssue]
+#     if attm.width:  # pyright: ignore[reportAttributeAccessIssue]
+#         result["width"] = attm.width  # pyright: ignore[reportAttributeAccessIssue]
+#     if attm.content_type:  # pyright: ignore[reportAttributeAccessIssue]
+#         result["content_type"] = attm.content_type  # pyright: ignore[reportAttributeAccessIssue]
+
+#     result["attachment_obj"] = attm
+
+#     return result
 
 
 class ProxyObject(discord.Object):
@@ -860,7 +964,7 @@ class AsyncGoobBot(commands.Bot):
         """
 
         if len(message.attachments) > 0:  # pyright: ignore[reportAttributeAccessIssue]
-            await message.channel.send("Processing attachments... (this may take a minute)")  # pyright: ignore[reportAttributeAccessIssue]
+            await message.channel.send("Processing attachments... (this may take a minute)", delete_after=30.0)  # pyright: ignore[reportAttributeAccessIssue]
 
             root_temp_dir = "temp/" + str(uuid.uuid4())
             uploaded_file_paths = []
@@ -912,7 +1016,71 @@ class AsyncGoobBot(commands.Bot):
     #     embed.timestamp = discord.utils.utcnow()
     #     return await wh.send(embed=embed)
 
+    async def check_for_attachments(self, message: discord.Message):
+        """
+        Summary:
+        Check a Discord message for attachments, extract information, and process image URLs.
+
+        Explanation:
+        This asynchronous function examines a Discord message for attachments, processes Tenor GIF URLs, downloads and processes image URLs, and generates captions for images. It modifies the message content based on the extracted information and returns the updated message content.
+
+        Args:
+        - message (discord.Message): The Discord message to check for attachments and process.
+
+        Returns:
+        - str: The updated message content with extracted information and image captions.
+        """
+
+        # Check if the message content is a URL
+
+        message_content = message.content  # pyright: ignore[reportAttributeAccessIssue]
+        url_pattern = re.compile(r"http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+")
+        if "https://tenor.com/view/" in message_content:
+            # Extract the Tenor GIF URL from the message content
+            start_index = message_content.index("https://tenor.com/view/")
+            end_index = message_content.find(" ", start_index)
+            if end_index == -1:
+                tenor_url = message_content[start_index:]
+            else:
+                tenor_url = message_content[start_index:end_index]
+            # Split the URL on forward slashes
+            parts = tenor_url.split("/")
+            # Extract the relevant words from the URL
+            words = parts[-1].split("-")[:-1]
+            # Join the words into a sentence
+            sentence = " ".join(words)
+            message_content = f"{message_content} [{message.author.display_name} posts an animated {sentence} ]"
+            message_content = message_content.replace(tenor_url, "")
+            return message_content
+
+        elif url_pattern.match(message_content):
+            LOGGER.info(f"Message content is a URL: {message_content}")
+            # Download the image from the URL and convert it to a PIL image
+            response = await download_image(message_content)
+            # response = requests.get(message_content)
+            image = Image.open(BytesIO(response.content)).convert("RGB")  # pyright: ignore[reportAttributeAccessIssue]
+        else:
+            LOGGER.info(f"OTHERRRR Message content is a URL: {message_content}")
+            # Download the image from the message and convert it to a PIL image
+            image_url = message.attachments[0].url  # pyright: ignore[reportAttributeAccessIssue]
+            # response = requests.get(image_url)
+            response = await download_image(message_content)
+            image = Image.open(BytesIO(response.content)).convert("RGB")  # pyright: ignore[reportAttributeAccessIssue]
+
+        # # Generate the image caption
+        # caption = self.caption_image(image)
+        # message_content = f"{message_content} [{message.author.display_name} posts a picture of {caption}]"
+        return message_content
+
     def get_attachments(self, message: discord.Message):
+        """
+        Summary:
+        Retrieve attachment data from a Discord message.
+
+        Explanation:
+        This function processes the attachments in a Discord message and converts each attachment to a dictionary format. It returns a list of dictionaries containing the attachment data for further processing.
+        """
+
         attachment_data_list_dicts = []
         local_attachment_file_list = []
         local_attachment_data_list_dicts = []
@@ -922,7 +1090,63 @@ class AsyncGoobBot(commands.Bot):
             data = attachment_to_dict(attm)
             attachment_data_list_dicts.append(data)
 
-        return attachment_data_list_dicts
+        return attachment_data_list_dicts, local_attachment_file_list, local_attachment_data_list_dicts, media_filepaths
+
+    async def write_attachments_to_disk(self, message: discord.Message):
+        ctx = await self.get_context(message)
+        attachment_data_list_dicts, local_attachment_file_list, local_attachment_data_list_dicts, media_filepaths = (
+            self.get_attachments(message)
+        )
+
+        # with tempfile.TemporaryDirectory() as tmpdirname:
+        tmpdirname = "temp/" + str(uuid.uuid4())
+        os.makedirs(os.path.dirname(tmpdirname), exist_ok=True)
+        print("created temporary directory", tmpdirname)
+        with Timer(text="\nTotal elapsed time: {:.1f}"):
+            # return a list of strings pointing to the downloaded files
+            for an_attachment_dict in attachment_data_list_dicts:
+                local_attachment_path = await handle_save_attachment_locally(an_attachment_dict, tmpdirname)
+                local_attachment_file_list.append(local_attachment_path)
+
+            # create new list of dicts including info about the local files
+            for some_file in local_attachment_file_list:
+                local_data_dict = file_to_local_data_dict(some_file, tmpdirname)
+                local_attachment_data_list_dicts.append(local_data_dict)
+                path_to_image = file_functions.fix_path(local_data_dict["filename"])
+                media_filepaths.append(path_to_image)
+
+            print("hello")
+
+            rich.print("media_filepaths -> ")
+            rich.print(media_filepaths)
+
+            print("standy")
+
+            try:
+                for count, media_fpaths in enumerate(media_filepaths):
+                    # compute all predictions first
+                    full_path_input_file, full_path_output_file, get_timestamp = await details_from_file(
+                        media_fpaths, cwd=f"{tmpdirname}"
+                    )
+            except Exception as ex:
+                await ctx.send(embed=discord.Embed(description="Could not download story...."))
+                print(ex)
+                exc_type, exc_value, exc_traceback = sys.exc_info()
+                LOGGER.error(f"Error Class: {str(ex.__class__)}")
+                output = f"[UNEXPECTED] {type(ex).__name__}: {ex}"
+                LOGGER.warning(output)
+                await ctx.send(embed=discord.Embed(description=output))
+                LOGGER.error(f"exc_type: {exc_type}")
+                LOGGER.error(f"exc_value: {exc_value}")
+                traceback.print_tb(exc_traceback)
+
+            tree_list = file_functions.tree(pathlib.Path(f"{tmpdirname}"))
+            rich.print("tree_list ->")
+            rich.print(tree_list)
+
+            file_to_upload_list = [f"{p}" for p in tree_list]
+            LOGGER.debug(f"{type(self).__name__} -> file_to_upload_list = {file_to_upload_list}")
+            rich.print(file_to_upload_list)
 
     def prepare_agent_input(self, message: discord.Message, user_real_name: str, surface_info: Dict) -> Dict[str, Any]:
         """
@@ -937,26 +1161,28 @@ class AsyncGoobBot(commands.Bot):
         agent_input = {"user name": user_real_name, "message": message.content}  # pyright: ignore[reportAttributeAccessIssue]
 
         # TODO: ENABLE ATTACHMENT HANDLING
-        # TODO: ENABLE ATTACHMENT HANDLING
-        # TODO: ENABLE ATTACHMENT HANDLING
-        # TODO: ENABLE ATTACHMENT HANDLING
         # if message.attachments:
         # if "files" in event:
-        #     for file_info in event["files"]:
-        #         agent_input["file_name"] = file_info["name"]
-        #         # Handle images
-        #         if file_info["mimetype"].startswith("image/"):
-        #             agent_input["image_url"] = file_info["url_private"]
-        #         # Handle text-based files, PDFs, and .txt files identified either by MIME type or name pattern
-        #         # .txt files sometimes show up as application/octet-stream MIME type
-        #         elif (
-        #             file_info["mimetype"].startswith("text/")
-        #             or file_info["mimetype"] == "application/pdf"
-        #             or file_info["mimetype"]
-        #             == "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-        #             or (file_info["mimetype"] == "application/octet-stream" and file_info["name"].endswith(".txt"))
-        #         ):
-        #             agent_input["file_url"] = file_info["url_private"]
+        if len(message.attachments) > 0:  # pyright: ignore[reportAttributeAccessIssue]
+            # attachment_data_list_dicts, local_attachment_file_list, local_attachment_data_list_dicts, media_filepaths = self.get_attachments(message)
+            for attachment in message.attachments:  # pyright: ignore[reportAttributeAccessIssue]
+                # import bpdb
+                # bpdb.set_trace()
+                print(f"attachment -> {attachment}")  # pyright: ignore[reportAttributeAccessIssue]
+                agent_input["file_name"] = attachment.filename  # pyright: ignore[reportAttributeAccessIssue]
+                # Handle images
+                if attachment.content_type.startswith("image/"):
+                    agent_input["image_url"] = attachment.url  # pyright: ignore[reportAttributeAccessIssue]
+                # Handle text-based files, PDFs, and .txt files identified either by MIME type or name pattern
+                # .txt files sometimes show up as application/octet-stream MIME type
+                # elif (
+                #     file_info["mimetype"].startswith("text/")
+                #     or file_info["mimetype"] == "application/pdf"
+                #     or file_info["mimetype"]
+                #     == "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                #     or (file_info["mimetype"] == "application/octet-stream" and file_info["name"].endswith(".txt"))
+                # ):
+                #     agent_input["file_url"] = file_info["url_private"]
 
         # Add surface information to the agent input
         agent_input["surface_info"] = surface_info
@@ -1014,7 +1240,7 @@ class AsyncGoobBot(commands.Bot):
         orig_msg = await ctx.send(
             # embed=discord.Embed(description=temp_message),
             content=temp_message,
-            # delete_after=30.0,
+            delete_after=30.0,
         )
         # response = client.chat_postMessage(channel=channel_id, thread_ts=thread_ts, text=temp_message)
         # response_ts = response["ts"]
@@ -1025,8 +1251,21 @@ class AsyncGoobBot(commands.Bot):
         # Update the slack response with the agent response
         # client.chat_update(channel=channel_id, ts=response_ts, text=agent_response_text)
 
+        # Sometimes the response can be over 2000 characters, so we need to split it
+        # into multiple messages, and send them one at a time
+        text_splitter = RecursiveCharacterTextSplitter(
+            separators=["\n", ".", "?", "!"],
+            chunk_size=1000,
+            chunk_overlap=0,
+            length_function=len,
+        )
+
+        responses = text_splitter.split_text(agent_response_text)
+
+        for rsp in responses:
+            await message.channel.send(rsp)  # pyright: ignore[reportAttributeAccessIssue]
+
         # await orig_msg.edit(content=agent_response_text)
-        await orig_msg.edit(content=agent_response_text)
         LOGGER.info(f"session_id: {session_id} Agent response: {json.dumps(agent_response_text)}")
 
         # Evaluate the response against the question
@@ -1232,7 +1471,13 @@ class AsyncGoobBot(commands.Bot):
         LOGGER.info(f"Thread message to process - {message.author}: {message.content[:50]}")  # pyright: ignore[reportAttributeAccessIssue]
         if message.author.bot:
             return
-        await self.process_commands(message)
+
+        # handle attachments first
+        await self.process_attachments(message)
+        if message.content.strip() != "":  # pyright: ignore[reportAttributeAccessIssue]
+            # NOTE: dptest doesn't like this, disable so we can keep tests # async with message.channel.typing():  # pyright: ignore[reportAttributeAccessIssue]
+            # send everything to ai bot
+            await self.process_commands(message)
 
         # import bpdb
         # bpdb.set_trace()
@@ -1270,77 +1515,77 @@ class AsyncGoobBot(commands.Bot):
             print(f" len(self.tasks) = {len(self.tasks)}")
             await asyncio.sleep(10)  # task runs every 60 seconds
 
-    async def setup_workers(self) -> None:
-        await self.wait_until_ready()
+    # async def setup_workers(self) -> None:
+    #     await self.wait_until_ready()
 
-        # Create three worker tasks to process the queue concurrently.
+    #     # Create three worker tasks to process the queue concurrently.
 
-        for i in range(self.num_workers):
-            task = asyncio.create_task(worker(f"worker-{i}", self.queue))
-            self.tasks.append(task)
+    #     for i in range(self.num_workers):
+    #         task = asyncio.create_task(worker(f"worker-{i}", self.queue))
+    #         self.tasks.append(task)
 
-        # Wait until the queue is fully processed.
-        started_at = time.monotonic()
-        await self.queue.join()
-        total_slept_for = time.monotonic() - started_at
+    #     # Wait until the queue is fully processed.
+    #     started_at = time.monotonic()
+    #     await self.queue.join()
+    #     total_slept_for = time.monotonic() - started_at
 
-        # Cancel our worker tasks.
-        for task in self.tasks:
-            task.cancel()
-        # Wait until all worker tasks are cancelled.
-        await asyncio.gather(*self.tasks, return_exceptions=True)
+    #     # Cancel our worker tasks.
+    #     for task in self.tasks:
+    #         task.cancel()
+    #     # Wait until all worker tasks are cancelled.
+    #     await asyncio.gather(*self.tasks, return_exceptions=True)
 
-        print("====")
-        print(f"3 workers slept in parallel for {total_slept_for:.2f} seconds")
+    #     print("====")
+    #     print(f"3 workers slept in parallel for {total_slept_for:.2f} seconds")
 
-    async def setup_co_tasks(self) -> None:
-        await self.wait_until_ready()
+    # async def setup_co_tasks(self) -> None:
+    #     await self.wait_until_ready()
 
-        # Create three worker tasks to process the queue concurrently.
+    #     # Create three worker tasks to process the queue concurrently.
 
-        for i in range(self.num_workers):
-            task = asyncio.create_task(co_task(f"worker-{i}", self.queue))
-            self.tasks.append(task)
+    #     for i in range(self.num_workers):
+    #         task = asyncio.create_task(co_task(f"worker-{i}", self.queue))
+    #         self.tasks.append(task)
 
-        # Wait until the queue is fully processed.
-        started_at = time.monotonic()
-        await self.queue.join()
-        total_slept_for = time.monotonic() - started_at
+    #     # Wait until the queue is fully processed.
+    #     started_at = time.monotonic()
+    #     await self.queue.join()
+    #     total_slept_for = time.monotonic() - started_at
 
-        # Cancel our worker tasks.
-        for task in self.tasks:
-            task.cancel()
-        # Wait until all worker tasks are cancelled.
-        await asyncio.gather(*self.tasks, return_exceptions=True)
+    #     # Cancel our worker tasks.
+    #     for task in self.tasks:
+    #         task.cancel()
+    #     # Wait until all worker tasks are cancelled.
+    #     await asyncio.gather(*self.tasks, return_exceptions=True)
 
-        print("====")
-        print(f"3 workers slept in parallel for {total_slept_for:.2f} seconds")
+    #     print("====")
+    #     print(f"3 workers slept in parallel for {total_slept_for:.2f} seconds")
 
-    # TODO: Need to get this working 5/5/2024
-    def input_classifier(self, event: dict) -> bool:
-        """
-        Determines whether the bot should respond to a message in a channel or group.
+    # # TODO: Need to get this working 5/5/2024
+    # def input_classifier(self, event: dict) -> bool:
+    #     """
+    #     Determines whether the bot should respond to a message in a channel or group.
 
-        :param event: the incoming Slack event
-        :return: True if the bot should respond, False otherwise
-        """
-        LOGGER.info(f"event = {event}")
-        LOGGER.info(f"type(event) = {type(event)}")
-        try:
-            classification = UserInputEnrichment().input_classifier_tool(event.get("text", ""))
+    #     :param event: the incoming Slack event
+    #     :return: True if the bot should respond, False otherwise
+    #     """
+    #     LOGGER.info(f"event = {event}")
+    #     LOGGER.info(f"type(event) = {type(event)}")
+    #     try:
+    #         classification = UserInputEnrichment().input_classifier_tool(event.get("text", ""))
 
-            # Explicitly not respond to "Not a question" or "Not for me"
-            if classification.get("classification") in [
-                INPUT_CLASSIFICATION_NOT_A_QUESTION,
-                INPUT_CLASSIFICATION_NOT_FOR_ME,
-            ]:
-                return False
-        except Exception as e:
-            # Log the error but choose to respond since the classification is uncertain
-            LOGGER.error(f"Error during classification, but choosing to respond: {e}")
+    #         # Explicitly not respond to "Not a question" or "Not for me"
+    #         if classification.get("classification") in [
+    #             INPUT_CLASSIFICATION_NOT_A_QUESTION,
+    #             INPUT_CLASSIFICATION_NOT_FOR_ME,
+    #         ]:
+    #             return False
+    #     except Exception as e:
+    #         # Log the error but choose to respond since the classification is uncertain
+    #         LOGGER.error(f"Error during classification, but choosing to respond: {e}")
 
-            # Default behavior is to respond unless it's explicitly classified as "Not a question" or "Not for me"
-            return True
+    #         # Default behavior is to respond unless it's explicitly classified as "Not a question" or "Not for me"
+    #         return True
 
     # @property
     # def config(self):
