@@ -852,6 +852,7 @@ select = [
 ]
 
 ignore = [
+    # "R1730",
     # "I",      # isort, ruff doesn't have enough support for isort yet.
     "TID",     # flake8-tidy-imports (TID)#
     "F401",    # unused-import	{name} imported but unused; consider using importlib.util.find_spec to test for availability

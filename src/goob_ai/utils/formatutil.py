@@ -51,8 +51,9 @@ def chunk_list(sentences: List[Any], chunk_size: int = 10) -> List[List[str]]:
 
 def progress_bar(current: int, total: int, width: int = 5):
     """print a progress bar."""
-    if current > total:
-        current = total
+    current = min(current, total)
+    # if current > total:
+    #     current = total
     fraction = float(current / total)
     filled_width = int(fraction * width)
     half_width = int(fraction * width * 2) % 2
