@@ -5,7 +5,7 @@ flag_management:
       carryforward_mode: "labels"
       statuses:
         - type: "project"
-        - type: "patch"
+        # - type: "patch"
 
 cli:
   plugins:
