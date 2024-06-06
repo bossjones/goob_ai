@@ -6,6 +6,7 @@
 #   features: []
 #   all-features: true
 #   with-sources: false
+#   generate-hashes: false
 
 -e file:.
 absl-py==2.1.0
@@ -31,6 +32,7 @@ aiohttp==3.9.5
     # via goob-ai
     # via langchain
     # via langchain-community
+    # via pytest-aiohttp
 aiomonitor==0.7.0
     # via goob-ai
 aioprometheus==23.12.0
@@ -786,14 +788,17 @@ pytablewriter==1.2.0
     # via goob-ai
 pytest==8.2.0
     # via dpytest
+    # via pytest-aiohttp
     # via pytest-asyncio
     # via pytest-cov
     # via pytest-httpx
     # via pytest-mock
     # via pytest-rerunfailures
     # via pytest-sugar
+pytest-aiohttp==1.0.5
 pytest-asyncio==0.23.6
     # via dpytest
+    # via pytest-aiohttp
 pytest-cov==5.0.0
 pytest-httpx==0.30.0
 pytest-mock==3.14.0

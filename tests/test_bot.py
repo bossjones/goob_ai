@@ -7,14 +7,20 @@ from __future__ import annotations
 import asyncio
 import os
 
+
+# from unittest.mock import patch, AsyncMock
+from io import BytesIO
 from typing import TYPE_CHECKING
 
+import aiohttp
 import discord.ext.test as dpytest
 import pytest_asyncio
 
+from aiohttp import ClientSession
+from aiohttp.client_exceptions import ClientError
 from discord.ext.commands import Cog, command
 from goob_ai import aio_settings
-from goob_ai.goob_bot import AsyncGoobBot
+from goob_ai.goob_bot import AsyncGoobBot, download_image
 
 import pytest
 
@@ -153,3 +159,76 @@ class TestBotWithDPyTest:
     async def test_echo(self, bot):
         await dpytest.message("?echo Hello world")
         assert dpytest.verify().message().contains().content("Hello")
+
+
+# @pytest.mark.asyncio
+# @pytest.mark.parametrize(
+#     "url, status, content, expected",
+#     [
+#         ("http://example.com/image.jpg", 200, b"image data", b"image data"),
+#         ("http://example.com/image.png", 200, b"another image data", b"another image data"),
+#         ("http://example.com/image.gif", 200, b"gif image data", b"gif image data"),
+#     ],
+#     ids=["jpg image", "png image", "gif image"],
+# )
+# async def test_download_image_happy_path(url, status, content, expected, mocker):
+#     # Arrange
+#     async def mock_get(*args, **kwargs):
+#         mock_response = mocker.AsyncMock()
+#         mock_response.status = status
+#         mock_response.read.return_value = content
+#         return mock_response
+
+#     mocker.patch.object(ClientSession, "get", new=mock_get)
+#     # Act
+#     result = await download_image(url)
+
+#     # Assert
+#     assert isinstance(result, BytesIO)
+#     assert result.read() == expected
+
+
+# @pytest.mark.asyncio
+# @pytest.mark.parametrize(
+#     "url, status, content, expected_exception",
+#     [
+#         ("http://example.com/notfound.jpg", 404, b"", None),
+#         ("http://example.com/servererror.jpg", 500, b"", None),
+#         ("http://example.com/timeout.jpg", 408, b"", None),
+#     ],
+#     ids=["404 not found", "500 server error", "408 request timeout"],
+# )
+# async def test_download_image_error_cases(url, status, content, expected_exception, mocker):
+#     # Arrange
+#     async def mock_get(*args, **kwargs):
+#         mock_response = mocker.AsyncMock()
+#         mock_response.status = status
+#         mock_response.read.return_value = content
+#         return mock_response
+
+#     mocker.patch.object(ClientSession, "get", new=mock_get)
+#     # Act
+#     result = await download_image(url)
+
+#     # Assert
+#     assert result is None
+
+
+# @pytest.mark.asyncio
+# @pytest.mark.parametrize(
+#     "url, exception, expected_exception",
+#     [
+#         ("http://example.com/connectionerror.jpg", ClientError, ClientError),
+#         ("http://example.com/invalidurl.jpg", ValueError, ValueError),
+#     ],
+#     ids=["client error", "invalid URL"],
+# )
+# async def test_download_image_exceptions(url, exception, expected_exception, mocker):
+#     # Arrange
+#     async def mock_get(*args, **kwargs):
+#         raise exception
+
+#     mocker.patch.object(ClientSession, "get", new=mock_get)
+#     # Act & Assert
+#     with pytest.raises(expected_exception):
+#         await download_image(url)
