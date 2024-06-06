@@ -1,3 +1,4 @@
+# pylint: disable=consider-using-from-import
 # https://github.com/universityofprofessorex/ESRGAN-Bot
 # Attribution - NonCommercial - ShareAlike 4.0 International
 
