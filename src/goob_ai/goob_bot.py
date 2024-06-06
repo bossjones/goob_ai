@@ -4,7 +4,9 @@
 from __future__ import annotations
 
 import asyncio
+import base64
 import datetime
+import io
 import json
 import logging
 import os
@@ -13,8 +15,10 @@ import sys
 import time
 import traceback
 import typing
+import uuid
 
 from collections import Counter, defaultdict
+from io import BytesIO
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -53,6 +57,7 @@ from goob_ai.constants import CHANNEL_ID, INPUT_CLASSIFICATION_NOT_A_QUESTION, I
 from goob_ai.factories import guild_factory
 from goob_ai.gen_ai.utilities.agent_criteria_evaluator import Evaluator
 from goob_ai.user_input_enrichment import UserInputEnrichment
+from goob_ai.utils import async_
 from goob_ai.utils.context import Context
 from goob_ai.utils.misc import CURRENTFUNCNAME
 
@@ -68,13 +73,58 @@ HERE = os.path.dirname(__file__)
 
 INVITE_LINK = "https://discordapp.com/api/oauth2/authorize?client_id={}&scope=bot&permissions=0"
 
-# LOGGER = get_logger(__name__, provider="Bot", level=logging.DEBUG)
-
 
 HOME_PATH = os.environ.get("HOME")
 
 COMMAND_RUNNER = {"dl_thumb": shell.run_coroutine_subprocess}
-from goob_ai.utils import async_
+
+
+# SOURCE: https://github.com/CrosswaveOmega/NikkiBot/blob/75c7ecd307f50390cfc798d39098fdb78535650c/cogs/AiCog.py#L237
+async def download_image(url: str):
+    """
+    Summary:
+    Download an image from a given URL asynchronously.
+
+    Explanation:
+    This asynchronous function uses aiohttp to make a GET request to the provided URL and downloads the image data. If the response status is 200 (OK), it reads the response data and returns it as a BytesIO object.
+
+    Args:
+    - url (str): The URL of the image to download.
+
+    Returns:
+    - BytesIO: A BytesIO object containing the downloaded image data.
+    """
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url) as response:
+            if response.status == 200:
+                data = await response.read()
+                return io.BytesIO(data)
+
+
+# SOURCE: https://github.com/CrosswaveOmega/NikkiBot/blob/7092ae6da21c86c7686549edd5c45335255b73ec/cogs/GlobalCog.py#L23
+async def file_to_data_uri(file: discord.File) -> str:
+    # Read the bytes from the file
+    with BytesIO(file.fp.read()) as f:
+        # Read the bytes from the file-like object
+        file_bytes = f.read()
+    # Base64 encode the bytes
+    base64_encoded = base64.b64encode(file_bytes).decode("ascii")
+    # Construct the data URI
+    data_uri = f'data:{"image"};base64,{base64_encoded}'
+    return data_uri
+
+
+# SOURCE: https://github.com/CrosswaveOmega/NikkiBot/blob/7092ae6da21c86c7686549edd5c45335255b73ec/cogs/GlobalCog.py#L23
+async def data_uri_to_file(data_uri: str, filename: str) -> discord.File:
+    # Split the data URI into its components
+    metadata, base64_data = data_uri.split(",")
+    # Get the content type from the metadata
+    content_type = metadata.split(";")[0].split(":")[1]
+    # Decode the base64 data
+    file_bytes = base64.b64decode(base64_data)
+    # Create a discord.File object
+    file = discord.File(BytesIO(file_bytes), filename=filename, spoiler=False)
+    return file
 
 
 @async_.to_async
@@ -258,13 +308,35 @@ def unlink_orig_file(a_filepath: str):
 
 # https://github.com/discord-math/bot/blob/babb41b71a68b4b099684b3e1ed583f84083f971/plugins/log.py#L63
 def path_for(attm: discord.Attachment, basedir: str = "./") -> pathlib.Path:
+    """
+    Summary:
+    Generate a pathlib.Path object for an attachment with a specified base directory.
+
+    Explanation:
+    This function constructs a pathlib.Path object for a given attachment 'attm' using the specified base directory 'basedir'. It logs the generated path for debugging purposes and returns the pathlib.Path object.
+
+    Args:
+    - attm (discord.Attachment): The attachment for which the path is generated.
+    - basedir (str): The base directory path where the attachment file will be located. Default is the current directory.
+
+    Returns:
+    - pathlib.Path: A pathlib.Path object representing the path for the attachment file.
+    """
     p = pathlib.Path(basedir, str(attm.filename))  # pyright: ignore[reportAttributeAccessIssue]
     LOGGER.debug(f"path_for: p -> {p}")
     return p
 
 
-# https://github.com/discord-math/bot/blob/babb41b71a68b4b099684b3e1ed583f84083f971/plugins/log.py#L63
+# SOURCE: https://github.com/discord-math/bot/blob/babb41b71a68b4b099684b3e1ed583f84083f971/plugins/log.py#L63
 async def save_attachment(attm: discord.Attachment, basedir: str = "./") -> None:
+    """
+    Summary:
+    Save a Discord attachment to a specified directory.
+
+    Explanation:
+    This asynchronous function saves a Discord attachment 'attm' to the specified base directory 'basedir'. It constructs the path for the attachment, creates the necessary directories, and saves the attachment to the generated path. If an HTTPException occurs during saving, it retries the save operation.
+    """
+
     path = path_for(attm, basedir=basedir)
     LOGGER.debug(f"save_attachment: path -> {path}")
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -643,6 +715,180 @@ class AsyncGoobBot(commands.Bot):
     async def on_shard_resumed(self, shard_id: int):
         LOGGER.info("Shard ID %s has resumed...", shard_id)
         self.resumes[shard_id].append(discord.utils.utcnow())
+
+    # # SOURCE: https://github.com/aronweiler/assistant/blob/a8abd34c6973c21bc248f4782f1428a810daf899/src/discord/rag_bot.py#L90
+    # async def load_files(self, uploaded_file_paths, root_temp_dir, message: discord.Message):
+    #     documents_helper = Documents()
+    #     user_id = Users().get_user_by_email(self.user_email).id
+    #     logging.info(f"Processing {len(uploaded_file_paths)} files...")
+    #     # First see if there are any files we can't load
+    #     files = []
+    #     for uploaded_file_path in uploaded_file_paths:
+    #         # Get the file name
+    #         file_name = (
+    #             uploaded_file_path.replace(root_temp_dir, "").strip("/").strip("\\")
+    #         )
+
+    #         logging.info(f"Verifying {uploaded_file_path}...")
+
+    #         # See if it exists in this collection
+    #         existing_file = documents_helper.get_file_by_name(
+    #             file_name, self.target_collection_id
+    #         )
+
+    #         if existing_file:
+    #             await message.channel.send(
+    #                 f"File '{file_name}' already exists, and overwrite is not enabled.  Ignoring..."
+    #             )
+    #             logging.warning(
+    #                 f"File '{file_name}' already exists, and overwrite is not enabled"
+    #             )
+    #             logging.debug(f"Deleting temp file: {uploaded_file_path}")
+    #             os.remove(uploaded_file_path)
+
+    #             continue
+
+    #         # Read the file
+    #         with open(uploaded_file_path, "rb") as file:
+    #             file_data = file.read()
+
+    #         # Start off with the default file classification
+    #         file_classification = "Document"
+
+    #         # Override the classification if necessary
+    #         IMAGE_TYPES = [".jpg", ".jpeg", ".png", ".gif", ".bmp", ".svg"]
+    #         # Get the file extension
+    #         file_extension = os.path.splitext(file_name)[1]
+    #         # Check to see if it's an image
+    #         if file_extension in IMAGE_TYPES:
+    #             # It's an image, reclassify it
+    #             file_classification = "Image"
+
+    #         # Create the file
+    #         logging.info(f"Creating file '{file_name}'...")
+    #         file = documents_helper.create_file(
+    #             FileModel(
+    #                 user_id=user_id,
+    #                 collection_id=self.target_collection_id,
+    #                 file_name=file_name,
+    #                 file_hash=calculate_sha256(uploaded_file_path),
+    #                 file_classification=file_classification,
+    #             ),
+    #             file_data,
+    #         )
+    #         files.append(file)
+
+    #     if not files or len(files) == 0:
+    #         logging.warning("No files to ingest")
+    #         await message.channel.send(
+    #             "It looks like I couldn't split (or read) any of the files that you uploaded."
+    #         )
+    #         return
+
+    #     logging.info("Splitting documents...")
+
+    #     is_code = False
+
+    #     # Pass the root temp dir to the ingestion function
+    #     documents = load_and_split_documents(
+    #         document_directory=root_temp_dir,
+    #         split_documents=True,
+    #         is_code=is_code,
+    #         chunk_size=500,
+    #         chunk_overlap=50,
+    #     )
+
+    #     if not documents or len(documents) == 0:
+    #         logging.warning("No documents to ingest")
+    #         return
+
+    #     logging.info(f"Saving {len(documents)} document chunks...")
+
+    #     # For each document, create the file if it doesn't exist and then the document chunks
+    #     for document in documents:
+    #         # Get the file name without the root_temp_dir (preserving any subdirectories)
+    #         file_name = (
+    #             document.metadata["filename"].replace(root_temp_dir, "").strip("/")
+    #         )
+
+    #         # Get the file reference
+    #         file = next((f for f in files if f.file_name == file_name), None)
+
+    #         if not file:
+    #             logging.error(
+    #                 f"Could not find file '{file_name}' in the database after uploading"
+    #             )
+    #             break
+
+    #         # Create the document chunks
+    #         logging.info(f"Inserting document chunk for file '{file_name}'...")
+    #         documents_helper.store_document(
+    #             DocumentModel(
+    #                 collection_id=self.target_collection_id,
+    #                 file_id=file.id,
+    #                 user_id=user_id,
+    #                 document_text=document.page_content,
+    #                 document_text_summary="",
+    #                 document_text_has_summary=False,
+    #                 additional_metadata=document.metadata,
+    #                 document_name=document.metadata["filename"],
+    #             )
+    #         )
+
+    #     logging.info(
+    #         f"Successfully ingested {len(documents)} document chunks from {len(files)} files"
+    #     )
+
+    #     await message.channel.send(
+    #         f"Successfully ingested {len(documents)} document chunks from {len(files)} files"
+    #     )
+
+    # SOURCE: https://github.com/aronweiler/assistant/blob/a8abd34c6973c21bc248f4782f1428a810daf899/src/discord/rag_bot.py#L90
+    async def process_attachments(self, message: discord.Message):
+        """
+        Summary:
+        Process attachments in a Discord message by downloading and handling the attached files.
+
+        Explanation:
+        This asynchronous function processes attachments in a Discord message by downloading each attached file, storing it in a temporary directory, and then loading and processing the files. It sends a message to indicate the start of processing and handles any errors that occur during the download process.
+
+        Args:
+        - message (discord.Message): The Discord message containing attachments to be processed.
+
+        Returns:
+        - None
+        """
+
+        if len(message.attachments) > 0:  # pyright: ignore[reportAttributeAccessIssue]
+            await message.channel.send("Processing attachments... (this may take a minute)")  # pyright: ignore[reportAttributeAccessIssue]
+
+            root_temp_dir = "temp/" + str(uuid.uuid4())
+            uploaded_file_paths = []
+            for attachment in message.attachments:  # pyright: ignore[reportAttributeAccessIssue]
+                logging.debug(f"Downloading file from {attachment.url}")
+                # Download the file
+                file_path = os.path.join(root_temp_dir, attachment.filename)
+                os.makedirs(os.path.dirname(file_path), exist_ok=True)
+
+                # Download the file from the URL
+                async with aiohttp.ClientSession() as session:
+                    async with session.get(attachment.url) as resp:
+                        if resp.status != 200:
+                            raise aiohttp.ClientException(f"Error downloading file from {attachment.url}")
+                        data = await resp.read()
+
+                        with open(file_path, "wb") as f:
+                            f.write(data)
+
+                uploaded_file_paths.append(file_path)
+
+            # FIXME: RE ENABLE THIS SHIT 6/5/2024
+            # # Process the files
+            # await self.load_files(
+            #     uploaded_file_paths=uploaded_file_paths,
+            #     root_temp_dir=root_temp_dir,
+            #     message=message,
+            # )
 
     # @discord.utils.cached_property # pyright: ignore[reportAttributeAccessIssue]
     # def stats_webhook(self) -> discord.Webhook:
@@ -1071,7 +1317,7 @@ class AsyncGoobBot(commands.Bot):
         print(f"3 workers slept in parallel for {total_slept_for:.2f} seconds")
 
     # TODO: Need to get this working 5/5/2024
-    def input_classifier(self, event) -> bool:
+    def input_classifier(self, event: dict) -> bool:
         """
         Determines whether the bot should respond to a message in a channel or group.
 
@@ -1107,3 +1353,57 @@ class AsyncGoobBot(commands.Bot):
     # @property
     # def config_cog(self) -> Optional[ConfigCog]:
     #     return self.get_cog('Config')  # type: ignore
+
+
+# SOURCE: https://github.com/darren-rose/DiscordDocChatBot/blob/63a2f25d2cb8aaace6c1a0af97d48f664588e94e/main.py#L28
+# TODO: maybe enable this
+async def send_long_message(channel: Any, message: discord.Message, max_length: int = 2000):
+    """
+    Summary:
+    Send a long message by splitting it into chunks and sending each chunk.
+
+    Explanation:
+    This asynchronous function takes a message and splits it into chunks of maximum length 'max_length'. It then sends each chunk as a separate message to the specified channel.
+
+    Args:
+    - channel (Any): The channel to send the message chunks to.
+    - message (discord.Message): The message to be split into chunks and sent.
+
+    Returns:
+    - None
+    """
+
+    chunks = [message[i : i + max_length] for i in range(0, len(message), max_length)]
+    for chunk in chunks:
+        await channel.send(chunk)
+
+
+# # TODO: turn both of these into functions that the bot calls inside of on_message
+
+#   # SOURCE: https://github.com/darren-rose/DiscordDocChatBot/blob/63a2f25d2cb8aaace6c1a0af97d48f664588e94e/main.py#L28
+#   if 'http://' in  message.content or 'https://' in message.content:
+#     urls = extract_url(message.content)
+#     for url in urls:
+#       download_html(url, web_doc_path)
+#       loader = BSHTMLLoader(web_doc_path)
+#       data = loader.load()
+#       for page_info in data:
+#         chunks = get_text_chunks(page_info.page_content)
+#         vectorstore = get_vectorstore(chunks)
+#         answer = retrieve_answer(vectorstore=vectorstore)
+#       os.remove(os.path.join(web_doc_path))
+#       await send_long_message(message.channel, answer)
+
+#   if message.attachments:
+#     vectorstore=None
+#     for attachment in message.attachments:
+#         if attachment.filename.endswith('.pdf'):  # if the attachment is a pdf
+#           data = await attachment.read()  # read the content of the file
+#           with open(os.path.join(pdf_path, attachment.filename), 'wb') as f:  # save the pdf to a file
+#               f.write(data)
+#           raw_text = get_pdf_text(pdf_path)
+#           chunks = get_text_chunks(raw_text)
+#           vectorstore = get_vectorstore(chunks)
+#           answer = retrieve_answer(vectorstore=vectorstore)
+#         await send_long_message(message.channel, answer)
+#         return
