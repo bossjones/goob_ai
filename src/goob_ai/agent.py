@@ -93,6 +93,7 @@ class AiAgent:
              If you don't know the answer, just say so, and don't try to make anything up. DO NOT allow made up or fake answers.
              If the question is not related to the context, politely respond that you are tuned to only answer questions that are related to the context.
              Use as much detail when as possible when responding.
+             All answers should be in MARKDOWN (.md) Format:
              {self.agent_personality}.
              """,
                 ),

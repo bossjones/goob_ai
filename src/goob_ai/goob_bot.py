@@ -766,7 +766,8 @@ class AsyncGoobBot(commands.Bot):
         )
         # thread_ts is None for direct messages, so we use the ts of the original message
         orig_msg = await ctx.send(
-            embed=discord.Embed(description=temp_message),
+            # embed=discord.Embed(description=temp_message),
+            content=temp_message,
             # delete_after=30.0,
         )
         # response = client.chat_postMessage(channel=channel_id, thread_ts=thread_ts, text=temp_message)
@@ -779,7 +780,7 @@ class AsyncGoobBot(commands.Bot):
         # client.chat_update(channel=channel_id, ts=response_ts, text=agent_response_text)
 
         # await orig_msg.edit(content=agent_response_text)
-        await orig_msg.edit(embed=discord.Embed(description=agent_response_text))
+        await orig_msg.edit(content=agent_response_text)
         LOGGER.info(f"session_id: {session_id} Agent response: {json.dumps(agent_response_text)}")
 
         # Evaluate the response against the question
