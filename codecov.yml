@@ -1,22 +1,37 @@
-flag_management:
-  individual_flags:
-    - name: smart-tests
-      carryforward: true
-      carryforward_mode: "labels"
-      statuses:
-        - type: "project"
-        # - type: "patch"
+coverage:
+  range: 10..100
+  round: down
+  precision: 2
+  status:
+    project:
+      default:
+        target: 10
+    patch:
+      default:
+        target: 10
 
-cli:
-  plugins:
-    pycoverage:
-      report_type: "json"
+codecov:
+  require_ci_to_pass: true
+
+# flag_management:
+#   individual_flags:
+#     - name: smart-tests
+#       carryforward: true
+#       carryforward_mode: "labels"
+#       statuses:
+#         - type: "project"
+#         # - type: "patch"
+
+# cli:
+#   plugins:
+#     pycoverage:
+#       report_type: "json"
 
 
-comment:                  # this is a top-level key
-  layout: " diff, flags, files"
-  behavior: default
-  require_changes: false  # if true: only post the comment if coverage changes
-  require_base: false        # [true :: must have a base report to post]
-  require_head: true       # [true :: must have a head report to post]
-  hide_project_coverage: false # [true :: only show coverage on the git diff]
+# comment:                  # this is a top-level key
+#   layout: " diff, flags, files"
+#   behavior: default
+#   require_changes: false  # if true: only post the comment if coverage changes
+#   require_base: false        # [true :: must have a base report to post]
+#   require_head: true       # [true :: must have a head report to post]
+#   hide_project_coverage: false # [true :: only show coverage on the git diff]
