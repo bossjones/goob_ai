@@ -6,6 +6,7 @@ from __future__ import annotations
 import os.path
 import pathlib
 
+from collections import OrderedDict
 from os import PathLike
 
 import cv2
@@ -21,9 +22,27 @@ from goob_ai.gen_ai.arch.ScreenCropNet import ObjLocModel as ScreenCropNet_ObjLo
 
 # NOTE: https://pytorch.org/tutorials/beginner/saving_loading_models.html#saving-loading-model-for-inference
 def load_model_for_inference(save_path: str | PathLike, device: str) -> nn.Module:
+    # LOGGER.info(f"model = {model}")
+    LOGGER.info(f"device = {device}")
+    LOGGER.info(f"type(device) = {type(device)}")
+    LOGGER.info(f"save_path = {save_path}")
+
     model = ScreenCropNet_ObjLocModel()
     model.name = "ObjLocModelV1"
-    model.load_state_dict(torch.load(save_path, map_location=device))
+    state_dict = torch.load(save_path, map_location=device)
+
+    # SOURCE: https://github.com/billhhh/MnasNet-pytorch-pretrained/issues/1
+    # fix state_dict key error
+    new_state_dict = OrderedDict()
+    for k, v in state_dict.items():
+        name = k[7:]  # remove `module.`
+        new_state_dict[name] = v
+    # load params
+    model.load_state_dict(new_state_dict, strict=False)
+    # DISABLED:
+    # model.load_state_dict(new_state_dict)
+
+    # model.load_state_dict()
     model.eval()
     print(f"Model loaded from path {save_path} successfully.")
     # Get the model size in bytes then convert to megabytes
@@ -48,6 +67,10 @@ def run_get_model_for_inference(
     Returns:
         Tuple[pathlib.PosixPath, torch.nn.Module]: _description_
     """
+    LOGGER.info(f"model = {model}")
+    LOGGER.info(f"device = {device}")
+    LOGGER.info(f"path_to_model = {path_to_model}")
+
     return load_model_for_inference(path_to_model, device)
 
 
@@ -63,6 +86,16 @@ def load_model(device: torch.device, model_name: str = "ScreenNetV1.pth"):
 
     model = ScreenCropNet_ObjLocModel()
     model.name = "ObjLocModelV1"
+
+    # toggle to use eager/graph execution mode
+    model = torch.compile(model)
+
+    # SOURCE: https://towardsdatascience.com/tips-and-tricks-for-upgrading-to-pytorch-2-3127db1d1f3d
+    # replace with this to verfiy that error is not in TorchDynamo
+    # model = torch.compile(model, 'eager')
+    # replace with this to verfiy that error is not in AOTAutograd
+    # model = torch.compile(model, 'aot_eager')
+
     model.to(device)
     # NOTE: Temporary
     my_custom_ml_models_path = "/Users/malcolm/dev/bossjones/goob_ai/src/goob_ai/data/"

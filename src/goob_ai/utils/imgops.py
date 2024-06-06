@@ -515,8 +515,7 @@ def setup_model():
     Explanation:
     This function loads a model for image processing using a predefined device and model name, and returns the loaded model.
     """
-    model = load_model(device=DEVICE, model_name="ScreenNetV1.pth")
-    return model
+    return load_model(DEVICE, model_name="ScreenNetV1.pth")
 
 
 ###########################################################################3

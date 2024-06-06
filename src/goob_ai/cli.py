@@ -321,11 +321,22 @@ def run_screencrop() -> None:
     """Manually run screncrop service and get bounding boxes"""
     # typer.echo("Generating type stubs for GoobAI")
     # repo_typing.run_pyright()
-    asyncio.run(
-        ImageService.bindingbox_handler(
-            "/Users/malcolm/dev/bossjones/goob_ai/tests/fixtures/screenshot_image_larger.JPEG"
+    try:
+        asyncio.run(
+            ImageService.bindingbox_handler(
+                "/Users/malcolm/dev/bossjones/goob_ai/tests/fixtures/screenshot_image_larger.JPEG"
+            )
         )
-    )
+    except Exception as ex:
+        print(f"{ex}")
+        exc_type, exc_value, exc_traceback = sys.exc_info()
+        print(f"Error Class: {ex.__class__}")
+        output = f"[UNEXPECTED] {type(ex).__name__}: {ex}"
+        print(output)
+        print(f"exc_type: {exc_type}")
+        print(f"exc_value: {exc_value}")
+        traceback.print_tb(exc_traceback)
+        bpdb.pm()
 
 
 @APP.command()
