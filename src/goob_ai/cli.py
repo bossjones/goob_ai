@@ -50,6 +50,7 @@ from goob_ai.bot_logger import get_logger, global_log_config
 from goob_ai.goob_bot import AsyncGoobBot
 from goob_ai.services.screencrop_service import ImageService
 from goob_ai.utils import repo_typing
+from goob_ai.utils.file_functions import fix_path
 
 
 global_log_config(
@@ -327,6 +328,53 @@ def run_screencrop() -> None:
                 "/Users/malcolm/dev/bossjones/goob_ai/tests/fixtures/screenshot_image_larger.JPEG"
             )
         )
+    except Exception as ex:
+        print(f"{ex}")
+        exc_type, exc_value, exc_traceback = sys.exc_info()
+        print(f"Error Class: {ex.__class__}")
+        output = f"[UNEXPECTED] {type(ex).__name__}: {ex}"
+        print(output)
+        print(f"exc_type: {exc_type}")
+        print(f"exc_value: {exc_value}")
+        traceback.print_tb(exc_traceback)
+        bpdb.pm()
+
+
+@APP.command()
+def run_download_and_predict(
+    img_url: str = "/Users/malcolm/dev/bossjones/goob_ai/tests/fixtures/screenshot_image_larger.JPEG",
+) -> None:
+    """Manually run screencrop's download_and_predict service and get bounding boxes"""
+
+    path_to_image_from_cli = fix_path(img_url)
+    try:
+        # asyncio.run(ImageService.handle_predict_from_file(path_to_image_from_cli))
+        ImageService.handle_predict_from_file(path_to_image_from_cli)
+    except Exception as ex:
+        print(f"{ex}")
+        exc_type, exc_value, exc_traceback = sys.exc_info()
+        print(f"Error Class: {ex.__class__}")
+        output = f"[UNEXPECTED] {type(ex).__name__}: {ex}"
+        print(output)
+        print(f"exc_type: {exc_type}")
+        print(f"exc_value: {exc_value}")
+        traceback.print_tb(exc_traceback)
+        bpdb.pm()
+
+
+@APP.command()
+def run_predict_and_display(
+    img_url: List[str] = [
+        "/Users/malcolm/dev/bossjones/goob_ai/tests/fixtures/screenshot_image_larger.JPEG",
+        "/Users/malcolm/dev/bossjones/goob_ai/tests/fixtures/screenshot_image_larger2.PNG",
+        "/Users/malcolm/dev/bossjones/goob_ai/tests/fixtures/screenshot_image_larger3.PNG",
+    ],  # type: ignore
+) -> None:
+    """Manually run screencrop's download_and_predict service and get bounding boxes"""
+
+    path_to_image_from_cli = fix_path(img_url)
+    try:
+        ImageService.handle_predict_and_display(path_to_image_from_cli)
     except Exception as ex:
         print(f"{ex}")
         exc_type, exc_value, exc_traceback = sys.exc_info()
