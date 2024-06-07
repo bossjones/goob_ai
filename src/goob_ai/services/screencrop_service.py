@@ -37,6 +37,10 @@ def display_image_grid(
     model: torch.nn.Module | None = None,
     device: torch.device = DEVICE,
 ):
+    LOGGER.info(f"images_filepaths: {images_filepaths}")
+    import bpdb
+
+    bpdb.set_trace()
     rows = len(images_filepaths) // cols
     # figure, ax = plt.subplots(nrows=rows, ncols=cols, figsize=(12, 6))
     figure, ax = plt.subplots(nrows=rows, ncols=cols, figsize=(30, 10))
@@ -241,7 +245,7 @@ class ImageService:
     # @async_.to_async
     @staticmethod
     def handle_predict_and_display(
-        path_to_image_from_cli: str | PathLike,
+        path_to_image_from_cli: List[str] | List[PathLike],
         model: torch.nn.Module | None = None,
         device: torch.device = DEVICE,
     ):
