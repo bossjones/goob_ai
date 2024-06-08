@@ -158,7 +158,7 @@ def filter_pth(working_dir: list[str]) -> list[str]:
     return [
         f
         for f in working_dir
-        if (pathlib.Path(f"{f}").is_file()) and pathlib.Path(f"{f}").suffix in TORCH_MODEL_EXTENSIONS
+        if (pathlib.Path(f"{f}").is_file()) and pathlib.Path(f"{f}").suffix.lower() in TORCH_MODEL_EXTENSIONS
     ]
 
 
@@ -381,7 +381,7 @@ def sort_dataframe(df: DataFrame, columns: list[str] | None = None, ascending: t
     """
     if columns is None:
         columns = []  # type: ignore
-    df = df.sort_values(columns, ascending=ascending)
+    df = df.sort_values(by=columns, ascending=ascending)
     return df
 
 
@@ -605,7 +605,7 @@ def tree(directory: pathlib.Path, silent: bool = False) -> list[pathlib.Path]:
     print_and_append(_tree, f"+ {directory}", silent=silent)
     for path in sorted(directory.rglob("*")):
         file_system.append(pathlib.Path(f"{path.resolve()}"))
-        depth = len(path.relative_to(directory.resolve()).parts)
+        depth = len(path.resolve().relative_to(directory.resolve()).parts)
         spacer = "    " * depth
         print_and_append(_tree, f"{spacer}+ {path.name}", silent=silent)
 
@@ -623,11 +623,11 @@ def format_size(a_file: int) -> str:
         str: Formatted file size.
     """
     if a_file > 1024**3:
-        return "{:.0f} GB".format(a_file / float(2**30))
+        return "{:.0f} GB".format(a_file / float(1024**3))
     elif a_file > 1024**2:
-        return "{:.0f} MB".format(a_file / float(2**20))
+        return "{:.0f} MB".format(a_file / float(1024**2))
     elif a_file > 1024:
-        return "{:.0f} KB".format(a_file / float(2**10))
+        return "{:.0f} KB".format(a_file / float(1024))
     else:
         return "{:.0f} B".format(a_file)
 
@@ -645,7 +645,7 @@ async def aiowrite_file(data: str, dl_dir: str = "./", fname: str = "", ext: str
     full_path_dl_dir = f"{p_dl_dir.absolute()}"
     p_new = pathlib.Path(f"{full_path_dl_dir}/{fname}.{ext}")
     LOGGER.debug(f"Writing to {p_new.absolute()}")
-    async with aiofiles.open(f"{p_new.absolute()}", mode="w") as f:
+    async with aiofiles.open(p_new.absolute(), mode="w") as f:
         await f.write(data)
 
 
@@ -662,7 +662,7 @@ async def aioread_file(data: str, dl_dir: str = "./", fname: str = "", ext: str 
     full_path_dl_dir = f"{p_dl_dir.absolute()}"
     p_new = pathlib.Path(f"{full_path_dl_dir}/{fname}.{ext}")
     LOGGER.debug(f"Writing to {p_new.absolute()}")
-    async with aiofiles.open(f"{p_new.absolute()}", mode="r") as f:
+    async with aiofiles.open(p_new.absolute(), mode="r") as f:
         await f.read(data)
 
 
