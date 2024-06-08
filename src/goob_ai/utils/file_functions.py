@@ -160,6 +160,7 @@ def filter_pth(working_dir: list[str]) -> list[str]:
         for f in working_dir
         if (pathlib.Path(f"{f}").is_file()) and pathlib.Path(f"{f}").suffix.lower() in TORCH_MODEL_EXTENSIONS
     ]
+    ]
 
 
 def filter_json(working_dir: list[str]) -> list[str]:
