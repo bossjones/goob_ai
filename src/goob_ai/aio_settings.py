@@ -168,7 +168,8 @@ class AioSettings(BaseSettings):
     llm_temperature: float = 0.1
     # vision_model: str = "gpt-4-turbo"
     vision_model: str = "gpt-4-vision-preview"
-    chat_model: str = "gpt-3.5-turbo-0125"
+    chat_model: str = "gpt-4o-2024-05-13"
+    # chat_model: str = "gpt-3.5-turbo-0125"
     # chat_model: str = "gpt-3.5-turbo-16k" # note another option
     chat_history_buffer: int = 10
 

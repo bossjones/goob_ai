@@ -954,7 +954,11 @@ def convert_tensor_to_pil_image(tensor_image: torch.Tensor) -> Image:
     return pytorch_transforms_functional.to_pil_image(tensor_image)
 
 
-def predict_from_file(path_to_image_from_cli: str, model: torch.nn.Module, device: torch.device):
+def predict_from_file(
+    path_to_image_from_cli: str,
+    model: torch.nn.Module,
+    device: torch.device = DEVICE,
+):
     """wrapper function to perform predictions on individual files
 
     Args:
@@ -966,7 +970,9 @@ def predict_from_file(path_to_image_from_cli: str, model: torch.nn.Module, devic
         args (argparse.Namespace): _description_
     """
     # ic(f"Predict | individual file {path_to_image_from_cli} ...")
+    LOGGER.info(f"Predict | individual file {path_to_image_from_cli} ...")
     image_path_api = pathlib.Path(path_to_image_from_cli).resolve()
+    LOGGER.info(image_path_api)
     # ic(image_path_api)
 
     paths = [image_path_api]

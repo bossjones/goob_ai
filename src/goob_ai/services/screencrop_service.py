@@ -11,13 +11,14 @@ import traceback
 
 from io import BytesIO
 from os import PathLike
-from typing import Dict, List, Tuple
+from typing import Dict, List, Literal, Tuple
 from urllib.parse import urlparse
 
 import aiohttp
 import cv2
 import discord
 import matplotlib
+import matplotlib.figure
 import matplotlib.pyplot as plt
 import numpy as np
 import requests
@@ -44,6 +45,8 @@ def display_image_grid(
     # import bpdb
 
     # bpdb.set_trace()
+    figure: matplotlib.figure.Figure
+    ax: np.ndarray
     figure, ax = plt.subplots(nrows=rows, ncols=cols, figsize=(30, 10))
     for i, image_filepath in enumerate(images_filepaths):
         image, bboxes = predict_from_file(image_filepath, model, device)
@@ -54,27 +57,35 @@ def display_image_grid(
 
         # SOURCE: https://github.com/opencv/opencv/issues/24522
         # SOURCE: https://github.com/intel/cloud-native-ai-pipeline/pull/179/files
-        frame = img_as_array.copy()
+        frame: np.ndarray = img_as_array.copy()
+
+        xmin_fullsize: torch.Tensor
+        ymin_fullsize: torch.Tensor
+        xmax_fullsize: torch.Tensor
+        ymax_fullsize: torch.Tensor
 
         # get fullsize bboxes
         xmin_fullsize, ymin_fullsize, xmax_fullsize, ymax_fullsize = bboxes[0]
 
-        pt1_fullsize = (int(xmin_fullsize), int(ymin_fullsize))
-        pt2_fullsize = (int(xmax_fullsize), int(ymax_fullsize))
+        pt1_fullsize: Tuple[int, int] = (int(xmin_fullsize), int(ymin_fullsize))
+        pt2_fullsize: Tuple[int, int] = (int(xmax_fullsize), int(ymax_fullsize))
 
-        starting_point_fullsize = pt1_fullsize
-        end_point_fullsize = pt2_fullsize
-        color = OPENCV_RED
-        thickness = 2
+        starting_point_fullsize: Tuple[int, int] = pt1_fullsize
+        end_point_fullsize: Tuple[int, int] = pt2_fullsize
+        color: Tuple[Literal[255] | Literal[0], Literal[0]] = OPENCV_RED
+        thickness: int = 2
 
         out_img = cv2.rectangle(
             frame,
             starting_point_fullsize,
             end_point_fullsize,
-            (255, 0, 0),
+            color,
             thickness,
         )
         ax.ravel()[i].imshow(out_img)
+        # import bpdb
+
+        # bpdb.set_trace()
         # ax.ravel()[i].set_title(bboxes, color="green")
         ax.ravel()[i].set_axis_off()
     plt.tight_layout()
