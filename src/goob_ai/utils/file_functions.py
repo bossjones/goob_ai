@@ -194,6 +194,7 @@ def rename_without_cachebuster(working_dir: list[str]) -> list[str]:
             without_cb = f"{orig}".split("?updatedAt")[0]
             orig.rename(f"{without_cb}")
             working_dir_only.append(f"{without_cb}")
+    ]
     return working_dir_only
 
 
