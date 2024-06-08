@@ -89,7 +89,7 @@ dependencies = [
     "uritools>=4.0.2",
     "validators>=0.28.1",
     "watchdog[watchmedo]>=4.0.0",
-    "webcolors>=1.13",
+    "webcolors==1.13",
     "websockets>=12.0",
     "docutils>=0.21.2",
     "pyinvoke>=1.0.4",
@@ -109,7 +109,7 @@ dependencies = [
     "torchvision>=0.18.0",
     "asyncer>=0.0.7",
     "bump-pydantic>=0.8.0",
-    "pinecone-client>=4.0.0",
+    "pinecone-client[grpc]>=4.1.1",
     "langserve[all]>=0.1.1",
     "prometheus-client>=0.20.0",
     "aiopytesseract>=0.14.0",
@@ -118,6 +118,7 @@ dependencies = [
     "pyowm>=3.3.0",
     "yfinance>=0.2.40",
     "youtube-search>=2.1.2",
+    "timm>=1.0.3",
 ]
 
 readme = "README.md"
@@ -212,7 +213,7 @@ fmt = {cmd = "pre-commit run --all-files"}
 pylint = {cmd = "python -m invoke ci.pylint --everything"}
 pylint-error-only = {cmd = "pylint --output-format=colorized --generated-members=torch.*,numpy.*,cv2.* --disable=all --max-line-length=120 --enable=F,E --rcfile pyproject.toml src tests"}
 lint-all = {cmd = "python -m pylint --output-format=colorized --rcfile pyproject.toml tests src"}
-lint = {cmd = "python -m pylint --output-format=colorized --disable=C0111,E0401,C,W --enable=F,E tests src"}
+lint = {cmd = "python -m pylint --output-format=colorized --disable=C0111,E0401,C,W,R0402 --enable=F,E tests src"}
 typecheck = {chain = [
     "typecheck:pyright",
     "typecheck:mypy",
@@ -257,6 +258,10 @@ coverage-report-debug = {chain = [
 ]}
 coverage-show = {cmd = "python -m coverage report --fail-under=5"}
 coverage-open = {cmd = "just local-open-coverage"}
+ci = {chain = [
+    "lint",
+    "test",
+]}
 
 
 # Private tasks used for chaining (https://github.com/charbonnierg/pytest-broadcaster/blob/e98456b2f6db7f99a034795f162ac0013a8001d7/pyproject.toml#L157C1-L158C15)
@@ -1220,6 +1225,7 @@ extension-pkg-whitelist = "pydantic"
 # consider-using-namedtuple-or-dataclass - too opinionated
 # consider-using-assignment-expr - decision to use := better left to devs
 disable = [
+    "possibly-used-before-assignment",
     "raw-checker-failed",
     "bad-inline-option",
     "file-ignored",

@@ -27,7 +27,7 @@ import rich
 import typer
 
 from loguru import logger as LOGGER
-from pinecone import Pinecone, ServerlessSpec
+from pinecone import Pinecone, ServerlessSpec  # pyright: ignore[reportAttributeAccessIssue]
 from pinecone.core.client.model.describe_index_stats_response import DescribeIndexStatsResponse
 from pinecone.core.client.model.query_response import QueryResponse
 from pinecone.core.client.model.upsert_response import UpsertResponse
@@ -48,7 +48,9 @@ from goob_ai.aio_settings import aiosettings, get_rich_console
 from goob_ai.asynctyper import AsyncTyper
 from goob_ai.bot_logger import get_logger, global_log_config
 from goob_ai.goob_bot import AsyncGoobBot
+from goob_ai.services.screencrop_service import ImageService
 from goob_ai.utils import repo_typing
+from goob_ai.utils.file_functions import fix_path
 
 
 global_log_config(
@@ -313,6 +315,90 @@ def run_pyright() -> None:
     """Generate typestubs GoobAI"""
     typer.echo("Generating type stubs for GoobAI")
     repo_typing.run_pyright()
+
+
+@APP.command()
+def run_screencrop() -> None:
+    """Manually run screncrop service and get bounding boxes"""
+    # typer.echo("Generating type stubs for GoobAI")
+    # repo_typing.run_pyright()
+    try:
+        asyncio.run(
+            ImageService.bindingbox_handler(
+                "/Users/malcolm/dev/bossjones/goob_ai/tests/fixtures/screenshot_image_larger00000.JPEG",
+            )
+        )
+    except Exception as ex:
+        print(f"{ex}")
+        exc_type, exc_value, exc_traceback = sys.exc_info()
+        print(f"Error Class: {ex.__class__}")
+        output = f"[UNEXPECTED] {type(ex).__name__}: {ex}"
+        print(output)
+        print(f"exc_type: {exc_type}")
+        print(f"exc_value: {exc_value}")
+        traceback.print_tb(exc_traceback)
+        bpdb.pm()
+
+
+@APP.command()
+def run_download_and_predict(
+    img_url: str = "/Users/malcolm/dev/bossjones/goob_ai/tests/fixtures/screenshot_image_larger00000.JPEG",
+) -> None:
+    """Manually run screencrop's download_and_predict service and get bounding boxes"""
+
+    path_to_image_from_cli = fix_path(img_url)
+    try:
+        # asyncio.run(ImageService.handle_predict_from_file(path_to_image_from_cli))
+        ImageService.handle_predict_from_file(path_to_image_from_cli)
+    except Exception as ex:
+        print(f"{ex}")
+        exc_type, exc_value, exc_traceback = sys.exc_info()
+        print(f"Error Class: {ex.__class__}")
+        output = f"[UNEXPECTED] {type(ex).__name__}: {ex}"
+        print(output)
+        print(f"exc_type: {exc_type}")
+        print(f"exc_value: {exc_value}")
+        traceback.print_tb(exc_traceback)
+        bpdb.pm()
+
+
+@APP.command()
+def run_predict_and_display(
+    img_url: List[str] = [
+        # "/Users/malcolm/dev/bossjones/goob_ai/tests/fixtures/screenshot_image_larger.JPEG",
+        # "/Users/malcolm/dev/bossjones/goob_ai/tests/fixtures/screenshot_image_larger2.PNG",
+        # "/Users/malcolm/dev/bossjones/goob_ai/tests/fixtures/screenshot_image_larger3.PNG",
+        "/Users/malcolm/dev/bossjones/goob_ai/tests/fixtures/screenshot_image_larger00000.JPEG",
+        "/Users/malcolm/dev/bossjones/goob_ai/tests/fixtures/screenshot_image_larger00001.PNG",
+        "/Users/malcolm/dev/bossjones/goob_ai/tests/fixtures/screenshot_image_larger00002.PNG",
+        "/Users/malcolm/dev/bossjones/goob_ai/tests/fixtures/screenshot_image_larger00003.PNG",
+        "/Users/malcolm/dev/bossjones/goob_ai/tests/fixtures/screenshot_image_larger00004.PNG",
+        "/Users/malcolm/dev/bossjones/goob_ai/tests/fixtures/screenshot_image_larger00005.PNG",
+        "/Users/malcolm/dev/bossjones/goob_ai/tests/fixtures/screenshot_image_larger00006.PNG",
+        "/Users/malcolm/dev/bossjones/goob_ai/tests/fixtures/screenshot_image_larger00007.PNG",
+        "/Users/malcolm/dev/bossjones/goob_ai/tests/fixtures/screenshot_image_larger00008.PNG",
+        "/Users/malcolm/dev/bossjones/goob_ai/tests/fixtures/screenshot_image_larger00009.PNG",
+        # "/Users/malcolm/dev/bossjones/goob_ai/tests/fixtures/screenshot_image_larger00010.PNG",
+        # "/Users/malcolm/dev/bossjones/goob_ai/tests/fixtures/screenshot_image_larger00011.PNG",
+        # "/Users/malcolm/dev/bossjones/goob_ai/tests/fixtures/screenshot_image_larger00012.PNG",
+        # "/Users/malcolm/dev/bossjones/goob_ai/tests/fixtures/screenshot_image_larger00013.PNG",
+    ],  # type: ignore
+) -> None:
+    """Manually run screencrop's download_and_predict service and get bounding boxes"""
+
+    path_to_image_from_cli = fix_path(img_url)
+    try:
+        ImageService.handle_predict_and_display(path_to_image_from_cli)
+    except Exception as ex:
+        print(f"{ex}")
+        exc_type, exc_value, exc_traceback = sys.exc_info()
+        print(f"Error Class: {ex.__class__}")
+        output = f"[UNEXPECTED] {type(ex).__name__}: {ex}"
+        print(output)
+        print(f"exc_type: {exc_type}")
+        print(f"exc_value: {exc_value}")
+        traceback.print_tb(exc_traceback)
+        bpdb.pm()
 
 
 @APP.command()

@@ -14,6 +14,20 @@ from goob_ai.core import errors
 # from icecream import ic
 
 
+def get_device() -> torch.device:
+    """
+    Summary:
+    Get the appropriate device for PyTorch operations.
+
+    Explanation:
+    This function determines the device to be used for PyTorch operations based on the availability of MPS, CUDA, or CPU.
+    """
+    device = torch.device(
+        "mps" if torch.backends.mps.is_available() else ("cuda" if torch.cuda.is_available() else "cpu")
+    )
+    return device
+
+
 # has_mps is only available in nightly pytorch (for now) and MasOS 12.3+.
 # check `getattr` and try it for compatibility
 def has_mps() -> bool:

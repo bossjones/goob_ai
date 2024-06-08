@@ -1,5 +1,6 @@
 """goob_ai.goob_bot"""
 
+# pylint: disable=possibly-used-before-assignment
 # pyright: reportImportCycles=false
 from __future__ import annotations
 

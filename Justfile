@@ -120,3 +120,7 @@ sweep-init:
 #   check:
 #     - trunk fmt {file_path}
 #     - trunk check {file_path}
+
+
+download-models:
+	curl -L 'https://www.dropbox.com/s/im6ytahqgbpyjvw/ScreenNetV1.pth?dl=1' > src/goob_ai/data/ScreenNetV1.pth

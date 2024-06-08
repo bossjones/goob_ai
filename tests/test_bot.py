@@ -75,6 +75,7 @@ async def bot():
 
     # Teardown
     await dpytest.empty_queue()  # empty the global message queue as test teardown
+    # await bot.pool.disconnect()
 
 
 # @pytest.mark.skipif(

@@ -40,17 +40,17 @@ aiopytesseract==0.14.0
     # via goob-ai
 aiosignal==1.3.1
     # via aiohttp
-aiosql==10.1
+aiosql==10.2
     # via goob-ai
 aiosqlite==0.20.0
     # via goob-ai
 altair==5.3.0
     # via streamlit
-annotated-types==0.6.0
+annotated-types==0.7.0
     # via pydantic
 anthropic==0.28.0
     # via langchain-anthropic
-anyio==4.3.0
+anyio==4.4.0
     # via anthropic
     # via asyncer
     # via httpx
@@ -58,8 +58,6 @@ anyio==4.3.0
     # via sse-starlette
     # via starlette
     # via watchfiles
-appdirs==1.4.4
-    # via wandb
 asgiref==3.8.1
     # via opentelemetry-instrumentation-asgi
 async-timeout==4.0.3
@@ -77,7 +75,7 @@ attrs==23.2.0
     # via jsonschema
     # via referencing
     # via requests-cache
-babel==2.14.0
+babel==2.15.0
     # via goob-ai
 backoff==2.2.1
     # via posthog
@@ -94,11 +92,11 @@ beautifulsoup4==4.12.3
     # via yfinance
 better-exceptions==0.3.3
     # via goob-ai
-blinker==1.8.1
+blinker==1.8.2
     # via streamlit
-boto3==1.34.120
+boto3==1.34.122
     # via goob-ai
-botocore==1.34.120
+botocore==1.34.122
     # via boto3
     # via s3transfer
 brotli==1.1.0
@@ -113,13 +111,12 @@ bump-pydantic==0.8.0
 cachetools==5.3.3
     # via google-auth
     # via streamlit
-caio==0.9.13
+caio==0.9.17
     # via aiofile
 cattrs==23.2.3
     # via aiopytesseract
     # via requests-cache
-certifi==2024.2.2
-    # via curl-cffi
+certifi==2024.6.2
     # via httpcore
     # via httpx
     # via kubernetes
@@ -127,7 +124,6 @@ certifi==2024.2.2
     # via requests
     # via sentry-sdk
 cffi==1.16.0
-    # via curl-cffi
     # via pycares
     # via weasyprint
 chardet==5.2.0
@@ -163,18 +159,16 @@ contourpy==1.2.1
     # via matplotlib
 cssselect2==0.7.0
     # via weasyprint
-curl-cffi==0.6.3
-    # via duckduckgo-search
 cycler==0.12.1
     # via matplotlib
-dask==2024.5.0
+dask==2024.5.2
     # via goob-ai
-dataclasses-json==0.6.5
+dataclasses-json==0.6.6
     # via langchain-community
 dataproperty==1.0.1
     # via pytablewriter
     # via tabledata
-datasets==2.19.0
+datasets==2.19.2
     # via simpletransformers
 defusedxml==0.7.1
     # via langchain-anthropic
@@ -201,7 +195,7 @@ docutils==0.21.2
     # via rich-rst
 dominate==2.9.1
     # via pytablewriter
-duckduckgo-search==5.3.0
+duckduckgo-search==6.1.5
     # via goob-ai
 durabledict==0.9.4
     # via gutter
@@ -213,16 +207,15 @@ exceptiongroup==1.2.1
     # via cattrs
 factory-boy==3.3.0
     # via goob-ai
-faker==25.0.1
+faker==25.8.0
     # via factory-boy
     # via goob-ai
 fastapi==0.111.0
     # via chromadb
-    # via fastapi-cli
     # via goob-ai
     # via langserve
     # via sse-starlette
-fastapi-cli==0.0.2
+fastapi-cli==0.0.4
     # via fastapi
 filelock==3.14.0
     # via datasets
@@ -231,7 +224,7 @@ filelock==3.14.0
     # via transformers
 flatbuffers==24.3.25
     # via onnxruntime
-fonttools==4.51.0
+fonttools==4.53.0
     # via goob-ai
     # via matplotlib
     # via weasyprint
@@ -245,7 +238,7 @@ fsspec==2024.3.1
     # via datasets
     # via huggingface-hub
     # via torch
-gallery-dl==1.26.9
+gallery-dl==1.27.0
     # via goob-ai
 geojson==2.5.0
     # via pyowm
@@ -264,7 +257,7 @@ google-api-core==2.19.0
     # via google-generativeai
 google-api-python-client==2.132.0
     # via google-generativeai
-google-auth==2.29.0
+google-auth==2.30.0
     # via goob-ai
     # via google-ai-generativelanguage
     # via google-api-core
@@ -279,15 +272,18 @@ google-auth-oauthlib==1.2.0
     # via goob-ai
 google-generativeai==0.5.4
     # via langchain-google-genai
-googleapis-common-protos==1.63.0
+googleapis-common-protos==1.63.1
     # via google-api-core
     # via grpcio-status
     # via opentelemetry-exporter-otlp-proto-grpc
-grpcio==1.63.0
+    # via pinecone-client
+    # via protoc-gen-openapiv2
+grpcio==1.64.1
     # via chromadb
     # via google-api-core
     # via grpcio-status
     # via opentelemetry-exporter-otlp-proto-grpc
+    # via pinecone-client
     # via tensorboard
 grpcio-status==1.62.2
     # via google-api-core
@@ -316,8 +312,9 @@ httpx==0.27.0
     # via goob-ai
     # via langserve
     # via openai
-huggingface-hub==0.23.0
+huggingface-hub==0.23.3
     # via datasets
+    # via timm
     # via tokenizers
     # via transformers
 humanfriendly==10.0
@@ -334,7 +331,7 @@ idna==3.7
     # via yarl
 imageio==2.34.1
     # via goob-ai
-importlib-metadata==7.0.0
+importlib-metadata==7.1.0
     # via dask
     # via opentelemetry-api
 importlib-resources==6.4.0
@@ -345,7 +342,7 @@ invoke==2.2.0
     # via goob-ai
 janus==1.0.0
     # via aiomonitor
-jinja2==3.1.3
+jinja2==3.1.4
     # via aiomonitor
     # via altair
     # via fastapi
@@ -371,16 +368,16 @@ jsonschema-specifications==2023.12.1
     # via jsonschema
 kiwisolver==1.4.5
     # via matplotlib
-kubernetes==29.0.0
+kubernetes==30.1.0
     # via chromadb
-langchain==0.2.2
+langchain==0.2.3
     # via goob-ai
     # via langchain-community
 langchain-anthropic==0.1.15
     # via goob-ai
-langchain-community==0.2.3
+langchain-community==0.2.4
     # via goob-ai
-langchain-core==0.2.4
+langchain-core==0.2.5
     # via goob-ai
     # via langchain
     # via langchain-anthropic
@@ -397,7 +394,7 @@ langchain-text-splitters==0.2.1
     # via langchain
 langserve==0.2.1
     # via goob-ai
-langsmith==0.1.73
+langsmith==0.1.75
     # via langchain
     # via langchain-community
     # via langchain-core
@@ -405,7 +402,7 @@ lazy-object-proxy==1.10.0
     # via goob-ai
 levenshtein==0.25.1
     # via python-levenshtein
-libcst==1.3.1
+libcst==1.4.0
     # via bump-pydantic
 locket==1.0.0
     # via partd
@@ -413,11 +410,13 @@ logging-tree==1.10
     # via goob-ai
 loguru==0.7.2
     # via goob-ai
-lxml==5.2.1
+lxml==5.2.2
     # via goob-ai
     # via pypi-command-line
     # via python-docx
     # via yfinance
+lz4==4.3.3
+    # via pinecone-client
 markdown==3.6
     # via goob-ai
     # via tensorboard
@@ -428,9 +427,9 @@ markdown2==2.4.13
 markupsafe==2.1.5
     # via jinja2
     # via werkzeug
-marshmallow==3.21.2
+marshmallow==3.21.3
     # via dataclasses-json
-matplotlib==3.8.4
+matplotlib==3.9.0
     # via goob-ai
 mbstrdecoder==1.1.3
     # via dataproperty
@@ -495,42 +494,43 @@ numpy==1.26.4
 oauthlib==3.2.2
     # via kubernetes
     # via requests-oauthlib
-onnxruntime==1.17.3
+onnxruntime==1.18.0
     # via chromadb
-openai==1.31.1
+openai==1.33.0
     # via goob-ai
     # via langchain-openai
-opencv-python==4.9.0.80
+opencv-python==4.10.0.82
     # via scenedetect
-opentelemetry-api==1.24.0
+opentelemetry-api==1.25.0
     # via chromadb
     # via opentelemetry-exporter-otlp-proto-grpc
     # via opentelemetry-instrumentation
     # via opentelemetry-instrumentation-asgi
     # via opentelemetry-instrumentation-fastapi
     # via opentelemetry-sdk
-opentelemetry-exporter-otlp-proto-common==1.24.0
+    # via opentelemetry-semantic-conventions
+opentelemetry-exporter-otlp-proto-common==1.25.0
     # via opentelemetry-exporter-otlp-proto-grpc
-opentelemetry-exporter-otlp-proto-grpc==1.24.0
+opentelemetry-exporter-otlp-proto-grpc==1.25.0
     # via chromadb
-opentelemetry-instrumentation==0.45b0
+opentelemetry-instrumentation==0.46b0
     # via opentelemetry-instrumentation-asgi
     # via opentelemetry-instrumentation-fastapi
-opentelemetry-instrumentation-asgi==0.45b0
+opentelemetry-instrumentation-asgi==0.46b0
     # via opentelemetry-instrumentation-fastapi
-opentelemetry-instrumentation-fastapi==0.45b0
+opentelemetry-instrumentation-fastapi==0.46b0
     # via chromadb
-opentelemetry-proto==1.24.0
+opentelemetry-proto==1.25.0
     # via opentelemetry-exporter-otlp-proto-common
     # via opentelemetry-exporter-otlp-proto-grpc
-opentelemetry-sdk==1.24.0
+opentelemetry-sdk==1.25.0
     # via chromadb
     # via opentelemetry-exporter-otlp-proto-grpc
-opentelemetry-semantic-conventions==0.45b0
+opentelemetry-semantic-conventions==0.46b0
     # via opentelemetry-instrumentation-asgi
     # via opentelemetry-instrumentation-fastapi
     # via opentelemetry-sdk
-opentelemetry-util-http==0.45b0
+opentelemetry-util-http==0.46b0
     # via opentelemetry-instrumentation-asgi
     # via opentelemetry-instrumentation-fastapi
 orjson==3.10.3
@@ -564,7 +564,7 @@ pandas==2.2.2
     # via simpletransformers
     # via streamlit
     # via yfinance
-partd==1.4.1
+partd==1.4.2
     # via dask
 passlib==1.7.4
     # via goob-ai
@@ -581,11 +581,14 @@ pillow==10.3.0
     # via streamlit
     # via torchvision
     # via weasyprint
-pinecone-client==4.0.0
+pinecone-client==4.1.1
     # via goob-ai
-platformdirs==4.2.1
+pinecone-plugin-interface==0.0.7
+    # via pinecone-client
+platformdirs==4.2.2
     # via requests-cache
     # via scenedetect
+    # via wandb
     # via yfinance
 posthog==3.5.0
     # via chromadb
@@ -593,7 +596,7 @@ prettytable==3.10.0
     # via goob-ai
 prometheus-client==0.20.0
     # via goob-ai
-prompt-toolkit==3.0.43
+prompt-toolkit==3.0.46
     # via aiomonitor
     # via questionary
 proto-plus==1.23.0
@@ -607,15 +610,19 @@ protobuf==4.25.3
     # via grpcio-status
     # via onnxruntime
     # via opentelemetry-proto
+    # via pinecone-client
     # via proto-plus
+    # via protoc-gen-openapiv2
     # via streamlit
     # via tensorboard
     # via tensorboardx
     # via wandb
+protoc-gen-openapiv2==0.0.1
+    # via pinecone-client
 psutil==5.9.8
     # via memory-profiler
     # via wandb
-pyarrow==16.0.0
+pyarrow==16.1.0
     # via datasets
     # via streamlit
 pyarrow-hotfix==0.6
@@ -631,7 +638,7 @@ pycparser==2.22
     # via cffi
 pycryptodome==3.20.0
     # via goob-ai
-pydantic==2.7.1
+pydantic==2.7.3
     # via anthropic
     # via chromadb
     # via fastapi
@@ -643,11 +650,11 @@ pydantic==2.7.1
     # via langsmith
     # via openai
     # via pydantic-settings
-pydantic-core==2.18.2
+pydantic-core==2.18.4
     # via pydantic
-pydantic-settings==2.2.1
+pydantic-settings==2.3.1
     # via goob-ai
-pydeck==0.9.0
+pydeck==0.9.1
     # via streamlit
 pydyf==0.10.0
     # via weasyprint
@@ -658,7 +665,7 @@ pyinspect==0.1.0
     # via goob-ai
 pyinvoke==1.0.4
     # via goob-ai
-pymongo==4.7.1
+pymongo==4.7.3
     # via motor
 pyowm==3.3.0
     # via goob-ai
@@ -679,6 +686,8 @@ pyproject-hooks==1.1.0
     # via build
 pyproject-toml==0.0.10
     # via langserve
+pyreqwest-impersonate==0.4.7
+    # via duckduckgo-search
 pysocks==1.7.1
     # via pyowm
     # via requests
@@ -721,6 +730,7 @@ pyyaml==6.0.1
     # via langchain-community
     # via langchain-core
     # via libcst
+    # via timm
     # via transformers
     # via uvicorn
     # via wandb
@@ -729,20 +739,20 @@ quantile-python==1.1
     # via aioprometheus
 questionary==1.10.0
     # via pypi-command-line
-rapidfuzz==3.9.0
+rapidfuzz==3.9.3
     # via levenshtein
     # via pypi-command-line
     # via thefuzz
-redis==5.0.4
+redis==5.0.5
     # via goob-ai
 referencing==0.35.1
     # via jsonschema
     # via jsonschema-specifications
-regex==2024.4.28
+regex==2024.5.15
     # via simpletransformers
     # via tiktoken
     # via transformers
-requests==2.31.0
+requests==2.32.3
     # via chromadb
     # via datasets
     # via gallery-dl
@@ -780,11 +790,11 @@ rich==13.7.1
     # via rich-rst
     # via streamlit
     # via typer
-rich-click==1.8.0
+rich-click==1.8.2
     # via pypi-command-line
 rich-rst==1.3.1
     # via pypi-command-line
-rpds-py==0.18.0
+rpds-py==0.18.1
     # via jsonschema
     # via referencing
 rsa==4.9
@@ -792,25 +802,26 @@ rsa==4.9
 s3transfer==0.10.1
     # via boto3
 safetensors==0.4.3
+    # via timm
     # via transformers
 scenedetect==0.6.3
     # via goob-ai
-scikit-learn==1.4.2
+scikit-learn==1.5.0
     # via seqeval
     # via simpletransformers
-scipy==1.13.0
+scipy==1.13.1
     # via scikit-learn
     # via simpletransformers
 sentencepiece==0.2.0
     # via goob-ai
     # via simpletransformers
-sentry-sdk==2.0.1
+sentry-sdk==2.5.1
     # via wandb
 seqeval==1.2.2
     # via simpletransformers
 setproctitle==1.3.3
     # via wandb
-setuptools==69.5.1
+setuptools==70.0.0
     # via opentelemetry-instrumentation
     # via pyproject-toml
     # via pytablewriter
@@ -819,7 +830,7 @@ setuptools==69.5.1
 shellingham==1.5.4
     # via pypi-command-line
     # via typer
-simpletransformers==0.70.0
+simpletransformers==0.70.1
     # via goob-ai
 six==1.16.0
     # via docker-pycreds
@@ -839,7 +850,7 @@ sniffio==1.3.1
 soupsieve==2.5
     # via beautifulsoup4
     # via goob-ai
-sqlalchemy==2.0.29
+sqlalchemy==2.0.30
     # via langchain
     # via langchain-community
 sse-starlette==1.8.2
@@ -853,7 +864,7 @@ streamlit==1.35.0
     # via simpletransformers
 striprtf==0.0.26
     # via goob-ai
-sympy==1.12
+sympy==1.12.1
     # via onnxruntime
     # via torch
 tabledata==1.3.3
@@ -862,14 +873,14 @@ tcolorpy==0.1.6
     # via pytablewriter
 telnetlib3==2.0.4
     # via goob-ai
-tenacity==8.2.3
+tenacity==8.3.0
     # via chromadb
     # via goob-ai
     # via langchain
     # via langchain-community
     # via langchain-core
     # via streamlit
-tensorboard==2.16.2
+tensorboard==2.17.0
     # via simpletransformers
 tensorboard-data-server==0.7.2
     # via tensorboard
@@ -885,6 +896,8 @@ threadpoolctl==3.5.0
     # via scikit-learn
 tiktoken==0.7.0
     # via langchain-openai
+timm==1.0.3
+    # via goob-ai
 tinycss2==1.3.0
     # via cssselect2
     # via weasyprint
@@ -902,12 +915,14 @@ toolz==0.12.1
     # via altair
     # via dask
     # via partd
-torch==2.3.0
+torch==2.3.1
     # via goob-ai
+    # via timm
     # via torchvision
-torchvision==0.18.0
+torchvision==0.18.1
     # via goob-ai
-tornado==6.4
+    # via timm
+tornado==6.4.1
     # via streamlit
 tqdm==4.66.4
     # via chromadb
@@ -922,7 +937,7 @@ tqdm==4.66.4
     # via transformers
 trafaret==2.1.1
     # via aiomonitor
-transformers==4.40.1
+transformers==4.41.2
     # via goob-ai
     # via simpletransformers
 typepy==1.3.2
@@ -935,7 +950,7 @@ typer==0.12.3
     # via fastapi-cli
     # via goob-ai
     # via pypi-command-line
-typing-extensions==4.11.0
+typing-extensions==4.12.2
     # via aiodebug
     # via aiomonitor
     # via aiosqlite
@@ -968,13 +983,13 @@ typing-inspect==0.9.0
     # via dataclasses-json
 tzdata==2024.1
     # via pandas
-ujson==5.9.0
+ujson==5.10.0
     # via fastapi
     # via pypi-command-line
 uritemplate==4.1.1
     # via goob-ai
     # via google-api-python-client
-uritools==4.0.2
+uritools==4.0.3
     # via goob-ai
 url-normalize==1.4.3
     # via requests-cache
@@ -985,26 +1000,25 @@ urllib3==2.2.1
     # via requests
     # via requests-cache
     # via sentry-sdk
-uvicorn==0.29.0
+uvicorn==0.30.1
     # via chromadb
     # via fastapi
-    # via fastapi-cli
     # via goob-ai
     # via sse-starlette
 uvloop==0.19.0
     # via uvicorn
-validators==0.28.1
+validators==0.28.3
     # via goob-ai
-wandb==0.16.6
+wandb==0.17.1
     # via simpletransformers
-watchdog==4.0.0
+watchdog==4.0.1
     # via goob-ai
-watchfiles==0.21.0
+watchfiles==0.22.0
     # via uvicorn
 wcwidth==0.2.13
     # via prettytable
     # via prompt-toolkit
-weasyprint==62.0
+weasyprint==62.2
     # via md2pdf
 webcolors==1.13
     # via goob-ai
@@ -1017,7 +1031,7 @@ websocket-client==1.8.0
 websockets==12.0
     # via goob-ai
     # via uvicorn
-werkzeug==3.0.2
+werkzeug==3.0.3
     # via gutter
     # via tensorboard
 wheel==0.43.0
@@ -1037,7 +1051,7 @@ yfinance==0.2.40
     # via goob-ai
 youtube-search==2.1.2
     # via goob-ai
-zipp==3.18.1
+zipp==3.19.2
     # via importlib-metadata
 zopfli==0.2.3
     # via fonttools

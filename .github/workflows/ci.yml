@@ -92,7 +92,7 @@ jobs:
           curl -sSf https://rye.astral.sh/get | bash
           echo "$HOME/.rye/shims" >> $GITHUB_PATH
         env:
-          RYE_VERSION: '0.33.0'
+          RYE_VERSION: '0.34.0'
           RYE_INSTALL_OPTION: '--yes'
 
       - name: install tesseract
@@ -104,9 +104,16 @@ jobs:
           cp -f env.sample .env
           rye config --set-bool behavior.use-uv=true
           ./scripts/retry -t 4  -- rye sync --all-features
+
+          echo "rye run lint"
           rye run lint
+
           # rye run typecheck
+
+          echo "rye run python -c 'import goob_ai'"
           rye run python -c 'import goob_ai'
+
+          echo "rye run test"
           rye run test
 
           sudo apt update
