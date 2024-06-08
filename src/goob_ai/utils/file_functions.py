@@ -605,7 +605,7 @@ def tree(directory: pathlib.Path, silent: bool = False) -> list[pathlib.Path]:
     print_and_append(_tree, f"+ {directory}", silent=silent)
     for path in sorted(directory.rglob("*")):
         file_system.append(pathlib.Path(f"{path.resolve()}"))
-        depth = len(path.relative_to(directory).parts)
+        depth = len(path.relative_to(directory.resolve()).parts)
         spacer = "    " * depth
         print_and_append(_tree, f"{spacer}+ {path.name}", silent=silent)
 

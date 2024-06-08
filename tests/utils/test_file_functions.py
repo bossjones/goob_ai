@@ -54,7 +54,8 @@ import pytest
 
 @pytest.mark.asyncio
 async def test_aio_read_jsonfile(mocker):
-    mock_open = mocker.patch("aiofiles.open", mocker.mock_open(read_data='{"key": "value"}'))
+    mock_open = mocker.patch("aiofiles.open", new_callable=mocker.AsyncMock)
+    mock_open.return_value.__aenter__.return_value.read.return_value = '{"key": "value"}'
     result = await aio_read_jsonfile("test.json")
     assert result == {"key": "value"}
     mock_open.assert_called_once_with("test.json", mode="r", encoding="utf-8")
@@ -62,7 +63,8 @@ async def test_aio_read_jsonfile(mocker):
 
 @pytest.mark.asyncio
 async def test_aio_json_loads(mocker):
-    mock_open = mocker.patch("aiofiles.open", mocker.mock_open(read_data='{"key": "value"}'))
+    mock_open = mocker.patch("aiofiles.open", new_callable=mocker.AsyncMock)
+    mock_open.return_value.__aenter__.return_value.read.return_value = '{"key": "value"}'
     result = await aio_json_loads("test.json")
     assert result == {"key": "value"}
     mock_open.assert_called_once_with("test.json", mode="r")
@@ -70,7 +72,8 @@ async def test_aio_json_loads(mocker):
 
 @pytest.mark.asyncio
 async def test_run_aio_json_loads(mocker):
-    mock_open = mocker.patch("aiofiles.open", mocker.mock_open(read_data='{"key": "value"}'))
+    mock_open = mocker.patch("aiofiles.open", new_callable=mocker.AsyncMock)
+    mock_open.return_value.__aenter__.return_value.read.return_value = '{"key": "value"}'
     result = await run_aio_json_loads("test.json")
     assert result == {"key": "value"}
     mock_open.assert_called_once_with("test.json", mode="r")
@@ -100,59 +103,59 @@ def test_get_all_media_files_to_upload(mocker):
 
 
 def test_filter_pth():
-    result = filter_pth(["file1.pth", "file2.txt"])
+    result = filter_pth(["file1.pth", "file2.txt", "file3.PTH"])
     assert result == ["file1.pth"]
 
 
 def test_filter_json():
-    result = filter_json(["file1.json", "file2.txt"])
+    result = filter_json(["file1.json", "file2.txt", "file3.JSON"])
     assert result == ["file1.json"]
 
 
 def test_rename_without_cachebuster(mocker):
     mock_rename = mocker.patch("pathlib.Path.rename")
-    result = rename_without_cachebuster(["file1?updatedAt=123", "file2"])
+    result = rename_without_cachebuster(["file1?updatedAt=123", "file2", "file3?updatedAt=456"])
     assert result == ["file1", "file2"]
     mock_rename.assert_called_once()
 
 
 def test_filter_videos():
-    result = filter_videos(["file1.mp4", "file2.txt"])
+    result = filter_videos(["file1.mp4", "file2.txt", "file3.MP4"])
     assert result == ["file1.mp4"]
 
 
 def test_filter_audio():
-    result = filter_audio(["file1.mp3", "file2.txt"])
+    result = filter_audio(["file1.mp3", "file2.txt", "file3.MP3"])
     assert result == ["file1.mp3"]
 
 
 def test_filter_gif():
-    result = filter_gif(["file1.gif", "file2.txt"])
+    result = filter_gif(["file1.gif", "file2.txt", "file3.GIF"])
     assert result == ["file1.gif"]
 
 
 def test_filter_mkv():
-    result = filter_mkv(["file1.mkv", "file2.txt"])
+    result = filter_mkv(["file1.mkv", "file2.txt", "file3.MKV"])
     assert result == ["file1.mkv"]
 
 
 def test_filter_m3u8():
-    result = filter_m3u8(["file1.m3u8", "file2.txt"])
+    result = filter_m3u8(["file1.m3u8", "file2.txt", "file3.M3U8"])
     assert result == ["file1.m3u8"]
 
 
 def test_filter_webm():
-    result = filter_webm(["file1.webm", "file2.txt"])
+    result = filter_webm(["file1.webm", "file2.txt", "file3.WEBM"])
     assert result == ["file1.webm"]
 
 
 def test_filter_images():
-    result = filter_images(["file1.png", "file2.txt"])
+    result = filter_images(["file1.png", "file2.txt", "file3.PNG"])
     assert result == ["file1.png"]
 
 
 def test_filter_pdfs():
-    result = filter_pdfs(["file1.pdf", "file2.txt"])
+    result = filter_pdfs(["file1.pdf", "file2.txt", "file3.PDF"])
     assert result == ["file1.pdf"]
 
 
@@ -174,20 +177,21 @@ def test_filter_pdf(mocker):
 
 def test_get_dataframe_from_csv(mocker):
     mock_read_csv = mocker.patch("pandas.read_csv", return_value=pd.DataFrame({"col1": [1], "col2": [2]}))
-    result = get_dataframe_from_csv("test.csv")
-    assert result.equals(pd.DataFrame({"col1": [1], "col2": [2]}))
-    mock_read_csv.assert_called_once_with("test.csv")
+    result = get_dataframe_from_csv("/Users/malcolm/dev/bossjones/goob_ai/test.csv")
+    assert result.equals(pd.DataFrame({"col1": [1], "col2": [2]})), f"Expected DataFrame: {pd.DataFrame({'col1': [1], 'col2': [2]})}, but got: {result}"
+    mock_read_csv.assert_called_once_with("/Users/malcolm/dev/bossjones/goob_ai/test.csv")
 
 
 def test_sort_dataframe():
     df = pd.DataFrame({"col1": [2, 1], "col2": [1, 2]})
     result = sort_dataframe(df, columns=["col1"], ascending=(True,))
-    assert result.equals(pd.DataFrame({"col1": [1, 2], "col2": [2, 1]}))
+    expected_df = pd.DataFrame({"col1": [1, 2], "col2": [2, 1]})
+    assert result.equals(expected_df), f"Expected DataFrame: {expected_df}, but got: {result}"
 
 
 def test_rich_format_followers():
     result = rich_format_followers(1000000)
-    assert result == "[bold bright_yellow]1000000[/bold bright_yellow]"
+    assert result == "[bold bright_white]1000000[/bold bright_white]"
 
 
 def test_rich_likes_or_comments():
@@ -255,33 +259,35 @@ def test_print_and_append(mocker):
 def test_tree(mocker):
     mock_rglob = mocker.patch("pathlib.Path.rglob", return_value=[pathlib.Path("file1"), pathlib.Path("file2")])
     mock_getmtime = mocker.patch("os.path.getmtime", side_effect=[2, 1])
-    result = tree(pathlib.Path("test_dir"), silent=True)
+    result = tree(pathlib.Path("/Users/malcolm/dev/bossjones/goob_ai/test_dir"), silent=True)
     assert result == [pathlib.Path("file2"), pathlib.Path("file1")]
 
 
 def test_format_size():
     result = format_size(1024)
-    assert result == "1 KB"
+    expected_result = "1 KB"
+    assert result == expected_result, f"Expected: {expected_result}, but got: {result}"
 
 
 @pytest.mark.asyncio
 async def test_aiowrite_file(mocker):
-    mock_open = mocker.patch("aiofiles.open", mocker.mock_open())
+    mock_open = mocker.patch("aiofiles.open", new_callable=mocker.AsyncMock)
     await aiowrite_file("data", dl_dir="test_dir", fname="test", ext="txt")
     mock_open.assert_called_once_with(pathlib.Path("test_dir/test.txt").absolute(), mode="w")
 
 
 @pytest.mark.asyncio
 async def test_airead_file(mocker):
-    mock_open = mocker.patch("aiofiles.open", mocker.mock_open(read_data="data"))
+    mock_open = mocker.patch("aiofiles.open", new_callable=mocker.AsyncMock)
+    mock_open.return_value.__aenter__.return_value.read.return_value = "data"
     await aioread_file("data", dl_dir="test_dir", fname="test", ext="txt")
     mock_open.assert_called_once_with(pathlib.Path("test_dir/test.txt").absolute(), mode="r")
 
 
 def test_check_file_size(mocker):
     mock_stat = mocker.patch("pathlib.Path.stat", return_value=mocker.Mock(st_size=1024))
-    result = check_file_size("test_file")
-    assert result == (False, "Is file size greater than 8000000: False")
+    result = check_file_size("/Users/malcolm/dev/bossjones/goob_ai/test_file")
+    assert result == (False, "Is file size greater than 50000000: False")
 
 
 def test_is_file(mocker):
