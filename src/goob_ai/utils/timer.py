@@ -37,14 +37,16 @@ class Timer:
 
     def start(self):
         """Start the timer."""
-        self._start_time = time.time()
-        self._stop_time = None
+        if self._start_time is None:
+            self._start_time = time.time()
+            self._stop_time = None
 
     def stop(self):
         """Stop the timer."""
-        if self._stop_time is None:
+        if self._start_time is not None:
             self._stop_time = time.time()
             self._duration += self._stop_time - self._start_time
+            self._start_time = None
 
     def duration(self) -> float:
         """Get the duration of the timer."""

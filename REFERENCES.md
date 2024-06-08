@@ -19,3 +19,122 @@
 
 ## send message if too long discord
 - https://github.com/namastexlabs/namastex_insights/blob/5cb75699ac48c7c2715c20ad58ff4a9c3d3a0ddd/experimental/bot.py#L117-L129
+
+
+## Auto use aider to write pytests
+
+example session:
+
+```
+──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+> /add src/goob_ai/utils/timer.py
+
+Added /Users/malcolm/dev/bossjones/goob_ai/src/goob_ai/utils/timer.py to the chat
+──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+src/goob_ai/utils/timer.py
+> /add tests/utils/test_timer.py
+
+Added /Users/malcolm/dev/bossjones/goob_ai/tests/utils/test_timer.py to the chat
+──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+src/goob_ai/utils/timer.py tests/utils/test_timer.py
+> using pytest, write tests for test_timer.py that cover every function in timer.py. mock if necessary but only use pytest-mock, do not use unittest.mock.
+
+Here are the tests for test_timer.py that cover every function in timer.py using pytest and pytest-mock:
+
+tests/utils/test_timer.py
+
+
+ <<<<<<< SEARCH
+ =======
+ import pytest
+ import time
+ from src.goob_ai.utils.timer import Timer, TimerCollection
+
+ def test_timer_start_stop(mocker):
+     timer = Timer()
+     mock_time = mocker.patch("time.time", side_effect=[1, 2])
+     timer.start()
+     timer.stop()
+     assert timer.duration() == 1.0
+
+ def test_timer_duration_running(mocker):
+     timer = Timer()
+     mock_time = mocker.patch("time.time", side_effect=[1, 2, 3])
+     timer.start()
+     assert timer.duration() == 1.0
+     timer.stop()
+     assert timer.duration() == 2.0
+
+ def test_timer_reset(mocker):
+     timer = Timer()
+     mock_time = mocker.patch("time.time", side_effect=[1, 2])
+     timer.start()
+     timer.stop()
+     timer.reset()
+     assert timer.duration() == 0.0
+
+ def test_timer_str(mocker):
+     timer = Timer()
+     mock_time = mocker.patch("time.time", side_effect=[1, 2])
+     timer.start()
+     timer.stop()
+     assert str(timer) == "1.000s"
+
+ def test_timer_collection_start_stop(mocker):
+     tc = TimerCollection()
+     mock_time = mocker.patch("time.time", side_effect=[1, 2, 3, 4])
+     tc.start("Timer 1")
+     tc.start("Timer 2")
+     tc.stop("Timer 1")
+     tc.stop("Timer 2")
+     assert tc.duration("Timer 1") == 1.0
+     assert tc.duration("Timer 2") == 2.0
+
+ def test_timer_collection_reset(mocker):
+     tc = TimerCollection()
+     mock_time = mocker.patch("time.time", side_effect=[1, 2, 3])
+     tc.start("Timer 1")
+     tc.stop("Timer 1")
+     tc.reset("Timer 1")
+     assert tc.duration("Timer 1") == 0.0
+
+ def test_timer_collection_reset_all(mocker):
+     tc = TimerCollection()
+     mock_time = mocker.patch("time.time", side_effect=[1, 2, 3, 4])
+     tc.start("Timer 1")
+     tc.start("Timer 2")
+     tc.stop("Timer 1")
+     tc.stop("Timer 2")
+     tc.reset_all()
+     assert tc.duration("Timer 1") == 0.0
+     assert tc.duration("Timer 2") == 0.0
+
+ def test_timer_collection_names():
+     tc = TimerCollection()
+     tc.start("Timer 1")
+     tc.start("Timer 2")
+     assert set(tc.names()) == {"Timer 1", "Timer 2"}
+
+ def test_timer_collection_str(mocker):
+     tc = TimerCollection()
+     mock_time = mocker.patch("time.time", side_effect=[1, 2, 3, 4])
+     tc.start("Timer 1")
+     tc.start("Timer 2")
+     tc.stop("Timer 1")
+     tc.stop("Timer 2")
+     assert str(tc) == "Timer 1: 1.000000s\nTimer 2: 2.000000s"
+ >>>>>>> REPLACE
+
+
+
+Executing <Task finished name='Task-3941' coro=<Logging.async_success_handler() done, defined at /Users/malcolm/.pyenv/versions/3.10.12/envs/aider3/lib/python3.10/site-packages/litellm/utils.py:2112> result=None created at /Users/malcolm/.pyenv/versions/3.10.12/lib/python3.10/asyncio/tasks.py:636> took 0.359 seconds
+Did not apply edit to tests/utils/test_timer.py (--dry-run)
+──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+src/goob_ai/utils/timer.py tests/utils/test_timer.py
+```
+
+example prompt:
+
+`sing pytest, write tests for test_timer.py that cover every function in timer.py. mock if necessary but only use pytest-mock, do not use unittest.mock.`
+
+source: https://www.youtube.com/watch?v=AeASAsPp9LE
