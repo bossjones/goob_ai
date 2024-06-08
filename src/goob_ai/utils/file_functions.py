@@ -174,6 +174,7 @@ def filter_json(working_dir: list[str]) -> list[str]:
     return [
         f for f in working_dir if (pathlib.Path(f"{f}").is_file()) and pathlib.Path(f"{f}").suffix.lower() in JSON_EXTENSIONS
     ]
+    ]
 
 
 def rename_without_cachebuster(working_dir: list[str]) -> list[str]:
@@ -208,6 +209,7 @@ def filter_videos(working_dir: list[str]) -> list[str]:
     return [
         f for f in working_dir if (pathlib.Path(f"{f}").is_file()) and pathlib.Path(f"{f}").suffix.lower() in VIDEO_EXTENSIONS
     ]
+    ]
 
 
 def filter_audio(working_dir: list[str]) -> list[str]:
@@ -221,6 +223,7 @@ def filter_audio(working_dir: list[str]) -> list[str]:
     """
     return [
         f for f in working_dir if (pathlib.Path(f"{f}").is_file()) and pathlib.Path(f"{f}").suffix.lower() in AUDIO_EXTENSIONS
+    ]
     ]
 
 
@@ -236,6 +239,7 @@ def filter_gif(working_dir: list[str]) -> list[str]:
     return [
         f for f in working_dir if (pathlib.Path(f"{f}").is_file()) and pathlib.Path(f"{f}").suffix.lower() in GIF_EXTENSIONS
     ]
+    ]
 
 
 def filter_mkv(working_dir: list[str]) -> list[str]:
@@ -249,6 +253,7 @@ def filter_mkv(working_dir: list[str]) -> list[str]:
     """
     return [
         f for f in working_dir if (pathlib.Path(f"{f}").is_file()) and pathlib.Path(f"{f}").suffix.lower() in MKV_EXTENSIONS
+    ]
     ]
 
 
@@ -264,6 +269,7 @@ def filter_m3u8(working_dir: list[str]) -> list[str]:
     return [
         f for f in working_dir if (pathlib.Path(f"{f}").is_file()) and pathlib.Path(f"{f}").suffix.lower() in M3U8_EXTENSIONS
     ]
+    ]
 
 
 def filter_webm(working_dir: list[str]) -> list[str]:
@@ -277,6 +283,7 @@ def filter_webm(working_dir: list[str]) -> list[str]:
     """
     return [
         f for f in working_dir if (pathlib.Path(f"{f}").is_file()) and pathlib.Path(f"{f}").suffix.lower() in WEBM_EXTENSIONS
+    ]
     ]
 
 
@@ -292,6 +299,7 @@ def filter_images(working_dir: list[str]) -> list[str]:
     return [
         f for f in working_dir if (pathlib.Path(f"{f}").is_file()) and pathlib.Path(f"{f}").suffix.lower() in IMAGE_EXTENSIONS
     ]
+    ]
 
 
 def filter_pdfs(working_dir: list[str]) -> list[str]:
@@ -305,6 +313,7 @@ def filter_pdfs(working_dir: list[str]) -> list[str]:
     """
     return [
         f for f in working_dir if (pathlib.Path(f"{f}").is_file()) and pathlib.Path(f"{f}").suffix.lower() in {".pdf"}
+    ]
     ]
 
 
@@ -381,7 +390,7 @@ def sort_dataframe(df: DataFrame, columns: list[str] | None = None, ascending: t
     """
     if columns is None:
         columns = []  # type: ignore
-    df = df.sort_values(by=columns, ascending=ascending)
+    df = df.sort_values(by=columns, ascending=list(ascending))
     return df
 
 
@@ -605,7 +614,10 @@ def tree(directory: pathlib.Path, silent: bool = False) -> list[pathlib.Path]:
     print_and_append(_tree, f"+ {directory}", silent=silent)
     for path in sorted(directory.rglob("*")):
         file_system.append(pathlib.Path(f"{path.resolve()}"))
-        depth = len(path.resolve().relative_to(directory.resolve()).parts)
+        try:
+            depth = len(path.resolve().relative_to(directory.resolve()).parts)
+        except ValueError:
+            continue
         spacer = "    " * depth
         print_and_append(_tree, f"{spacer}+ {path.name}", silent=silent)
 
@@ -628,6 +640,8 @@ def format_size(a_file: int) -> str:
         return "{:.0f} MB".format(a_file / float(1024**2))
     elif a_file > 1024:
         return "{:.0f} KB".format(a_file / float(1024))
+    elif a_file > 1024:
+        return "{:.0f} KB".format(a_file / float(1024))
     else:
         return "{:.0f} B".format(a_file)
 
@@ -647,6 +661,7 @@ async def aiowrite_file(data: str, dl_dir: str = "./", fname: str = "", ext: str
     LOGGER.debug(f"Writing to {p_new.absolute()}")
     async with aiofiles.open(p_new.absolute(), mode="w") as f:
         await f.write(data)
+        await f.write(data)
 
 
 async def aioread_file(data: str, dl_dir: str = "./", fname: str = "", ext: str = "") -> None:
@@ -663,6 +678,7 @@ async def aioread_file(data: str, dl_dir: str = "./", fname: str = "", ext: str 
     p_new = pathlib.Path(f"{full_path_dl_dir}/{fname}.{ext}")
     LOGGER.debug(f"Writing to {p_new.absolute()}")
     async with aiofiles.open(p_new.absolute(), mode="r") as f:
+        await f.read(data)
         await f.read(data)
 
 
