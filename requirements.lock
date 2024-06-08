@@ -859,7 +859,7 @@ starlette==0.37.2
     # via aioprometheus
     # via fastapi
     # via sse-starlette
-streamlit==1.35.0
+streamlit==1.34.0
     # via goob-ai
     # via simpletransformers
 striprtf==0.0.26

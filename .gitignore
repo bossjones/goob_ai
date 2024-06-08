@@ -358,3 +358,5 @@ database/messages.db
 typingcov/
 diditwork.webp
 temp/
+.aider*
+!.aider.conf.yml
