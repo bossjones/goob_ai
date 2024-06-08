@@ -1,4 +1,4 @@
-# pylint: disable=possibly-used-before-assignment
+# pylint: disable=possibly-used-before-assignment,used-before-assignment
 """goob_ai.utils.events"""
 
 from __future__ import annotations
