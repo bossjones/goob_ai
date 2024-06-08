@@ -55,7 +55,7 @@ import pytest
 @pytest.mark.asyncio
 async def test_aio_read_jsonfile(mocker):
     mock_open = mocker.patch("aiofiles.open", new_callable=mocker.AsyncMock)
-    mock_open.return_value.__aenter__.return_value.read.return_value = '{"key": "value"}'
+    mock_open.return_value.__aenter__.return_value.read = mocker.AsyncMock(return_value='{"key": "value"}')
     result = await aio_read_jsonfile("test.json")
     assert result == {"key": "value"}
     mock_open.assert_called_once_with("test.json", mode="r", encoding="utf-8")
@@ -279,7 +279,7 @@ async def test_aiowrite_file(mocker):
 @pytest.mark.asyncio
 async def test_airead_file(mocker):
     mock_open = mocker.patch("aiofiles.open", new_callable=mocker.AsyncMock)
-    mock_open.return_value.__aenter__.return_value.read.return_value = "data"
+    mock_open.return_value.__aenter__.return_value.read = mocker.AsyncMock(return_value="data")
     await aioread_file("data", dl_dir="test_dir", fname="test", ext="txt")
     mock_open.assert_called_once_with(pathlib.Path("test_dir/test.txt").absolute(), mode="r")
 
