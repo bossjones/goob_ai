@@ -38,11 +38,12 @@ def display_image_grid(
     device: torch.device = DEVICE,
 ):
     LOGGER.info(f"images_filepaths: {images_filepaths}")
-    import bpdb
 
-    bpdb.set_trace()
     rows = len(images_filepaths) // cols
     # figure, ax = plt.subplots(nrows=rows, ncols=cols, figsize=(12, 6))
+    # import bpdb
+
+    # bpdb.set_trace()
     figure, ax = plt.subplots(nrows=rows, ncols=cols, figsize=(30, 10))
     for i, image_filepath in enumerate(images_filepaths):
         image, bboxes = predict_from_file(image_filepath, model, device)
@@ -50,6 +51,10 @@ def display_image_grid(
         # set_trace()
 
         img_as_array = np.asarray(image)
+
+        # SOURCE: https://github.com/opencv/opencv/issues/24522
+        # SOURCE: https://github.com/intel/cloud-native-ai-pipeline/pull/179/files
+        frame = img_as_array.copy()
 
         # get fullsize bboxes
         xmin_fullsize, ymin_fullsize, xmax_fullsize, ymax_fullsize = bboxes[0]
@@ -63,7 +68,7 @@ def display_image_grid(
         thickness = 2
 
         out_img = cv2.rectangle(
-            img_as_array,
+            frame,
             starting_point_fullsize,
             end_point_fullsize,
             (255, 0, 0),
