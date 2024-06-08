@@ -59,7 +59,15 @@ IMAGE_EXTENSIONS = [".png", ".jpeg", ".jpg", ".gif", ".PNG", ".JPEG", ".JPG", ".
 TORCH_MODEL_EXTENSIONS = [".pth", ".PTH"]
 
 
-async def aio_read_jsonfile(jsonfile: str):
+async def aio_read_jsonfile(jsonfile: str) -> dict:
+    """Read a JSON file asynchronously.
+
+    Args:
+        jsonfile (str): Path to the JSON file.
+
+    Returns:
+        dict: Parsed JSON data.
+    """
     print(f" [aio_read_jsonfile] jsonfile -> {jsonfile}")
     async with aiofiles.open(jsonfile, mode="r", encoding="utf-8") as f:
         contents = await f.read()
@@ -68,25 +76,65 @@ async def aio_read_jsonfile(jsonfile: str):
     return json_data
 
 
-async def aio_json_loads(uri: str):
+async def aio_json_loads(uri: str) -> dict:
+    """Load JSON data from a file asynchronously.
+
+    Args:
+        uri (str): Path to the JSON file.
+
+    Returns:
+        dict: Parsed JSON data.
+    """
     return json.loads(await (await aiofiles.open(uri, mode="r")).read())
 
 
-async def run_aio_json_loads(uri: str):
+async def run_aio_json_loads(uri: str) -> dict:
+    """Run the aio_json_loads function.
+
+    Args:
+        uri (str): Path to the JSON file.
+
+    Returns:
+        dict: Parsed JSON data.
+    """
     return await aio_json_loads(uri=uri)
 
 
 # SOURCE: https://stackoverflow.com/questions/168409/how-do-you-get-a-directory-listing-sorted-by-creation-date-in-python
-def sort_dir_by_mtime(dirpath: str) -> List[pathlib.Path]:
+def sort_dir_by_mtime(dirpath: str) -> list[pathlib.Path]:
+    """Sort directory contents by modification time.
+
+    Args:
+        dirpath (str): Path to the directory.
+
+    Returns:
+        list[pathlib.Path]: List of sorted paths.
+    """
     return sorted(pathlib.Path(dirpath).iterdir(), key=os.path.getmtime)
 
 
 # SOURCE: https://stackoverflow.com/questions/168409/how-do-you-get-a-directory-listing-sorted-by-creation-date-in-python
-def sort_dir_by_ctime(dirpath: str) -> List[pathlib.Path]:
+def sort_dir_by_ctime(dirpath: str) -> list[pathlib.Path]:
+    """Sort directory contents by creation time.
+
+    Args:
+        dirpath (str): Path to the directory.
+
+    Returns:
+        list[pathlib.Path]: List of sorted paths.
+    """
     return sorted(pathlib.Path(dirpath).iterdir(), key=os.path.getctime)
 
 
-def get_all_media_files_to_upload(tmpdirname: str):
+def get_all_media_files_to_upload(tmpdirname: str) -> list[str]:
+    """Get all media files to upload from a directory.
+
+    Args:
+        tmpdirname (str): Path to the temporary directory.
+
+    Returns:
+        list[str]: List of media file paths.
+    """
     # top level function that grabs all media files
     tree_list = tree(pathlib.Path(f"{tmpdirname}"))
     rich.print(tree_list)
@@ -98,21 +146,47 @@ def get_all_media_files_to_upload(tmpdirname: str):
     return filter_media(file_to_upload_list)
 
 
-def filter_pth(working_dir: List[str]) -> List[str]:
+def filter_pth(working_dir: list[str]) -> list[str]:
+    """Filter .pth files from a directory.
+
+    Args:
+        working_dir (list[str]): List of file paths.
+
+    Returns:
+        list[str]: List of .pth file paths.
+    """
     return [
         f
         for f in working_dir
-        if (pathlib.Path(f"{f}").is_file()) and pathlib.Path(f"{f}").suffix in TORCH_MODEL_EXTENSIONS
+        if (pathlib.Path(f"{f}").is_file()) and pathlib.Path(f"{f}").suffix.lower() in TORCH_MODEL_EXTENSIONS
     ]
 
 
-def filter_json(working_dir: List[str]) -> List[str]:
+def filter_json(working_dir: list[str]) -> list[str]:
+    """Filter JSON files from a directory.
+
+    Args:
+        working_dir (list[str]): List of file paths.
+
+    Returns:
+        list[str]: List of JSON file paths.
+    """
     return [
-        f for f in working_dir if (pathlib.Path(f"{f}").is_file()) and pathlib.Path(f"{f}").suffix in JSON_EXTENSIONS
+        f
+        for f in working_dir
+        if (pathlib.Path(f"{f}").is_file()) and pathlib.Path(f"{f}").suffix.lower() in JSON_EXTENSIONS
     ]
 
 
-def rename_without_cachebuster(working_dir: List[str]) -> List[str]:
+def rename_without_cachebuster(working_dir: list[str]) -> list[str]:
+    """Rename files to remove cache buster query parameters.
+
+    Args:
+        working_dir (list[str]): List of file paths.
+
+    Returns:
+        list[str]: List of renamed file paths.
+    """
     working_dir_only = []
     for f in working_dir:
         if ("?updatedAt" in f"{f}") and (pathlib.Path(f"{f}").is_file()):
@@ -122,67 +196,171 @@ def rename_without_cachebuster(working_dir: List[str]) -> List[str]:
             orig.rename(f"{without_cb}")
             working_dir_only.append(f"{without_cb}")
     return working_dir_only
+    return working_dir_only
 
 
-def filter_videos(working_dir: List[str]) -> List[str]:
+def filter_videos(working_dir: list[str]) -> list[str]:
+    """Filter video files from a directory.
+
+    Args:
+        working_dir (list[str]): List of file paths.
+
+    Returns:
+        list[str]: List of video file paths.
+    """
     return [
-        f for f in working_dir if (pathlib.Path(f"{f}").is_file()) and pathlib.Path(f"{f}").suffix in VIDEO_EXTENSIONS
+        f
+        for f in working_dir
+        if (pathlib.Path(f"{f}").is_file()) and pathlib.Path(f"{f}").suffix.lower() in VIDEO_EXTENSIONS
     ]
 
 
-def filter_audio(working_dir: List[str]) -> List[str]:
+def filter_audio(working_dir: list[str]) -> list[str]:
+    """Filter audio files from a directory.
+
+    Args:
+        working_dir (list[str]): List of file paths.
+
+    Returns:
+        list[str]: List of audio file paths.
+    """
     return [
-        f for f in working_dir if (pathlib.Path(f"{f}").is_file()) and pathlib.Path(f"{f}").suffix in AUDIO_EXTENSIONS
+        f
+        for f in working_dir
+        if (pathlib.Path(f"{f}").is_file()) and pathlib.Path(f"{f}").suffix.lower() in AUDIO_EXTENSIONS
     ]
 
 
-def filter_gif(working_dir: List[str]) -> List[str]:
+def filter_gif(working_dir: list[str]) -> list[str]:
+    """Filter GIF files from a directory.
+
+    Args:
+        working_dir (list[str]): List of file paths.
+
+    Returns:
+        list[str]: List of GIF file paths.
+    """
     return [
-        f for f in working_dir if (pathlib.Path(f"{f}").is_file()) and pathlib.Path(f"{f}").suffix in GIF_EXTENSIONS
+        f
+        for f in working_dir
+        if (pathlib.Path(f"{f}").is_file()) and pathlib.Path(f"{f}").suffix.lower() in GIF_EXTENSIONS
     ]
 
 
-def filter_mkv(working_dir: List[str]) -> List[str]:
+def filter_mkv(working_dir: list[str]) -> list[str]:
+    """Filter MKV files from a directory.
+
+    Args:
+        working_dir (list[str]): List of file paths.
+
+    Returns:
+        list[str]: List of MKV file paths.
+    """
     return [
-        f for f in working_dir if (pathlib.Path(f"{f}").is_file()) and pathlib.Path(f"{f}").suffix in MKV_EXTENSIONS
+        f
+        for f in working_dir
+        if (pathlib.Path(f"{f}").is_file()) and pathlib.Path(f"{f}").suffix.lower() in MKV_EXTENSIONS
     ]
 
 
-def filter_m3u8(working_dir: List[str]) -> List[str]:
+def filter_m3u8(working_dir: list[str]) -> list[str]:
+    """Filter M3U8 files from a directory.
+
+    Args:
+        working_dir (list[str]): List of file paths.
+
+    Returns:
+        list[str]: List of M3U8 file paths.
+    """
     return [
-        f for f in working_dir if (pathlib.Path(f"{f}").is_file()) and pathlib.Path(f"{f}").suffix in M3U8_EXTENSIONS
+        f
+        for f in working_dir
+        if (pathlib.Path(f"{f}").is_file()) and pathlib.Path(f"{f}").suffix.lower() in M3U8_EXTENSIONS
     ]
 
 
-def filter_webm(working_dir: List[str]) -> List[str]:
+def filter_webm(working_dir: list[str]) -> list[str]:
+    """Filter WEBM files from a directory.
+
+    Args:
+        working_dir (list[str]): List of file paths.
+
+    Returns:
+        list[str]: List of WEBM file paths.
+    """
     return [
-        f for f in working_dir if (pathlib.Path(f"{f}").is_file()) and pathlib.Path(f"{f}").suffix in WEBM_EXTENSIONS
+        f
+        for f in working_dir
+        if (pathlib.Path(f"{f}").is_file()) and pathlib.Path(f"{f}").suffix.lower() in WEBM_EXTENSIONS
     ]
 
 
-def filter_images(working_dir: List[str]) -> List[str]:
+def filter_images(working_dir: list[str]) -> list[str]:
+    """Filter image files from a directory.
+
+    Args:
+        working_dir (list[str]): List of file paths.
+
+    Returns:
+        list[str]: List of image file paths.
+    """
     return [
-        f for f in working_dir if (pathlib.Path(f"{f}").is_file()) and pathlib.Path(f"{f}").suffix in IMAGE_EXTENSIONS
+        f
+        for f in working_dir
+        if (pathlib.Path(f"{f}").is_file()) and pathlib.Path(f"{f}").suffix.lower() in IMAGE_EXTENSIONS
     ]
 
 
-def filter_pdfs(working_dir: List[str]) -> List[str]:
+def filter_pdfs(working_dir: list[str]) -> list[str]:
+    """Filter PDF files from a directory.
+
+    Args:
+        working_dir (list[str]): List of file paths.
+
+    Returns:
+        list[str]: List of PDF file paths.
+    """
     return [
-        f for f in working_dir if (pathlib.Path(f"{f}").is_file()) and pathlib.Path(f"{f}").suffix in {".pdf", ".PDF"}
+        f for f in working_dir if (pathlib.Path(f"{f}").is_file()) and pathlib.Path(f"{f}").suffix.lower() in {".pdf"}
     ]
 
 
-def filter_media(working_dir: List[str]) -> List[str]:
+def filter_media(working_dir: list[str]) -> list[str]:
+    """Filter image and video files from a directory.
+
+    Args:
+        working_dir (list[str]): List of file paths.
+
+    Returns:
+        list[str]: List of image and video file paths.
+    """
     imgs = filter_images(working_dir)
     videos = filter_videos(working_dir)
     return imgs + videos
 
 
-def filter_pdf(working_dir: List[str]) -> List[str]:
+def filter_pdf(working_dir: list[str]) -> list[str]:
+    """Filter PDF files from a directory.
+
+    Args:
+        working_dir (list[str]): List of file paths.
+
+    Returns:
+        list[str]: List of PDF file paths.
+    """
     return filter_pdfs(working_dir)
 
 
-def get_dataframe_from_csv(filename: str, return_parent_folder_name: bool = False) -> DataFrame:
+def get_dataframe_from_csv(filename: str, return_parent_folder_name: bool = False) -> DataFrame | tuple[DataFrame, str]:
+    """Open a CSV file and return a DataFrame.
+
+    Args:
+        filename (str): Path to the CSV file.
+        return_parent_folder_name (bool, optional): Whether to return the parent folder name. Defaults to False.
+
+    Returns:
+        DataFrame | tuple[DataFrame, str]: DataFrame or tuple of DataFrame and parent folder name.
+    """
     """Open csv files and return a dataframe from pandas
 
     Args:
@@ -197,7 +375,17 @@ def get_dataframe_from_csv(filename: str, return_parent_folder_name: bool = Fals
     return (df, f"{src.parent.stem}") if return_parent_folder_name else df
 
 
-def sort_dataframe(df: DataFrame, columns: list = None, ascending: Tuple = ()) -> DataFrame:
+def sort_dataframe(df: DataFrame, columns: list[str] | None = None, ascending: tuple[bool, ...] = ()) -> DataFrame:
+    """Sort a DataFrame by specified columns.
+
+    Args:
+        df (DataFrame): DataFrame to sort.
+        columns (list[str], optional): Columns to sort by. Defaults to None.
+        ascending (tuple[bool, ...], optional): Sort order for each column. Defaults to ().
+
+    Returns:
+        DataFrame: Sorted DataFrame.
+    """
     """Return dataframe sorted via columns
 
     Args:
@@ -210,11 +398,19 @@ def sort_dataframe(df: DataFrame, columns: list = None, ascending: Tuple = ()) -
     """
     if columns is None:
         columns = []  # type: ignore
-    df = df.sort_values(columns, ascending=ascending)
+    df = df.sort_values(by=columns, ascending=list(ascending))
     return df
 
 
 def rich_format_followers(val: int) -> str:
+    """Format follower count with rich text.
+
+    Args:
+        val (int): Follower count.
+
+    Returns:
+        str: Formatted follower count.
+    """
     """Given a arbritary int, return a 'rich' string formatting
 
     Args:
@@ -244,6 +440,14 @@ def rich_format_followers(val: int) -> str:
 
 
 def rich_likes_or_comments(val: int) -> str:
+    """Format likes or comments count with rich text.
+
+    Args:
+        val (int): Likes or comments count.
+
+    Returns:
+        str: Formatted likes or comments count.
+    """
     """Given a arbritary int, return a 'rich' string formatting
 
     Args:
@@ -267,7 +471,12 @@ def rich_likes_or_comments(val: int) -> str:
         return f"[bold bright_white]{val}[/bold bright_white]"
 
 
-def rich_display_meme_pull_list(df: DataFrame):  # noqa
+def rich_display_meme_pull_list(df: DataFrame) -> None:  # noqa
+    """Display meme pull list in a rich table format.
+
+    Args:
+        df (DataFrame): DataFrame containing meme pull list data.
+    """
     console = Console()
 
     table = Table(show_header=True, header_style="bold magenta")
@@ -320,7 +529,12 @@ def rich_display_meme_pull_list(df: DataFrame):  # noqa
     console.print(table)
 
 
-def rich_display_popstars_analytics(df: DataFrame):  # noqa
+def rich_display_popstars_analytics(df: DataFrame) -> None:  # noqa
+    """Display popstars analytics in a rich table format.
+
+    Args:
+        df (DataFrame): DataFrame containing popstars analytics data.
+    """
     console = Console()
 
     table = Table(show_header=True, header_style="bold magenta")
@@ -356,7 +570,17 @@ def rich_display_popstars_analytics(df: DataFrame):  # noqa
 # # >>> json_files
 
 
-def glob_file_by_extension(working_dir: List[str], extension: str = "*.mp4", recursive: bool = False) -> List[str]:
+def glob_file_by_extension(working_dir: str, extension: str = "*.mp4", recursive: bool = False) -> list[str]:
+    """Find files by extension using glob.
+
+    Args:
+        working_dir (str): Directory to search in.
+        extension (str, optional): File extension to search for. Defaults to "*.mp4".
+        recursive (bool, optional): Whether to search recursively. Defaults to False.
+
+    Returns:
+        list[str]: List of file paths.
+    """
     print(f"Searching dir -> {working_dir}/{extension}")
 
     if recursive:
@@ -367,13 +591,29 @@ def glob_file_by_extension(working_dir: List[str], extension: str = "*.mp4", rec
     return glob.glob(expression, recursive=recursive)
 
 
-def print_and_append(dir_listing: list, tree_str: str, silent: bool = False) -> None:
+def print_and_append(dir_listing: list[str], tree_str: str, silent: bool = False) -> None:
+    """Print and append directory listing.
+
+    Args:
+        dir_listing (list[str]): List to append to.
+        tree_str (str): String to print and append.
+        silent (bool, optional): Whether to suppress printing. Defaults to False.
+    """
     if not silent:
         print(tree_str)
     dir_listing.append(tree_str)
 
 
-def tree(directory: Union[pathlib.PosixPath, pathlib.Path], silent: bool = False) -> List[pathlib.PosixPath]:
+def tree(directory: pathlib.Path, silent: bool = False) -> list[pathlib.Path]:
+    """Generate a tree structure of a directory.
+
+    Args:
+        directory (pathlib.Path): Path to the directory.
+        silent (bool, optional): Whether to suppress printing. Defaults to False.
+
+    Returns:
+        list[pathlib.Path]: List of file paths in the directory.
+    """
     """"""
     # from ffmpeg_tools import fileobject
     file_system: List[pathlib.Path]
@@ -382,7 +622,10 @@ def tree(directory: Union[pathlib.PosixPath, pathlib.Path], silent: bool = False
     print_and_append(_tree, f"+ {directory}", silent=silent)
     for path in sorted(directory.rglob("*")):
         file_system.append(pathlib.Path(f"{path.resolve()}"))
-        depth = len(path.relative_to(directory).parts)
+        try:
+            depth = len(path.resolve().relative_to(directory.resolve()).parts)
+        except ValueError:
+            continue
         spacer = "    " * depth
         print_and_append(_tree, f"{spacer}+ {path.name}", silent=silent)
 
@@ -390,36 +633,72 @@ def tree(directory: Union[pathlib.PosixPath, pathlib.Path], silent: bool = False
 
 
 # SOURCE: https://python.hotexamples.com/site/file?hash=0xda3708e60cd1ddb3012abd7dba205f48214aee7366f452e93807887c6a04db42&fullName=spring_cleaning.py&project=pambot/SpringCleaning
-def format_size(a_file: str):
+def format_size(a_file: int) -> str:
+    """Format file size in human-readable format.
+
+    Args:
+        a_file (int): File size in bytes.
+
+    Returns:
+        str: Formatted file size.
+    """
     if a_file > 1024**3:
-        return "{:.0f} GB".format(a_file / float(2**30))
+        return "{:.0f} GB".format(a_file / float(1024**3))
     elif a_file > 1024**2:
-        return "{:.0f} MB".format(a_file / float(2**20))
+        return "{:.0f} MB".format(a_file / float(1024**2))
     elif a_file > 1024:
-        return "{:.0f} KB".format(a_file / float(2**10))
+        return "{:.0f} KB".format(a_file / float(1024))
+    elif a_file > 1024:
+        return "{:.0f} KB".format(a_file / float(1024))
     else:
         return "{:.0f} B".format(a_file)
 
 
-async def aiowrite_file(data: str, dl_dir: str = "./", fname: str = "", ext: str = ""):
+async def aiowrite_file(data: str, dl_dir: str = "./", fname: str = "", ext: str = "") -> None:
+    """Write data to a file asynchronously.
+
+    Args:
+        data (str): Data to write.
+        dl_dir (str, optional): Directory to write to. Defaults to "./".
+        fname (str, optional): File name. Defaults to "".
+        ext (str, optional): File extension. Defaults to "".
+    """
     p_dl_dir = pathlib.Path(dl_dir)
     full_path_dl_dir = f"{p_dl_dir.absolute()}"
     p_new = pathlib.Path(f"{full_path_dl_dir}/{fname}.{ext}")
     LOGGER.debug(f"Writing to {p_new.absolute()}")
-    async with aiofiles.open(f"{p_new.absolute()}", mode="w") as f:
+    async with aiofiles.open(p_new.absolute(), mode="w") as f:
+        await f.write(data)
         await f.write(data)
 
 
-async def aioread_file(data: str, dl_dir: str = "./", fname: str = "", ext: str = ""):
+async def aioread_file(data: str, dl_dir: str = "./", fname: str = "", ext: str = "") -> None:
+    """Read data from a file asynchronously.
+
+    Args:
+        data (str): Data to read.
+        dl_dir (str, optional): Directory to read from. Defaults to "./".
+        fname (str, optional): File name. Defaults to "".
+        ext (str, optional): File extension. Defaults to "".
+    """
     p_dl_dir = pathlib.Path(dl_dir)
     full_path_dl_dir = f"{p_dl_dir.absolute()}"
     p_new = pathlib.Path(f"{full_path_dl_dir}/{fname}.{ext}")
     LOGGER.debug(f"Writing to {p_new.absolute()}")
-    async with aiofiles.open(f"{p_new.absolute()}", mode="r") as f:
+    async with aiofiles.open(p_new.absolute(), mode="r") as f:
+        await f.read(data)
         await f.read(data)
 
 
-def check_file_size(a_file: str) -> Tuple[bool, str]:
+def check_file_size(a_file: str) -> tuple[bool, str]:
+    """Check if a file size exceeds the maximum allowed size.
+
+    Args:
+        a_file (str): Path to the file.
+
+    Returns:
+        tuple[bool, str]: Tuple containing a boolean indicating if the file size exceeds the limit and a message.
+    """
     p = pathlib.Path(a_file)
     file_size = p.stat().st_size
     LOGGER.debug(f"File: {p} | Size(bytes): {file_size} | Size(type): {type(file_size)}")
@@ -433,7 +712,15 @@ def check_file_size(a_file: str) -> Tuple[bool, str]:
 # NOTE: MOVE THIS TO A FILE UTILITIES LIBRARY
 # ------------------------------------------------------------
 # SOURCE: https://github.com/tgbugs/pyontutils/blob/05dc32b092b015233f4a6cefa6c157577d029a40/ilxutils/tools.py
-def is_file(path: str):
+def is_file(path: str) -> bool:
+    """Check if a path points to a file.
+
+    Args:
+        path (str): Path to check.
+
+    Returns:
+        bool: True if the path points to a file, False otherwise.
+    """
     """Check if path contains a file
 
     Args:
@@ -445,7 +732,15 @@ def is_file(path: str):
     return pathlib.Path(path).is_file()
 
 
-def is_directory(path: str):
+def is_directory(path: str) -> bool:
+    """Check if a path points to a directory.
+
+    Args:
+        path (str): Path to check.
+
+    Returns:
+        bool: True if the path points to a directory, False otherwise.
+    """
     """Check if path contains a dir
 
     Args:
@@ -457,7 +752,15 @@ def is_directory(path: str):
     return pathlib.Path(path).is_dir()
 
 
-def is_a_symlink(path: str):
+def is_a_symlink(path: str) -> bool:
+    """Check if a path points to a symlink.
+
+    Args:
+        path (str): Path to check.
+
+    Returns:
+        bool: True if the path points to a symlink, False otherwise.
+    """
     """Check if path contains a dir
 
     Args:
@@ -469,7 +772,15 @@ def is_a_symlink(path: str):
     return pathlib.Path(path).is_symlink()
 
 
-def expand_path_str(path: str) -> pathlib.PosixPath:
+def expand_path_str(path: str) -> pathlib.Path:
+    """Expand a path string to a full path.
+
+    Args:
+        path (str): Path string to expand.
+
+    Returns:
+        pathlib.Path: Expanded path.
+    """
     """_summary_
 
     Args:
@@ -481,7 +792,15 @@ def expand_path_str(path: str) -> pathlib.PosixPath:
     return pathlib.Path(tilda(path))
 
 
-def tilda(obj):
+def tilda(obj: str | list[str]) -> str | list[str]:
+    """Expand tilde to home directory in a path.
+
+    Args:
+        obj (str | list[str]): Path string or list of path strings.
+
+    Returns:
+        str | list[str]: Expanded path string or list of expanded path strings.
+    """
     """wrapper for linux ~/ shell notation
 
     Args:
@@ -498,7 +817,15 @@ def tilda(obj):
         return obj
 
 
-def fix_path(path: str):
+def fix_path(path: str) -> str | list[str]:
+    """Automatically convert path to fully qualified file URI.
+
+    Args:
+        path (str): Path string to fix.
+
+    Returns:
+        str | list[str]: Fixed path string or list of fixed path strings.
+    """
     """Automatically convert path to fully qualifies file uri.
 
     Args:
