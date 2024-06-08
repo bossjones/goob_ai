@@ -1221,6 +1221,7 @@ extension-pkg-whitelist = "pydantic"
 # consider-using-namedtuple-or-dataclass - too opinionated
 # consider-using-assignment-expr - decision to use := better left to devs
 disable = [
+    "possibly-used-before-assignment",
     "raw-checker-failed",
     "bad-inline-option",
     "file-ignored",
