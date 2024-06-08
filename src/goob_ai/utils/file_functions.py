@@ -160,7 +160,6 @@ def filter_pth(working_dir: list[str]) -> list[str]:
         for f in working_dir
         if (pathlib.Path(f"{f}").is_file()) and pathlib.Path(f"{f}").suffix.lower() in TORCH_MODEL_EXTENSIONS
     ]
-    ]
 
 
 def filter_json(working_dir: list[str]) -> list[str]:
@@ -173,8 +172,9 @@ def filter_json(working_dir: list[str]) -> list[str]:
         list[str]: List of JSON file paths.
     """
     return [
-        f for f in working_dir if (pathlib.Path(f"{f}").is_file()) and pathlib.Path(f"{f}").suffix.lower() in JSON_EXTENSIONS
-    ]
+        f
+        for f in working_dir
+        if (pathlib.Path(f"{f}").is_file()) and pathlib.Path(f"{f}").suffix.lower() in JSON_EXTENSIONS
     ]
 
 
@@ -195,7 +195,7 @@ def rename_without_cachebuster(working_dir: list[str]) -> list[str]:
             without_cb = f"{orig}".split("?updatedAt")[0]
             orig.rename(f"{without_cb}")
             working_dir_only.append(f"{without_cb}")
-    ]
+    return working_dir_only
     return working_dir_only
 
 
@@ -209,8 +209,9 @@ def filter_videos(working_dir: list[str]) -> list[str]:
         list[str]: List of video file paths.
     """
     return [
-        f for f in working_dir if (pathlib.Path(f"{f}").is_file()) and pathlib.Path(f"{f}").suffix.lower() in VIDEO_EXTENSIONS
-    ]
+        f
+        for f in working_dir
+        if (pathlib.Path(f"{f}").is_file()) and pathlib.Path(f"{f}").suffix.lower() in VIDEO_EXTENSIONS
     ]
 
 
@@ -224,8 +225,9 @@ def filter_audio(working_dir: list[str]) -> list[str]:
         list[str]: List of audio file paths.
     """
     return [
-        f for f in working_dir if (pathlib.Path(f"{f}").is_file()) and pathlib.Path(f"{f}").suffix.lower() in AUDIO_EXTENSIONS
-    ]
+        f
+        for f in working_dir
+        if (pathlib.Path(f"{f}").is_file()) and pathlib.Path(f"{f}").suffix.lower() in AUDIO_EXTENSIONS
     ]
 
 
@@ -239,8 +241,9 @@ def filter_gif(working_dir: list[str]) -> list[str]:
         list[str]: List of GIF file paths.
     """
     return [
-        f for f in working_dir if (pathlib.Path(f"{f}").is_file()) and pathlib.Path(f"{f}").suffix.lower() in GIF_EXTENSIONS
-    ]
+        f
+        for f in working_dir
+        if (pathlib.Path(f"{f}").is_file()) and pathlib.Path(f"{f}").suffix.lower() in GIF_EXTENSIONS
     ]
 
 
@@ -254,8 +257,9 @@ def filter_mkv(working_dir: list[str]) -> list[str]:
         list[str]: List of MKV file paths.
     """
     return [
-        f for f in working_dir if (pathlib.Path(f"{f}").is_file()) and pathlib.Path(f"{f}").suffix.lower() in MKV_EXTENSIONS
-    ]
+        f
+        for f in working_dir
+        if (pathlib.Path(f"{f}").is_file()) and pathlib.Path(f"{f}").suffix.lower() in MKV_EXTENSIONS
     ]
 
 
@@ -269,8 +273,9 @@ def filter_m3u8(working_dir: list[str]) -> list[str]:
         list[str]: List of M3U8 file paths.
     """
     return [
-        f for f in working_dir if (pathlib.Path(f"{f}").is_file()) and pathlib.Path(f"{f}").suffix.lower() in M3U8_EXTENSIONS
-    ]
+        f
+        for f in working_dir
+        if (pathlib.Path(f"{f}").is_file()) and pathlib.Path(f"{f}").suffix.lower() in M3U8_EXTENSIONS
     ]
 
 
@@ -284,8 +289,9 @@ def filter_webm(working_dir: list[str]) -> list[str]:
         list[str]: List of WEBM file paths.
     """
     return [
-        f for f in working_dir if (pathlib.Path(f"{f}").is_file()) and pathlib.Path(f"{f}").suffix.lower() in WEBM_EXTENSIONS
-    ]
+        f
+        for f in working_dir
+        if (pathlib.Path(f"{f}").is_file()) and pathlib.Path(f"{f}").suffix.lower() in WEBM_EXTENSIONS
     ]
 
 
@@ -299,8 +305,9 @@ def filter_images(working_dir: list[str]) -> list[str]:
         list[str]: List of image file paths.
     """
     return [
-        f for f in working_dir if (pathlib.Path(f"{f}").is_file()) and pathlib.Path(f"{f}").suffix.lower() in IMAGE_EXTENSIONS
-    ]
+        f
+        for f in working_dir
+        if (pathlib.Path(f"{f}").is_file()) and pathlib.Path(f"{f}").suffix.lower() in IMAGE_EXTENSIONS
     ]
 
 
@@ -315,7 +322,6 @@ def filter_pdfs(working_dir: list[str]) -> list[str]:
     """
     return [
         f for f in working_dir if (pathlib.Path(f"{f}").is_file()) and pathlib.Path(f"{f}").suffix.lower() in {".pdf"}
-    ]
     ]
 
 
