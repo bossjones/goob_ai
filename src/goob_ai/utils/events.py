@@ -1,3 +1,4 @@
+# pylint: disable=possibly-used-before-assignment
 """goob_ai.utils.events"""
 
 from __future__ import annotations
@@ -12,8 +13,6 @@ from typing import TYPE_CHECKING, List, Optional, Union
 import discord
 import rich
 
-
-# from discord.ext.commands.context import Context
 from loguru import logger as LOGGER
 
 from goob_ai import downloader

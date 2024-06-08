@@ -258,6 +258,10 @@ coverage-report-debug = {chain = [
 ]}
 coverage-show = {cmd = "python -m coverage report --fail-under=5"}
 coverage-open = {cmd = "just local-open-coverage"}
+ci = {chain = [
+    "lint",
+    "test",
+]}
 
 
 # Private tasks used for chaining (https://github.com/charbonnierg/pytest-broadcaster/blob/e98456b2f6db7f99a034795f162ac0013a8001d7/pyproject.toml#L157C1-L158C15)
