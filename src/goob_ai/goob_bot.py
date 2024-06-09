@@ -803,19 +803,20 @@ class AsyncGoobBot(commands.Bot):
             return discord.utils.find(lambda m: m.name == argument or m.nick == argument, members)  # pylint: disable=consider-using-in # pyright: ignore[reportAttributeAccessIssue]
 
     async def get_or_fetch_member(self, guild: discord.Guild, member_id: int) -> Optional[discord.Member]:
-        """Looks up a member in cache or fetches if not found.
+        """
+        Retrieve a member from the cache or fetch from the API if not found.
 
-        Parameters
-        -----------
-        guild: Guild
-            The guild to look in.
-        member_id: int
-            The member ID to search for.
+        This asynchronous function attempts to retrieve a member from the cache
+        in the specified guild using the provided member ID. If the member is not
+        found in the cache, it fetches the member from the Discord API. The function
+        handles rate limiting and returns the member if found, or None if not found.
 
-        Returns
-        ---------
-        Optional[Member]
-            The member or None if not found.
+        Args:
+            guild (discord.Guild): The guild to look in.
+            member_id (int): The member ID to search for.
+
+        Returns:
+            Optional[discord.Member]: The member if found, or None if not found.
         """
 
         member = guild.get_member(member_id)
