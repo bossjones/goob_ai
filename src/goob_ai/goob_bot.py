@@ -770,6 +770,15 @@ class AsyncGoobBot(commands.Bot):
 
     @property
     def owner(self) -> discord.User:
+        """
+        Retrieve the owner of the bot.
+
+        This property returns the owner of the bot as a discord.User object.
+        The owner information is retrieved from the bot's application info.
+
+        Returns:
+            discord.User: The owner of the bot.
+        """
         return self.bot_app_info.owner  # pyright: ignore[reportAttributeAccessIssue]
 
     def _clear_gateway_data(self) -> None:
