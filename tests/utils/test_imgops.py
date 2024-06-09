@@ -1,25 +1,38 @@
 from __future__ import annotations
 
+import asyncio
+
 from pathlib import Path
 
 import numpy as np
-import pytest_mock
 import pytest_asyncio
 import torch
 
-from goob_ai.utils.imgops import auto_split_upscale, bgr_to_rgb, bgra_to_rgba, convert_image_from_hwc_to_chw, handle_predict_one, resize_and_pillarbox, rgb_to_bgr
+from goob_ai.utils.imgops import (
+    auto_split_upscale,
+    bgr_to_rgb,
+    bgra_to_rgba,
+    convert_image_from_hwc_to_chw,
+    convert_tensor_to_pil_image,
+    denorm,
+    get_all_corners_color,
+    get_pil_image_channels,
+    get_pixel_rgb,
+    handle_autocrop,
+    handle_autocrop_one,
+    handle_get_dominant_color,
+    handle_predict,
+    handle_predict_one,
+    predict_from_file,
+    resize_and_pillarbox,
+    resize_image_and_bbox,
+    rgb_to_bgr,
+)
 from PIL import Image
-import torch
-from goob_ai.utils.imgops import convert_tensor_to_pil_image, resize_image_and_bbox
 
 import pytest
-import pytest_asyncio
-from PIL import Image
-from pathlib import Path
-from goob_ai.utils.imgops import get_all_corners_color, predict_from_file
-import asyncio
-import torch
-from goob_ai.utils.imgops import denorm, get_pil_image_channels, get_pixel_rgb, handle_autocrop, handle_autocrop_one, handle_get_dominant_color, handle_predict
+import pytest_mock
+from goob_ai.utils.devices import get_device
 
 
 @pytest.fixture
@@ -102,6 +115,7 @@ def test_convert_tensor_to_pil_image(test_image):
     # Check if the mode is correct
     assert pil_image.mode == "RGB"
 
+
 def test_convert_tensor_to_pil_image(test_image):
     """Test convert_tensor_to_pil_image function."""
     # Convert the test image to a tensor
@@ -128,6 +142,8 @@ def test_convert_tensor_to_pil_image(test_image):
 
     # Check if the shape is correctly converted to CHW
     assert chw_image_tensor.shape == (test_image_hwc.shape[2], test_image_hwc.shape[0], test_image_hwc.shape[1])
+
+
 def test_convert_pil_image_to_rgb_channels(test_image, mocker):
     """Test convert_pil_image_to_rgb_channels function."""
     from goob_ai.utils.imgops import convert_pil_image_to_rgb_channels
@@ -140,6 +156,7 @@ def test_convert_pil_image_to_rgb_channels(test_image, mocker):
 
     # Check if the image is converted to RGB
     assert converted_image.mode == "RGB"
+
 
 def test_convert_pil_image_to_torch_tensor(test_image):
     """Test convert_pil_image_to_torch_tensor function."""
@@ -163,20 +180,25 @@ def test_convert_pil_image_to_torch_tensor(test_image):
 def test_image_path():
     return "tests/fixtures/screenshot_image_larger00013.PNG"
 
+
 @pytest.fixture
 def mock_model(mocker):
     model = mocker.Mock()
     model.name = "mock_model"
     return model
 
-@pytest.mark.parametrize("background_color, expected_color", [
-    ("white", (255, 255, 255)),
-    ("darkmode", (22, 32, 42)),
-])
+
+@pytest.mark.parametrize(
+    "background_color, expected_color",
+    [
+        ("white", (255, 255, 255)),
+        ("darkmode", (22, 32, 42)),
+    ],
+)
 def test_resize_and_pillarbox(mocker, test_image_path, background_color, expected_color):
     """Test resize_and_pillarbox function."""
-    from PIL import Image
     from goob_ai.utils.imgops import get_pixel_rgb
+    from PIL import Image
 
     # Mock the get_pixel_rgb function to return the background color
     mocker.patch("goob_ai.utils.imgops.get_pixel_rgb", return_value=background_color)
@@ -196,10 +218,11 @@ def test_resize_and_pillarbox(mocker, test_image_path, background_color, expecte
     # Check if the background color is correct
     assert resized_image.getpixel((0, 0)) == expected_color
 
+
 @pytest.mark.asyncio
 async def test_setup_model(mocker):
     """Test setup_model function."""
-    from goob_ai.utils.imgops import setup_model, load_model
+    from goob_ai.utils.imgops import load_model, setup_model
 
     # Mock the load_model function
     mock_load_model = mocker.patch("goob_ai.utils.imgops.load_model", return_value=mocker.Mock())
@@ -212,34 +235,40 @@ async def test_setup_model(mocker):
     assert isinstance(model, mocker.Mock)
     """Test predict_from_file function."""
     image_path = "tests/fixtures/screenshot_image_larger00013.PNG"
-    
+
     # Mock the necessary functions and objects
     mock_image = Image.open(image_path)
     mock_bboxes = [(0, 0, 100, 100)]
-    
+
     mocker.patch("goob_ai.utils.imgops.convert_pil_image_to_rgb_channels", return_value=mock_image)
     mocker.patch("goob_ai.utils.imgops.pred_and_store", return_value=mock_bboxes)
-    
+
     mock_model = mocker.Mock()
     mock_model.name = "mock_model"
-    
+
     # Call the function
     result_image, result_bboxes = predict_from_file(image_path, mock_model)
-    
+
     # Assertions
     assert isinstance(result_image, Image.Image)
     assert result_image == mock_image
     assert result_bboxes == mock_bboxes
+
+
 async def test_pred_and_store(mocker):
     """Test pred_and_store function."""
     from goob_ai.utils.imgops import pred_and_store, read_image_to_bgr, resize_image_and_bbox
 
     # Mock the read_image_to_bgr function to return a dummy image and dimensions
     mock_image = np.array(Image.open("tests/fixtures/screenshot_image_larger00013.PNG"))
-    mocker.patch("goob_ai.utils.imgops.read_image_to_bgr", return_value=(mock_image, 3, mock_image.shape[0], mock_image.shape[1]))
+    mocker.patch(
+        "goob_ai.utils.imgops.read_image_to_bgr", return_value=(mock_image, 3, mock_image.shape[0], mock_image.shape[1])
+    )
 
     # Mock the resize_image_and_bbox function to return the input image and dummy bounding boxes
-    mocker.patch("goob_ai.utils.imgops.resize_image_and_bbox", return_value=(mock_image, torch.tensor([[0, 0, 100, 100]])))
+    mocker.patch(
+        "goob_ai.utils.imgops.resize_image_and_bbox", return_value=(mock_image, torch.tensor([[0, 0, 100, 100]]))
+    )
 
     # Mock the model to return dummy bounding boxes
     mock_model = mocker.Mock()
@@ -255,6 +284,8 @@ async def test_pred_and_store(mocker):
     assert isinstance(result[0], dict)
     assert "image_path" in result[0]
     assert "bounding_boxes" in result[0]
+
+
 async def test_np2tensor(mocker):
     """Test np2tensor function."""
     from goob_ai.utils.imgops import np2tensor
@@ -306,22 +337,22 @@ async def test_np2tensor(mocker):
     mocker.patch("goob_ai.utils.imgops.cv2.imwrite", return_value=True)
     mocker.patch("goob_ai.utils.imgops.file_functions.fix_path", return_value=test_image_path)
 
-    resized_image_path = handle_resize_one(
-        images_filepath=test_image_path,
-        model=mock_model,
-        resize=True
-    )
+    resized_image_path = handle_resize_one(images_filepath=test_image_path, model=mock_model, resize=True)
 
     assert resized_image_path == test_image_path
 
-@pytest.mark.parametrize("input_tensor, expected_output", [
-    (torch.tensor([0.0, 0.5, 1.0]), torch.tensor([-1.0, 0.0, 1.0])),
-    (torch.tensor([0.0, 0.25, 0.5, 0.75, 1.0]), torch.tensor([-1.0, -0.5, 0.0, 0.5, 1.0])),
-    (torch.tensor([0.0, 1.0]), torch.tensor([-1.0, 1.0])),
-    (np.array([0.0, 0.5, 1.0]), np.array([-1.0, 0.0, 1.0])),
-    (np.array([0.0, 0.25, 0.5, 0.75, 1.0]), np.array([-1.0, -0.5, 0.0, 0.5, 1.0])),
-    (np.array([0.0, 1.0]), np.array([-1.0, 1.0])),
-])
+
+@pytest.mark.parametrize(
+    "input_tensor, expected_output",
+    [
+        (torch.tensor([0.0, 0.5, 1.0]), torch.tensor([-1.0, 0.0, 1.0])),
+        (torch.tensor([0.0, 0.25, 0.5, 0.75, 1.0]), torch.tensor([-1.0, -0.5, 0.0, 0.5, 1.0])),
+        (torch.tensor([0.0, 1.0]), torch.tensor([-1.0, 1.0])),
+        (np.array([0.0, 0.5, 1.0]), np.array([-1.0, 0.0, 1.0])),
+        (np.array([0.0, 0.25, 0.5, 0.75, 1.0]), np.array([-1.0, -0.5, 0.0, 0.5, 1.0])),
+        (np.array([0.0, 1.0]), np.array([-1.0, 1.0])),
+    ],
+)
 def test_norm(input_tensor, expected_output):
     """Test norm function with different input ranges."""
     from goob_ai.utils.imgops import norm
@@ -331,6 +362,7 @@ def test_norm(input_tensor, expected_output):
         assert torch.allclose(output, expected_output), f"Expected {expected_output}, but got {output}"
     elif isinstance(input_tensor, np.ndarray):
         assert np.allclose(output, expected_output), f"Expected {expected_output}, but got {output}"
+
 
 @pytest.mark.asyncio
 async def test_np2tensor(mocker):
@@ -376,6 +408,7 @@ async def test_np2tensor(mocker):
     assert isinstance(tensor_image, torch.Tensor)
     assert tensor_image.min() >= 0.0
     assert tensor_image.max() <= 1.0
+
 
 @pytest.mark.asyncio
 async def test_tensor2np(mocker):
@@ -431,11 +464,7 @@ async def test_tensor2np(mocker):
     mocker.patch("goob_ai.utils.imgops.cv2.imwrite", return_value=True)
     mocker.patch("goob_ai.utils.imgops.file_functions.fix_path", return_value=test_image_path)
 
-    resized_image_path = handle_resize_one(
-        images_filepath=test_image_path,
-        model=mock_model,
-        resize=True
-    )
+    resized_image_path = handle_resize_one(images_filepath=test_image_path, model=mock_model, resize=True)
 
     assert resized_image_path == test_image_path
 
@@ -459,13 +488,14 @@ def test_read_image_to_bgr(mocker):
     assert height == mock_image.shape[0]
     assert width == mock_image.shape[1]
 
+
 @pytest.mark.parametrize("return_percent_coords", [True, False])
 def test_resize_image_and_bbox(mocker, test_image, return_percent_coords):
     """Test resize_image_and_bbox function."""
     from goob_ai.utils.imgops import resize_image_and_bbox
 
     # Mock the device
-    mock_device = torch.device("cpu")
+    mock_device = get_device()
 
     # Convert the test image to a tensor
     test_image_tensor = torch.from_numpy(test_image).permute(2, 0, 1).float() / 255.0  # HWC to CHW and normalize
@@ -478,11 +508,7 @@ def test_resize_image_and_bbox(mocker, test_image, return_percent_coords):
 
     # Call the function
     resized_image, resized_boxes = resize_image_and_bbox(
-        test_image_tensor,
-        boxes,
-        dims=target_dims,
-        return_percent_coords=return_percent_coords,
-        device=mock_device
+        test_image_tensor, boxes, dims=target_dims, return_percent_coords=return_percent_coords, device=mock_device
     )
 
     # Check if the resized image has the correct dimensions
@@ -503,13 +529,10 @@ def test_resize_image_and_bbox(mocker, test_image, return_percent_coords):
     mocker.patch("goob_ai.utils.imgops.cv2.imwrite", return_value=True)
     mocker.patch("goob_ai.utils.imgops.file_functions.fix_path", return_value=test_image_path)
 
-    resized_image_path = handle_resize_one(
-        images_filepath=test_image_path,
-        model=mock_model,
-        resize=False
-    )
+    resized_image_path = handle_resize_one(images_filepath=test_image_path, model=mock_model, resize=False)
 
     assert resized_image_path == test_image_path
+
 
 @pytest.mark.asyncio
 async def test_handle_predict_one(mocker):
@@ -522,16 +545,14 @@ async def test_handle_predict_one(mocker):
     mock_model = mocker.Mock()
     mock_model.name = "mock_model"
 
-    predict_result = await handle_predict_one(
-        images_filepath=image_path,
-        model=mock_model
-    )
+    predict_result = await handle_predict_one(images_filepath=image_path, model=mock_model)
 
     assert isinstance(predict_result, tuple)
     assert isinstance(predict_result[0], Image.Image)
     assert isinstance(predict_result[1], list)
     assert len(predict_result[1]) == 1
     assert predict_result[1][0] == (0, 0, 100, 100)
+
 
 @pytest.mark.asyncio
 async def test_handle_predict(mocker):
@@ -544,10 +565,7 @@ async def test_handle_predict(mocker):
     mock_model = mocker.Mock()
     mock_model.name = "mock_model"
 
-    predict_results = await handle_predict(
-        images_filepaths=[image_path],
-        model=mock_model
-    )
+    predict_results = await handle_predict(images_filepaths=[image_path], model=mock_model)
 
     assert len(predict_results) == 1
     assert isinstance(predict_results[0], tuple)
@@ -555,6 +573,8 @@ async def test_handle_predict(mocker):
     assert isinstance(predict_results[0][1], list)
     assert len(predict_results[0][1]) == 1
     assert predict_results[0][1][0] == (0, 0, 100, 100)
+
+
 async def test_get_all_corners_color(mocker):
     """Test get_all_corners_color function."""
     image_path = "tests/fixtures/screenshot_image_larger00013.PNG"
@@ -595,9 +615,7 @@ async def test_handle_autocrop(mocker):
     predict_results = [(Image.open(image_path), [(0, 0, 100, 100)])]
 
     cropped_image_paths = await handle_autocrop(
-        images_filepaths=[image_path],
-        model=mock_model,
-        predict_results=predict_results
+        images_filepaths=[image_path], model=mock_model, predict_results=predict_results
     )
 
     assert len(cropped_image_paths) == 1
@@ -619,9 +637,7 @@ async def test_handle_autocrop_one(mocker):
     predict_results = (Image.open(image_path), [(0, 0, 100, 100)])
 
     cropped_image_path = await handle_autocrop_one(
-        images_filepath=image_path,
-        model=mock_model,
-        predict_results=predict_results
+        images_filepath=image_path, model=mock_model, predict_results=predict_results
     )
 
     assert cropped_image_path == image_path
@@ -642,9 +658,7 @@ async def test_handle_autocrop_one(mocker):
     predict_results = (Image.open(image_path), [(0, 0, 100, 100)])
 
     cropped_image_path = await handle_autocrop_one(
-        images_filepath=image_path,
-        model=mock_model,
-        predict_results=predict_results
+        images_filepath=image_path, model=mock_model, predict_results=predict_results
     )
 
     assert cropped_image_path == image_path
@@ -655,12 +669,15 @@ async def test_handle_get_dominant_color_name(mocker):
     """Test handle_get_dominant_color function with return_type 'name'."""
     image_path = "tests/fixtures/screenshot_image_larger00013.PNG"
     mocker.patch("goob_ai.utils.imgops.Image.open", return_value=Image.open(image_path))
-    mocker.patch("goob_ai.utils.imgops.get_all_corners_color", return_value={
-        "top_left": (255, 255, 255),
-        "top_right": (255, 255, 255),
-        "bottom_left": (255, 255, 255),
-        "bottom_right": (255, 255, 255),
-    })
+    mocker.patch(
+        "goob_ai.utils.imgops.get_all_corners_color",
+        return_value={
+            "top_left": (255, 255, 255),
+            "top_right": (255, 255, 255),
+            "bottom_left": (255, 255, 255),
+            "bottom_right": (255, 255, 255),
+        },
+    )
     mocker.patch("goob_ai.utils.imgops.convert_rgb_to_names", return_value="white")
 
     urls = [image_path]
@@ -668,13 +685,17 @@ async def test_handle_get_dominant_color_name(mocker):
 
     assert dominant_color == "white"
 
-@pytest.mark.parametrize("r, g, b, expected_hex", [
-    (255, 0, 0, "#ff0000"),
-    (0, 255, 0, "#00ff00"),
-    (0, 0, 255, "#0000ff"),
-    (255, 255, 255, "#ffffff"),
-    (0, 0, 0, "#000000"),
-])
+
+@pytest.mark.parametrize(
+    "r, g, b, expected_hex",
+    [
+        (255, 0, 0, "#ff0000"),
+        (0, 255, 0, "#00ff00"),
+        (0, 0, 255, "#0000ff"),
+        (255, 255, 255, "#ffffff"),
+        (0, 0, 0, "#000000"),
+    ],
+)
 def test_rgb2hex(r, g, b, expected_hex):
     """Test rgb2hex function."""
     from goob_ai.utils.imgops import rgb2hex
@@ -682,15 +703,20 @@ def test_rgb2hex(r, g, b, expected_hex):
     hex_color = rgb2hex(r, g, b)
     assert hex_color == expected_hex
 
-@pytest.mark.parametrize("input_tensor, min_max, expected_output", [
-    (torch.tensor([-1.0, 0.0, 1.0]), (-1.0, 1.0), torch.tensor([0.0, 0.5, 1.0])),
-    (torch.tensor([0.0, 0.5, 1.0]), (0.0, 1.0), torch.tensor([0.0, 0.5, 1.0])),
-    (torch.tensor([0.0, 0.5, 1.0]), (0.0, 2.0), torch.tensor([0.0, 0.25, 0.5])),
-])
+
+@pytest.mark.parametrize(
+    "input_tensor, min_max, expected_output",
+    [
+        (torch.tensor([-1.0, 0.0, 1.0]), (-1.0, 1.0), torch.tensor([0.0, 0.5, 1.0])),
+        (torch.tensor([0.0, 0.5, 1.0]), (0.0, 1.0), torch.tensor([0.0, 0.5, 1.0])),
+        (torch.tensor([0.0, 0.5, 1.0]), (0.0, 2.0), torch.tensor([0.0, 0.25, 0.5])),
+    ],
+)
 def test_denorm(input_tensor, min_max, expected_output):
     """Test denorm function with different input ranges."""
     output = denorm(input_tensor, min_max)
     assert torch.allclose(output, expected_output), f"Expected {expected_output}, but got {output}"
+
 
 @pytest.mark.asyncio
 async def test_get_pixel_rgb(mocker):
@@ -703,11 +729,15 @@ async def test_get_pixel_rgb(mocker):
 
     assert color == "white"
 
-@pytest.mark.parametrize("input_array, min_max, expected_output", [
-    (np.array([-1.0, 0.0, 1.0]), (-1.0, 1.0), np.array([0.0, 0.5, 1.0])),
-    (np.array([0.0, 0.5, 1.0]), (0.0, 1.0), np.array([0.0, 0.5, 1.0])),
-    (np.array([0.0, 0.5, 1.0]), (0.0, 2.0), np.array([0.0, 0.25, 0.5])),
-])
+
+@pytest.mark.parametrize(
+    "input_array, min_max, expected_output",
+    [
+        (np.array([-1.0, 0.0, 1.0]), (-1.0, 1.0), np.array([0.0, 0.5, 1.0])),
+        (np.array([0.0, 0.5, 1.0]), (0.0, 1.0), np.array([0.0, 0.5, 1.0])),
+        (np.array([0.0, 0.5, 1.0]), (0.0, 2.0), np.array([0.0, 0.25, 0.5])),
+    ],
+)
 def test_denorm_numpy(input_array, min_max, expected_output):
     """Test denorm function with numpy arrays and different input ranges."""
     output = denorm(input_array, min_max)
@@ -741,7 +771,9 @@ def test_convert_rgb_to_names(mocker):
     }
     mock_rgb_values = [(255, 0, 0), (0, 255, 0), (0, 0, 255)]
     mocker.patch("goob_ai.utils.imgops.CSS3_HEX_TO_NAMES", mock_css3_db)
-    mocker.patch("goob_ai.utils.imgops.hex_to_rgb", side_effect=lambda hex: mock_rgb_values[list(mock_css3_db.keys()).index(hex)])
+    mocker.patch(
+        "goob_ai.utils.imgops.hex_to_rgb", side_effect=lambda hex: mock_rgb_values[list(mock_css3_db.keys()).index(hex)]
+    )
 
     # Mock the KDTree query method
     mock_kdtree = mocker.patch("goob_ai.utils.imgops.KDTree.query", return_value=(0, 0))
@@ -752,7 +784,8 @@ def test_convert_rgb_to_names(mocker):
 
     # Check if the color name is correct
     assert color_name == "red"
-    
+
+
 @pytest.mark.asyncio
 async def test_convert_pil_image_to_rgb_channels_async(async_test_image, mocker):
     """Test convert_pil_image_to_rgb_channels function (async)."""
@@ -768,7 +801,12 @@ async def test_convert_pil_image_to_rgb_channels_async(async_test_image, mocker)
     assert converted_image.mode == "RGB"
     """Test bgra_to_rgba function (async)."""
     # Convert the test image to a tensor with an alpha channel
-    test_image_tensor = torch.from_numpy(np.dstack((async_test_image, np.full(async_test_image.shape[:2], 255)))).permute(2, 0, 1).float() / 255.0  # HWC to CHW and normalize
+    test_image_tensor = (
+        torch.from_numpy(np.dstack((async_test_image, np.full(async_test_image.shape[:2], 255))))
+        .permute(2, 0, 1)
+        .float()
+        / 255.0
+    )  # HWC to CHW and normalize
 
     # Apply bgra_to_rgba
     rgba_image_tensor = bgra_to_rgba(test_image_tensor)
@@ -782,13 +820,19 @@ async def test_convert_pil_image_to_rgb_channels_async(async_test_image, mocker)
     assert np.array_equal(rgba_image[:, :, 2], async_test_image[:, :, 0])  # B channel
     assert np.array_equal(rgba_image[:, :, 3], np.full(async_test_image.shape[:2], 255))  # A channel
 
+
 @pytest.mark.asyncio
 async def test_rgba_to_bgra(async_test_image):
     """Test rgba_to_bgra function."""
     from goob_ai.utils.imgops import rgba_to_bgra
 
     # Convert the test image to a tensor with an alpha channel
-    test_image_tensor = torch.from_numpy(np.dstack((async_test_image, np.full(async_test_image.shape[:2], 255)))).permute(2, 0, 1).float() / 255.0  # HWC to CHW and normalize
+    test_image_tensor = (
+        torch.from_numpy(np.dstack((async_test_image, np.full(async_test_image.shape[:2], 255))))
+        .permute(2, 0, 1)
+        .float()
+        / 255.0
+    )  # HWC to CHW and normalize
 
     # Apply rgba_to_bgra
     bgra_image_tensor = rgba_to_bgra(test_image_tensor)
@@ -801,6 +845,7 @@ async def test_rgba_to_bgra(async_test_image):
     assert np.array_equal(bgra_image[:, :, 1], async_test_image[:, :, 1])  # G channel
     assert np.array_equal(bgra_image[:, :, 2], async_test_image[:, :, 0])  # R channel
     assert np.array_equal(bgra_image[:, :, 3], np.full(async_test_image.shape[:2], 255))  # A channel
+
 
 @pytest.mark.asyncio
 async def test_rgb_to_bgr_async(async_test_image, mocker):
@@ -818,6 +863,7 @@ async def test_rgb_to_bgr_async(async_test_image, mocker):
     assert np.array_equal(bgr_image[:, :, 0], async_test_image[:, :, 2])  # B channel
     assert np.array_equal(bgr_image[:, :, 1], async_test_image[:, :, 1])  # G channel
     assert np.array_equal(bgr_image[:, :, 2], async_test_image[:, :, 0])  # R channel
+
 
 @pytest.mark.asyncio
 async def test_bgr_to_rgb_async(async_test_image, mocker):
@@ -844,7 +890,11 @@ async def test_bgr_to_rgb_async(async_test_image, mocker):
     mocker.patch("src.goob_ai.utils.imgops.dummy_upscale_function", side_effect=RuntimeError("Out of memory"))
 
     upscaled_image, depth = auto_split_upscale(async_test_image, dummy_upscale_function, scale, overlap)
-    assert upscaled_image.shape == (async_test_image.shape[0] * scale, async_test_image.shape[1] * scale, async_test_image.shape[2])
+    assert upscaled_image.shape == (
+        async_test_image.shape[0] * scale,
+        async_test_image.shape[1] * scale,
+        async_test_image.shape[2],
+    )
     assert depth > 1
 
 
