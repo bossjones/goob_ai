@@ -19,7 +19,7 @@ from PIL import Image
 from pathlib import Path
 from goob_ai.utils.imgops import get_all_corners_color
 import torch
-from goob_ai.utils.imgops import denorm
+from goob_ai.utils.imgops import denorm, get_pil_image_channels
 
 
 @pytest.fixture
@@ -172,6 +172,17 @@ async def test_get_all_corners_color(mocker):
     assert corner_colors["top_right"] == (255, 255, 255)
     assert corner_colors["bottom_left"] == (255, 255, 255)
     assert corner_colors["bottom_right"] == (255, 255, 255)
+
+
+@pytest.mark.asyncio
+async def test_get_pil_image_channels(mocker):
+    """Test get_pil_image_channels function."""
+    image_path = "tests/fixtures/screenshot_image_larger00013.PNG"
+    mocker.patch("goob_ai.utils.imgops.Image.open", return_value=Image.open(image_path))
+
+    channels = get_pil_image_channels(image_path)
+
+    assert channels == 3
 
 
 @pytest.mark.parametrize("input_tensor, min_max, expected_output", [
