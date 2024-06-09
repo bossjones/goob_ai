@@ -1283,20 +1283,18 @@ class AsyncGoobBot(commands.Bot):
         return True
 
     async def get_context(self, origin: Union[discord.Interaction, discord.Message], /, *, cls=Context) -> Context:
-        """
-        Summary:
-        Get the context for a Discord interaction or message.
+        """Retrieve the context for a Discord interaction or message.
 
-        Explanation:
-        This asynchronous method retrieves the context for a Discord interaction or message and returns a Context object. It calls the superclass method to get the context based on the provided origin and class type.
+        This asynchronous method retrieves the context for a Discord interaction or message
+        and returns a Context object. It calls the superclass method to get the context
+        based on the provided origin and class type.
 
         Args:
-        - self: The instance of the class.
-        - origin (Union[discord.Interaction, discord.Message]): The Discord interaction or message to get the context from.
-        - cls (Context): The class type for the context object.
+            origin (Union[discord.Interaction, discord.Message]): The Discord interaction or message to get the context from.
+            cls (Context): The class type for the context object.
 
         Returns:
-        - Context: The context object retrieved for the provided origin.
+            Context: The context object retrieved for the provided origin.
         """
 
         return await super().get_context(origin, cls=cls)
