@@ -10,6 +10,8 @@ from goob_ai.utils.imgops import auto_split_upscale, bgr_to_rgb, bgra_to_rgba, c
 from PIL import Image
 import torch
 from goob_ai.utils.imgops import convert_tensor_to_pil_image
+import torch
+from goob_ai.utils.imgops import convert_tensor_to_pil_image
 
 import pytest
 
