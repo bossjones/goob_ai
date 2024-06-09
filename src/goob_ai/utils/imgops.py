@@ -817,13 +817,20 @@ def resize_image_and_bbox(
     return_percent_coords: bool = False,
     device: torch.device = DEVICE,
 ) -> Tuple[torch.Tensor, torch.Tensor]:
-    """
-    Resize image. For the SSD300, resize to (300, 300).
-    Since percent/fractional coordinates are calculated for the bounding boxes (w.r.t image dimensions) in this process,
-    you may choose to retain them.
-    :param image: image, a PIL Image
-    :param boxes: bounding boxes in boundary coordinates, a tensor of dimensions (n_objects, 4)
-    :return: resized image, updated bounding box coordinates (or fractional coordinates, in which case they remain the same)
+    """Resize an image and its bounding boxes.
+
+    This function resizes an image to the specified dimensions and adjusts the bounding boxes accordingly.
+    It can return the bounding boxes as either absolute coordinates or percent coordinates.
+
+    Args:
+        image (torch.Tensor): The input image tensor.
+        boxes (torch.Tensor): The bounding boxes tensor with dimensions (n_objects, 4).
+        dims (Tuple[int, int], optional): The target dimensions for resizing. Defaults to (300, 300).
+        return_percent_coords (bool, optional): Whether to return bounding boxes as percent coordinates. Defaults to False.
+        device (torch.device, optional): The device to perform the operation on. Defaults to DEVICE.
+
+    Returns:
+        Tuple[torch.Tensor, torch.Tensor]: The resized image tensor and the updated bounding boxes tensor.
     """
 
     image_tensor_to_resize_height = image.shape[1]
