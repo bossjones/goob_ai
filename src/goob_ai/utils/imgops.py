@@ -889,7 +889,7 @@ def get_pil_image_channels(image_path: str) -> int:
     return pil_img_tensor.shape[0]
 
 
-def convert_pil_image_to_rgb_channels(image_path: str):
+def convert_pil_image_to_rgb_channels(image_path: str) -> Image:
     """Convert Pil image to have the appropriate number of color channels
 
     Args:
