@@ -1225,7 +1225,25 @@ def get_all_corners_color(urls: List[str]) -> Dict[str, str]:
 
 
 def rgb2hex(r: int, g: int, b: int) -> str:
+    """Convert RGB values to a hexadecimal color string.
+
+    This function takes the red, green, and blue components of a color
+    and converts them to a hexadecimal string representation.
+
+    Args:
+        r (int): The red component of the color, in the range [0, 255].
+        g (int): The green component of the color, in the range [0, 255].
+        b (int): The blue component of the color, in the range [0, 255].
+
+    Returns:
+        str: The hexadecimal string representation of the color, prefixed with '#'.
+
+    Example:
+        >>> rgb2hex(255, 0, 0)
+        '#ff0000'
+    """
     LOGGER.info(f"RGB2HEX: {r} {g} {b}")
+    return "#{:02x}{:02x}{:02x}".format(r, g, b)
     LOGGER.info(f"TYPE RGB2HEX: {type(r)} {type(g)} {type(b)}")
     return "#{:02x}{:02x}{:02x}".format(r, g, b)
 
