@@ -1527,7 +1527,21 @@ class AsyncGoobBot(commands.Bot):
         await super().start(aiosettings.discord_token, reconnect=True)
 
     async def my_background_task(self) -> None:
-        """_summary_"""
+        """
+        Run a background task that sends a counter message to a specific channel every 60 seconds.
+
+        This asynchronous method waits until the bot is ready, then continuously increments a counter
+        and sends its value to a predefined Discord channel every 60 seconds. The channel ID is retrieved
+        from the bot's settings.
+
+        The method ensures that the task runs indefinitely until the bot is closed.
+
+        Args:
+            None
+
+        Returns:
+            None
+        """
         await self.wait_until_ready()
         counter = 0
         # TEMPCHANGE: # channel = self.get_channel(DISCORD_GENERAL_CHANNEL)  # channel ID goes here
