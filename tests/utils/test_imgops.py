@@ -38,7 +38,7 @@ def test_auto_split_upscale_with_split(test_image, mocker):
     overlap = 32
 
     # Mock the dummy upscale function to raise an error to force splitting
-    pytest_mocker.patch("src.goob_ai.utils.imgops.dummy_upscale_function", side_effect=RuntimeError("Out of memory"))
+    mocker.patch("src.goob_ai.utils.imgops.dummy_upscale_function", side_effect=RuntimeError("Out of memory"))
 
     upscaled_image, depth = auto_split_upscale(test_image, dummy_upscale_function, scale, overlap)
     assert upscaled_image.shape == (test_image.shape[0] * scale, test_image.shape[1] * scale, test_image.shape[2])
@@ -52,7 +52,7 @@ def test_auto_split_upscale_max_depth(test_image, pytest_mocker):
     max_depth = 2
 
     # Mock the dummy upscale function to raise an error to force splitting
-    pytest_mocker.patch("src.goob_ai.utils.imgops.dummy_upscale_function", side_effect=RuntimeError("Out of memory"))
+    mocker.patch("src.goob_ai.utils.imgops.dummy_upscale_function", side_effect=RuntimeError("Out of memory"))
 
     with pytest.raises(RecursionError):
         auto_split_upscale(test_image, dummy_upscale_function, scale, overlap, max_depth=max_depth)
@@ -132,7 +132,7 @@ async def test_bgr_to_rgb_async(async_test_image, mocker):
     overlap = 32
 
     # Mock the dummy upscale function to raise an error to force splitting
-    pytest_mocker.patch("src.goob_ai.utils.imgops.dummy_upscale_function", side_effect=RuntimeError("Out of memory"))
+    mocker.patch("src.goob_ai.utils.imgops.dummy_upscale_function", side_effect=RuntimeError("Out of memory"))
 
     upscaled_image, depth = auto_split_upscale(async_test_image, dummy_upscale_function, scale, overlap)
     assert upscaled_image.shape == (async_test_image.shape[0] * scale, async_test_image.shape[1] * scale, async_test_image.shape[2])
