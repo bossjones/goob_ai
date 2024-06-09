@@ -181,14 +181,18 @@ def attachment_to_dict(attm: discord.Attachment) -> Dict[str, Any]:
 
 
 def file_to_local_data_dict(fname: str, dir_root: str) -> Dict[str, Any]:
-    """Convert a file to a dictionary.
+    """Convert a file to a dictionary with metadata.
+
+    This function takes a file path and a root directory, and converts the file
+    into a dictionary containing metadata such as filename, size, extension, and
+    a pathlib.Path object representing the file.
 
     Args:
-        fname (str): _description_
-        dir_root (str): _description_
+        fname (str): The name of the file to be converted.
+        dir_root (str): The root directory where the file is located.
 
     Returns:
-        _type_: _description_
+        Dict[str, Any]: A dictionary containing metadata about the file.
     """
     file_api = pathlib.Path(fname)
     return {
