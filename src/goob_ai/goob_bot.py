@@ -226,19 +226,19 @@ async def handle_save_attachment_locally(attm_data_dict: Dict[str, Any], dir_roo
 
 # SOURCE: https://github.com/CrosswaveOmega/NikkiBot/blob/75c7ecd307f50390cfc798d39098fdb78535650c/cogs/AiCog.py#L237
 async def download_image(url: str) -> BytesIO:
-    """
-    Summary:
-    Download an image from a given URL asynchronously.
+        """
+        Download an image from a given URL asynchronously.
 
-    Explanation:
-    This asynchronous function uses aiohttp to make a GET request to the provided URL and downloads the image data. If the response status is 200 (OK), it reads the response data and returns it as a BytesIO object.
+        This asynchronous function uses aiohttp to make a GET request to the provided URL 
+        and downloads the image data. If the response status is 200 (OK), it reads the 
+        response data and returns it as a BytesIO object.
 
-    Args:
-    - url (str): The URL of the image to download.
+        Args:
+            url (str): The URL of the image to download.
 
-    Returns:
-    - BytesIO: A BytesIO object containing the downloaded image data.
-    """
+        Returns:
+            BytesIO: A BytesIO object containing the downloaded image data.
+        """
     async with aiohttp.ClientSession() as session:
         async with session.get(url) as response:
             if response.status == 200:
