@@ -1173,7 +1173,7 @@ def denorm(x: torch.Tensor | np.ndarray, min_max: tuple[float, float] = (-1.0, 1
         )
 
 
-def norm(x):
+def norm(x: torch.Tensor | np.ndarray) -> torch.Tensor | np.ndarray:
     # Normalize (z-norm) from [0,1] range to [-1,1]
     out = (x - 0.5) * 2.0
     if isinstance(x, torch.Tensor):
