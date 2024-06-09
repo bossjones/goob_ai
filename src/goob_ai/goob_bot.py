@@ -823,6 +823,19 @@ class AsyncGoobBot(commands.Bot):
         await super().before_identify_hook(shard_id, initial=initial)
 
     async def on_command_error(self, ctx: Context, error: commands.CommandError) -> None:
+        """
+        Handle errors raised during command invocation.
+
+        This method is called when an error is raised during the invocation of a command.
+        It handles different types of command errors and sends appropriate messages to the user.
+
+        Args:
+            ctx (Context): The context in which the command was invoked.
+            error (commands.CommandError): The error that was raised during command invocation.
+
+        Returns:
+            None
+        """
         if isinstance(error, commands.NoPrivateMessage):
             await ctx.author.send("This command cannot be used in private messages.")
         elif isinstance(error, commands.DisabledCommand):
