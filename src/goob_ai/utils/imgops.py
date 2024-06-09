@@ -1145,7 +1145,7 @@ def rgba_to_bgra(image: torch.Tensor) -> torch.Tensor:
     return bgra_to_rgba(image)
 
 
-def denorm(x, min_max=(-1.0, 1.0)):
+def denorm(x: torch.Tensor | np.ndarray, min_max: tuple[float, float] = (-1.0, 1.0)) -> torch.Tensor | np.ndarray:
     """
     Denormalize from [-1,1] range to [0,1]
     formula: xi' = (xi - mu)/sigma
