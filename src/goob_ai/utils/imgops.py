@@ -650,6 +650,49 @@ def handle_resize(
     args: Optional[dict] = None,
     resize: bool = False,
 ) -> List[str]:
+    """
+    Resize a list of images and save them to disk.
+
+    This function takes a list of image file paths, resizes each image if specified, 
+    and saves the resized images to disk. The file paths of the resized images are returned.
+
+    Args:
+        images_filepaths (List[str]): List of file paths to the images to be resized.
+        cols (int, optional): Number of columns for display purposes. Defaults to 5.
+        model (Optional[torch.nn.Module], optional): The model used for prediction. Defaults to None.
+        device (torch.device, optional): The device to run the model on. Defaults to DEVICE.
+        args (Optional[dict], optional): Additional arguments for the function. Defaults to None.
+        resize (bool, optional): Whether to resize the images. Defaults to False.
+
+    Returns:
+        List[str]: List of file paths to the resized images.
+    """
+    resized_image_file_paths = []
+    for i, image_filepath in enumerate(images_filepaths):
+        image_path_api = pathlib.Path(image_filepath).resolve()
+        fname = f"{image_path_api.parent}/cropped-{model.name}-{image_path_api.stem}{image_path_api.suffix}"
+
+        cropped_full_path = file_functions.fix_path(fname)
+
+        if resize:
+            to_resize = Image.open(cropped_full_path).convert("RGB")
+            resized_pil_image = resize_and_pillarbox(to_resize, 1080, 1350, background=resize)
+            if f"{image_path_api.suffix}".lower() == ".png":
+                # https://pillow.readthedocs.io/en/stable/handbook/image-file-formats.html
+                resized_pil_image.save(fname, optimize=True, compress_level=9)
+            elif f"{image_path_api.suffix}".lower() == (".jpg" or ".jpeg"):
+                resized_pil_image.save(fname, quality="web_medium")
+
+        resized_image_file_paths.append(cropped_full_path)
+
+    return resized_image_file_paths
+    images_filepaths: List[str],
+    cols: int = 5,
+    model: Optional[torch.nn.Module] = None,
+    device: torch.device = DEVICE,
+    args: Optional[dict] = None,
+    resize: bool = False,
+) -> List[str]:
     resized_image_file_paths = []
     for i, image_filepath in enumerate(images_filepaths):
         image_path_api = pathlib.Path(image_filepath).resolve()
