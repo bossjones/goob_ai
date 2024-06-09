@@ -976,7 +976,7 @@ def predict_from_file(
     path_to_image_from_cli: str,
     model: torch.nn.Module,
     device: torch.device = DEVICE,
-):
+) -> Tuple[Image.Image, List[Tuple[int, int, int, int]]]:
     """wrapper function to perform predictions on individual files
 
     Args:
