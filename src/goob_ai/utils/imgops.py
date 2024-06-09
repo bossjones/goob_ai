@@ -1129,8 +1129,25 @@ def get_pixel_rgb(image_pil: Image) -> str:
 
 
 def resize_and_pillarbox(image_pil: Image.Image, width: int, height: int, background: str = "white") -> Image.Image:
-    """
-    Resize PIL image keeping ratio and using white background.
+    """Resize a PIL image while maintaining its aspect ratio and adding pillarbox.
+
+    This function resizes a PIL image to fit within the specified width and height while maintaining
+    the original aspect ratio. It adds pillarbox (padding) to the image to fill the remaining space
+    with a specified background color.
+
+    Args:
+        image_pil (Image.Image): The input image in PIL format.
+        width (int): The target width for the resized image.
+        height (int): The target height for the resized image.
+        background (str, optional): The background color for the pillarbox. Defaults to "white".
+
+    Returns:
+        Image.Image: The resized image with pillarbox added.
+
+    Example:
+        >>> image = Image.open("path/to/image.jpg")
+        >>> resized_image = resize_and_pillarbox(image, 1080, 1350, background="white")
+        >>> resized_image.show()
     """
     autodetect_background = get_pixel_rgb(image_pil)
 
