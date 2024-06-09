@@ -667,12 +667,12 @@ def handle_resize_one(
 
 def handle_predict(
     images_filepaths: List[str],
-    cols=5,
-    model=None,
+    cols: int = 5,
+    model: Optional[torch.nn.Module] = None,
     device: torch.device = DEVICE,
-    args=None,
-    resize=False,
-):
+    args: Optional[dict] = None,
+    resize: bool = False,
+) -> List[Tuple[Image.Image, List[Tuple[int, int, int, int]]]]:
     image_and_bboxes_list = []
     for image_filepath in images_filepaths:
         image, bboxes = predict_from_file(image_filepath, model, device)
