@@ -1467,6 +1467,17 @@ class AsyncGoobBot(commands.Bot):
         #     return HTTPException(status_code=500, detail=str(e))
 
     async def on_message(self, message: discord.Message) -> None:
+        """Handle incoming messages and process commands.
+
+        This method is called whenever a message is received. It logs the message details,
+        processes any attachments, and then processes the message content as a command if applicable.
+
+        Args:
+            message (discord.Message): The message object received from Discord.
+
+        Returns:
+            None
+        """
         LOGGER.info(f"message = {message}")
         LOGGER.info(f"ITS THIS ONE BOSS")
 
@@ -1478,11 +1489,11 @@ class AsyncGoobBot(commands.Bot):
         if message.author.bot:
             return
 
-        # handle attachments first
+        # Handle attachments first
         await self.process_attachments(message)
         if message.content.strip() != "":  # pyright: ignore[reportAttributeAccessIssue]
             # NOTE: dptest doesn't like this, disable so we can keep tests # async with message.channel.typing():  # pyright: ignore[reportAttributeAccessIssue]
-            # send everything to ai bot
+            # Send everything to AI bot
             await self.process_commands(message)
 
     async def close(self) -> None:
