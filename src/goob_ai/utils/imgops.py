@@ -939,7 +939,7 @@ def convert_image_from_hwc_to_chw(img: ImageNdarrayBGR) -> torch.Tensor:
 
 
 # convert image back and forth if needed: https://stackoverflow.com/questions/68207510/how-to-use-torchvision-io-read-image-with-image-as-variable-not-stored-file
-def convert_pil_image_to_torch_tensor(pil_image: Image) -> torch.Tensor:
+def convert_pil_image_to_torch_tensor(pil_image: Image.Image) -> torch.Tensor:
     """Convert PIL image to pytorch tensor
 
     Args:
