@@ -495,13 +495,18 @@ def _prefix_callable(bot: AsyncGoobBot, msg: discord.Message) -> List[str]:
 
 
 async def details_from_file(path_to_media_from_cli: str, cwd: typing.Union[str, None] = None) -> Tuple[str, str, str]:
-    """Take a file path and return the input and output file paths and the timestamp of the input file.
+    """Generate input and output file paths and retrieve the timestamp of the input file.
+
+    This function takes a file path and an optional current working directory (cwd),
+    and returns the input file path, output file path, and the timestamp of the input file.
+    The timestamp is retrieved using platform-specific commands.
 
     Args:
-        path_to_media_from_cli (str): _description_
+        path_to_media_from_cli (str): The path to the media file provided via the command line.
+        cwd (typing.Union[str, None], optional): The current working directory. Defaults to None.
 
     Returns:
-        _type_: _description_
+        Tuple[str, str, str]: A tuple containing the input file path, output file path, and the timestamp of the input file.
     """
     p = pathlib.Path(path_to_media_from_cli)
     full_path_input_file = f"{p.stem}{p.suffix}"
