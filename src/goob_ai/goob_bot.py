@@ -1045,12 +1045,22 @@ class AsyncGoobBot(commands.Bot):
     def get_attachments(
         self, message: discord.Message
     ) -> Tuple[List[Dict[str, Any]], List[str], List[Dict[str, Any]], List[str]]:
-        """
-        Summary:
-        Retrieve attachment data from a Discord message.
+        """Retrieve attachment data from a Discord message.
 
-        Explanation:
-        This function processes the attachments in a Discord message and converts each attachment to a dictionary format. It returns a list of dictionaries containing the attachment data for further processing.
+        This function processes the attachments in a Discord message and converts each attachment
+        to a dictionary format. It returns a tuple containing lists of dictionaries and file paths
+        for further processing.
+
+        Args:
+            message (discord.Message): The Discord message containing attachments.
+
+        Returns:
+            Tuple[List[Dict[str, Any]], List[str], List[Dict[str, Any]], List[str]]:
+            A tuple containing:
+                - A list of dictionaries with attachment data.
+                - A list of local attachment file paths.
+                - A list of dictionaries with local attachment data.
+                - A list of media file paths.
         """
 
         attachment_data_list_dicts = []
