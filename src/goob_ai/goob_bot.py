@@ -1409,20 +1409,22 @@ class AsyncGoobBot(commands.Bot):
         await self.invoke(ctx)
 
     async def handle_user_task(self, message: discord.Message) -> JSONResponse:
-        """
-        Summary:
-        Handle a user task received through a Discord message.
+        """Handle a user task received through a Discord message.
 
-        Explanation:
-        This asynchronous function handles a user task received as a Discord message. It determines the surface type of the message (DM or channel), creates a SurfaceInfo instance, prepares the agent input, and processes the user task using the AI agent. It returns a JSON response with the agent's text response or raises an exception if processing fails.
+        This asynchronous function processes a user task received as a Discord message.
+        It determines the surface type of the message (DM or channel), creates a SurfaceInfo
+        instance, prepares the agent input, and processes the user task using the AI agent.
+        It returns a JSON response with the agent's text response or raises an exception if
+        processing fails.
 
         Args:
-        - self: The instance of the class.
-        - message (discord.Message): The Discord message containing the user task.
+            message (discord.Message): The Discord message containing the user task.
 
         Returns:
-        - JSONResponse: A JSON response containing the agent's text response with a status code of 200 if successful.
-        - Raises: Any exception encountered during the user task processing.
+            JSONResponse: A JSON response containing the agent's text response with a status code of 200 if successful.
+
+        Raises:
+            Exception: If an error occurs during the processing of the user task.
         """
 
         # Optional surface information
