@@ -782,6 +782,16 @@ class AsyncGoobBot(commands.Bot):
         return self.bot_app_info.owner  # pyright: ignore[reportAttributeAccessIssue]
 
     def _clear_gateway_data(self) -> None:
+        """
+        Clear gateway data older than one week.
+
+        This method removes entries from the `identifies` and `resumes` dictionaries
+        that are older than one week. It iterates through each shard's list of dates
+        and deletes the entries that are older than the specified time frame.
+
+        Returns:
+            None
+        """
         one_week_ago = discord.utils.utcnow() - datetime.timedelta(days=7)
         for shard_id, dates in self.identifies.items():
             to_remove = [index for index, dt in enumerate(dates) if dt < one_week_ago]
