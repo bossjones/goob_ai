@@ -865,8 +865,20 @@ class AsyncGoobBot(commands.Bot):
         proxy_msg = ProxyObject(guild)
         return local_inject(self, proxy_msg)  # type: ignore  # lying
 
-    # def get_raw_guild_prefixes(self, guild_id: int) -> list[str]:
-    #     return self.prefixes.get(guild_id, ["?", "!"])
+    def get_raw_guild_prefixes(self, guild_id: int) -> list[str]:
+        """
+        Retrieve the raw command prefixes for a specific guild.
+
+        This function fetches the list of command prefixes for the bot based on the provided guild ID.
+        If the guild ID is not found in the prefixes dictionary, it returns the default prefixes.
+
+        Args:
+            guild_id (int): The ID of the guild for which to retrieve the command prefixes.
+
+        Returns:
+            list[str]: A list of command prefixes for the specified guild.
+        """
+        return self.prefixes.get(guild_id, ["?", "!"])
 
     # async def set_guild_prefixes(self, guild: discord.abc.Snowflake, prefixes: list[str]) -> None:
     #     if len(prefixes) == 0:
