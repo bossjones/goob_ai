@@ -589,6 +589,56 @@ def handle_autocrop(
     return cropped_image_file_paths
 
 
+def normalize_rectangle_coords(
+    # images_filepath: str,
+    # cols: int = 5,
+    # model: Optional[torch.nn.Module] = None,
+    # device: torch.device = DEVICE,
+    # args: Optional[dict] = None,
+    # resize: bool = False,
+    predict_results=None,
+):
+    image, bboxes = predict_results
+    temp = image.copy()
+    img_as_array = np.asarray(temp)
+    img_as_array = cv2.cvtColor(img_as_array, cv2.COLOR_RGB2BGR)
+
+    import bpdb
+
+    bpdb.set_trace()
+
+    # get fullsize bboxes
+    xmin_fullsize, ymin_fullsize, xmax_fullsize, ymax_fullsize = bboxes[0]
+
+    # if we have a negative point to make a rectange with, set it to 0
+    startY = max(int(ymin_fullsize), 0)
+    endY = max(int(ymax_fullsize), 0)
+    startX = max(int(xmin_fullsize), 0)
+    endX = max(int(xmax_fullsize), 0)
+
+    rich.print(startY, endY, startX, endX)
+
+    # cropped_image = img_as_array[startY:endY, startX:endX]
+
+    # image_path_api = pathlib.Path(images_filepath).resolve()
+    # fname = f"{image_path_api.parent}/cropped-{model.name}-{image_path_api.stem}{image_path_api.suffix}"
+
+    return [startY, endY, startX, endX]
+
+
+def display_normalized_rectangle(image, out_bbox):
+    out_xmin, out_ymin, out_xmax, out_ymax = out_bbox[0]
+
+    out_pt1 = (int(out_xmin), int(out_ymin))
+    out_pt2 = (int(out_xmax), int(out_ymax))
+
+    out_img = cv2.rectangle(image.squeeze().permute(1, 2, 0).cpu().numpy(), out_pt1, out_pt2, OPENCV_RED, 2)
+    # out_img = cv2.rectangle(out_img, out_pt1, out_pt2, OPENCV_RED, 2)
+
+    return out_img
+    # plt.imshow(out_img)
+
+
 def handle_autocrop_one(
     images_filepath: str,
     cols: int = 5,
@@ -971,6 +1021,13 @@ def pred_and_store(
 
     print(fullsize_bboxes)
 
+    LOGGER.info(f"WOOT Predicted bounding boxes: {fullsize_bboxes}")
+    LOGGER.info(f"WOOT Predicted bounding boxes: {fullsize_bboxes}")
+    LOGGER.info(f"WOOT Predicted bounding boxes: {fullsize_bboxes}")
+    LOGGER.info(f"WOOT Predicted bounding boxes: {fullsize_bboxes}")
+    LOGGER.info(f"WOOT Predicted bounding boxes: {fullsize_bboxes}")
+    LOGGER.info(f"WOOT Predicted bounding boxes: {fullsize_bboxes}")
+
     return fullsize_bboxes
 
 
@@ -1092,7 +1149,8 @@ def predict_from_file(
     path_to_image_from_cli: str,
     model: torch.nn.Module,
     device: torch.device = DEVICE,
-) -> Tuple[Image.Image, List[Tuple[int, int, int, int]]]:
+):
+    # -> Tuple[Image.Image, List[Tuple[int, int, int, int]]]:
     """
     Perform predictions on an individual image file.
 

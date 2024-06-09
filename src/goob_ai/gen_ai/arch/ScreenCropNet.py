@@ -52,16 +52,17 @@ class ObjLocModel(nn.Module):
 
         # SOURCE: https://github.com/AntoonGa/VisionTransformerFromScratch/blob/d19e5562bcbfa30c3480d60fbd9a703b4841efb9/core/classifier_models/efficientnet_b0.py#L12
         # Where we define all the parts of the model
-        self.base_model = timm.create_model("efficientnet_b0", pretrained=True)
+        self.base_model = timm.create_model("efficientnet_b0", pretrained=True, num_classes=4)
+
         # self.features = nn.Sequential(*list(self.base_model.children())[:-1])
-        self.features = nn.Sequential(*list(self.base_model.children())[:-1])
-        # in_features = self.base_model.classifier.in_features
-        # self.base_model.classifier = nn.Linear(in_features, num_classes)
+        # self.features = nn.Sequential(*list(self.base_model.children())[:-1])
+        in_features = self.base_model.classifier.in_features
+        self.base_model.classifier = nn.Linear(in_features, num_classes)
 
         # NOTE: trying this now = https://github.com/mehmetcanbudak/PyTorch_Card_Classify/blob/d839014617b1a9ad968db9289f40dfd225085326/model.py#L83
         enet_out_size = 1280
         # Make a classifier
-        self.base_model.classifier = nn.Sequential(nn.Flatten(), nn.Linear(enet_out_size, num_classes))
+        # self.base_model.classifier = nn.Sequential(nn.Flatten(), nn.Linear(enet_out_size, num_classes))
 
         # self.setup_model()
 

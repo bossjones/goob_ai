@@ -95,8 +95,9 @@ def load_model(device: torch.device, model_name: str = "ScreenNetV1.pth"):
     model = ScreenCropNet_ObjLocModel()
     model.name = "ObjLocModelV1"
 
-    # toggle to use eager/graph execution mode
-    model = torch.compile(model)
+    # TODO: wait on enabling this till we can figure out why everything is so different
+    # # toggle to use eager/graph execution mode
+    # model = torch.compile(model)
 
     # SOURCE: https://towardsdatascience.com/tips-and-tricks-for-upgrading-to-pytorch-2-3127db1d1f3d
     # replace with this to verfiy that error is not in TorchDynamo
