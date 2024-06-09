@@ -1352,11 +1352,25 @@ async def np2tensor(
     change_range: bool = True,
     add_batch: bool = True,
 ) -> torch.Tensor:
-    """
-    Converts a numpy image array into a Tensor array.
-    Parameters:
-        img (numpy array): the input image numpy array
-        add_batch (bool): choose if new tensor needs batch dimension added
+    """Convert a numpy image array into a PyTorch tensor.
+
+    This function converts a numpy image array into a PyTorch tensor. It supports
+    various options such as converting BGR to RGB, normalizing the image, changing
+    the data range, and adding a batch dimension.
+
+    Args:
+        img (np.ndarray): The input image as a numpy array.
+        bgr2rgb (bool, optional): Whether to convert BGR to RGB. Defaults to True.
+        data_range (float, optional): The data range for the image. Defaults to 1.0.
+        normalize (bool, optional): Whether to normalize the image. Defaults to False.
+        change_range (bool, optional): Whether to change the data range. Defaults to True.
+        add_batch (bool, optional): Whether to add a batch dimension. Defaults to True.
+
+    Returns:
+        torch.Tensor: The converted image as a PyTorch tensor.
+
+    Raises:
+        TypeError: If the input is not a numpy array.
     """
     if not isinstance(img, np.ndarray):  # images expected to be uint8 -> 255
         raise TypeError("Got unexpected object type, expected np.ndarray")
