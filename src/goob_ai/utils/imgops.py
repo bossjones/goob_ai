@@ -1096,6 +1096,15 @@ def handle_get_dominant_color(urls: List[str], return_type="name"):
 
 
 def bgr_to_rgb(image: torch.Tensor) -> torch.Tensor:
+    """
+    Convert a BGR image to RGB.
+
+    Args:
+        image (torch.Tensor): The input image tensor in BGR format.
+
+    Returns:
+        torch.Tensor: The output image tensor in RGB format.
+    """
     # flip image channels
     # https://github.com/pytorch/pytorch/issues/229
     out: torch.Tensor = image.flip(-3)
