@@ -997,15 +997,26 @@ def convert_pil_image_to_rgb_channels(image_path: str) -> Image:
 
 
 def read_image_to_bgr(image_path: str) -> Tuple[np.ndarray, int, int, int]:
-    """Read the image from image id.
+    """
+    Read an image from the specified file path and convert it to BGR format.
+
+    This function reads an image from the given file path using OpenCV, converts it from BGR to RGB format,
+    and returns the image array along with its number of channels, height, and width.
 
     Args:
         image_path (str): The path to the image file.
 
     Returns:
-        Tuple[np.ndarray, int, int, int]: A tuple containing the image array, number of channels, height, and width.
+        Tuple[np.ndarray, int, int, int]: A tuple containing the image array in BGR format, 
+                                          the number of channels, the height, and the width of the image.
 
-    Opencv returns ndarry in format = row (height) x column (width) x color (3)
+    Raises:
+        FileNotFoundError: If the image file does not exist at the specified path.
+
+    Example:
+        >>> image, channels, height, width = read_image_to_bgr("path/to/image.jpg")
+        >>> print(image.shape)
+        (height, width, channels)
     """
     image = cv2.imread(image_path)
     image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
