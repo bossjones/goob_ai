@@ -874,19 +874,14 @@ def pred_and_store(
 def get_pil_image_channels(image_path: str) -> int:
     """Open an image and get the number of channels it has.
 
+    This function loads an image using the Pillow library and converts it to a tensor.
+    It then returns the number of channels in the image.
+
     Args:
         image_path (str): The path to the image file.
 
     Returns:
         int: The number of channels in the image.
-    """
-    """Open an image and get the number of channels it has.
-
-    Args:
-        image_path (str): _description_
-
-    Returns:
-        int: _description_
     """
     # load pillow image
     pil_img = Image.open(image_path)
