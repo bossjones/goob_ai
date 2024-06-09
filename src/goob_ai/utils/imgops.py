@@ -1086,7 +1086,7 @@ def rgb2hex(r, g, b):
     return "#{:02x}{:02x}{:02x}".format(r, g, b)
 
 
-def handle_get_dominant_color(urls: List[str], return_type="name"):
+def handle_get_dominant_color(urls: List[str], return_type: str = "name") -> str:
     start_time = time.time()
     corner_pixels = get_all_corners_color(urls)
 
