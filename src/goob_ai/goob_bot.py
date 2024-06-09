@@ -921,7 +921,20 @@ class AsyncGoobBot(commands.Bot):
         LOGGER.info("LOGGING TREE:")
         await get_logger_tree_printout()
 
-    async def on_shard_resumed(self, shard_id: int):
+    async def on_shard_resumed(self, shard_id: int) -> None:
+        """
+        Handle the event when a shard resumes.
+
+        This method is called when a shard successfully resumes its connection
+        to the Discord gateway. It logs the shard ID and the timestamp of the
+        resume event.
+
+        Args:
+            shard_id (int): The ID of the shard that resumed.
+
+        Returns:
+            None
+        """
         LOGGER.info("Shard ID %s has resumed...", shard_id)
         self.resumes[shard_id].append(discord.utils.utcnow())
 
