@@ -724,6 +724,26 @@ async def test_convert_pil_image_to_rgb_channels_async(async_test_image, mocker)
     assert np.array_equal(rgba_image[:, :, 3], np.full(async_test_image.shape[:2], 255))  # A channel
 
 @pytest.mark.asyncio
+async def test_rgba_to_bgra(async_test_image):
+    """Test rgba_to_bgra function."""
+    from goob_ai.utils.imgops import rgba_to_bgra
+
+    # Convert the test image to a tensor with an alpha channel
+    test_image_tensor = torch.from_numpy(np.dstack((async_test_image, np.full(async_test_image.shape[:2], 255)))).permute(2, 0, 1).float() / 255.0  # HWC to CHW and normalize
+
+    # Apply rgba_to_bgra
+    bgra_image_tensor = rgba_to_bgra(test_image_tensor)
+
+    # Convert back to numpy for comparison
+    bgra_image = bgra_image_tensor.permute(1, 2, 0).numpy() * 255.0  # CHW to HWC and denormalize
+
+    # Check if the channels are correctly swapped
+    assert np.array_equal(bgra_image[:, :, 0], async_test_image[:, :, 2])  # B channel
+    assert np.array_equal(bgra_image[:, :, 1], async_test_image[:, :, 1])  # G channel
+    assert np.array_equal(bgra_image[:, :, 2], async_test_image[:, :, 0])  # R channel
+    assert np.array_equal(bgra_image[:, :, 3], np.full(async_test_image.shape[:2], 255))  # A channel
+
+@pytest.mark.asyncio
 async def test_rgb_to_bgr_async(async_test_image, mocker):
     """Test rgb_to_bgr function (async)."""
     # Convert the test image to a tensor
