@@ -1320,6 +1320,23 @@ def auto_split_upscale(
     max_depth: Optional[int] = None,
     current_depth: int = 1
 ) -> typing.Tuple[np.ndarray, int]:
+    """Recursively upscale an image by splitting it into smaller sections.
+
+    This function attempts to upscale an image using the provided `upscale_function`.
+    If the upscaling process runs out of memory, the image is split into four quadrants,
+    and the upscaling is attempted on each quadrant recursively.
+
+    Args:
+        lr_img (np.ndarray): The low-resolution input image.
+        upscale_function (typing.Callable[[np.ndarray], np.ndarray]): The function to upscale the image.
+        scale (int, optional): The scaling factor. Defaults to 4.
+        overlap (int, optional): The overlap between image sections to avoid seams. Defaults to 32.
+        max_depth (Optional[int], optional): The maximum recursion depth. If None, recursion continues until out of memory. Defaults to None.
+        current_depth (int, optional): The current recursion depth. Defaults to 1.
+
+    Returns:
+        typing.Tuple[np.ndarray, int]: The upscaled image and the depth of recursion used.
+    """
     if current_depth > 1 and (lr_img.shape[0] == lr_img.shape[1] == overlap):
         raise RecursionError("Reached bottom of recursion depth.")
 
