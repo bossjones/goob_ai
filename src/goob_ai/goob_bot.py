@@ -268,6 +268,18 @@ async def file_to_data_uri(file: discord.File) -> str:
 
 # SOURCE: https://github.com/CrosswaveOmega/NikkiBot/blob/7092ae6da21c86c7686549edd5c45335255b73ec/cogs/GlobalCog.py#L23
 async def data_uri_to_file(data_uri: str, filename: str) -> discord.File:
+    """Convert a data URI to a discord.File object.
+
+    This asynchronous function takes a data URI and a filename, decodes the base64 data,
+    and creates a discord.File object with the decoded data.
+
+    Args:
+        data_uri (str): The data URI to be converted.
+        filename (str): The name of the file to be created.
+
+    Returns:
+        discord.File: A discord.File object containing the decoded data.
+    """
     # Split the data URI into its components
     metadata, base64_data = data_uri.split(",")
     # Get the content type from the metadata
