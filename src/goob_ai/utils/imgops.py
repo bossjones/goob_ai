@@ -715,10 +715,10 @@ def handle_predict_one(
 def resize_image_and_bbox(
     image: torch.Tensor,
     boxes: torch.Tensor,
-    dims=(300, 300),
-    return_percent_coords=False,
+    dims: Tuple[int, int] = (300, 300),
+    return_percent_coords: bool = False,
     device: torch.device = DEVICE,
-):
+) -> Tuple[torch.Tensor, torch.Tensor]:
     """
     Resize image. For the SSD300, resize to (300, 300).
     Since percent/fractional coordinates are calculated for the bounding boxes (w.r.t image dimensions) in this process,
