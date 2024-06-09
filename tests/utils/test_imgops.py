@@ -7,7 +7,7 @@ import pytest_mock
 import pytest_asyncio
 import torch
 
-from goob_ai.utils.imgops import auto_split_upscale, bgr_to_rgb, bgra_to_rgba, convert_image_from_hwc_to_chw, handle_predict_one
+from goob_ai.utils.imgops import auto_split_upscale, bgr_to_rgb, bgra_to_rgba, convert_image_from_hwc_to_chw, handle_predict_one, resize_and_pillarbox
 from PIL import Image
 import torch
 from goob_ai.utils.imgops import convert_tensor_to_pil_image
@@ -170,6 +170,33 @@ def mock_model(mocker):
     model = mocker.Mock()
     model.name = "mock_model"
     return model
+
+@pytest.mark.parametrize("background_color, expected_color", [
+    ("white", (255, 255, 255)),
+    ("darkmode", (22, 32, 42)),
+])
+def test_resize_and_pillarbox(mocker, test_image_path, background_color, expected_color):
+    """Test resize_and_pillarbox function."""
+    from PIL import Image
+    from goob_ai.utils.imgops import get_pixel_rgb
+
+    # Mock the get_pixel_rgb function to return the background color
+    mocker.patch("goob_ai.utils.imgops.get_pixel_rgb", return_value=background_color)
+
+    # Load the test image
+    test_image = Image.open(test_image_path)
+
+    # Apply resize_and_pillarbox
+    resized_image = resize_and_pillarbox(test_image, 1080, 1350, background=background_color)
+
+    # Check if the result is a PIL Image
+    assert isinstance(resized_image, Image.Image)
+
+    # Check if the dimensions match
+    assert resized_image.size == (1080, 1350)
+
+    # Check if the background color is correct
+    assert resized_image.getpixel((0, 0)) == expected_color
 
 @pytest.mark.asyncio
 async def test_predict_from_file(mocker):
