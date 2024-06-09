@@ -912,20 +912,16 @@ def convert_pil_image_to_rgb_channels(image_path: str) -> Image:
 def read_image_to_bgr(image_path: str) -> Tuple[np.ndarray, int, int, int]:
     """Read the image from image id.
 
-    returns ImageNdarrayBGR.
+    Args:
+        image_path (str): The path to the image file.
+
+    Returns:
+        Tuple[np.ndarray, int, int, int]: A tuple containing the image array, number of channels, height, and width.
 
     Opencv returns ndarry in format = row (height) x column (width) x color (3)
     """
-
-    # image = cv2.imread(image_path, cv2.IMREAD_COLOR)
-    # image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB).astype(np.float32)
-    # image /= 255.0  # Normalize
-
     image = cv2.imread(image_path)
     image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-    # import bpdb
-    # bpdb.set_trace()
-    # img_shape = image.shape
     img_channel = image.shape[2]
     img_height = image.shape[0]
     img_width = image.shape[1]
