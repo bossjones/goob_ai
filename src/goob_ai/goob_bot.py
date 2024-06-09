@@ -538,6 +538,7 @@ async def details_from_file(path_to_media_from_cli: str, cwd: typing.Union[str, 
 
     return full_path_input_file, full_path_output_file, get_timestamp
 
+
 class ProxyObject(discord.Object):
     def __init__(self, guild: Optional[discord.abc.Snowflake]):
         super().__init__(id=0)
@@ -835,7 +836,9 @@ class AsyncGoobBot(commands.Bot):
         members = await guild.query_members(limit=1, user_ids=[member_id], cache=True)
         return members[0] if members else None
 
-    async def resolve_member_ids(self, guild: discord.Guild, member_ids: Iterable[int]) -> AsyncIterator[discord.Member]:
+    async def resolve_member_ids(
+        self, guild: discord.Guild, member_ids: Iterable[int]
+    ) -> AsyncIterator[discord.Member]:
         """
         Bulk resolve member IDs to member instances, if possible.
 
@@ -938,8 +941,6 @@ class AsyncGoobBot(commands.Bot):
         LOGGER.info("Shard ID %s has resumed...", shard_id)
         self.resumes[shard_id].append(discord.utils.utcnow())
 
-
-
     # SOURCE: https://github.com/aronweiler/assistant/blob/a8abd34c6973c21bc248f4782f1428a810daf899/src/discord/rag_bot.py#L90
     async def process_attachments(self, message: discord.Message) -> None:
         """Process attachments in a Discord message.
@@ -985,7 +986,6 @@ class AsyncGoobBot(commands.Bot):
             #     root_temp_dir=root_temp_dir,
             #     message=message,
             # )
-
 
     async def check_for_attachments(self, message: discord.Message) -> str:
         """Check a Discord message for attachments and process image URLs.
@@ -1469,7 +1469,6 @@ class AsyncGoobBot(commands.Bot):
             # send everything to ai bot
             await self.process_commands(message)
 
-
     async def close(self) -> None:
         await super().close()
         await self.session.close()
@@ -1497,7 +1496,9 @@ class AsyncGoobBot(commands.Bot):
             # await channel.send(counter)
             print(f" self.tasks = {self.tasks}")
             print(f" len(self.tasks) = {len(self.tasks)}")
-            await asyncio.sleep(10)  # task runs every 60 seconds
+            await asyncio.sleep(10)  # task runs every 60 seconds'
+
+    # def blah_blah(self) -> None:
 
 
 # SOURCE: https://github.com/darren-rose/DiscordDocChatBot/blob/63a2f25d2cb8aaace6c1a0af97d48f664588e94e/main.py#L28

@@ -22,8 +22,13 @@ if [ ! -f "$PYTHON_FILE" ]; then
     exit 1
 fi
 
-# Parse out all function names and store them in an array
-declare -a my_array=($(ggrep -oP 'def \K\w+' "$PYTHON_FILE"))
+# # Parse out all function names and store them in an array
+declare -a my_array=($(cat "$PYTHON_FILE" | grep -v "#" | ggrep -oP 'def \K\w+'))
+
+# Parse out all function names that are not commented out and store them in an array
+# declare -a my_array=($(ggrep -oP '^\s*def \K\w+' "$PYTHON_FILE"))
+# declare -a my_array=($(cat "$PYTHON_FILE" | grep -v "#" | ggrep -oP '^\s*def \K\w+' "$PYTHON_FILE"))
+# declare -a my_array=($(cat "$PYTHON_FILE" | grep -v "#" | ggrep -oP '^\s*def \K\w+'))
 
 
 # Sort the array uniquely
