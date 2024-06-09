@@ -1014,7 +1014,7 @@ def get_pixel_rgb(image_pil: Image) -> str:
     return color
 
 
-def resize_and_pillarbox(image_pil: Image, width: int, height: int, background="white"):
+def resize_and_pillarbox(image_pil: Image.Image, width: int, height: int, background: str = "white") -> Image.Image:
     """
     Resize PIL image keeping ratio and using white background.
     """
