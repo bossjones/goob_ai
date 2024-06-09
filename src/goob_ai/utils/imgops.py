@@ -737,6 +737,23 @@ def handle_predict_one(
     args: Optional[dict] = None,
     resize: bool = False,
 ) -> Tuple[Image.Image, List[Tuple[int, int, int, int]]]:
+    """Predict bounding boxes for a single image.
+
+    This function takes a single image file path and uses a model to predict bounding boxes for the image.
+    The predicted bounding boxes and the corresponding image are returned as a tuple.
+
+    Args:
+        images_filepath (str): File path to the image for prediction.
+        cols (int, optional): Number of columns for display purposes. Defaults to 5.
+        model (torch.nn.Module | None, optional): The model used for prediction. Defaults to None.
+        device (torch.device, optional): The device to run the model on. Defaults to DEVICE.
+        args (Optional[dict], optional): Additional arguments for the function. Defaults to None.
+        resize (bool, optional): Whether to resize the image. Defaults to False.
+
+    Returns:
+        Tuple[Image.Image, List[Tuple[int, int, int, int]]]: 
+            A tuple containing the image and its corresponding bounding boxes.
+    """
     assert cols
     image, bboxes = predict_from_file(images_filepath, model, device)
     return image, bboxes
