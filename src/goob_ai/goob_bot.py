@@ -204,14 +204,18 @@ def file_to_local_data_dict(fname: str, dir_root: str) -> Dict[str, Any]:
 
 
 async def handle_save_attachment_locally(attm_data_dict: Dict[str, Any], dir_root: str) -> str:
-    """Save an attachment locally.
+    """Save a Discord attachment locally.
+
+    This asynchronous function saves a Discord attachment to a specified directory.
+    It constructs the file path for the attachment, saves the attachment to the generated path,
+    and returns the path of the saved file.
 
     Args:
-        attm_data_dict (_type_): _description_
-        dir_root (_type_): _description_
+        attm_data_dict (Dict[str, Any]): A dictionary containing information about the attachment.
+        dir_root (str): The root directory where the attachment file will be saved.
 
     Returns:
-        _type_: _description_
+        str: The path of the saved attachment file.
     """
     fname = f"{dir_root}/orig_{attm_data_dict['id']}_{attm_data_dict['filename']}"
     rich.print(f"Saving to ... {fname}")
