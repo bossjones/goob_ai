@@ -211,7 +211,42 @@ async def test_handle_resize_no_resize(mocker, test_image_path, mock_model):
     assert resized_image_paths[0] == test_image_path
 
 @pytest.mark.asyncio
-async def test_handle_predict_one(mocker):
+async def test_handle_resize_one(mocker, test_image_path, mock_model):
+    """Test handle_resize_one function."""
+    from goob_ai.utils.imgops import handle_resize_one
+
+    mocker.patch("goob_ai.utils.imgops.Image.open", return_value=Image.open(test_image_path))
+    mocker.patch("goob_ai.utils.imgops.cv2.cvtColor", return_value=np.array(Image.open(test_image_path)))
+    mocker.patch("goob_ai.utils.imgops.cv2.imwrite", return_value=True)
+    mocker.patch("goob_ai.utils.imgops.file_functions.fix_path", return_value=test_image_path)
+
+    resized_image_path = handle_resize_one(
+        images_filepath=test_image_path,
+        model=mock_model,
+        resize=True
+    )
+
+    assert resized_image_path == test_image_path
+
+
+@pytest.mark.asyncio
+async def test_handle_resize_one_no_resize(mocker, test_image_path, mock_model):
+    """Test handle_resize_one function without resizing."""
+    from goob_ai.utils.imgops import handle_resize_one
+
+    mocker.patch("goob_ai.utils.imgops.Image.open", return_value=Image.open(test_image_path))
+    mocker.patch("goob_ai.utils.imgops.cv2.cvtColor", return_value=np.array(Image.open(test_image_path)))
+    mocker.patch("goob_ai.utils.imgops.cv2.imwrite", return_value=True)
+    mocker.patch("goob_ai.utils.imgops.file_functions.fix_path", return_value=test_image_path)
+
+    resized_image_path = handle_resize_one(
+        images_filepath=test_image_path,
+        model=mock_model,
+        resize=False
+    )
+
+    assert resized_image_path == test_image_path
+
     """Test handle_predict_one function."""
     image_path = "tests/fixtures/screenshot_image_larger00013.PNG"
     mocker.patch("goob_ai.utils.imgops.Image.open", return_value=Image.open(image_path))
