@@ -239,11 +239,11 @@ async def download_image(url: str) -> BytesIO:
         Returns:
             BytesIO: A BytesIO object containing the downloaded image data.
         """
-    async with aiohttp.ClientSession() as session:
-        async with session.get(url) as response:
-            if response.status == 200:
-                data = await response.read()
-                return io.BytesIO(data)
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url) as response:
+                if response.status == 200:
+                    data = await response.read()
+                    return io.BytesIO(data)
 
 
 # SOURCE: https://github.com/CrosswaveOmega/NikkiBot/blob/7092ae6da21c86c7686549edd5c45335255b73ec/cogs/GlobalCog.py#L23
