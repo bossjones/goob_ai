@@ -1036,7 +1036,7 @@ def resize_and_pillarbox(image_pil: Image, width: int, height: int, background="
     return background.convert("RGB")  # pyright: ignore[reportAttributeAccessIssue]
 
 
-def convert_rgb_to_names(rgb_tuple):
+def convert_rgb_to_names(rgb_tuple: tuple[int, int, int]) -> str:
     # a dictionary of all the hex and their respective names in css3
     css3_db = CSS3_HEX_TO_NAMES
     names = []
