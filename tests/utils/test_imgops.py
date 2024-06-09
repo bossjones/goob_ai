@@ -6,7 +6,7 @@ import numpy as np
 import pytest_asyncio
 import torch
 
-from goob_ai.utils.imgops import auto_split_upscale, bgr_to_rgb
+from goob_ai.utils.imgops import auto_split_upscale, bgr_to_rgb, bgra_to_rgba
 from PIL import Image
 
 import pytest
@@ -32,7 +32,7 @@ def test_auto_split_upscale_no_split(test_image):
     assert depth == 1
 
 
-def test_auto_split_upscale_with_split(test_image, pytest_mocker):
+def test_auto_split_upscale_with_split(test_image, mocker):
     """Test auto_split_upscale with splitting the image."""
     scale = 2
     overlap = 32
@@ -93,7 +93,7 @@ def test_bgra_to_rgba(test_image):
     assert np.array_equal(rgba_image[:, :, 3], np.full(test_image.shape[:2], 255))  # A channel
 
 @pytest.mark.asyncio
-async def test_bgra_to_rgba_async(async_test_image):
+async def test_bgra_to_rgba_async(async_test_image, mocker):
     """Test bgra_to_rgba function (async)."""
     # Convert the test image to a tensor with an alpha channel
     test_image_tensor = torch.from_numpy(np.dstack((async_test_image, np.full(async_test_image.shape[:2], 255)))).permute(2, 0, 1).float() / 255.0  # HWC to CHW and normalize
@@ -111,7 +111,7 @@ async def test_bgra_to_rgba_async(async_test_image):
     assert np.array_equal(rgba_image[:, :, 3], np.full(async_test_image.shape[:2], 255))  # A channel
 
 @pytest.mark.asyncio
-async def test_bgr_to_rgb_async(async_test_image):
+async def test_bgr_to_rgb_async(async_test_image, mocker):
     """Test bgr_to_rgb function (async)."""
     # Convert the test image to a tensor
     test_image_tensor = torch.from_numpy(async_test_image).permute(2, 0, 1).float() / 255.0  # HWC to CHW and normalize
@@ -140,7 +140,7 @@ async def test_bgr_to_rgb_async(async_test_image):
 
 
 @pytest.mark.asyncio
-async def test_auto_split_upscale_max_depth_async(async_test_image, pytest_mocker):
+async def test_auto_split_upscale_max_depth_async(async_test_image, mocker):
     """Test auto_split_upscale with a maximum recursion depth (async)."""
     scale = 2
     overlap = 32
