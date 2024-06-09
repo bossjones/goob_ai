@@ -19,7 +19,7 @@ from PIL import Image
 from pathlib import Path
 from goob_ai.utils.imgops import get_all_corners_color
 import torch
-from goob_ai.utils.imgops import denorm, get_pil_image_channels
+from goob_ai.utils.imgops import denorm, get_pil_image_channels, get_pixel_rgb
 
 
 @pytest.fixture
@@ -194,6 +194,17 @@ def test_denorm(input_tensor, min_max, expected_output):
     """Test denorm function with different input ranges."""
     output = denorm(input_tensor, min_max)
     assert torch.allclose(output, expected_output), f"Expected {expected_output}, but got {output}"
+
+@pytest.mark.asyncio
+async def test_get_pixel_rgb(mocker):
+    """Test get_pixel_rgb function."""
+    image_path = "tests/fixtures/screenshot_image_larger00013.PNG"
+    mocker.patch("goob_ai.utils.imgops.Image.open", return_value=Image.open(image_path))
+
+    image_pil = Image.open(image_path)
+    color = get_pixel_rgb(image_pil)
+
+    assert color == "white"
 
 @pytest.mark.parametrize("input_array, min_max, expected_output", [
     (np.array([-1.0, 0.0, 1.0]), (-1.0, 1.0), np.array([0.0, 0.5, 1.0])),
