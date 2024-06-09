@@ -508,7 +508,7 @@ OPENCV_RED = (255, 0, 0)
 utc = pytz.utc
 
 
-def setup_model():
+def setup_model() -> torch.nn.Module:
     """
     Summary:
     Set up a model for image processing.
