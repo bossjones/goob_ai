@@ -171,7 +171,49 @@ def mock_model(mocker):
     return model
 
 @pytest.mark.asyncio
-async def test_handle_resize_one(mocker, test_image_path, mock_model):
+async def test_np2tensor(mocker):
+    """Test np2tensor function."""
+    from goob_ai.utils.imgops import np2tensor
+
+    # Load the test image
+    image_path = "tests/fixtures/screenshot_image_larger00013.PNG"
+    test_image = np.array(Image.open(image_path))
+
+    # Mock the np.ndarray type check
+    mocker.patch("numpy.ndarray", return_value=True)
+
+    # Test with default parameters
+    tensor_image = await np2tensor(test_image)
+    assert isinstance(tensor_image, torch.Tensor)
+    assert tensor_image.shape == (1, test_image.shape[2], test_image.shape[0], test_image.shape[1])
+
+    # Test with bgr2rgb=False
+    tensor_image = await np2tensor(test_image, bgr2rgb=False)
+    assert isinstance(tensor_image, torch.Tensor)
+    assert tensor_image.shape == (1, test_image.shape[2], test_image.shape[0], test_image.shape[1])
+
+    # Test with normalize=True
+    tensor_image = await np2tensor(test_image, normalize=True)
+    assert isinstance(tensor_image, torch.Tensor)
+    assert tensor_image.min() >= -1.0
+    assert tensor_image.max() <= 1.0
+
+    # Test with add_batch=False
+    tensor_image = await np2tensor(test_image, add_batch=False)
+    assert isinstance(tensor_image, torch.Tensor)
+    assert tensor_image.shape == (test_image.shape[2], test_image.shape[0], test_image.shape[1])
+
+    # Test with change_range=False
+    tensor_image = await np2tensor(test_image, change_range=False)
+    assert isinstance(tensor_image, torch.Tensor)
+    assert tensor_image.min() >= 0.0
+    assert tensor_image.max() <= 255.0
+
+    # Test with data_range=255.0
+    tensor_image = await np2tensor(test_image, data_range=255.0)
+    assert isinstance(tensor_image, torch.Tensor)
+    assert tensor_image.min() >= 0.0
+    assert tensor_image.max() <= 1.0
     """Test handle_resize_one function."""
     from goob_ai.utils.imgops import handle_resize_one
 
