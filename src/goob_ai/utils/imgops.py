@@ -1051,7 +1051,7 @@ def convert_rgb_to_names(rgb_tuple: tuple[int, int, int]) -> str:
     return f"{names[index]}"
 
 
-def get_all_corners_color(urls):
+def get_all_corners_color(urls: List[str]) -> Dict[str, str]:
     pbar = tqdm(urls)
     pixel_data = {
         "top_left": "",
