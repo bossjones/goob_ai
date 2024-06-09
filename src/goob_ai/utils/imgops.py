@@ -459,7 +459,7 @@ import traceback
 import typing
 
 from enum import IntEnum
-from typing import Dict, List, NewType, Optional
+from typing import Dict, List, NewType, Optional, Tuple, Any
 
 import cv2
 import numpy as np
@@ -508,13 +508,15 @@ OPENCV_RED = (255, 0, 0)
 utc = pytz.utc
 
 
-def setup_model():
-    """
-    Summary:
-    Set up a model for image processing.
+def setup_model() -> torch.nn.Module:
+    """Set up a model for image processing.
 
-    Explanation:
-    This function loads a model for image processing using a predefined device and model name, and returns the loaded model.
+    This function loads a pre-trained model for image processing using a predefined
+    device and model name. The model is loaded from a file named "ScreenNetV1.pth"
+    and is returned as a torch.nn.Module object.
+
+    Returns:
+        torch.nn.Module: The loaded image processing model.
     """
     return load_model(DEVICE, model_name="ScreenNetV1.pth")
 
@@ -530,13 +532,32 @@ def setup_model():
 
 def handle_autocrop(
     images_filepaths: List[str],
-    cols=5,
-    model=None,
+    cols: int = 5,
+    model: Optional[torch.nn.Module] = None,
     device: torch.device = DEVICE,
-    args=None,
-    resize=False,
-    predict_results=None,
-):
+    args: Optional[dict] = None,
+    resize: bool = False,
+    predict_results: Optional[List[Tuple[Image.Image, List[Tuple[int, int, int, int]]]]] = None,
+) -> List[str]:
+    """
+    Crop images based on predicted bounding boxes.
+
+    This function takes a list of image file paths and crops each image based on the provided bounding boxes.
+    The cropped images are saved to disk, and their file paths are returned.
+
+    Args:
+        images_filepaths (List[str]): List of file paths to the images to be cropped.
+        cols (int, optional): Number of columns for display purposes. Defaults to 5.
+        model (Optional[torch.nn.Module], optional): The model used for prediction. Defaults to None.
+        device (torch.device, optional): The device to run the model on. Defaults to DEVICE.
+        args (Optional[dict], optional): Additional arguments for the function. Defaults to None.
+        resize (bool, optional): Whether to resize the cropped images. Defaults to False.
+        predict_results (Optional[List[Tuple[Image.Image, List[Tuple[int, int, int, int]]]]], optional): 
+            List of tuples containing images and their corresponding bounding boxes. Defaults to None.
+
+    Returns:
+        List[str]: List of file paths to the cropped images.
+    """
     cropped_image_file_paths = []
     for i, image_filepath in enumerate(images_filepaths):
         image, bboxes = predict_results[i]
@@ -544,7 +565,6 @@ def handle_autocrop(
         img_as_array = np.asarray(image)
         img_as_array = cv2.cvtColor(img_as_array, cv2.COLOR_RGB2BGR)
 
-        # get fullsize bboxes
         xmin_fullsize, ymin_fullsize, xmax_fullsize, ymax_fullsize = bboxes[0]
 
         startY = int(ymin_fullsize)
@@ -571,29 +591,41 @@ def handle_autocrop(
 
 def handle_autocrop_one(
     images_filepath: str,
-    cols=5,
-    model=None,
+    cols: int = 5,
+    model: Optional[torch.nn.Module] = None,
     device: torch.device = DEVICE,
-    args=None,
-    resize=False,
-    predict_results=None,
-):
-    # cropped_image_file_paths = []
-    # for i, image_filepath in enumerate(images_filepaths):
+    args: Optional[dict] = None,
+    resize: bool = False,
+    predict_results: Optional[Tuple[Image.Image, List[Tuple[int, int, int, int]]]] = None,
+) -> str:
+    """
+    Crop a single image based on predicted bounding boxes.
 
-    # import bpdb
-    # bpdb.set_trace()
+    This function takes a single image file path and crops the image based on the provided bounding boxes.
+    The cropped image is saved to disk, and its file path is returned.
 
+    Args:
+        images_filepath (str): File path to the image to be cropped.
+        cols (int, optional): Number of columns for display purposes. Defaults to 5.
+        model (Optional[torch.nn.Module], optional): The model used for prediction. Defaults to None.
+        device (torch.device, optional): The device to run the model on. Defaults to DEVICE.
+        args (Optional[dict], optional): Additional arguments for the function. Defaults to None.
+        resize (bool, optional): Whether to resize the cropped image. Defaults to False.
+        predict_results (Optional[Tuple[Image.Image, List[Tuple[int, int, int, int]]]], optional): 
+            A tuple containing the image and its corresponding bounding boxes. Defaults to None.
+
+    Returns:
+        str: File path to the cropped image.
+    """
     image, bboxes = predict_results
     temp = image.copy()
-    # image, bboxes = predict_from_file(image_filepath, model, device)
     img_as_array = np.asarray(temp)
     img_as_array = cv2.cvtColor(img_as_array, cv2.COLOR_RGB2BGR)
 
-    # get fullsize bboxes
+    # Get fullsize bounding boxes
     xmin_fullsize, ymin_fullsize, xmax_fullsize, ymax_fullsize = bboxes[0]
 
-    # if we have a negative point to make a rectange with, set it to 0
+    # If we have a negative point to make a rectangle with, set it to 0
     startY = max(int(ymin_fullsize), 0)
     endY = max(int(ymax_fullsize), 0)
     startX = max(int(xmin_fullsize), 0)
@@ -613,12 +645,29 @@ def handle_autocrop_one(
 
 def handle_resize(
     images_filepaths: List[str],
-    cols=5,
-    model=None,
+    cols: int = 5,
+    model: Optional[torch.nn.Module] = None,
     device: torch.device = DEVICE,
-    args=None,
-    resize=False,
-):
+    args: Optional[dict] = None,
+    resize: bool = False,
+) -> List[str]:
+    """
+    Resize a list of images and save them to disk.
+
+    This function takes a list of image file paths, resizes each image if specified, 
+    and saves the resized images to disk. The file paths of the resized images are returned.
+
+    Args:
+        images_filepaths (List[str]): List of file paths to the images to be resized.
+        cols (int, optional): Number of columns for display purposes. Defaults to 5.
+        model (Optional[torch.nn.Module], optional): The model used for prediction. Defaults to None.
+        device (torch.device, optional): The device to run the model on. Defaults to DEVICE.
+        args (Optional[dict], optional): Additional arguments for the function. Defaults to None.
+        resize (bool, optional): Whether to resize the images. Defaults to False.
+
+    Returns:
+        List[str]: List of file paths to the resized images.
+    """
     resized_image_file_paths = []
     for i, image_filepath in enumerate(images_filepaths):
         image_path_api = pathlib.Path(image_filepath).resolve()
@@ -642,12 +691,28 @@ def handle_resize(
 
 def handle_resize_one(
     images_filepath: str,
-    cols=5,
-    model=None,
+    cols: int = 5,
+    model: Optional[torch.nn.Module] = None,
     device: torch.device = DEVICE,
-    args=None,
-    resize=False,
-):
+    args: Optional[dict] = None,
+    resize: bool = False,
+) -> str:
+    """Resize a single image and save it to disk.
+
+    This function takes a single image file path, resizes the image if specified,
+    and saves the resized image to disk. The file path of the resized image is returned.
+
+    Args:
+        images_filepath (str): File path to the image to be resized.
+        cols (int, optional): Number of columns for display purposes. Defaults to 5.
+        model (Optional[torch.nn.Module], optional): The model used for prediction. Defaults to None.
+        device (torch.device, optional): The device to run the model on. Defaults to DEVICE.
+        args (Optional[dict], optional): Additional arguments for the function. Defaults to None.
+        resize (bool, optional): Whether to resize the image. Defaults to False.
+
+    Returns:
+        str: File path to the resized image.
+    """
     image_path_api = pathlib.Path(images_filepath).resolve()
     fname = f"{image_path_api.parent}/cropped-{model.name}-{image_path_api.stem}{image_path_api.suffix}"
 
@@ -667,12 +732,30 @@ def handle_resize_one(
 
 def handle_predict(
     images_filepaths: List[str],
-    cols=5,
-    model=None,
+    cols: int = 5,
+    model: Optional[torch.nn.Module] = None,
     device: torch.device = DEVICE,
-    args=None,
-    resize=False,
-):
+    args: Optional[dict] = None,
+    resize: bool = False,
+) -> List[Tuple[Image.Image, List[Tuple[int, int, int, int]]]]:
+    """
+    Predict bounding boxes for a list of images.
+
+    This function takes a list of image file paths and uses a model to predict bounding boxes for each image.
+    The predicted bounding boxes and the corresponding images are returned as a list of tuples.
+
+    Args:
+        images_filepaths (List[str]): List of file paths to the images for prediction.
+        cols (int, optional): Number of columns for display purposes. Defaults to 5.
+        model (Optional[torch.nn.Module], optional): The model used for prediction. Defaults to None.
+        device (torch.device, optional): The device to run the model on. Defaults to DEVICE.
+        args (Optional[dict], optional): Additional arguments for the function. Defaults to None.
+        resize (bool, optional): Whether to resize the images. Defaults to False.
+
+    Returns:
+        List[Tuple[Image.Image, List[Tuple[int, int, int, int]]]]: 
+            List of tuples containing images and their corresponding bounding boxes.
+    """
     image_and_bboxes_list = []
     for image_filepath in images_filepaths:
         image, bboxes = predict_from_file(image_filepath, model, device)
@@ -685,9 +768,26 @@ def handle_predict_one(
     cols: int = 5,
     model: torch.nn.Module | None = None,
     device: torch.device = DEVICE,
-    args=None,
-    resize=False,
-):
+    args: Optional[dict] = None,
+    resize: bool = False,
+) -> Tuple[Image.Image, List[Tuple[int, int, int, int]]]:
+    """Predict bounding boxes for a single image.
+
+    This function takes a single image file path and uses a model to predict bounding boxes for the image.
+    The predicted bounding boxes and the corresponding image are returned as a tuple.
+
+    Args:
+        images_filepath (str): File path to the image for prediction.
+        cols (int, optional): Number of columns for display purposes. Defaults to 5.
+        model (torch.nn.Module | None, optional): The model used for prediction. Defaults to None.
+        device (torch.device, optional): The device to run the model on. Defaults to DEVICE.
+        args (Optional[dict], optional): Additional arguments for the function. Defaults to None.
+        resize (bool, optional): Whether to resize the image. Defaults to False.
+
+    Returns:
+        Tuple[Image.Image, List[Tuple[int, int, int, int]]]: 
+            A tuple containing the image and its corresponding bounding boxes.
+    """
     assert cols
     image, bboxes = predict_from_file(images_filepath, model, device)
     return image, bboxes
@@ -715,17 +815,24 @@ def handle_predict_one(
 def resize_image_and_bbox(
     image: torch.Tensor,
     boxes: torch.Tensor,
-    dims=(300, 300),
-    return_percent_coords=False,
+    dims: Tuple[int, int] = (300, 300),
+    return_percent_coords: bool = False,
     device: torch.device = DEVICE,
-):
-    """
-    Resize image. For the SSD300, resize to (300, 300).
-    Since percent/fractional coordinates are calculated for the bounding boxes (w.r.t image dimensions) in this process,
-    you may choose to retain them.
-    :param image: image, a PIL Image
-    :param boxes: bounding boxes in boundary coordinates, a tensor of dimensions (n_objects, 4)
-    :return: resized image, updated bounding box coordinates (or fractional coordinates, in which case they remain the same)
+) -> Tuple[torch.Tensor, torch.Tensor]:
+    """Resize an image and its bounding boxes.
+
+    This function resizes an image to the specified dimensions and adjusts the bounding boxes accordingly.
+    It can return the bounding boxes as either absolute coordinates or percent coordinates.
+
+    Args:
+        image (torch.Tensor): The input image tensor.
+        boxes (torch.Tensor): The bounding boxes tensor with dimensions (n_objects, 4).
+        dims (Tuple[int, int], optional): The target dimensions for resizing. Defaults to (300, 300).
+        return_percent_coords (bool, optional): Whether to return bounding boxes as percent coordinates. Defaults to False.
+        device (torch.device, optional): The device to perform the operation on. Defaults to DEVICE.
+
+    Returns:
+        Tuple[torch.Tensor, torch.Tensor]: The resized image tensor and the updated bounding boxes tensor.
     """
 
     image_tensor_to_resize_height = image.shape[1]
@@ -757,22 +864,30 @@ def resize_image_and_bbox(
 
 
 # SOURCE: https://www.learnpytorch.io/09_pytorch_model_deployment/
-# 1. Create a function to return a list of dictionaries with sample, truth label, prediction, prediction probability and prediction time
 def pred_and_store(
     paths: List[pathlib.Path],
     model: torch.nn.Module,
     device: torch.device = DEVICE,
-) -> List[Dict]:
-    # 3. Loop through target paths
+) -> List[Dict[str, Any]]:
+    """Predict bounding boxes for images and store the results.
+
+    This function loops through a list of image paths, performs predictions using the provided model,
+    and stores the prediction information in a list of dictionaries. Each dictionary contains the image path,
+    prediction bounding boxes, and other relevant information.
+
+    Args:
+        paths (List[pathlib.Path]): List of image paths to process.
+        model (torch.nn.Module): The model used for prediction.
+        device (torch.device, optional): The device to run the model on. Defaults to DEVICE.
+
+    Returns:
+        List[Dict[str, Any]]: A list of dictionaries containing prediction information for each image.
+    """
     for path in tqdm(paths):
-        # 4. Create empty dictionary to store prediction information for each sample
         pred_dict = {"image_path": path}
 
-        # 6. Start the prediction timer
-        # timer()
 
         targetSize = Dimensions.HEIGHT
-        # 7. Open image path
 
         img: ImageNdarrayBGR  # type: ignore
 
@@ -791,7 +906,6 @@ def pred_and_store(
         # normalize and change output to (c, h, w)
         resized_tensor: torch.Tensor = torch.from_numpy(resized).permute(2, 0, 1) / 255.0
 
-        # 9. Prepare model for inference by sending it to target device and turning on eval() mode
         model.to(device)
         model.eval()
 
@@ -802,7 +916,6 @@ def pred_and_store(
             # predict
             out_bbox: torch.Tensor = model(unsqueezed_tensor)
 
-            # ic(out_bbox)
 
             xmin, ymin, xmax, ymax = out_bbox[0]
             pt1 = (int(xmin), int(ymin))
@@ -813,11 +926,6 @@ def pred_and_store(
             color = (255, 0, 0)
             thickness = 2
 
-            # import bpdb
-            # bpdb.set_trace()
-
-            # img = image.astype("uint8")
-            # generate the image with bounding box on it
             out_img = cv2.rectangle(
                 unsqueezed_tensor.squeeze().permute(1, 2, 0).cpu().numpy().astype("uint8"),
                 starting_point,
@@ -826,13 +934,6 @@ def pred_and_store(
                 thickness,
             )
 
-            # TODO: Enable this?
-            # if --display
-            # plt.imshow(out_img)
-
-            # NOTE: At this point we have our bounding box for the smaller image, lets figure out what the values would be for a larger image.
-            # First setup variables we need
-            # -------------------------------------------------------
             image_tensor_to_resize = resized_tensor
             resized_bboxes_tensor = out_bbox[0]
             resized_height = img_height
@@ -843,7 +944,6 @@ def pred_and_store(
             image_tensor_to_resize.shape[1]
             image_tensor_to_resize.shape[2]
 
-            # perform fullsize transformation
             fullsize_image, fullsize_bboxes = resize_image_and_bbox(
                 image_tensor_to_resize,
                 resized_bboxes_tensor,
@@ -852,7 +952,6 @@ def pred_and_store(
                 device=device,
             )
 
-            # get fullsize bboxes
             (
                 xmin_fullsize,
                 ymin_fullsize,
@@ -874,11 +973,14 @@ def pred_and_store(
 def get_pil_image_channels(image_path: str) -> int:
     """Open an image and get the number of channels it has.
 
+    This function loads an image using the Pillow library and converts it to a tensor.
+    It then returns the number of channels in the image.
+
     Args:
-        image_path (str): _description_
+        image_path (str): The path to the image file.
 
     Returns:
-        int: _description_
+        int: The number of channels in the image.
     """
     # load pillow image
     pil_img = Image.open(image_path)
@@ -889,35 +991,44 @@ def get_pil_image_channels(image_path: str) -> int:
     return pil_img_tensor.shape[0]
 
 
-def convert_pil_image_to_rgb_channels(image_path: str):
-    """Convert Pil image to have the appropriate number of color channels
+def convert_pil_image_to_rgb_channels(image_path: str) -> Image:
+    """Convert a PIL image to have the appropriate number of color channels.
+
+    This function checks the number of channels in a PIL image and converts it to RGB if it has a different number of channels.
 
     Args:
-        image_path (str): _description_
+        image_path (str): The path to the image file.
 
     Returns:
-        _type_: _description_
+        Image: The converted PIL image with RGB channels.
     """
     return Image.open(image_path).convert("RGB") if get_pil_image_channels(image_path) != 4 else Image.open(image_path)
 
 
-def read_image_to_bgr(image_path: str):
-    """Read the image from image id.
-
-    returns ImageNdarrayBGR.
-
-    Opencv returns ndarry in format = row (height) x column (width) x color (3)
+def read_image_to_bgr(image_path: str) -> Tuple[np.ndarray, int, int, int]:
     """
+    Read an image from the specified file path and convert it to BGR format.
 
-    # image = cv2.imread(image_path, cv2.IMREAD_COLOR)
-    # image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB).astype(np.float32)
-    # image /= 255.0  # Normalize
+    This function reads an image from the given file path using OpenCV, converts it from BGR to RGB format,
+    and returns the image array along with its number of channels, height, and width.
 
+    Args:
+        image_path (str): The path to the image file.
+
+    Returns:
+        Tuple[np.ndarray, int, int, int]: A tuple containing the image array in BGR format, 
+                                          the number of channels, the height, and the width of the image.
+
+    Raises:
+        FileNotFoundError: If the image file does not exist at the specified path.
+
+    Example:
+        >>> image, channels, height, width = read_image_to_bgr("path/to/image.jpg")
+        >>> print(image.shape)
+        (height, width, channels)
+    """
     image = cv2.imread(image_path)
     image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-    # import bpdb
-    # bpdb.set_trace()
-    # img_shape = image.shape
     img_channel = image.shape[2]
     img_height = image.shape[0]
     img_width = image.shape[1]
@@ -925,32 +1036,50 @@ def read_image_to_bgr(image_path: str):
 
 
 def convert_image_from_hwc_to_chw(img: ImageNdarrayBGR) -> torch.Tensor:
+    """Convert an image from HWC (Height, Width, Channels) format to CHW (Channels, Height, Width) format.
+
+    This function takes an image in HWC format and converts it to CHW format, which is commonly used in 
+    deep learning frameworks like PyTorch.
+
+    Args:
+        img (ImageNdarrayBGR): The input image in HWC format.
+
+    Returns:
+        torch.Tensor: The output image in CHW format.
+    """
     img: torch.Tensor = torch.from_numpy(img).permute(2, 0, 1) / 255.0  # (h,w,c) -> (c,h,w)
     return img
 
 
 # convert image back and forth if needed: https://stackoverflow.com/questions/68207510/how-to-use-torchvision-io-read-image-with-image-as-variable-not-stored-file
-def convert_pil_image_to_torch_tensor(pil_image: Image) -> torch.Tensor:
-    """Convert PIL image to pytorch tensor
+def convert_pil_image_to_torch_tensor(pil_image: Image.Image) -> torch.Tensor:
+    """Convert a PIL image to a PyTorch tensor.
+
+    This function takes a PIL image and converts it to a PyTorch tensor.
+    The resulting tensor will have its channels in the order expected by PyTorch (C x H x W).
 
     Args:
-        pil_image (PIL.Image): _description_
+        pil_image (Image.Image): The input image in PIL format.
 
     Returns:
-        torch.Tensor: _description_
+        torch.Tensor: The converted image as a PyTorch tensor.
     """
     return pytorch_transforms_functional.to_tensor(pil_image)
 
 
 # convert image back and forth if needed: https://stackoverflow.com/questions/68207510/how-to-use-torchvision-io-read-image-with-image-as-variable-not-stored-file
-def convert_tensor_to_pil_image(tensor_image: torch.Tensor) -> Image:
-    """Convert tensor image to Pillow object
+def convert_tensor_to_pil_image(tensor_image: torch.Tensor) -> Image.Image:
+    """
+    Convert a PyTorch tensor to a PIL image.
+
+    This function takes a PyTorch tensor and converts it to a PIL image.
+    The input tensor is expected to have its channels in the order expected by PyTorch (C x H x W).
 
     Args:
-        tensor_image (torch.Tensor): _description_
+        tensor_image (torch.Tensor): The input image as a PyTorch tensor.
 
     Returns:
-        PIL.Image: _description_
+        Image.Image: The converted image in PIL format.
     """
     return pytorch_transforms_functional.to_pil_image(tensor_image)
 
@@ -959,16 +1088,21 @@ def predict_from_file(
     path_to_image_from_cli: str,
     model: torch.nn.Module,
     device: torch.device = DEVICE,
-):
-    """wrapper function to perform predictions on individual files
+) -> Tuple[Image.Image, List[Tuple[int, int, int, int]]]:
+    """
+    Perform predictions on an individual image file.
+
+    This function takes the path to an image file, loads the image, and uses the provided model
+    to predict bounding boxes for objects in the image. The function returns the image and the
+    predicted bounding boxes.
 
     Args:
-        path_to_image_from_cli (str): eg.  "/Users/malcolm/Downloads/2020-11-25_10-47-32_867.jpeg
-        model (torch.nn.Module): _description_
-        transform (torchvision.transforms): _description_
-        class_names (List[str]): _description_
-        device (torch.device): _description_
-        args (argparse.Namespace): _description_
+        path_to_image_from_cli (str): The file path to the image for prediction.
+        model (torch.nn.Module): The model used for prediction.
+        device (torch.device, optional): The device to run the model on. Defaults to DEVICE.
+
+    Returns:
+        Tuple[Image.Image, List[Tuple[int, int, int, int]]]: A tuple containing the image and a list of bounding boxes.
     """
     # ic(f"Predict | individual file {path_to_image_from_cli} ...")
     LOGGER.info(f"Predict | individual file {path_to_image_from_cli} ...")
@@ -984,26 +1118,45 @@ def predict_from_file(
     return img, bboxes
 
 
-def get_pixel_rgb(image_pil: Image):
-    """Get first pixel in image and return a humanreadable name of what color is represented
+def get_pixel_rgb(image_pil: Image) -> str:
+    """Get the color of the first pixel in an image.
+
+    This function retrieves the RGB values of the first pixel (at position (1, 1)) in the provided PIL image.
+    It then determines if the color is white or dark mode based on the RGB values.
 
     Args:
-        image_pil (Image): _description_
+        image_pil (Image): The input image in PIL format.
 
     Returns:
-        _type_: _description_
+        str: A string indicating the color of the first pixel, either "white" or "darkmode".
     """
     r, g, b = image_pil.getpixel((1, 1))  # pyright: ignore[reportAttributeAccessIssue]
-    # ic(r,g,b)
 
     color = "white" if (r, g, b) == (255, 255, 255) else "darkmode"
     print(f"GOT COLOR {color} -- {r},{g},{b}")
     return color
 
 
-def resize_and_pillarbox(image_pil: Image, width: int, height: int, background="white"):
-    """
-    Resize PIL image keeping ratio and using white background.
+def resize_and_pillarbox(image_pil: Image.Image, width: int, height: int, background: str = "white") -> Image.Image:
+    """Resize a PIL image while maintaining its aspect ratio and adding pillarbox.
+
+    This function resizes a PIL image to fit within the specified width and height while maintaining
+    the original aspect ratio. It adds pillarbox (padding) to the image to fill the remaining space
+    with a specified background color.
+
+    Args:
+        image_pil (Image.Image): The input image in PIL format.
+        width (int): The target width for the resized image.
+        height (int): The target height for the resized image.
+        background (str, optional): The background color for the pillarbox. Defaults to "white".
+
+    Returns:
+        Image.Image: The resized image with pillarbox added.
+
+    Example:
+        >>> image = Image.open("path/to/image.jpg")
+        >>> resized_image = resize_and_pillarbox(image, 1080, 1350, background="white")
+        >>> resized_image.show()
     """
     autodetect_background = get_pixel_rgb(image_pil)
 
@@ -1027,7 +1180,7 @@ def resize_and_pillarbox(image_pil: Image, width: int, height: int, background="
     return background.convert("RGB")  # pyright: ignore[reportAttributeAccessIssue]
 
 
-def convert_rgb_to_names(rgb_tuple):
+def convert_rgb_to_names(rgb_tuple: tuple[int, int, int]) -> str:
     # a dictionary of all the hex and their respective names in css3
     css3_db = CSS3_HEX_TO_NAMES
     names = []
@@ -1042,7 +1195,18 @@ def convert_rgb_to_names(rgb_tuple):
     return f"{names[index]}"
 
 
-def get_all_corners_color(urls):
+def get_all_corners_color(urls: List[str]) -> Dict[str, str]:
+    """Get the colors of the four corners of images.
+
+    This function opens each image from the provided URLs, converts them to RGB,
+    and retrieves the colors of the top-left, top-right, bottom-left, and bottom-right corners.
+
+    Args:
+        urls (List[str]): A list of URLs pointing to the image files.
+
+    Returns:
+        Dict[str, str]: A dictionary containing the colors of the four corners of the images.
+    """
     pbar = tqdm(urls)
     pixel_data = {
         "top_left": "",
@@ -1052,7 +1216,6 @@ def get_all_corners_color(urls):
     }
     for url in pbar:
         img = Image.open(url).convert("RGB")
-        # breakpoint()
         width, height = img.size
         pixel_layout = img.load()
         pixel_data["top_left"] = top_left = pixel_layout[0, 0]
@@ -1063,13 +1226,44 @@ def get_all_corners_color(urls):
     return pixel_data
 
 
-def rgb2hex(r, g, b):
+def rgb2hex(r: int, g: int, b: int) -> str:
+    """Convert RGB values to a hexadecimal color string.
+
+    This function takes the red, green, and blue components of a color
+    and converts them to a hexadecimal string representation.
+
+    Args:
+        r (int): The red component of the color, in the range [0, 255].
+        g (int): The green component of the color, in the range [0, 255].
+        b (int): The blue component of the color, in the range [0, 255].
+
+    Returns:
+        str: The hexadecimal string representation of the color, prefixed with '#'.
+
+    Example:
+        >>> rgb2hex(255, 0, 0)
+        '#ff0000'
+    """
     LOGGER.info(f"RGB2HEX: {r} {g} {b}")
+    return "#{:02x}{:02x}{:02x}".format(r, g, b)
     LOGGER.info(f"TYPE RGB2HEX: {type(r)} {type(g)} {type(b)}")
     return "#{:02x}{:02x}{:02x}".format(r, g, b)
 
 
-def handle_get_dominant_color(urls: List[str], return_type="name"):
+def handle_get_dominant_color(urls: List[str], return_type: str = "name") -> str:
+    """Get the dominant color from the corners of images.
+
+    This function retrieves the colors of the four corners of images from the provided URLs.
+    It then determines the dominant color based on the corner colors and returns it either as a color name or hex value.
+
+    Args:
+        urls (List[str]): A list of URLs pointing to the image files.
+        return_type (str, optional): The format to return the dominant color. 
+            Can be "name" for color name or "hex" for hex value. Defaults to "name".
+
+    Returns:
+        str: The dominant color in the specified format (name or hex).
+    """
     start_time = time.time()
     corner_pixels = get_all_corners_color(urls)
 
@@ -1096,10 +1290,17 @@ def handle_get_dominant_color(urls: List[str], return_type="name"):
 
 
 def bgr_to_rgb(image: torch.Tensor) -> torch.Tensor:
-    # flip image channels
-    # https://github.com/pytorch/pytorch/issues/229
+    """Convert a BGR image to RGB.
+
+    This function takes an image tensor in BGR format and converts it to RGB format by flipping the color channels.
+
+    Args:
+        image (torch.Tensor): The input image tensor in BGR format.
+
+    Returns:
+        torch.Tensor: The output image tensor in RGB format.
+    """
     out: torch.Tensor = image.flip(-3)
-    # out: torch.Tensor = image[[2, 1, 0], :, :] #RGB to BGR #may be faster
     return out
 
 
@@ -1109,22 +1310,52 @@ def rgb_to_bgr(image: torch.Tensor) -> torch.Tensor:
 
 
 def bgra_to_rgba(image: torch.Tensor) -> torch.Tensor:
+    """Convert a BGRA image to RGBA.
+
+    This function takes an image tensor in BGRA format and converts it to RGBA format
+    by rearranging the color channels.
+
+    Args:
+        image (torch.Tensor): The input image tensor in BGRA format.
+
+    Returns:
+        torch.Tensor: The output image tensor in RGBA format.
+    """
     out: torch.Tensor = image[[2, 1, 0, 3], :, :]
     return out
 
 
 def rgba_to_bgra(image: torch.Tensor) -> torch.Tensor:
+    """Convert a RGBA image to BGRA format.
+
+    This function takes an image tensor in RGBA format and converts it to BGRA format
+    by rearranging the color channels.
+
+    Args:
+        image (torch.Tensor): The input image tensor in RGBA format.
+
+    Returns:
+        torch.Tensor: The output image tensor in BGRA format.
+    """
     # same operation as bgra_to_rgba(), flip image channels
     return bgra_to_rgba(image)
 
 
-def denorm(x, min_max=(-1.0, 1.0)):
-    """
-    Denormalize from [-1,1] range to [0,1]
-    formula: xi' = (xi - mu)/sigma
-    Example: "out = (x + 1.0) / 2.0" for denorm
-        range (-1,1) to (0,1)
-    for use with proper act in Generator output (ie. tanh)
+def denorm(x: torch.Tensor | np.ndarray, min_max: tuple[float, float] = (-1.0, 1.0)) -> torch.Tensor | np.ndarray:
+    """Denormalize a tensor or numpy array from a specified range to [0, 1].
+
+    This function converts values from a given range (default is [-1, 1]) to the range [0, 1].
+    It is useful for reversing normalization applied during preprocessing.
+
+    Args:
+        x (torch.Tensor | np.ndarray): The input tensor or numpy array to be denormalized.
+        min_max (tuple[float, float], optional): The range of the input values. Defaults to (-1.0, 1.0).
+
+    Returns:
+        torch.Tensor | np.ndarray: The denormalized tensor or numpy array.
+
+    Raises:
+        TypeError: If the input is not a torch.Tensor or np.ndarray.
     """
     out = (x - min_max[0]) / (min_max[1] - min_max[0])
     if isinstance(x, torch.Tensor):
@@ -1138,8 +1369,22 @@ def denorm(x, min_max=(-1.0, 1.0)):
         )
 
 
-def norm(x):
-    # Normalize (z-norm) from [0,1] range to [-1,1]
+def norm(x: torch.Tensor | np.ndarray) -> torch.Tensor | np.ndarray:
+    """
+    Normalize a tensor or numpy array from [0, 1] range to [-1, 1] range.
+
+    This function converts values from the range [0, 1] to the range [-1, 1].
+    It is useful for normalizing data before feeding it into a neural network.
+
+    Args:
+        x (torch.Tensor | np.ndarray): The input tensor or numpy array to be normalized.
+
+    Returns:
+        torch.Tensor | np.ndarray: The normalized tensor or numpy array.
+
+    Raises:
+        TypeError: If the input is not a torch.Tensor or np.ndarray.
+    """
     out = (x - 0.5) * 2.0
     if isinstance(x, torch.Tensor):
         return out.clamp(-1, 1)
@@ -1153,18 +1398,32 @@ def norm(x):
 
 
 async def np2tensor(
-    img,
-    bgr2rgb=True,
-    data_range=1.0,
-    normalize=False,
-    change_range=True,
-    add_batch=True,
-):
-    """
-    Converts a numpy image array into a Tensor array.
-    Parameters:
-        img (numpy array): the input image numpy array
-        add_batch (bool): choose if new tensor needs batch dimension added
+    img: np.ndarray,
+    bgr2rgb: bool = True,
+    data_range: float = 1.0,
+    normalize: bool = False,
+    change_range: bool = True,
+    add_batch: bool = True,
+) -> torch.Tensor:
+    """Convert a numpy image array into a PyTorch tensor.
+
+    This function converts a numpy image array into a PyTorch tensor. It supports
+    various options such as converting BGR to RGB, normalizing the image, changing
+    the data range, and adding a batch dimension.
+
+    Args:
+        img (np.ndarray): The input image as a numpy array.
+        bgr2rgb (bool, optional): Whether to convert BGR to RGB. Defaults to True.
+        data_range (float, optional): The data range for the image. Defaults to 1.0.
+        normalize (bool, optional): Whether to normalize the image. Defaults to False.
+        change_range (bool, optional): Whether to change the data range. Defaults to True.
+        add_batch (bool, optional): Whether to add a batch dimension. Defaults to True.
+
+    Returns:
+        torch.Tensor: The converted image as a PyTorch tensor.
+
+    Raises:
+        TypeError: If the input is not a numpy array.
     """
     if not isinstance(img, np.ndarray):  # images expected to be uint8 -> 255
         raise TypeError("Got unexpected object type, expected np.ndarray")
@@ -1199,25 +1458,44 @@ async def np2tensor(
 
 
 async def tensor2np(
-    img,
-    rgb2bgr=True,
-    remove_batch=True,
-    data_range=255,
-    denormalize=False,
-    change_range=True,
-    imtype=np.uint8,
-):
-    """
-    Converts a Tensor array into a numpy image array.
-    Parameters:
-        img (tensor): the input image tensor array
-            4D(B,(3/1),H,W), 3D(C,H,W), or 2D(H,W), any range, RGB channel order
-        remove_batch (bool): choose if tensor of shape BCHW needs to be squeezed
-        denormalize (bool): Used to denormalize from [-1,1] range back to [0,1]
-        imtype (type): the desired type of the converted numpy array (np.uint8
-            default)
-    Output:
-        img (np array): 3D(H,W,C) or 2D(H,W), [0,255], np.uint8 (default)
+    img: torch.Tensor,
+    rgb2bgr: bool = True,
+    remove_batch: bool = True,
+    data_range: int = 255,
+    denormalize: bool = False,
+    change_range: bool = True,
+    imtype: type = np.uint8,
+) -> np.ndarray:
+    """Convert a Tensor array into a numpy image array.
+
+    This function converts a PyTorch tensor into a numpy image array. It supports
+    various options such as converting RGB to BGR, removing the batch dimension,
+    changing the data range, and denormalizing the image.
+
+    Args:
+        img (torch.Tensor): The input image tensor array. It can be 4D (B, (3/1), H, W),
+            3D (C, H, W), or 2D (H, W), with any range and RGB channel order.
+        rgb2bgr (bool, optional): Whether to convert RGB to BGR. Defaults to True.
+        remove_batch (bool, optional): Whether to remove the batch dimension if the tensor
+            is of shape BCHW. Defaults to True.
+        data_range (int, optional): The data range for the image. Defaults to 255.
+        denormalize (bool, optional): Whether to denormalize the image from [-1, 1] range
+            back to [0, 1]. Defaults to False.
+        change_range (bool, optional): Whether to change the data range. Defaults to True.
+        imtype (type, optional): The desired type of the converted numpy array. Defaults to np.uint8.
+
+    Returns:
+        np.ndarray: The converted image as a numpy array. It will be 3D (H, W, C) or 2D (H, W),
+            with values in the range [0, 255] and of type np.uint8 (default).
+
+    Raises:
+        TypeError: If the input is not a torch.Tensor.
+
+    Example:
+        >>> tensor_image = torch.randn(1, 3, 256, 256)
+        >>> numpy_image = await tensor2np(tensor_image)
+        >>> print(numpy_image.shape)
+        (256, 256, 3)
     """
     if not isinstance(img, torch.Tensor):
         raise TypeError("Got unexpected object type, expected torch.Tensor")
@@ -1272,7 +1550,31 @@ async def tensor2np(
     return img_np.astype(imtype)
 
 
-def auto_split_upscale(lr_img, upscale_function, scale=4, overlap=32, max_depth=None, current_depth=1):
+def auto_split_upscale(
+    lr_img: np.ndarray,
+    upscale_function: typing.Callable[[np.ndarray], np.ndarray],
+    scale: int = 4,
+    overlap: int = 32,
+    max_depth: Optional[int] = None,
+    current_depth: int = 1
+) -> typing.Tuple[np.ndarray, int]:
+    """Recursively upscale an image by splitting it into smaller sections.
+
+    This function attempts to upscale an image using the provided `upscale_function`.
+    If the upscaling process runs out of memory, the image is split into four quadrants,
+    and the upscaling is attempted on each quadrant recursively.
+
+    Args:
+        lr_img (np.ndarray): The low-resolution input image.
+        upscale_function (typing.Callable[[np.ndarray], np.ndarray]): The function to upscale the image.
+        scale (int, optional): The scaling factor. Defaults to 4.
+        overlap (int, optional): The overlap between image sections to avoid seams. Defaults to 32.
+        max_depth (Optional[int], optional): The maximum recursion depth. If None, recursion continues until out of memory. Defaults to None.
+        current_depth (int, optional): The current recursion depth. Defaults to 1.
+
+    Returns:
+        typing.Tuple[np.ndarray, int]: The upscaled image and the depth of recursion used.
+    """
     if current_depth > 1 and (lr_img.shape[0] == lr_img.shape[1] == overlap):
         raise RecursionError("Reached bottom of recursion depth.")
 

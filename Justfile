@@ -37,6 +37,8 @@ autoreload-code:
 local-open-coverage:
 	./scripts/open-browser.py file://${PWD}/htmlcov/index.html
 
+open-coverage: local-open-coverage
+
 rye-get-pythons:
 	rye fetch 3.8.19
 	rye fetch 3.9.19

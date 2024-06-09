@@ -118,7 +118,7 @@ model: gpt-4o
 #assistant-output-color: #0088ff
 
 ## Set the markdown code theme (default: default, other options include monokai, solarized-dark, solarized-light)
-#code-theme: default
+code-theme: solarized-dark
 
 ## Show diffs when committing changes (default: False)
 #show-diffs: false
