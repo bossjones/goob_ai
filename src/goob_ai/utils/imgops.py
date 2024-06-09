@@ -509,12 +509,14 @@ utc = pytz.utc
 
 
 def setup_model() -> torch.nn.Module:
-    """
-    Summary:
-    Set up a model for image processing.
+    """Set up a model for image processing.
 
-    Explanation:
-    This function loads a model for image processing using a predefined device and model name, and returns the loaded model.
+    This function loads a pre-trained model for image processing using a predefined
+    device and model name. The model is loaded from a file named "ScreenNetV1.pth"
+    and is returned as a torch.nn.Module object.
+
+    Returns:
+        torch.nn.Module: The loaded image processing model.
     """
     return load_model(DEVICE, model_name="ScreenNetV1.pth")
 
