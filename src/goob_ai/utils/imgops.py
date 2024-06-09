@@ -704,6 +704,24 @@ def handle_predict(
     args: Optional[dict] = None,
     resize: bool = False,
 ) -> List[Tuple[Image.Image, List[Tuple[int, int, int, int]]]]:
+    """
+    Predict bounding boxes for a list of images.
+
+    This function takes a list of image file paths and uses a model to predict bounding boxes for each image.
+    The predicted bounding boxes and the corresponding images are returned as a list of tuples.
+
+    Args:
+        images_filepaths (List[str]): List of file paths to the images for prediction.
+        cols (int, optional): Number of columns for display purposes. Defaults to 5.
+        model (Optional[torch.nn.Module], optional): The model used for prediction. Defaults to None.
+        device (torch.device, optional): The device to run the model on. Defaults to DEVICE.
+        args (Optional[dict], optional): Additional arguments for the function. Defaults to None.
+        resize (bool, optional): Whether to resize the images. Defaults to False.
+
+    Returns:
+        List[Tuple[Image.Image, List[Tuple[int, int, int, int]]]]: 
+            List of tuples containing images and their corresponding bounding boxes.
+    """
     image_and_bboxes_list = []
     for image_filepath in images_filepaths:
         image, bboxes = predict_from_file(image_filepath, model, device)
