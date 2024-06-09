@@ -1075,22 +1075,34 @@ class AsyncGoobBot(commands.Bot):
         return attachment_data_list_dicts, local_attachment_file_list, local_attachment_data_list_dicts, media_filepaths
 
     async def write_attachments_to_disk(self, message: discord.Message) -> None:
+        """Save attachments from a Discord message to disk.
+
+        This asynchronous function processes the attachments in a Discord message,
+        saves them to a temporary directory, and logs the file paths. It also handles
+        any errors that occur during the download process.
+
+        Args:
+            message (discord.Message): The Discord message containing attachments to be saved.
+
+        Returns:
+            None
+        """
         ctx = await self.get_context(message)
         attachment_data_list_dicts, local_attachment_file_list, local_attachment_data_list_dicts, media_filepaths = (
             self.get_attachments(message)
         )
 
-        # with tempfile.TemporaryDirectory() as tmpdirname:
+        # Create a temporary directory to store the attachments
         tmpdirname = "temp/" + str(uuid.uuid4())
         os.makedirs(os.path.dirname(tmpdirname), exist_ok=True)
         print("created temporary directory", tmpdirname)
         with Timer(text="\nTotal elapsed time: {:.1f}"):
-            # return a list of strings pointing to the downloaded files
+            # Save each attachment to the temporary directory
             for an_attachment_dict in attachment_data_list_dicts:
                 local_attachment_path = await handle_save_attachment_locally(an_attachment_dict, tmpdirname)
                 local_attachment_file_list.append(local_attachment_path)
 
-            # create new list of dicts including info about the local files
+            # Create a list of dictionaries with information about the local files
             for some_file in local_attachment_file_list:
                 local_data_dict = file_to_local_data_dict(some_file, tmpdirname)
                 local_attachment_data_list_dicts.append(local_data_dict)
@@ -1106,7 +1118,7 @@ class AsyncGoobBot(commands.Bot):
 
             try:
                 for count, media_fpaths in enumerate(media_filepaths):
-                    # compute all predictions first
+                    # Compute all predictions first
                     full_path_input_file, full_path_output_file, get_timestamp = await details_from_file(
                         media_fpaths, cwd=f"{tmpdirname}"
                     )
@@ -1115,13 +1127,14 @@ class AsyncGoobBot(commands.Bot):
                 print(ex)
                 exc_type, exc_value, exc_traceback = sys.exc_info()
                 LOGGER.error(f"Error Class: {str(ex.__class__)}")
-                output = f"[UNEXPECTED] {type(ex).__name__}: {ex}"
+                output = f"[UNEXPECTED] {type(ex).__name__}: {ex}")
                 LOGGER.warning(output)
                 await ctx.send(embed=discord.Embed(description=output))
                 LOGGER.error(f"exc_type: {exc_type}")
                 LOGGER.error(f"exc_value: {exc_value}")
                 traceback.print_tb(exc_traceback)
 
+            # Log the directory tree of the temporary directory
             tree_list = file_functions.tree(pathlib.Path(f"{tmpdirname}"))
             rich.print("tree_list ->")
             rich.print(tree_list)
