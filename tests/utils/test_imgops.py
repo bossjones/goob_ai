@@ -18,7 +18,7 @@ import pytest
 import pytest_asyncio
 from PIL import Image
 from pathlib import Path
-from goob_ai.utils.imgops import get_all_corners_color
+from goob_ai.utils.imgops import get_all_corners_color, predict_from_file
 import asyncio
 import torch
 from goob_ai.utils.imgops import denorm, get_pil_image_channels, get_pixel_rgb, handle_autocrop, handle_autocrop_one, handle_get_dominant_color, handle_predict
@@ -172,6 +172,27 @@ def mock_model(mocker):
     return model
 
 @pytest.mark.asyncio
+async def test_predict_from_file(mocker):
+    """Test predict_from_file function."""
+    image_path = "tests/fixtures/screenshot_image_larger00013.PNG"
+    
+    # Mock the necessary functions and objects
+    mock_image = Image.open(image_path)
+    mock_bboxes = [(0, 0, 100, 100)]
+    
+    mocker.patch("goob_ai.utils.imgops.convert_pil_image_to_rgb_channels", return_value=mock_image)
+    mocker.patch("goob_ai.utils.imgops.pred_and_store", return_value=mock_bboxes)
+    
+    mock_model = mocker.Mock()
+    mock_model.name = "mock_model"
+    
+    # Call the function
+    result_image, result_bboxes = predict_from_file(image_path, mock_model)
+    
+    # Assertions
+    assert isinstance(result_image, Image.Image)
+    assert result_image == mock_image
+    assert result_bboxes == mock_bboxes
 async def test_pred_and_store(mocker):
     """Test pred_and_store function."""
     from goob_ai.utils.imgops import pred_and_store, read_image_to_bgr, resize_image_and_bbox
