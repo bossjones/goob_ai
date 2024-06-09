@@ -778,21 +778,20 @@ class AsyncGoobBot(commands.Bot):
     async def query_member_named(
         self, guild: discord.Guild, argument: str, *, cache: bool = False
     ) -> Optional[discord.Member]:
-        """Queries a member by their name, name + discrim, or nickname.
+        """
+        Query a member by their name, name + discriminator, or nickname.
 
-        Parameters
-        ------------
-        guild: Guild
-            The guild to query the member in.
-        argument: str
-            The name, nickname, or name + discrim combo to check.
-        cache: bool
-            Whether to cache the results of the query.
+        This asynchronous function searches for a member in the specified guild
+        by their name, name + discriminator (e.g., username#1234), or nickname.
+        It can optionally cache the results of the query.
 
-        Returns
-        ---------
-        Optional[Member]
-            The member matching the query or None if not found.
+        Args:
+            guild (discord.Guild): The guild to query the member in.
+            argument (str): The name, nickname, or name + discriminator combo to check.
+            cache (bool): Whether to cache the results of the query. Defaults to False.
+
+        Returns:
+            Optional[discord.Member]: The member matching the query or None if not found.
         """
         if len(argument) > 5 and argument[-5] == "#":
             username, _, discriminator = argument.rpartition("#")
