@@ -1074,7 +1074,9 @@ class AsyncGoobBot(commands.Bot):
         # message_content = f"{message_content} [{message.author.display_name} posts a picture of {caption}]"
         return message_content
 
-    def get_attachments(self, message: discord.Message) -> Tuple[List[Dict[str, Any]], List[str], List[Dict[str, Any]], List[str]]:
+    def get_attachments(
+        self, message: discord.Message
+    ) -> Tuple[List[Dict[str, Any]], List[str], List[Dict[str, Any]], List[str]]:
         """
         Summary:
         Retrieve attachment data from a Discord message.
