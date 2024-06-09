@@ -1067,6 +1067,17 @@ def convert_rgb_to_names(rgb_tuple: tuple[int, int, int]) -> str:
 
 
 def get_all_corners_color(urls: List[str]) -> Dict[str, str]:
+    """Get the colors of the four corners of images.
+
+    This function opens each image from the provided URLs, converts them to RGB,
+    and retrieves the colors of the top-left, top-right, bottom-left, and bottom-right corners.
+
+    Args:
+        urls (List[str]): A list of URLs pointing to the image files.
+
+    Returns:
+        Dict[str, str]: A dictionary containing the colors of the four corners of the images.
+    """
     pbar = tqdm(urls)
     pixel_data = {
         "top_left": "",
@@ -1076,7 +1087,6 @@ def get_all_corners_color(urls: List[str]) -> Dict[str, str]:
     }
     for url in pbar:
         img = Image.open(url).convert("RGB")
-        # breakpoint()
         width, height = img.size
         pixel_layout = img.load()
         pixel_data["top_left"] = top_left = pixel_layout[0, 0]
