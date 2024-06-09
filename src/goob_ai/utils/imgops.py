@@ -1001,7 +1001,7 @@ def predict_from_file(
     return img, bboxes
 
 
-def get_pixel_rgb(image_pil: Image):
+def get_pixel_rgb(image_pil: Image) -> str:
     """Get first pixel in image and return a humanreadable name of what color is represented
 
     Args:
