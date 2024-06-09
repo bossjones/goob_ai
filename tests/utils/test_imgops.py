@@ -152,6 +152,30 @@ async def test_convert_pil_image_to_torch_tensor_async(async_test_image):
     assert tensor_image.max() <= 1.0
 
 
+def test_convert_rgb_to_names(mocker):
+    """Test convert_rgb_to_names function."""
+    from goob_ai.utils.imgops import convert_rgb_to_names
+
+    # Mock the CSS3_HEX_TO_NAMES and hex_to_rgb
+    mock_css3_db = {
+        "#ff0000": "red",
+        "#00ff00": "green",
+        "#0000ff": "blue",
+    }
+    mock_rgb_values = [(255, 0, 0), (0, 255, 0), (0, 0, 255)]
+    mocker.patch("goob_ai.utils.imgops.CSS3_HEX_TO_NAMES", mock_css3_db)
+    mocker.patch("goob_ai.utils.imgops.hex_to_rgb", side_effect=lambda hex: mock_rgb_values[list(mock_css3_db.keys()).index(hex)])
+
+    # Mock the KDTree query method
+    mock_kdtree = mocker.patch("goob_ai.utils.imgops.KDTree.query", return_value=(0, 0))
+
+    # Test with a sample RGB tuple
+    rgb_tuple = (255, 0, 0)
+    color_name = convert_rgb_to_names(rgb_tuple)
+
+    # Check if the color name is correct
+    assert color_name == "red"
+    
 @pytest.mark.asyncio
 async def test_convert_pil_image_to_rgb_channels_async(async_test_image, mocker):
     """Test convert_pil_image_to_rgb_channels function (async)."""
