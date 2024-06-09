@@ -183,6 +183,19 @@ class AioSettings(BaseSettings):
     pinecone_env: str = Field(env="PINECONE_ENV", description="pinecone env", default="")
     pinecone_index: str = Field(env="PINECONE_INDEX", description="pinecone index", default="")
 
+    langchain_endpoint: str = Field(env="LANGCHAIN_ENDPOINT", description="langchain endpoint", default="")
+    langchain_tracing_v2: bool = Field(
+        env="LANGCHAIN_TRACING_V2", description="langchain tracing version", default=False
+    )
+    langchain_api_key: str = Field(env="LANGCHAIN_API_KEY", description="langchain api key for langsmith", default="")
+    langchain_hub_api_url: str = Field(
+        env="LANGCHAIN_HUB_API_URL", description="langchain hub api url for langsmith", default=""
+    )
+    langchain_hub_api_key: str = Field(
+        env="LANGCHAIN_HUB_API_KEY", description="langchain hub api key for langsmith", default=""
+    )
+    langchain_project: str = Field(env="LANGCHAIN_PROJECT", description="langsmith project name", default="")
+
     @property
     def redis_url(self) -> URL:
         """

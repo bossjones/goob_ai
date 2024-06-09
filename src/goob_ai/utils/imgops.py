@@ -459,7 +459,7 @@ import traceback
 import typing
 
 from enum import IntEnum
-from typing import Dict, List, NewType, Optional, Tuple, Any
+from typing import Any, Dict, List, NewType, Optional, Tuple
 
 import cv2
 import numpy as np
@@ -552,7 +552,7 @@ def handle_autocrop(
         device (torch.device, optional): The device to run the model on. Defaults to DEVICE.
         args (Optional[dict], optional): Additional arguments for the function. Defaults to None.
         resize (bool, optional): Whether to resize the cropped images. Defaults to False.
-        predict_results (Optional[List[Tuple[Image.Image, List[Tuple[int, int, int, int]]]]], optional): 
+        predict_results (Optional[List[Tuple[Image.Image, List[Tuple[int, int, int, int]]]]], optional):
             List of tuples containing images and their corresponding bounding boxes. Defaults to None.
 
     Returns:
@@ -611,7 +611,7 @@ def handle_autocrop_one(
         device (torch.device, optional): The device to run the model on. Defaults to DEVICE.
         args (Optional[dict], optional): Additional arguments for the function. Defaults to None.
         resize (bool, optional): Whether to resize the cropped image. Defaults to False.
-        predict_results (Optional[Tuple[Image.Image, List[Tuple[int, int, int, int]]]], optional): 
+        predict_results (Optional[Tuple[Image.Image, List[Tuple[int, int, int, int]]]], optional):
             A tuple containing the image and its corresponding bounding boxes. Defaults to None.
 
     Returns:
@@ -654,7 +654,7 @@ def handle_resize(
     """
     Resize a list of images and save them to disk.
 
-    This function takes a list of image file paths, resizes each image if specified, 
+    This function takes a list of image file paths, resizes each image if specified,
     and saves the resized images to disk. The file paths of the resized images are returned.
 
     Args:
@@ -753,7 +753,7 @@ def handle_predict(
         resize (bool, optional): Whether to resize the images. Defaults to False.
 
     Returns:
-        List[Tuple[Image.Image, List[Tuple[int, int, int, int]]]]: 
+        List[Tuple[Image.Image, List[Tuple[int, int, int, int]]]]:
             List of tuples containing images and their corresponding bounding boxes.
     """
     image_and_bboxes_list = []
@@ -785,7 +785,7 @@ def handle_predict_one(
         resize (bool, optional): Whether to resize the image. Defaults to False.
 
     Returns:
-        Tuple[Image.Image, List[Tuple[int, int, int, int]]]: 
+        Tuple[Image.Image, List[Tuple[int, int, int, int]]]:
             A tuple containing the image and its corresponding bounding boxes.
     """
     assert cols
@@ -886,7 +886,6 @@ def pred_and_store(
     for path in tqdm(paths):
         pred_dict = {"image_path": path}
 
-
         targetSize = Dimensions.HEIGHT
 
         img: ImageNdarrayBGR  # type: ignore
@@ -915,7 +914,6 @@ def pred_and_store(
 
             # predict
             out_bbox: torch.Tensor = model(unsqueezed_tensor)
-
 
             xmin, ymin, xmax, ymax = out_bbox[0]
             pt1 = (int(xmin), int(ymin))
@@ -1016,7 +1014,7 @@ def read_image_to_bgr(image_path: str) -> Tuple[np.ndarray, int, int, int]:
         image_path (str): The path to the image file.
 
     Returns:
-        Tuple[np.ndarray, int, int, int]: A tuple containing the image array in BGR format, 
+        Tuple[np.ndarray, int, int, int]: A tuple containing the image array in BGR format,
                                           the number of channels, the height, and the width of the image.
 
     Raises:
@@ -1038,7 +1036,7 @@ def read_image_to_bgr(image_path: str) -> Tuple[np.ndarray, int, int, int]:
 def convert_image_from_hwc_to_chw(img: ImageNdarrayBGR) -> torch.Tensor:
     """Convert an image from HWC (Height, Width, Channels) format to CHW (Channels, Height, Width) format.
 
-    This function takes an image in HWC format and converts it to CHW format, which is commonly used in 
+    This function takes an image in HWC format and converts it to CHW format, which is commonly used in
     deep learning frameworks like PyTorch.
 
     Args:
@@ -1246,8 +1244,8 @@ def rgb2hex(r: int, g: int, b: int) -> str:
     """
     LOGGER.info(f"RGB2HEX: {r} {g} {b}")
     return "#{:02x}{:02x}{:02x}".format(r, g, b)
-    LOGGER.info(f"TYPE RGB2HEX: {type(r)} {type(g)} {type(b)}")
-    return "#{:02x}{:02x}{:02x}".format(r, g, b)
+    # LOGGER.info(f"TYPE RGB2HEX: {type(r)} {type(g)} {type(b)}")
+    # return "#{:02x}{:02x}{:02x}".format(r, g, b)
 
 
 def handle_get_dominant_color(urls: List[str], return_type: str = "name") -> str:
@@ -1258,7 +1256,7 @@ def handle_get_dominant_color(urls: List[str], return_type: str = "name") -> str
 
     Args:
         urls (List[str]): A list of URLs pointing to the image files.
-        return_type (str, optional): The format to return the dominant color. 
+        return_type (str, optional): The format to return the dominant color.
             Can be "name" for color name or "hex" for hex value. Defaults to "name".
 
     Returns:
@@ -1556,7 +1554,7 @@ def auto_split_upscale(
     scale: int = 4,
     overlap: int = 32,
     max_depth: Optional[int] = None,
-    current_depth: int = 1
+    current_depth: int = 1,
 ) -> typing.Tuple[np.ndarray, int]:
     """Recursively upscale an image by splitting it into smaller sections.
 
