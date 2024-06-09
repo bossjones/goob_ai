@@ -157,8 +157,19 @@ def attachment_to_dict(attm: discord.Attachment) -> Dict[str, Any]:
     """Convert a discord.Attachment object to a dictionary.
 
     This function takes a discord.Attachment object and converts it into a dictionary
-    containing relevant information about the attachment, such as filename, ID, proxy URL,
-    size, URL, spoiler status, height, width, content type, and the attachment object itself.
+    containing relevant information about the attachment.
+
+    The dictionary includes:
+    - filename: The name of the file.
+    - id: The unique identifier of the attachment.
+    - proxy_url: The proxy URL of the attachment.
+    - size: The size of the attachment in bytes.
+    - url: The URL of the attachment.
+    - spoiler: A boolean indicating if the attachment is a spoiler.
+    - height: The height of the attachment (if applicable).
+    - width: The width of the attachment (if applicable).
+    - content_type: The MIME type of the attachment (if applicable).
+    - attachment_obj: The original attachment object.
 
     Args:
         attm (discord.Attachment): The attachment object to be converted.
