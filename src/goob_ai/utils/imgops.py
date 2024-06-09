@@ -459,7 +459,7 @@ import traceback
 import typing
 
 from enum import IntEnum
-from typing import Dict, List, NewType, Optional
+from typing import Dict, List, NewType, Optional, Tuple
 
 import cv2
 import numpy as np
