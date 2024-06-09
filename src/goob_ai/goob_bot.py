@@ -86,7 +86,8 @@ COMMAND_RUNNER = {"dl_thumb": shell.run_coroutine_subprocess}
 
 
 def unlink_orig_file(a_filepath: str) -> str:
-    """Delete the specified file and return its path.
+    """
+    Delete the specified file and return its path.
 
     This function deletes the file at the given file path and returns the path of the deleted file.
     It uses the `os.unlink` method to remove the file and logs the deletion using `rich.print`.
@@ -97,7 +98,6 @@ def unlink_orig_file(a_filepath: str) -> str:
     Returns:
         str: The path of the deleted file.
     """
-    # for orig_to_rm in media_filepaths:
     rich.print(f"deleting ... {a_filepath}")
     os.unlink(f"{a_filepath}")
     return a_filepath
