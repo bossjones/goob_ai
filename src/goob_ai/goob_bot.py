@@ -248,13 +248,20 @@ async def download_image(url: str) -> BytesIO:
 
 # SOURCE: https://github.com/CrosswaveOmega/NikkiBot/blob/7092ae6da21c86c7686549edd5c45335255b73ec/cogs/GlobalCog.py#L23
 async def file_to_data_uri(file: discord.File) -> str:
-    # Read the bytes from the file
+    """Convert a discord.File object to a data URI.
+
+    This asynchronous function reads the bytes from a discord.File object,
+    base64 encodes the bytes, and constructs a data URI.
+
+    Args:
+        file (discord.File): The discord.File object to be converted.
+
+    Returns:
+        str: A data URI representing the file content.
+    """
     with BytesIO(file.fp.read()) as f:
-        # Read the bytes from the file-like object
         file_bytes = f.read()
-    # Base64 encode the bytes
     base64_encoded = base64.b64encode(file_bytes).decode("ascii")
-    # Construct the data URI
     data_uri = f'data:{"image"};base64,{base64_encoded}'
     return data_uri
 
