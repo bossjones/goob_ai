@@ -356,6 +356,25 @@ async def test_np2tensor(mocker):
     assert resized_image_path == test_image_path
 
 
+def test_read_image_to_bgr(mocker):
+    """Test read_image_to_bgr function."""
+    from goob_ai.utils.imgops import read_image_to_bgr
+
+    # Mock cv2.imread and cv2.cvtColor
+    mock_image = np.array(Image.open("tests/fixtures/screenshot_image_larger00013.PNG"))
+    mocker.patch("cv2.imread", return_value=mock_image)
+    mocker.patch("cv2.cvtColor", return_value=mock_image)
+
+    # Call the function
+    image_path = "tests/fixtures/screenshot_image_larger00013.PNG"
+    image, channels, height, width = read_image_to_bgr(image_path)
+
+    # Assertions
+    assert isinstance(image, np.ndarray)
+    assert channels == 3
+    assert height == mock_image.shape[0]
+    assert width == mock_image.shape[1]
+
 @pytest.mark.asyncio
 async def test_handle_resize_one_no_resize(mocker, test_image_path, mock_model):
     """Test handle_resize_one function without resizing."""
