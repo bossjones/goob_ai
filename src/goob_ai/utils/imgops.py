@@ -685,9 +685,9 @@ def handle_predict_one(
     cols: int = 5,
     model: torch.nn.Module | None = None,
     device: torch.device = DEVICE,
-    args=None,
-    resize=False,
-):
+    args: Optional[dict] = None,
+    resize: bool = False,
+) -> Tuple[Image.Image, List[Tuple[int, int, int, int]]]:
     assert cols
     image, bboxes = predict_from_file(images_filepath, model, device)
     return image, bboxes
