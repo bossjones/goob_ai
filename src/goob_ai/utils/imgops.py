@@ -1239,14 +1239,14 @@ async def np2tensor(
 
 
 async def tensor2np(
-    img,
-    rgb2bgr=True,
-    remove_batch=True,
-    data_range=255,
-    denormalize=False,
-    change_range=True,
-    imtype=np.uint8,
-):
+    img: torch.Tensor,
+    rgb2bgr: bool = True,
+    remove_batch: bool = True,
+    data_range: int = 255,
+    denormalize: bool = False,
+    change_range: bool = True,
+    imtype: type = np.uint8,
+) -> np.ndarray:
     """
     Converts a Tensor array into a numpy image array.
     Parameters:
