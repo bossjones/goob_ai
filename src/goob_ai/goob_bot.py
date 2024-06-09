@@ -124,6 +124,19 @@ def path_for(attm: discord.Attachment, basedir: str = "./") -> pathlib.Path:
 
 # https://github.com/discord-math/bot/blob/babb41b71a68b4b099684b3e1ed583f84083f971/plugins/log.py#L63
 async def save_attachment(attm: discord.Attachment, basedir: str = "./") -> None:
+    """Save a Discord attachment to a specified directory.
+
+    This asynchronous function saves a Discord attachment 'attm' to the specified base directory 'basedir'.
+    It constructs the path for the attachment, creates the necessary directories, and saves the attachment
+    to the generated path. If an HTTPException occurs during saving, it retries the save operation.
+
+    Args:
+        attm (discord.Attachment): The attachment to be saved.
+        basedir (str): The base directory path where the attachment file will be located. Default is the current directory.
+
+    Returns:
+        None
+    """
     path = path_for(attm, basedir=basedir)
     LOGGER.debug(f"save_attachment: path -> {path}")
     path.parent.mkdir(parents=True, exist_ok=True)
