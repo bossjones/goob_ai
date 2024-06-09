@@ -988,18 +988,17 @@ class AsyncGoobBot(commands.Bot):
 
 
     async def check_for_attachments(self, message: discord.Message) -> str:
-        """
-        Summary:
-        Check a Discord message for attachments, extract information, and process image URLs.
+        """Check a Discord message for attachments and process image URLs.
 
-        Explanation:
-        This asynchronous function examines a Discord message for attachments, processes Tenor GIF URLs, downloads and processes image URLs, and generates captions for images. It modifies the message content based on the extracted information and returns the updated message content.
+        This asynchronous function examines a Discord message for attachments,
+        processes Tenor GIF URLs, downloads and processes image URLs, and modifies
+        the message content based on the extracted information.
 
         Args:
-        - message (discord.Message): The Discord message to check for attachments and process.
+            message (discord.Message): The Discord message to check for attachments and process.
 
         Returns:
-        - str: The updated message content with extracted information and image captions.
+            str: The updated message content with extracted information.
         """
 
         # Check if the message content is a URL
