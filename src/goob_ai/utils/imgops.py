@@ -1317,7 +1317,21 @@ def denorm(x: torch.Tensor | np.ndarray, min_max: tuple[float, float] = (-1.0, 1
 
 
 def norm(x: torch.Tensor | np.ndarray) -> torch.Tensor | np.ndarray:
-    # Normalize (z-norm) from [0,1] range to [-1,1]
+    """
+    Normalize a tensor or numpy array from [0, 1] range to [-1, 1] range.
+
+    This function converts values from the range [0, 1] to the range [-1, 1].
+    It is useful for normalizing data before feeding it into a neural network.
+
+    Args:
+        x (torch.Tensor | np.ndarray): The input tensor or numpy array to be normalized.
+
+    Returns:
+        torch.Tensor | np.ndarray: The normalized tensor or numpy array.
+
+    Raises:
+        TypeError: If the input is not a torch.Tensor or np.ndarray.
+    """
     out = (x - 0.5) * 2.0
     if isinstance(x, torch.Tensor):
         return out.clamp(-1, 1)
