@@ -25,25 +25,48 @@ fi
 # # Parse out all function names and store them in an array
 declare -a my_array=($(cat "$PYTHON_FILE" | grep -v "#" | ggrep -oP 'def \K\w+'))
 
-# Parse out all function names that are not commented out and store them in an array
-# declare -a my_array=($(ggrep -oP '^\s*def \K\w+' "$PYTHON_FILE"))
-# declare -a my_array=($(cat "$PYTHON_FILE" | grep -v "#" | ggrep -oP '^\s*def \K\w+' "$PYTHON_FILE"))
-# declare -a my_array=($(cat "$PYTHON_FILE" | grep -v "#" | ggrep -oP '^\s*def \K\w+'))
-
-
 # Sort the array uniquely
 declare -a sorted_unique_array=($(printf "%s\n" "${my_array[@]}" | sort -u))
 
 # Print the array elements (for debugging purposes)
 echo "Parsed function names:"
 for func in "${sorted_unique_array[@]}"; do
-    echo "$func"
+    echo "func: ${func}"
+done
+
+echo -e "\n\n\n"
+
+
+# Prompt the user for input
+read -p "Do you want to proceed? (yes/no): " response
+
+# Convert the response to lowercase
+response=$(echo "$response" | tr '[:upper:]' '[:lower:]')
+
+# Check the user's response
+if [[ "$response" == "yes" ]]; then
+    echo "You chose yes. Proceeding..."
+    # Add the commands you want to execute if the user says yes
+elif [[ "$response" == "no" ]]; then
+    echo "You chose no. Exiting..."
+    exit 0
+else
+    echo "Invalid input. Please enter yes or no."
+fi
+
+# Iterate over the array and run the aider command to annotate first
+for func in "${sorted_unique_array[@]}"; do
+    echo "cmd: aider --message \"add typing annotations to function ${func} in ${ONLY_FILE_NAME}. Be sure to include return types when necessary.\" ${PYTHON_FILE}"
+    aider --message "add typing annotations to function ${func} in ${ONLY_FILE_NAME}. Be sure to include return types when necessary." "${PYTHON_FILE}"
 done
 
 echo -e "\n\n\n"
 
 # Iterate over the array and run the aider command
 for func in "${sorted_unique_array[@]}"; do
-    # aider --message "add descriptive docstrings to function ${func} in ${ONLY_FILE_NAME}. Please use pep257 convention. Update existing docstrings if need be." ${PYTHON_FILE}
-    echo "func: ${func}"
+    # echo "func: ${func}"
+    echo "cmd: aider --message \"add descriptive docstrings to function ${func} in ${ONLY_FILE_NAME}. Please use pep257 convention. Update existing docstrings if need be.\" ${PYTHON_FILE}"
+    aider --message "add descriptive docstrings to function ${func} in ${ONLY_FILE_NAME}. Please use pep257 convention. Update existing docstrings if need be." "${PYTHON_FILE}"
 done
+
+echo -e "\n\n\n"
