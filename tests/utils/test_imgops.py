@@ -20,7 +20,7 @@ from pathlib import Path
 from goob_ai.utils.imgops import get_all_corners_color
 import asyncio
 import torch
-from goob_ai.utils.imgops import denorm, get_pil_image_channels, get_pixel_rgb, handle_autocrop, handle_autocrop_one
+from goob_ai.utils.imgops import denorm, get_pil_image_channels, get_pixel_rgb, handle_autocrop, handle_autocrop_one, handle_get_dominant_color
 
 
 @pytest.fixture
@@ -255,6 +255,42 @@ async def test_handle_autocrop_one(mocker):
 
     assert cropped_image_path == image_path
 
+
+@pytest.mark.asyncio
+async def test_handle_get_dominant_color_name(mocker):
+    """Test handle_get_dominant_color function with return_type 'name'."""
+    image_path = "tests/fixtures/screenshot_image_larger00013.PNG"
+    mocker.patch("goob_ai.utils.imgops.Image.open", return_value=Image.open(image_path))
+    mocker.patch("goob_ai.utils.imgops.get_all_corners_color", return_value={
+        "top_left": (255, 255, 255),
+        "top_right": (255, 255, 255),
+        "bottom_left": (255, 255, 255),
+        "bottom_right": (255, 255, 255),
+    })
+    mocker.patch("goob_ai.utils.imgops.convert_rgb_to_names", return_value="white")
+
+    urls = [image_path]
+    dominant_color = handle_get_dominant_color(urls, return_type="name")
+
+    assert dominant_color == "white"
+
+@pytest.mark.asyncio
+async def test_handle_get_dominant_color_hex(mocker):
+    """Test handle_get_dominant_color function with return_type 'hex'."""
+    image_path = "tests/fixtures/screenshot_image_larger00013.PNG"
+    mocker.patch("goob_ai.utils.imgops.Image.open", return_value=Image.open(image_path))
+    mocker.patch("goob_ai.utils.imgops.get_all_corners_color", return_value={
+        "top_left": (255, 255, 255),
+        "top_right": (255, 255, 255),
+        "bottom_left": (255, 255, 255),
+        "bottom_right": (255, 255, 255),
+    })
+    mocker.patch("goob_ai.utils.imgops.rgb2hex", return_value="#ffffff")
+
+    urls = [image_path]
+    dominant_color = handle_get_dominant_color(urls, return_type="hex")
+
+    assert dominant_color == "#ffffff"
 
 @pytest.mark.parametrize("input_tensor, min_max, expected_output", [
     (torch.tensor([-1.0, 0.0, 1.0]), (-1.0, 1.0), torch.tensor([0.0, 0.5, 1.0])),
