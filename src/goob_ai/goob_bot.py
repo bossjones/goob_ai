@@ -471,6 +471,20 @@ def extensions() -> Iterable[str]:
 
 
 def _prefix_callable(bot: AsyncGoobBot, msg: discord.Message) -> List[str]:
+    """Generate a list of command prefixes for the bot.
+
+    This function generates a list of command prefixes for the bot based on the message context.
+    If the message is from a direct message (DM) channel, it includes the bot's user ID mentions
+    and default prefixes. If the message is from a guild (server) channel, it includes the bot's
+    user ID mentions and the guild-specific prefixes.
+
+    Args:
+        bot (AsyncGoobBot): The instance of the bot.
+        msg (discord.Message): The message object from Discord.
+
+    Returns:
+        List[str]: A list of command prefixes to be used for the bot.
+    """
     user_id = bot.user.id
     base = [f"<@!{user_id}> ", f"<@{user_id}> "]
     if msg.guild is None:  # pyright: ignore[reportAttributeAccessIssue]
