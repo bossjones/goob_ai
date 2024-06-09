@@ -898,13 +898,15 @@ def get_pil_image_channels(image_path: str) -> int:
 
 
 def convert_pil_image_to_rgb_channels(image_path: str) -> Image:
-    """Convert Pil image to have the appropriate number of color channels
+    """Convert a PIL image to have the appropriate number of color channels.
+
+    This function checks the number of channels in a PIL image and converts it to RGB if it has a different number of channels.
 
     Args:
-        image_path (str): _description_
+        image_path (str): The path to the image file.
 
     Returns:
-        _type_: _description_
+        Image: The converted PIL image with RGB channels.
     """
     return Image.open(image_path).convert("RGB") if get_pil_image_channels(image_path) != 4 else Image.open(image_path)
 
