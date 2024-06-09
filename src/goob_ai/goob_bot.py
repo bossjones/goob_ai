@@ -803,7 +803,21 @@ class AsyncGoobBot(commands.Bot):
             for index in reversed(to_remove):
                 del dates[index]
 
-    async def before_identify_hook(self, shard_id: int, *, initial: bool):
+    async def before_identify_hook(self, shard_id: int, *, initial: bool) -> None:
+        """
+        Perform actions before identifying the shard.
+
+        This method is called before the bot identifies the shard with the Discord gateway.
+        It clears old gateway data and appends the current timestamp to the identifies list
+        for the given shard ID.
+
+        Args:
+            shard_id (int): The ID of the shard that is about to identify.
+            initial (bool): Whether this is the initial identification of the shard.
+
+        Returns:
+            None
+        """
         self._clear_gateway_data()
         self.identifies[shard_id].append(discord.utils.utcnow())
         await super().before_identify_hook(shard_id, initial=initial)
