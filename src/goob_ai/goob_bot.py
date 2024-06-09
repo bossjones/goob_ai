@@ -409,14 +409,21 @@ async def co_task(name: str, queue: asyncio.Queue) -> AsyncIterator[None]:
 
 # SOURCE: https://github.com/makupi/cookiecutter-discord.py-postgres/blob/master/%7B%7Bcookiecutter.bot_slug%7D%7D/bot/__init__.py
 async def get_prefix(_bot: AsyncGoobBot, message: discord.Message) -> Any:
-    """_summary_
+    """
+    Retrieve the command prefix for the bot based on the message context.
+
+    This function determines the appropriate command prefix for the bot to use
+    based on whether the message is from a direct message (DM) channel or a guild
+    (server) channel. If the message is from a DM channel, it uses the default prefix
+    from the settings. If the message is from a guild channel, it retrieves the prefix
+    specific to that guild.
 
     Args:
-        _bot (AsyncGoobBot): _description_
-        message (discord.message.Message): _description_
+        _bot (AsyncGoobBot): The instance of the bot.
+        message (discord.Message): The message object from Discord.
 
     Returns:
-        _type_: _description_
+        Any: The command prefix to be used for the bot.
     """
     LOGGER.info(f"inside get_prefix(_bot, message) - > get_prefix({_bot}, {message})")
     LOGGER.info(f"inside get_prefix(_bot, message) - > get_prefix({_bot}, {message})")
