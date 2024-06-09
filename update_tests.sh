@@ -145,7 +145,8 @@ fi
 # Iterate over the array and run the aider command to annotate first
 for func in "${sorted_unique_array[@]}"; do
     echo "cmd: aider --message \"using pytest, write tests for ${TEST_ONLY_FILE_NAME} that cover function ${func} in ${ONLY_FILE_NAME}. mock if necessary but only use pytest-mock, do not use unittest.mock. Use pytest-asyncio where necessary as well. If it involves python modules Pillow or cv2 use fixture tests/fixtures/screenshot_image_larger00013.PNG as your test image.\" ${PYTHON_FILE} ${TEST_PYTHON_FILE}"
-    aider --message "using pytest, write tests for ${TEST_ONLY_FILE_NAME} that cover function ${func} in ${ONLY_FILE_NAME}. mock if necessary but only use pytest-mock, do not use unittest.mock. Use pytest-asyncio where necessary as well. If it involves python modules Pillow or cv2 use fixture tests/fixtures/screenshot_image_larger00013.PNG as your test image." "${PYTHON_FILE}" "${TEST_PYTHON_FILE}"
+    # aider --message "using pytest, write tests for ${TEST_ONLY_FILE_NAME} that cover function ${func} in ${ONLY_FILE_NAME}. mock if necessary but only use pytest-mock, do not use unittest.mock. Use pytest-asyncio where necessary as well. If it involves python modules Pillow or cv2 use fixture tests/fixtures/screenshot_image_larger00013.PNG as your test image." "${PYTHON_FILE}" "${TEST_PYTHON_FILE}"
+    aider --message "using pytest,  update tests in ${TEST_ONLY_FILE_NAME} that cover function ${func} for module ${ONLY_FILE_NAME} to not use mocker any functions involving python modules cv2 and Pillow" "${PYTHON_FILE}" "${TEST_PYTHON_FILE}"
 done
 
 echo -e "\n\n\n"

@@ -737,7 +737,9 @@ def handle_predict(
     device: torch.device = DEVICE,
     args: Optional[dict] = None,
     resize: bool = False,
-) -> List[Tuple[Image.Image, List[Tuple[int, int, int, int]]]]:
+) -> list:
+    # -> List[Tuple[Image, torch.Tensor]]:
+    # -> List[Tuple[Image.Image, List[Tuple[int, int, int, int]]]]:
     """
     Predict bounding boxes for a list of images.
 
@@ -770,7 +772,8 @@ def handle_predict_one(
     device: torch.device = DEVICE,
     args: Optional[dict] = None,
     resize: bool = False,
-) -> Tuple[Image.Image, List[Tuple[int, int, int, int]]]:
+):
+    #  -> Tuple[Image.Image, torch.Tensor]:
     """Predict bounding boxes for a single image.
 
     This function takes a single image file path and uses a model to predict bounding boxes for the image.
@@ -904,6 +907,9 @@ def pred_and_store(
 
         # normalize and change output to (c, h, w)
         resized_tensor: torch.Tensor = torch.from_numpy(resized).permute(2, 0, 1) / 255.0
+
+        # import bpdb
+        # bpdb.set_trace()
 
         model.to(device)
         model.eval()
@@ -1135,7 +1141,7 @@ def get_pixel_rgb(image_pil: Image) -> str:
     return color
 
 
-def resize_and_pillarbox(image_pil: Image.Image, width: int, height: int, background: str = "white") -> Image.Image:
+def resize_and_pillarbox(image_pil: Image.Image, width: int, height: int, background: bool = True) -> Image.Image:
     """Resize a PIL image while maintaining its aspect ratio and adding pillarbox.
 
     This function resizes a PIL image to fit within the specified width and height while maintaining
@@ -1644,3 +1650,63 @@ def auto_split_upscale(
     output_img[-out_h // 2 :, -out_w // 2 :, :] = bottom_right_rlt[-out_h // 2 :, -out_w // 2 :, :]
 
     return output_img, depth
+
+
+async def aio_main():
+    # Load the test image
+    image_path = "tests/fixtures/screenshot_image_larger00013.PNG"
+    test_image = np.array(Image.open(image_path))
+
+    # Test with default parameters
+    tensor_image = await np2tensor(test_image)
+    import bpdb
+
+    bpdb.set_trace()
+    assert isinstance(tensor_image, torch.Tensor)
+    assert tensor_image.shape == (1, test_image.shape[2], test_image.shape[0], test_image.shape[1])
+    # asyncio.run(schedule_jobs())
+
+
+def main():
+    asyncio.run(aio_main())
+
+
+if __name__ == "__main__":
+    # import pathlib
+    # from goob_ai.utils.imgops import pred_and_store, setup_model
+
+    # # from goob_ai.utils.imgops import load_model, setup_model
+    # model = setup_model()
+
+    # # Mock the model to return dummy bounding boxes
+    # # mock_model = mocker.Mock()
+    # # mock_model.return_value = torch.tensor([[0, 0, 100, 100]])
+
+    # # Call the pred_and_store function
+    # paths = [pathlib.Path("tests/fixtures/screenshot_image_larger00013.PNG")]
+    # result = pred_and_store(paths, model)
+    # print(result)
+
+    # from goob_ai.utils.imgops import np2tensor
+
+    # # Load the test image
+    # image_path = "tests/fixtures/screenshot_image_larger00013.PNG"
+    # test_image = np.array(Image.open(image_path))
+
+    # # Test with default parameters
+    # tensor_image = await np2tensor(test_image)
+    # assert isinstance(tensor_image, torch.Tensor)
+    # assert tensor_image.shape == (1, test_image.shape[2], test_image.shape[0], test_image.shape[1])
+    # main()
+    image_path = "tests/fixtures/screenshot_image_larger00013.PNG"
+
+    model = setup_model()
+    # mock_model = mocker.Mock()
+    # mock_model.name = "mock_model"
+
+    predict_results = handle_predict(images_filepaths=[image_path], model=model)
+
+    import bpdb
+
+    bpdb.set_trace()
+    assert isinstance(predict_results, list)
