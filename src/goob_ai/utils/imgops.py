@@ -1076,7 +1076,7 @@ def get_all_corners_color(urls: List[str]) -> Dict[str, str]:
     return pixel_data
 
 
-def rgb2hex(r, g, b):
+def rgb2hex(r: int, g: int, b: int) -> str:
     LOGGER.info(f"RGB2HEX: {r} {g} {b}")
     LOGGER.info(f"TYPE RGB2HEX: {type(r)} {type(g)} {type(b)}")
     return "#{:02x}{:02x}{:02x}".format(r, g, b)
