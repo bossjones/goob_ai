@@ -1601,19 +1601,19 @@ class AsyncGoobBot(commands.Bot):
 # SOURCE: https://github.com/darren-rose/DiscordDocChatBot/blob/63a2f25d2cb8aaace6c1a0af97d48f664588e94e/main.py#L28
 # TODO: maybe enable this
 async def send_long_message(channel: Any, message: discord.Message, max_length: int = 2000) -> None:
-    """
-    Summary:
-    Send a long message by splitting it into chunks and sending each chunk.
+    """Send a long message by splitting it into chunks and sending each chunk.
 
-    Explanation:
-    This asynchronous function takes a message and splits it into chunks of maximum length 'max_length'. It then sends each chunk as a separate message to the specified channel.
+    This asynchronous function takes a message and splits it into chunks of
+    maximum length 'max_length'. It then sends each chunk as a separate message
+    to the specified channel.
 
     Args:
-    - channel (Any): The channel to send the message chunks to.
-    - message (discord.Message): The message to be split into chunks and sent.
+        channel (Any): The channel to send the message chunks to.
+        message (discord.Message): The message to be split into chunks and sent.
+        max_length (int): The maximum length of each message chunk. Default is 2000.
 
     Returns:
-    - None
+        None
     """
 
     chunks = [message[i : i + max_length] for i in range(0, len(message), max_length)]
