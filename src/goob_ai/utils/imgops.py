@@ -925,6 +925,15 @@ def read_image_to_bgr(image_path: str):
 
 
 def convert_image_from_hwc_to_chw(img: ImageNdarrayBGR) -> torch.Tensor:
+    """
+    Convert an image from HWC (Height, Width, Channels) format to CHW (Channels, Height, Width) format.
+
+    Args:
+        img (ImageNdarrayBGR): The input image in HWC format.
+
+    Returns:
+        torch.Tensor: The output image in CHW format.
+    """
     img: torch.Tensor = torch.from_numpy(img).permute(2, 0, 1) / 255.0  # (h,w,c) -> (c,h,w)
     return img
 
