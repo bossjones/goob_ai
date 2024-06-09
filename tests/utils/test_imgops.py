@@ -7,7 +7,7 @@ import pytest_mock
 import pytest_asyncio
 import torch
 
-from goob_ai.utils.imgops import auto_split_upscale, bgr_to_rgb, bgra_to_rgba, convert_image_from_hwc_to_chw, handle_predict_one, resize_and_pillarbox
+from goob_ai.utils.imgops import auto_split_upscale, bgr_to_rgb, bgra_to_rgba, convert_image_from_hwc_to_chw, handle_predict_one, resize_and_pillarbox, rgb_to_bgr
 from PIL import Image
 import torch
 from goob_ai.utils.imgops import convert_tensor_to_pil_image, resize_image_and_bbox
