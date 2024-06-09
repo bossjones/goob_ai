@@ -119,6 +119,7 @@ dependencies = [
     "yfinance>=0.2.40",
     "youtube-search>=2.1.2",
     "timm>=1.0.3",
+    "huggingface-hub>=0.23.3",
 ]
 
 readme = "README.md"
