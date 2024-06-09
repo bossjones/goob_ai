@@ -8,6 +8,8 @@ import torch
 
 from goob_ai.utils.imgops import auto_split_upscale, bgr_to_rgb, bgra_to_rgba, convert_image_from_hwc_to_chw
 from PIL import Image
+import torch
+from goob_ai.utils.imgops import convert_tensor_to_pil_image
 
 import pytest
 
@@ -92,7 +94,23 @@ def test_bgra_to_rgba(test_image):
     assert np.array_equal(rgba_image[:, :, 2], test_image[:, :, 0])  # B channel
     assert np.array_equal(rgba_image[:, :, 3], np.full(test_image.shape[:2], 255))  # A channel
 
-def test_convert_image_from_hwc_to_chw(test_image):
+def test_convert_tensor_to_pil_image(test_image):
+    """Test convert_tensor_to_pil_image function."""
+    # Convert the test image to a tensor
+    test_image_tensor = torch.from_numpy(test_image).permute(2, 0, 1).float() / 255.0  # HWC to CHW and normalize
+
+    # Apply convert_tensor_to_pil_image
+    pil_image = convert_tensor_to_pil_image(test_image_tensor)
+
+    # Check if the result is a PIL Image
+    assert isinstance(pil_image, Image.Image)
+
+    # Check if the dimensions match
+    assert pil_image.size == (test_image.shape[1], test_image.shape[0])
+
+    # Check if the mode is correct
+    assert pil_image.mode == "RGB"
+
     """Test convert_image_from_hwc_to_chw function."""
     # Convert the test image to HWC format
     test_image_hwc = test_image
