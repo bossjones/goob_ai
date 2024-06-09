@@ -835,28 +835,23 @@ class AsyncGoobBot(commands.Bot):
         members = await guild.query_members(limit=1, user_ids=[member_id], cache=True)
         return members[0] if members else None
 
-    async def resolve_member_ids(
-        self, guild: discord.Guild, member_ids: Iterable[int]
-    ) -> AsyncIterator[discord.Member]:
-        """Bulk resolves member IDs to member instances, if possible.
+    async def resolve_member_ids(self, guild: discord.Guild, member_ids: Iterable[int]) -> AsyncIterator[discord.Member]:
+        """
+        Bulk resolve member IDs to member instances, if possible.
 
-        Members that can't be resolved are discarded from the list.
+        This asynchronous function attempts to resolve a list of member IDs to their corresponding
+        member instances within a specified guild. Members that cannot be resolved are discarded
+        from the list. The function yields the resolved members lazily using an asynchronous iterator.
 
-        This is done lazily using an asynchronous iterator.
+        Note:
+            The order of the resolved members is not guaranteed to be the same as the input order.
 
-        Note that the order of the resolved members is not the same as the input.
+        Args:
+            guild (discord.Guild): The guild to resolve members from.
+            member_ids (Iterable[int]): An iterable of member IDs to resolve.
 
-        Parameters
-        -----------
-        guild: Guild
-            The guild to resolve from.
-        member_ids: Iterable[int]
-            An iterable of member IDs.
-
-        Yields
-        --------
-        Member
-            The resolved members.
+        Yields:
+            discord.Member: The resolved members.
         """
 
         needs_resolution = []
