@@ -1188,13 +1188,13 @@ def norm(x: torch.Tensor | np.ndarray) -> torch.Tensor | np.ndarray:
 
 
 async def np2tensor(
-    img,
-    bgr2rgb=True,
-    data_range=1.0,
-    normalize=False,
-    change_range=True,
-    add_batch=True,
-):
+    img: np.ndarray,
+    bgr2rgb: bool = True,
+    data_range: float = 1.0,
+    normalize: bool = False,
+    change_range: bool = True,
+    add_batch: bool = True,
+) -> torch.Tensor:
     """
     Converts a numpy image array into a Tensor array.
     Parameters:
