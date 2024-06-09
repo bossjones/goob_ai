@@ -383,11 +383,17 @@ async def worker(name: str, queue: asyncio.Queue) -> NoReturn:
 
 # SOURCE: https://realpython.com/python-async-features/#building-a-synchronous-web-server
 async def co_task(name: str, queue: asyncio.Queue) -> AsyncIterator[None]:
-    """_summary_
+    """
+    Process tasks from the queue with timing.
+
+    This asynchronous function processes tasks from the provided queue. It uses a timer to measure the elapsed time for each task. The function yields control back to the event loop after processing each task.
 
     Args:
-        name (str): _description_
-        queue (asyncio.Queue): _description_
+        name (str): The name of the task.
+        queue (asyncio.Queue): The queue from which tasks are retrieved.
+
+    Yields:
+        None: This function yields control back to the event loop after processing each task.
     """
     LOGGER.info(f"starting working ... {name}")
 
