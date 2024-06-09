@@ -889,8 +889,18 @@ class AsyncGoobBot(commands.Bot):
                 for member in members:
                     yield member
 
-    async def on_ready(self):
-        """Event is called when the bot has finished logging in and setting things up"""
+    async def on_ready(self) -> None:
+        """
+        Handle the event when the bot is ready.
+
+        This method is called when the bot has successfully logged in and has completed
+        its initial setup. It logs the bot's user information, sets the bot's presence,
+        and prints the invite link. Additionally, it preloads guild data and logs the
+        logger tree structure.
+
+        Returns:
+            None
+        """
         print(f"Logged in as {self.user} (ID: {self.user.id})")
         print("------")
         self.invite = INVITE_LINK.format(self.user.id)
