@@ -335,17 +335,17 @@ def dump_logger(logger_name: str) -> Any:
 
 
 def filter_empty_string(a_list: List[str]) -> List[str]:
-    """_summary_
+    """Filter out empty strings from a list of strings.
+
+    This function takes a list of strings and returns a new list with all empty strings removed.
 
     Args:
-        a_list (List[str]): _description_
+        a_list (List[str]): The list of strings to be filtered.
 
     Returns:
-        List[str]: _description_
+        List[str]: A new list containing only non-empty strings from the input list.
     """
-    # filter out empty strings
     filter_object = filter(lambda x: x != "", a_list)
-
     return list(filter_object)
 
 
