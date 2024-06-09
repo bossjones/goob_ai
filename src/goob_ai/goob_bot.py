@@ -901,14 +901,36 @@ class AsyncGoobBot(commands.Bot):
         else:
             await self.prefixes.put(guild.id, sorted(set(prefixes), reverse=True))
 
-    # async def add_to_blacklist(self, object_id: int):
-    #     await self.blacklist.put(object_id, True)
+    async def add_to_blacklist(self, object_id: int) -> None:
+        """Add an object ID to the blacklist.
 
-    # async def remove_from_blacklist(self, object_id: int):
-    #     try:
-    #         await self.blacklist.remove(object_id)
-    #     except KeyError:
-    #         pass
+        This asynchronous function adds the specified object ID to the blacklist.
+        The blacklist is used to prevent certain users or guilds from interacting with the bot.
+
+        Args:
+            object_id (int): The ID of the object (user or guild) to be added to the blacklist.
+
+        Returns:
+            None
+        """
+        await self.blacklist.put(object_id, True)
+
+    async def remove_from_blacklist(self, object_id: int) -> None:
+        """Remove an object ID from the blacklist.
+
+        This asynchronous function removes the specified object ID from the blacklist.
+        If the object ID is not found in the blacklist, it handles the KeyError exception.
+
+        Args:
+            object_id (int): The ID of the object (user or guild) to be removed from the blacklist.
+
+        Returns:
+            None
+        """
+        try:
+            await self.blacklist.remove(object_id)
+        except KeyError:
+            pass
 
     async def query_member_named(
         self, guild: discord.Guild, argument: str, *, cache: bool = False
