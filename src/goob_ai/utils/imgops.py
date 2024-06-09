@@ -530,13 +530,13 @@ def setup_model():
 
 def handle_autocrop(
     images_filepaths: List[str],
-    cols=5,
-    model=None,
+    cols: int = 5,
+    model: Optional[torch.nn.Module] = None,
     device: torch.device = DEVICE,
-    args=None,
-    resize=False,
-    predict_results=None,
-):
+    args: Optional[dict] = None,
+    resize: bool = False,
+    predict_results: Optional[List[Tuple[Image.Image, List[Tuple[int, int, int, int]]]]] = None,
+) -> List[str]:
     cropped_image_file_paths = []
     for i, image_filepath in enumerate(images_filepaths):
         image, bboxes = predict_results[i]
