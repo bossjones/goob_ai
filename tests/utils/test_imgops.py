@@ -14,6 +14,8 @@ import torch
 from goob_ai.utils.imgops import convert_tensor_to_pil_image
 
 import pytest
+import torch
+from goob_ai.utils.imgops import denorm
 
 
 @pytest.fixture
@@ -153,8 +155,25 @@ def test_convert_pil_image_to_torch_tensor(test_image):
     assert tensor_image.max() <= 1.0
 
 
-@pytest.mark.asyncio
-async def test_convert_pil_image_to_torch_tensor_async(async_test_image):
+@pytest.mark.parametrize("input_tensor, min_max, expected_output", [
+    (torch.tensor([-1.0, 0.0, 1.0]), (-1.0, 1.0), torch.tensor([0.0, 0.5, 1.0])),
+    (torch.tensor([0.0, 0.5, 1.0]), (0.0, 1.0), torch.tensor([0.0, 0.5, 1.0])),
+    (torch.tensor([0.0, 0.5, 1.0]), (0.0, 2.0), torch.tensor([0.0, 0.25, 0.5])),
+])
+def test_denorm(input_tensor, min_max, expected_output):
+    """Test denorm function with different input ranges."""
+    output = denorm(input_tensor, min_max)
+    assert torch.allclose(output, expected_output), f"Expected {expected_output}, but got {output}"
+
+@pytest.mark.parametrize("input_array, min_max, expected_output", [
+    (np.array([-1.0, 0.0, 1.0]), (-1.0, 1.0), np.array([0.0, 0.5, 1.0])),
+    (np.array([0.0, 0.5, 1.0]), (0.0, 1.0), np.array([0.0, 0.5, 1.0])),
+    (np.array([0.0, 0.5, 1.0]), (0.0, 2.0), np.array([0.0, 0.25, 0.5])),
+])
+def test_denorm_numpy(input_array, min_max, expected_output):
+    """Test denorm function with numpy arrays and different input ranges."""
+    output = denorm(input_array, min_max)
+    assert np.allclose(output, expected_output), f"Expected {expected_output}, but got {output}"
     """Test convert_pil_image_to_torch_tensor function (async)."""
     from goob_ai.utils.imgops import convert_pil_image_to_torch_tensor
 
