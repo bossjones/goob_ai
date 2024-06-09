@@ -455,10 +455,13 @@ async def preload_guild_data() -> Dict[int, Dict[str, str]]:
 
 
 def extensions() -> Iterable[str]:
-    """_summary_
+    """Yield extension module paths.
+
+    This function searches for Python files in the 'cogs' directory relative to the current file's directory.
+    It constructs the module path for each file and yields it.
 
     Yields:
-        _type_: _description_
+        str: The module path for each Python file in the 'cogs' directory.
     """
     module_dir = pathlib.Path(HERE)
     files = pathlib.Path(module_dir.stem, "cogs").rglob("*.py")
