@@ -929,8 +929,10 @@ def read_image_to_bgr(image_path: str) -> Tuple[np.ndarray, int, int, int]:
 
 
 def convert_image_from_hwc_to_chw(img: ImageNdarrayBGR) -> torch.Tensor:
-    """
-    Convert an image from HWC (Height, Width, Channels) format to CHW (Channels, Height, Width) format.
+    """Convert an image from HWC (Height, Width, Channels) format to CHW (Channels, Height, Width) format.
+
+    This function takes an image in HWC format and converts it to CHW format, which is commonly used in 
+    deep learning frameworks like PyTorch.
 
     Args:
         img (ImageNdarrayBGR): The input image in HWC format.
