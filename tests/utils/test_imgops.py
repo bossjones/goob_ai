@@ -3,6 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 
 import numpy as np
+import pytest_mock
 import pytest_asyncio
 import torch
 
@@ -171,6 +172,31 @@ def mock_model(mocker):
     return model
 
 @pytest.mark.asyncio
+async def test_pred_and_store(mocker):
+    """Test pred_and_store function."""
+    from goob_ai.utils.imgops import pred_and_store, read_image_to_bgr, resize_image_and_bbox
+
+    # Mock the read_image_to_bgr function to return a dummy image and dimensions
+    mock_image = np.array(Image.open("tests/fixtures/screenshot_image_larger00013.PNG"))
+    mocker.patch("goob_ai.utils.imgops.read_image_to_bgr", return_value=(mock_image, 3, mock_image.shape[0], mock_image.shape[1]))
+
+    # Mock the resize_image_and_bbox function to return the input image and dummy bounding boxes
+    mocker.patch("goob_ai.utils.imgops.resize_image_and_bbox", return_value=(mock_image, torch.tensor([[0, 0, 100, 100]])))
+
+    # Mock the model to return dummy bounding boxes
+    mock_model = mocker.Mock()
+    mock_model.return_value = torch.tensor([[0, 0, 100, 100]])
+
+    # Call the pred_and_store function
+    paths = [Path("tests/fixtures/screenshot_image_larger00013.PNG")]
+    result = pred_and_store(paths, mock_model)
+
+    # Check if the result is a list of dictionaries
+    assert isinstance(result, list)
+    assert len(result) == 1
+    assert isinstance(result[0], dict)
+    assert "image_path" in result[0]
+    assert "bounding_boxes" in result[0]
 async def test_np2tensor(mocker):
     """Test np2tensor function."""
     from goob_ai.utils.imgops import np2tensor
