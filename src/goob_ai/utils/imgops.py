@@ -964,13 +964,17 @@ def convert_pil_image_to_torch_tensor(pil_image: Image.Image) -> torch.Tensor:
 
 # convert image back and forth if needed: https://stackoverflow.com/questions/68207510/how-to-use-torchvision-io-read-image-with-image-as-variable-not-stored-file
 def convert_tensor_to_pil_image(tensor_image: torch.Tensor) -> Image.Image:
-    """Convert tensor image to Pillow object
+    """
+    Convert a PyTorch tensor to a PIL image.
+
+    This function takes a PyTorch tensor and converts it to a PIL image.
+    The input tensor is expected to have its channels in the order expected by PyTorch (C x H x W).
 
     Args:
-        tensor_image (torch.Tensor): _description_
+        tensor_image (torch.Tensor): The input image as a PyTorch tensor.
 
     Returns:
-        PIL.Image: _description_
+        Image.Image: The converted image in PIL format.
     """
     return pytorch_transforms_functional.to_pil_image(tensor_image)
 
