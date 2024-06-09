@@ -307,6 +307,11 @@ def get_logger_tree_printout() -> None:
 
 # SOURCE: https://realpython.com/how-to-make-a-discord-bot-python/#responding-to-messages
 def dump_logger_tree() -> None:
+    """Dump the logger tree structure.
+
+    This function generates the logger tree structure using the `generate_tree` function
+    and logs the tree structure using the `LOGGER.debug` method.
+    """
     rootm = generate_tree()
     LOGGER.debug(rootm)
 
