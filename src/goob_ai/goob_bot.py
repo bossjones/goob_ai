@@ -848,6 +848,20 @@ class AsyncGoobBot(commands.Bot):
             await ctx.send(str(error))
 
     def get_guild_prefixes(self, guild: Optional[discord.abc.Snowflake], *, local_inject=_prefix_callable) -> list[str]:
+        """
+        Retrieve the command prefixes for a specific guild.
+
+        This function generates a list of command prefixes for the bot based on the provided guild.
+        If the guild is None, it returns the default prefixes. The function uses a proxy message
+        to simulate a message from the guild and retrieves the prefixes using the local_inject function.
+
+        Args:
+            guild (Optional[discord.abc.Snowflake]): The guild for which to retrieve the command prefixes.
+            local_inject (Callable): A callable function to inject the local context for prefix retrieval.
+
+        Returns:
+            list[str]: A list of command prefixes for the specified guild.
+        """
         proxy_msg = ProxyObject(guild)
         return local_inject(self, proxy_msg)  # type: ignore  # lying
 
