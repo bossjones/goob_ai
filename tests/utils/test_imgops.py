@@ -115,6 +115,43 @@ def test_convert_pil_image_to_rgb_channels(test_image, mocker):
     # Check if the image is converted to RGB
     assert converted_image.mode == "RGB"
 
+def test_convert_pil_image_to_torch_tensor(test_image):
+    """Test convert_pil_image_to_torch_tensor function."""
+    from goob_ai.utils.imgops import convert_pil_image_to_torch_tensor
+
+    # Convert the test image to a PIL image
+    test_image_pil = Image.fromarray(test_image)
+
+    # Apply convert_pil_image_to_torch_tensor
+    tensor_image = convert_pil_image_to_torch_tensor(test_image_pil)
+
+    # Check if the tensor shape is correct (C, H, W)
+    assert tensor_image.shape == (test_image.shape[2], test_image.shape[0], test_image.shape[1])
+
+    # Check if the tensor values are in the correct range [0, 1]
+    assert tensor_image.min() >= 0.0
+    assert tensor_image.max() <= 1.0
+
+
+@pytest.mark.asyncio
+async def test_convert_pil_image_to_torch_tensor_async(async_test_image):
+    """Test convert_pil_image_to_torch_tensor function (async)."""
+    from goob_ai.utils.imgops import convert_pil_image_to_torch_tensor
+
+    # Convert the test image to a PIL image
+    async_test_image_pil = Image.fromarray(async_test_image)
+
+    # Apply convert_pil_image_to_torch_tensor
+    tensor_image = convert_pil_image_to_torch_tensor(async_test_image_pil)
+
+    # Check if the tensor shape is correct (C, H, W)
+    assert tensor_image.shape == (async_test_image.shape[2], async_test_image.shape[0], async_test_image.shape[1])
+
+    # Check if the tensor values are in the correct range [0, 1]
+    assert tensor_image.min() >= 0.0
+    assert tensor_image.max() <= 1.0
+
+
 @pytest.mark.asyncio
 async def test_convert_pil_image_to_rgb_channels_async(async_test_image, mocker):
     """Test convert_pil_image_to_rgb_channels function (async)."""
