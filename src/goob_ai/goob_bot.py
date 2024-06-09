@@ -1172,12 +1172,20 @@ class AsyncGoobBot(commands.Bot):
         return agent_input
 
     def get_session_id(self, message: discord.Message) -> str:
-        """
-        Get the session ID for the message.
-        Used as a key for the history session, and as an identifier for logs.
-        :param msg: the message or event dictionary.
-        :param is_dm: whether the message is a direct message.
-        :return: the session ID
+        """Generate a session ID for the given message.
+
+        This function generates a session ID based on the message context.
+        The session ID is used as a key for the history session and as an identifier for logs.
+
+        Args:
+            message (discord.Message): The message or event dictionary.
+
+        Returns:
+            str: The generated session ID.
+
+        Notes:
+            - If the message is a direct message (DM), the session ID is based on the user ID.
+            - If the message is from a guild (server) channel, the session ID is based on the channel ID.
         """
         is_dm: bool = str(message.channel.type) == "private"  # pyright: ignore[reportAttributeAccessIssue]
         user_id: int = message.author.id  # pyright: ignore[reportAttributeAccessIssue]
