@@ -597,22 +597,34 @@ def handle_autocrop_one(
     resize: bool = False,
     predict_results: Optional[Tuple[Image.Image, List[Tuple[int, int, int, int]]]] = None,
 ) -> str:
-    # cropped_image_file_paths = []
-    # for i, image_filepath in enumerate(images_filepaths):
+    """
+    Crop a single image based on predicted bounding boxes.
 
-    # import bpdb
-    # bpdb.set_trace()
+    This function takes a single image file path and crops the image based on the provided bounding boxes.
+    The cropped image is saved to disk, and its file path is returned.
 
+    Args:
+        images_filepath (str): File path to the image to be cropped.
+        cols (int, optional): Number of columns for display purposes. Defaults to 5.
+        model (Optional[torch.nn.Module], optional): The model used for prediction. Defaults to None.
+        device (torch.device, optional): The device to run the model on. Defaults to DEVICE.
+        args (Optional[dict], optional): Additional arguments for the function. Defaults to None.
+        resize (bool, optional): Whether to resize the cropped image. Defaults to False.
+        predict_results (Optional[Tuple[Image.Image, List[Tuple[int, int, int, int]]]], optional): 
+            A tuple containing the image and its corresponding bounding boxes. Defaults to None.
+
+    Returns:
+        str: File path to the cropped image.
+    """
     image, bboxes = predict_results
     temp = image.copy()
-    # image, bboxes = predict_from_file(image_filepath, model, device)
     img_as_array = np.asarray(temp)
     img_as_array = cv2.cvtColor(img_as_array, cv2.COLOR_RGB2BGR)
 
-    # get fullsize bboxes
+    # Get fullsize bounding boxes
     xmin_fullsize, ymin_fullsize, xmax_fullsize, ymax_fullsize = bboxes[0]
 
-    # if we have a negative point to make a rectange with, set it to 0
+    # If we have a negative point to make a rectangle with, set it to 0
     startY = max(int(ymin_fullsize), 0)
     endY = max(int(ymax_fullsize), 0)
     startX = max(int(xmin_fullsize), 0)
