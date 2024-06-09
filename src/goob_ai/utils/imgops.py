@@ -696,6 +696,22 @@ def handle_resize_one(
     args: Optional[dict] = None,
     resize: bool = False,
 ) -> str:
+    """Resize a single image and save it to disk.
+
+    This function takes a single image file path, resizes the image if specified,
+    and saves the resized image to disk. The file path of the resized image is returned.
+
+    Args:
+        images_filepath (str): File path to the image to be resized.
+        cols (int, optional): Number of columns for display purposes. Defaults to 5.
+        model (Optional[torch.nn.Module], optional): The model used for prediction. Defaults to None.
+        device (torch.device, optional): The device to run the model on. Defaults to DEVICE.
+        args (Optional[dict], optional): Additional arguments for the function. Defaults to None.
+        resize (bool, optional): Whether to resize the image. Defaults to False.
+
+    Returns:
+        str: File path to the resized image.
+    """
     image_path_api = pathlib.Path(images_filepath).resolve()
     fname = f"{image_path_api.parent}/cropped-{model.name}-{image_path_api.stem}{image_path_api.suffix}"
 
