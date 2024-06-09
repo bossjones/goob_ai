@@ -1272,7 +1272,14 @@ async def tensor2np(
     return img_np.astype(imtype)
 
 
-def auto_split_upscale(lr_img, upscale_function, scale=4, overlap=32, max_depth=None, current_depth=1):
+def auto_split_upscale(
+    lr_img: np.ndarray,
+    upscale_function: typing.Callable[[np.ndarray], np.ndarray],
+    scale: int = 4,
+    overlap: int = 32,
+    max_depth: Optional[int] = None,
+    current_depth: int = 1
+) -> typing.Tuple[np.ndarray, int]:
     if current_depth > 1 and (lr_img.shape[0] == lr_img.shape[1] == overlap):
         raise RecursionError("Reached bottom of recursion depth.")
 
