@@ -147,15 +147,18 @@ async def save_attachment(attm: discord.Attachment, basedir: str = "./") -> None
         await attm.save(path)
 
 
-# TODO: Remove this when we eventually upgrade to 2.0 discord.py
 def attachment_to_dict(attm: discord.Attachment) -> Dict[str, Any]:
-    """Converts a discord.Attachment object to a dictionary.
+    """Convert a discord.Attachment object to a dictionary.
+
+    This function takes a discord.Attachment object and converts it into a dictionary
+    containing relevant information about the attachment, such as filename, ID, proxy URL,
+    size, URL, spoiler status, height, width, content type, and the attachment object itself.
 
     Args:
-        attm (discord.Attachment): _description_
+        attm (discord.Attachment): The attachment object to be converted.
 
     Returns:
-        _type_: _description_
+        Dict[str, Any]: A dictionary containing information about the attachment.
     """
     result = {
         "filename": attm.filename,  # pyright: ignore[reportAttributeAccessIssue]
