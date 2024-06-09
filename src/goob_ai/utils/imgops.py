@@ -613,12 +613,12 @@ def handle_autocrop_one(
 
 def handle_resize(
     images_filepaths: List[str],
-    cols=5,
-    model=None,
+    cols: int = 5,
+    model: Optional[torch.nn.Module] = None,
     device: torch.device = DEVICE,
-    args=None,
-    resize=False,
-):
+    args: Optional[dict] = None,
+    resize: bool = False,
+) -> List[str]:
     resized_image_file_paths = []
     for i, image_filepath in enumerate(images_filepaths):
         image_path_api = pathlib.Path(image_filepath).resolve()
