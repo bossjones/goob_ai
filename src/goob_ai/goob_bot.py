@@ -1543,15 +1543,39 @@ class AsyncGoobBot(commands.Bot):
             None
         """
         await self.wait_until_ready()
+        """
+        Wait until the bot is ready before starting the monitoring loop.
+        """
         counter = 0
+        """
+        Initialize a counter to keep track of the number of monitoring iterations.
+        """
         # TEMPCHANGE: # channel = self.get_channel(DISCORD_GENERAL_CHANNEL)  # channel ID goes here
         channel = self.get_channel(aiosettings.discord_general_channel)  # channel ID goes here
         while not self.is_closed():
+            """
+            Continuously monitor the worker tasks until the bot is closed.
+            """
             counter += 1
+            """
+            Increment the counter for each monitoring iteration.
+            """
             await channel.send(counter)  # pyright: ignore[reportAttributeAccessIssue]
             await asyncio.sleep(60)  # task runs every 60 seconds
 
     async def on_worker_monitor(self) -> None:
+        """
+        Monitor and log the status of worker tasks.
+
+        This asynchronous method waits until the bot is ready, then continuously
+        increments a counter and logs the status of worker tasks every 10 seconds.
+        It prints the list of tasks and the number of tasks currently being processed.
+
+        The method ensures that the monitoring runs indefinitely until the bot is closed.
+
+        Returns:
+            None
+        """
         await self.wait_until_ready()
         counter = 0
         # channel = self.get_channel(DISCORD_GENERAL_CHANNEL)  # channel ID goes here
@@ -1559,8 +1583,17 @@ class AsyncGoobBot(commands.Bot):
             counter += 1
             # await channel.send(counter)
             print(f" self.tasks = {self.tasks}")
+            """
+            Print the list of current tasks being processed.
+            """
             print(f" len(self.tasks) = {len(self.tasks)}")
-            await asyncio.sleep(10)  # task runs every 60 seconds'
+            """
+            Print the number of tasks currently being processed.
+            """
+            await asyncio.sleep(10)
+            """
+            Sleep for 10 seconds before the next monitoring iteration.
+            """
 
     # def blah_blah(self) -> None:
 
