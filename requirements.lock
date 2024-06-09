@@ -237,7 +237,6 @@ fsspec==2024.3.1
     # via dask
     # via datasets
     # via huggingface-hub
-    # via torch
 gallery-dl==1.27.0
     # via goob-ai
 geojson==2.5.0
@@ -773,6 +772,7 @@ requests==2.32.3
     # via simpletransformers
     # via streamlit
     # via tiktoken
+    # via torchvision
     # via transformers
     # via wandb
     # via wikipedia
@@ -916,11 +916,11 @@ toolz==0.12.1
     # via altair
     # via dask
     # via partd
-torch==2.3.1
+torch==2.0.1
     # via goob-ai
     # via timm
     # via torchvision
-torchvision==0.18.1
+torchvision==0.15.2
     # via goob-ai
     # via timm
 tornado==6.4.1
