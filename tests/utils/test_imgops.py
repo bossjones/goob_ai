@@ -160,6 +160,56 @@ def test_convert_pil_image_to_torch_tensor(test_image):
     assert tensor_image.max() <= 1.0
 
 
+@pytest.fixture
+def test_image_path():
+    return "tests/fixtures/screenshot_image_larger00013.PNG"
+
+@pytest.fixture
+def mock_model(mocker):
+    model = mocker.Mock()
+    model.name = "mock_model"
+    return model
+
+@pytest.mark.asyncio
+async def test_handle_resize(mocker, test_image_path, mock_model):
+    """Test handle_resize function."""
+    from goob_ai.utils.imgops import handle_resize
+
+    mocker.patch("goob_ai.utils.imgops.Image.open", return_value=Image.open(test_image_path))
+    mocker.patch("goob_ai.utils.imgops.cv2.cvtColor", return_value=np.array(Image.open(test_image_path)))
+    mocker.patch("goob_ai.utils.imgops.cv2.imwrite", return_value=True)
+    mocker.patch("goob_ai.utils.imgops.file_functions.fix_path", return_value=test_image_path)
+
+    images_filepaths = [test_image_path]
+    resized_image_paths = handle_resize(
+        images_filepaths=images_filepaths,
+        model=mock_model,
+        resize=True
+    )
+
+    assert len(resized_image_paths) == 1
+    assert resized_image_paths[0] == test_image_path
+
+@pytest.mark.asyncio
+async def test_handle_resize_no_resize(mocker, test_image_path, mock_model):
+    """Test handle_resize function without resizing."""
+    from goob_ai.utils.imgops import handle_resize
+
+    mocker.patch("goob_ai.utils.imgops.Image.open", return_value=Image.open(test_image_path))
+    mocker.patch("goob_ai.utils.imgops.cv2.cvtColor", return_value=np.array(Image.open(test_image_path)))
+    mocker.patch("goob_ai.utils.imgops.cv2.imwrite", return_value=True)
+    mocker.patch("goob_ai.utils.imgops.file_functions.fix_path", return_value=test_image_path)
+
+    images_filepaths = [test_image_path]
+    resized_image_paths = handle_resize(
+        images_filepaths=images_filepaths,
+        model=mock_model,
+        resize=False
+    )
+
+    assert len(resized_image_paths) == 1
+    assert resized_image_paths[0] == test_image_path
+
 @pytest.mark.asyncio
 async def test_handle_predict_one(mocker):
     """Test handle_predict_one function."""
