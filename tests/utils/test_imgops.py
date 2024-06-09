@@ -161,6 +161,28 @@ def test_convert_pil_image_to_torch_tensor(test_image):
 
 
 @pytest.mark.asyncio
+async def test_handle_predict_one(mocker):
+    """Test handle_predict_one function."""
+    image_path = "tests/fixtures/screenshot_image_larger00013.PNG"
+    mocker.patch("goob_ai.utils.imgops.Image.open", return_value=Image.open(image_path))
+    mocker.patch("goob_ai.utils.imgops.cv2.cvtColor", return_value=np.array(Image.open(image_path)))
+    mocker.patch("goob_ai.utils.imgops.predict_from_file", return_value=(Image.open(image_path), [(0, 0, 100, 100)]))
+
+    mock_model = mocker.Mock()
+    mock_model.name = "mock_model"
+
+    predict_result = await handle_predict_one(
+        images_filepath=image_path,
+        model=mock_model
+    )
+
+    assert isinstance(predict_result, tuple)
+    assert isinstance(predict_result[0], Image.Image)
+    assert isinstance(predict_result[1], list)
+    assert len(predict_result[1]) == 1
+    assert predict_result[1][0] == (0, 0, 100, 100)
+
+@pytest.mark.asyncio
 async def test_handle_predict(mocker):
     """Test handle_predict function."""
     image_path = "tests/fixtures/screenshot_image_larger00013.PNG"
