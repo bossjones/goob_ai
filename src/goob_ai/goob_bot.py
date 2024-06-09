@@ -1497,6 +1497,16 @@ class AsyncGoobBot(commands.Bot):
             await self.process_commands(message)
 
     async def close(self) -> None:
+        """
+        Close the bot and its associated resources.
+
+        This asynchronous method performs the necessary cleanup operations
+        before shutting down the bot. It closes the aiohttp session and
+        calls the superclass's close method to ensure proper shutdown.
+
+        Returns:
+            None
+        """
         await super().close()
         await self.session.close()
 
