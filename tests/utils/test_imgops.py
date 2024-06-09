@@ -6,7 +6,7 @@ import numpy as np
 import pytest_asyncio
 import torch
 
-from goob_ai.utils.imgops import auto_split_upscale, bgr_to_rgb, bgra_to_rgba
+from goob_ai.utils.imgops import auto_split_upscale, bgr_to_rgb, bgra_to_rgba, convert_image_from_hwc_to_chw
 from PIL import Image
 
 import pytest
@@ -92,7 +92,16 @@ def test_bgra_to_rgba(test_image):
     assert np.array_equal(rgba_image[:, :, 2], test_image[:, :, 0])  # B channel
     assert np.array_equal(rgba_image[:, :, 3], np.full(test_image.shape[:2], 255))  # A channel
 
-@pytest.mark.asyncio
+def test_convert_image_from_hwc_to_chw(test_image):
+    """Test convert_image_from_hwc_to_chw function."""
+    # Convert the test image to HWC format
+    test_image_hwc = test_image
+
+    # Apply convert_image_from_hwc_to_chw
+    chw_image_tensor = convert_image_from_hwc_to_chw(test_image_hwc)
+
+    # Check if the shape is correctly converted to CHW
+    assert chw_image_tensor.shape == (test_image_hwc.shape[2], test_image_hwc.shape[0], test_image_hwc.shape[1])
 async def test_bgra_to_rgba_async(async_test_image, mocker):
     """Test bgra_to_rgba function (async)."""
     # Convert the test image to a tensor with an alpha channel
