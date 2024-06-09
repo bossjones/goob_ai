@@ -439,10 +439,15 @@ async def get_prefix(_bot: AsyncGoobBot, message: discord.Message) -> Any:
 
 # SOURCE: https://github.com/makupi/cookiecutter-discord.py-postgres/blob/master/%7B%7Bcookiecutter.bot_slug%7D%7D/bot/__init__.py#L28
 async def preload_guild_data() -> Dict[int, Dict[str, str]]:
-    """_summary_
+    """
+    Preload guild data.
+
+    This function initializes and returns a dictionary containing guild data.
+    Each guild is represented by its ID and contains a dictionary with the guild's prefix.
 
     Returns:
-        _type_: _description_
+        Dict[int, Dict[str, str]]: A dictionary where the keys are guild IDs and the values are dictionaries
+        containing guild-specific data, such as the prefix.
     """
     LOGGER.info("preload_guild_data ... ")
     guilds = [guild_factory.Guild()]
