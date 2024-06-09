@@ -10,9 +10,7 @@ import torch
 from goob_ai.utils.imgops import auto_split_upscale, bgr_to_rgb, bgra_to_rgba, convert_image_from_hwc_to_chw, handle_predict_one, resize_and_pillarbox
 from PIL import Image
 import torch
-from goob_ai.utils.imgops import convert_tensor_to_pil_image
-import torch
-from goob_ai.utils.imgops import convert_tensor_to_pil_image
+from goob_ai.utils.imgops import convert_tensor_to_pil_image, resize_image_and_bbox
 
 import pytest
 import pytest_asyncio
@@ -402,8 +400,42 @@ def test_read_image_to_bgr(mocker):
     assert height == mock_image.shape[0]
     assert width == mock_image.shape[1]
 
-@pytest.mark.asyncio
-async def test_handle_resize_one_no_resize(mocker, test_image_path, mock_model):
+@pytest.mark.parametrize("return_percent_coords", [True, False])
+def test_resize_image_and_bbox(mocker, test_image, return_percent_coords):
+    """Test resize_image_and_bbox function."""
+    from goob_ai.utils.imgops import resize_image_and_bbox
+
+    # Mock the device
+    mock_device = torch.device("cpu")
+
+    # Convert the test image to a tensor
+    test_image_tensor = torch.from_numpy(test_image).permute(2, 0, 1).float() / 255.0  # HWC to CHW and normalize
+
+    # Create dummy bounding boxes
+    boxes = torch.tensor([[50, 50, 150, 150]], dtype=torch.float32)
+
+    # Define target dimensions
+    target_dims = (300, 300)
+
+    # Call the function
+    resized_image, resized_boxes = resize_image_and_bbox(
+        test_image_tensor,
+        boxes,
+        dims=target_dims,
+        return_percent_coords=return_percent_coords,
+        device=mock_device
+    )
+
+    # Check if the resized image has the correct dimensions
+    assert resized_image.shape[1] == target_dims[0]
+    assert resized_image.shape[2] == target_dims[1]
+
+    # Check if the resized boxes have the correct dimensions
+    if return_percent_coords:
+        assert torch.all(resized_boxes <= 1.0)
+    else:
+        assert torch.all(resized_boxes[:, 2] <= target_dims[0])
+        assert torch.all(resized_boxes[:, 3] <= target_dims[1])
     """Test handle_resize_one function without resizing."""
     from goob_ai.utils.imgops import handle_resize_one
 
