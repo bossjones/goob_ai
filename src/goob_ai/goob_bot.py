@@ -1127,7 +1127,7 @@ class AsyncGoobBot(commands.Bot):
                 print(ex)
                 exc_type, exc_value, exc_traceback = sys.exc_info()
                 LOGGER.error(f"Error Class: {str(ex.__class__)}")
-                output = f"[UNEXPECTED] {type(ex).__name__}: {ex}")
+                output = f"[UNEXPECTED] {type(ex).__name__}: {ex}"
                 LOGGER.warning(output)
                 await ctx.send(embed=discord.Embed(description=output))
                 LOGGER.error(f"exc_type: {exc_type}")
