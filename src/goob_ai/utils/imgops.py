@@ -563,7 +563,6 @@ def handle_autocrop(
         img_as_array = np.asarray(image)
         img_as_array = cv2.cvtColor(img_as_array, cv2.COLOR_RGB2BGR)
 
-        # get fullsize bboxes
         xmin_fullsize, ymin_fullsize, xmax_fullsize, ymax_fullsize = bboxes[0]
 
         startY = int(ymin_fullsize)
@@ -856,22 +855,30 @@ def resize_image_and_bbox(
 
 
 # SOURCE: https://www.learnpytorch.io/09_pytorch_model_deployment/
-# 1. Create a function to return a list of dictionaries with sample, truth label, prediction, prediction probability and prediction time
 def pred_and_store(
     paths: List[pathlib.Path],
     model: torch.nn.Module,
     device: torch.device = DEVICE,
 ) -> List[Dict[str, Any]]:
-    # 3. Loop through target paths
+    """Predict bounding boxes for images and store the results.
+
+    This function loops through a list of image paths, performs predictions using the provided model,
+    and stores the prediction information in a list of dictionaries. Each dictionary contains the image path,
+    prediction bounding boxes, and other relevant information.
+
+    Args:
+        paths (List[pathlib.Path]): List of image paths to process.
+        model (torch.nn.Module): The model used for prediction.
+        device (torch.device, optional): The device to run the model on. Defaults to DEVICE.
+
+    Returns:
+        List[Dict[str, Any]]: A list of dictionaries containing prediction information for each image.
+    """
     for path in tqdm(paths):
-        # 4. Create empty dictionary to store prediction information for each sample
         pred_dict = {"image_path": path}
 
-        # 6. Start the prediction timer
-        # timer()
 
         targetSize = Dimensions.HEIGHT
-        # 7. Open image path
 
         img: ImageNdarrayBGR  # type: ignore
 
@@ -890,7 +897,6 @@ def pred_and_store(
         # normalize and change output to (c, h, w)
         resized_tensor: torch.Tensor = torch.from_numpy(resized).permute(2, 0, 1) / 255.0
 
-        # 9. Prepare model for inference by sending it to target device and turning on eval() mode
         model.to(device)
         model.eval()
 
@@ -901,7 +907,6 @@ def pred_and_store(
             # predict
             out_bbox: torch.Tensor = model(unsqueezed_tensor)
 
-            # ic(out_bbox)
 
             xmin, ymin, xmax, ymax = out_bbox[0]
             pt1 = (int(xmin), int(ymin))
@@ -912,11 +917,6 @@ def pred_and_store(
             color = (255, 0, 0)
             thickness = 2
 
-            # import bpdb
-            # bpdb.set_trace()
-
-            # img = image.astype("uint8")
-            # generate the image with bounding box on it
             out_img = cv2.rectangle(
                 unsqueezed_tensor.squeeze().permute(1, 2, 0).cpu().numpy().astype("uint8"),
                 starting_point,
@@ -925,13 +925,6 @@ def pred_and_store(
                 thickness,
             )
 
-            # TODO: Enable this?
-            # if --display
-            # plt.imshow(out_img)
-
-            # NOTE: At this point we have our bounding box for the smaller image, lets figure out what the values would be for a larger image.
-            # First setup variables we need
-            # -------------------------------------------------------
             image_tensor_to_resize = resized_tensor
             resized_bboxes_tensor = out_bbox[0]
             resized_height = img_height
@@ -942,7 +935,6 @@ def pred_and_store(
             image_tensor_to_resize.shape[1]
             image_tensor_to_resize.shape[2]
 
-            # perform fullsize transformation
             fullsize_image, fullsize_bboxes = resize_image_and_bbox(
                 image_tensor_to_resize,
                 resized_bboxes_tensor,
@@ -951,7 +943,6 @@ def pred_and_store(
                 device=device,
             )
 
-            # get fullsize bboxes
             (
                 xmin_fullsize,
                 ymin_fullsize,
