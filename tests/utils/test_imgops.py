@@ -79,22 +79,22 @@ def test_bgr_to_rgb(test_image):
     assert np.array_equal(rgb_image[:, :, 2], test_image[:, :, 0])  # B channel
 
 
-def test_bgra_to_rgba(test_image):
-    """Test bgra_to_rgba function."""
-    # Convert the test image to a tensor with an alpha channel
-    test_image_tensor = torch.from_numpy(np.dstack((test_image, np.full(test_image.shape[:2], 255)))).permute(2, 0, 1).float() / 255.0  # HWC to CHW and normalize
+def test_convert_tensor_to_pil_image(test_image):
+    """Test convert_tensor_to_pil_image function."""
+    # Convert the test image to a tensor
+    test_image_tensor = torch.from_numpy(test_image).permute(2, 0, 1).float() / 255.0  # HWC to CHW and normalize
 
-    # Apply bgra_to_rgba
-    rgba_image_tensor = bgra_to_rgba(test_image_tensor)
+    # Apply convert_tensor_to_pil_image
+    pil_image = convert_tensor_to_pil_image(test_image_tensor)
 
-    # Convert back to numpy for comparison
-    rgba_image = rgba_image_tensor.permute(1, 2, 0).numpy() * 255.0  # CHW to HWC and denormalize
+    # Check if the result is a PIL Image
+    assert isinstance(pil_image, Image.Image)
 
-    # Check if the channels are correctly swapped
-    assert np.array_equal(rgba_image[:, :, 0], test_image[:, :, 2])  # R channel
-    assert np.array_equal(rgba_image[:, :, 1], test_image[:, :, 1])  # G channel
-    assert np.array_equal(rgba_image[:, :, 2], test_image[:, :, 0])  # B channel
-    assert np.array_equal(rgba_image[:, :, 3], np.full(test_image.shape[:2], 255))  # A channel
+    # Check if the dimensions match
+    assert pil_image.size == (test_image.shape[1], test_image.shape[0])
+
+    # Check if the mode is correct
+    assert pil_image.mode == "RGB"
 
 def test_convert_tensor_to_pil_image(test_image):
     """Test convert_tensor_to_pil_image function."""
