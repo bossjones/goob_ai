@@ -952,7 +952,7 @@ def convert_pil_image_to_torch_tensor(pil_image: Image.Image) -> torch.Tensor:
 
 
 # convert image back and forth if needed: https://stackoverflow.com/questions/68207510/how-to-use-torchvision-io-read-image-with-image-as-variable-not-stored-file
-def convert_tensor_to_pil_image(tensor_image: torch.Tensor) -> Image:
+def convert_tensor_to_pil_image(tensor_image: torch.Tensor) -> Image.Image:
     """Convert tensor image to Pillow object
 
     Args:
