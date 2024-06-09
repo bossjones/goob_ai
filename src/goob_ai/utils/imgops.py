@@ -537,6 +537,25 @@ def handle_autocrop(
     resize: bool = False,
     predict_results: Optional[List[Tuple[Image.Image, List[Tuple[int, int, int, int]]]]] = None,
 ) -> List[str]:
+    """
+    Crop images based on predicted bounding boxes.
+
+    This function takes a list of image file paths and crops each image based on the provided bounding boxes.
+    The cropped images are saved to disk, and their file paths are returned.
+
+    Args:
+        images_filepaths (List[str]): List of file paths to the images to be cropped.
+        cols (int, optional): Number of columns for display purposes. Defaults to 5.
+        model (Optional[torch.nn.Module], optional): The model used for prediction. Defaults to None.
+        device (torch.device, optional): The device to run the model on. Defaults to DEVICE.
+        args (Optional[dict], optional): Additional arguments for the function. Defaults to None.
+        resize (bool, optional): Whether to resize the cropped images. Defaults to False.
+        predict_results (Optional[List[Tuple[Image.Image, List[Tuple[int, int, int, int]]]]], optional): 
+            List of tuples containing images and their corresponding bounding boxes. Defaults to None.
+
+    Returns:
+        List[str]: List of file paths to the cropped images.
+    """
     cropped_image_file_paths = []
     for i, image_filepath in enumerate(images_filepaths):
         image, bboxes = predict_results[i]
