@@ -170,10 +170,23 @@ def mock_model(mocker):
     model.name = "mock_model"
     return model
 
-@pytest.mark.asyncio
-async def test_handle_resize(mocker, test_image_path, mock_model):
-    """Test handle_resize function."""
-    from goob_ai.utils.imgops import handle_resize
+@pytest.mark.parametrize("input_tensor, expected_output", [
+    (torch.tensor([0.0, 0.5, 1.0]), torch.tensor([-1.0, 0.0, 1.0])),
+    (torch.tensor([0.0, 0.25, 0.5, 0.75, 1.0]), torch.tensor([-1.0, -0.5, 0.0, 0.5, 1.0])),
+    (torch.tensor([0.0, 1.0]), torch.tensor([-1.0, 1.0])),
+    (np.array([0.0, 0.5, 1.0]), np.array([-1.0, 0.0, 1.0])),
+    (np.array([0.0, 0.25, 0.5, 0.75, 1.0]), np.array([-1.0, -0.5, 0.0, 0.5, 1.0])),
+    (np.array([0.0, 1.0]), np.array([-1.0, 1.0])),
+])
+def test_norm(input_tensor, expected_output):
+    """Test norm function with different input ranges."""
+    from goob_ai.utils.imgops import norm
+
+    output = norm(input_tensor)
+    if isinstance(input_tensor, torch.Tensor):
+        assert torch.allclose(output, expected_output), f"Expected {expected_output}, but got {output}"
+    elif isinstance(input_tensor, np.ndarray):
+        assert np.allclose(output, expected_output), f"Expected {expected_output}, but got {output}"
 
     mocker.patch("goob_ai.utils.imgops.Image.open", return_value=Image.open(test_image_path))
     mocker.patch("goob_ai.utils.imgops.cv2.cvtColor", return_value=np.array(Image.open(test_image_path)))
