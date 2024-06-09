@@ -607,23 +607,19 @@ async def test_handle_get_dominant_color_name(mocker):
 
     assert dominant_color == "white"
 
-@pytest.mark.asyncio
-async def test_handle_get_dominant_color_hex(mocker):
-    """Test handle_get_dominant_color function with return_type 'hex'."""
-    image_path = "tests/fixtures/screenshot_image_larger00013.PNG"
-    mocker.patch("goob_ai.utils.imgops.Image.open", return_value=Image.open(image_path))
-    mocker.patch("goob_ai.utils.imgops.get_all_corners_color", return_value={
-        "top_left": (255, 255, 255),
-        "top_right": (255, 255, 255),
-        "bottom_left": (255, 255, 255),
-        "bottom_right": (255, 255, 255),
-    })
-    mocker.patch("goob_ai.utils.imgops.rgb2hex", return_value="#ffffff")
+@pytest.mark.parametrize("r, g, b, expected_hex", [
+    (255, 0, 0, "#ff0000"),
+    (0, 255, 0, "#00ff00"),
+    (0, 0, 255, "#0000ff"),
+    (255, 255, 255, "#ffffff"),
+    (0, 0, 0, "#000000"),
+])
+def test_rgb2hex(r, g, b, expected_hex):
+    """Test rgb2hex function."""
+    from goob_ai.utils.imgops import rgb2hex
 
-    urls = [image_path]
-    dominant_color = handle_get_dominant_color(urls, return_type="hex")
-
-    assert dominant_color == "#ffffff"
+    hex_color = rgb2hex(r, g, b)
+    assert hex_color == expected_hex
 
 @pytest.mark.parametrize("input_tensor, min_max, expected_output", [
     (torch.tensor([-1.0, 0.0, 1.0]), (-1.0, 1.0), torch.tensor([0.0, 0.5, 1.0])),
