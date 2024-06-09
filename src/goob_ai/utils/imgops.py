@@ -686,32 +686,6 @@ def handle_resize(
         resized_image_file_paths.append(cropped_full_path)
 
     return resized_image_file_paths
-    images_filepaths: List[str],
-    cols: int = 5,
-    model: Optional[torch.nn.Module] = None,
-    device: torch.device = DEVICE,
-    args: Optional[dict] = None,
-    resize: bool = False,
-) -> List[str]:
-    resized_image_file_paths = []
-    for i, image_filepath in enumerate(images_filepaths):
-        image_path_api = pathlib.Path(image_filepath).resolve()
-        fname = f"{image_path_api.parent}/cropped-{model.name}-{image_path_api.stem}{image_path_api.suffix}"
-
-        cropped_full_path = file_functions.fix_path(fname)
-
-        if resize:
-            to_resize = Image.open(cropped_full_path).convert("RGB")
-            resized_pil_image = resize_and_pillarbox(to_resize, 1080, 1350, background=resize)
-            if f"{image_path_api.suffix}".lower() == ".png":
-                # https://pillow.readthedocs.io/en/stable/handbook/image-file-formats.html
-                resized_pil_image.save(fname, optimize=True, compress_level=9)
-            elif f"{image_path_api.suffix}".lower() == (".jpg" or ".jpeg"):
-                resized_pil_image.save(fname, quality="web_medium")
-
-        resized_image_file_paths.append(cropped_full_path)
-
-    return resized_image_file_paths
 
 
 def handle_resize_one(
