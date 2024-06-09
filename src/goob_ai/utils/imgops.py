@@ -1145,6 +1145,15 @@ def bgra_to_rgba(image: torch.Tensor) -> torch.Tensor:
 
 
 def rgba_to_bgra(image: torch.Tensor) -> torch.Tensor:
+    """
+    Convert a RGBA image to BGRA.
+
+    Args:
+        image (torch.Tensor): The input image tensor in RGBA format.
+
+    Returns:
+        torch.Tensor: The output image tensor in BGRA format.
+    """
     # same operation as bgra_to_rgba(), flip image channels
     return bgra_to_rgba(image)
 
