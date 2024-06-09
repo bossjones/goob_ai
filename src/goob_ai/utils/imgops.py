@@ -571,13 +571,13 @@ def handle_autocrop(
 
 def handle_autocrop_one(
     images_filepath: str,
-    cols=5,
-    model=None,
+    cols: int = 5,
+    model: Optional[torch.nn.Module] = None,
     device: torch.device = DEVICE,
-    args=None,
-    resize=False,
-    predict_results=None,
-):
+    args: Optional[dict] = None,
+    resize: bool = False,
+    predict_results: Optional[Tuple[Image.Image, List[Tuple[int, int, int, int]]]] = None,
+) -> str:
     # cropped_image_file_paths = []
     # for i, image_filepath in enumerate(images_filepaths):
 
