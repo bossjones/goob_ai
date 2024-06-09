@@ -875,6 +875,14 @@ def get_pil_image_channels(image_path: str) -> int:
     """Open an image and get the number of channels it has.
 
     Args:
+        image_path (str): The path to the image file.
+
+    Returns:
+        int: The number of channels in the image.
+    """
+    """Open an image and get the number of channels it has.
+
+    Args:
         image_path (str): _description_
 
     Returns:
