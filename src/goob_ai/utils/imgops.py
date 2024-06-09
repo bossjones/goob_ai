@@ -1132,6 +1132,19 @@ def rgb2hex(r: int, g: int, b: int) -> str:
 
 
 def handle_get_dominant_color(urls: List[str], return_type: str = "name") -> str:
+    """Get the dominant color from the corners of images.
+
+    This function retrieves the colors of the four corners of images from the provided URLs.
+    It then determines the dominant color based on the corner colors and returns it either as a color name or hex value.
+
+    Args:
+        urls (List[str]): A list of URLs pointing to the image files.
+        return_type (str, optional): The format to return the dominant color. 
+            Can be "name" for color name or "hex" for hex value. Defaults to "name".
+
+    Returns:
+        str: The dominant color in the specified format (name or hex).
+    """
     start_time = time.time()
     corner_pixels = get_all_corners_color(urls)
 
