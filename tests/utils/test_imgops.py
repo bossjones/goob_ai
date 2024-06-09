@@ -102,7 +102,32 @@ def test_convert_image_from_hwc_to_chw(test_image):
 
     # Check if the shape is correctly converted to CHW
     assert chw_image_tensor.shape == (test_image_hwc.shape[2], test_image_hwc.shape[0], test_image_hwc.shape[1])
-async def test_bgra_to_rgba_async(async_test_image, mocker):
+def test_convert_pil_image_to_rgb_channels(test_image, mocker):
+    """Test convert_pil_image_to_rgb_channels function."""
+    from goob_ai.utils.imgops import convert_pil_image_to_rgb_channels
+
+    # Mock the get_pil_image_channels function to return 4 channels
+    mocker.patch("goob_ai.utils.imgops.get_pil_image_channels", return_value=4)
+
+    # Apply convert_pil_image_to_rgb_channels
+    converted_image = convert_pil_image_to_rgb_channels("tests/fixtures/screenshot_image_larger00013.PNG")
+
+    # Check if the image is converted to RGB
+    assert converted_image.mode == "RGB"
+
+@pytest.mark.asyncio
+async def test_convert_pil_image_to_rgb_channels_async(async_test_image, mocker):
+    """Test convert_pil_image_to_rgb_channels function (async)."""
+    from goob_ai.utils.imgops import convert_pil_image_to_rgb_channels
+
+    # Mock the get_pil_image_channels function to return 4 channels
+    mocker.patch("goob_ai.utils.imgops.get_pil_image_channels", return_value=4)
+
+    # Apply convert_pil_image_to_rgb_channels
+    converted_image = convert_pil_image_to_rgb_channels("tests/fixtures/screenshot_image_larger00013.PNG")
+
+    # Check if the image is converted to RGB
+    assert converted_image.mode == "RGB"
     """Test bgra_to_rgba function (async)."""
     # Convert the test image to a tensor with an alpha channel
     test_image_tensor = torch.from_numpy(np.dstack((async_test_image, np.full(async_test_image.shape[:2], 255)))).permute(2, 0, 1).float() / 255.0  # HWC to CHW and normalize
