@@ -730,23 +730,26 @@ class AsyncGoobBot(commands.Bot):
         self.channel_list = [int(x) for x in CHANNEL_ID.split(",")]
 
     async def setup_hook(self) -> None:
-        self.session = aiohttp.ClientSession()
-        # guild_id: list
-        # self.prefixes: Config[list[str]] = Config('prefixes.json')
-        self.prefixes: list[str] = [aiosettings.prefix]
+        """
+        Asynchronous setup hook for initializing the bot.
 
-        # guild_id and user_id mapped to True
-        # these are users and guilds globally blacklisted
-        # from using the bot
-        # self.blacklist: Config[bool] = Config('blacklist.json')
+        This method is called to perform asynchronous setup tasks for the bot.
+        It initializes the aiohttp session, sets up guild prefixes, retrieves
+        bot application information, and loads extensions.
+
+        It also sets the intents for members and message content to True.
+
+        Raises:
+            Exception: If an extension fails to load, an exception is raised with
+                       detailed error information.
+        """
+        self.session = aiohttp.ClientSession()
+        self.prefixes: list[str] = [aiosettings.prefix]
 
         self.version = goob_ai.__version__
         self.guild_data: Dict[Any, Any] = {}
         self.intents.members = True
         self.intents.message_content = True
-
-        # if aiosettings.enable_redis:
-        #     self.db = db.init_worker_redis()
 
         self.bot_app_info: discord.AppInfo = await self.application_info()
         self.owner_id: int = self.bot_app_info.owner.id  # pyright: ignore[reportAttributeAccessIssue]
