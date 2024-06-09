@@ -762,7 +762,7 @@ def pred_and_store(
     paths: List[pathlib.Path],
     model: torch.nn.Module,
     device: torch.device = DEVICE,
-) -> List[Dict]:
+) -> List[Dict[str, Any]]:
     # 3. Loop through target paths
     for path in tqdm(paths):
         # 4. Create empty dictionary to store prediction information for each sample
