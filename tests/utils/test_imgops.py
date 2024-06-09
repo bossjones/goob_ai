@@ -197,7 +197,19 @@ def test_resize_and_pillarbox(mocker, test_image_path, background_color, expecte
     assert resized_image.getpixel((0, 0)) == expected_color
 
 @pytest.mark.asyncio
-async def test_predict_from_file(mocker):
+async def test_setup_model(mocker):
+    """Test setup_model function."""
+    from goob_ai.utils.imgops import setup_model, load_model
+
+    # Mock the load_model function
+    mock_load_model = mocker.patch("goob_ai.utils.imgops.load_model", return_value=mocker.Mock())
+
+    # Call the setup_model function
+    model = setup_model()
+
+    # Assertions
+    mock_load_model.assert_called_once_with(mocker.ANY, model_name="ScreenNetV1.pth")
+    assert isinstance(model, mocker.Mock)
     """Test predict_from_file function."""
     image_path = "tests/fixtures/screenshot_image_larger00013.PNG"
     
