@@ -351,14 +351,18 @@ def filter_empty_string(a_list: List[str]) -> List[str]:
 
 # SOURCE: https://docs.python.org/3/library/asyncio-queue.html
 async def worker(name: str, queue: asyncio.Queue) -> NoReturn:
-    """_summary_
+    """Process tasks from the queue.
+
+    This asynchronous function continuously processes tasks from the provided queue.
+    Each task is executed using the COMMAND_RUNNER dictionary, and the function
+    notifies the queue when a task is completed.
 
     Args:
-        name (str): _description_
-        queue (asyncio.Queue): _description_
+        name (str): The name of the worker.
+        queue (asyncio.Queue): The queue from which tasks are retrieved.
 
     Returns:
-        NoReturn: _description_
+        NoReturn: This function runs indefinitely and does not return.
     """
     LOGGER.info(f"starting working ... {name}")
 
