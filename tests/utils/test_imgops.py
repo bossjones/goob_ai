@@ -75,6 +75,41 @@ def test_bgr_to_rgb(test_image):
     assert np.array_equal(rgb_image[:, :, 2], test_image[:, :, 0])  # B channel
 
 
+def test_bgra_to_rgba(test_image):
+    """Test bgra_to_rgba function."""
+    # Convert the test image to a tensor with an alpha channel
+    test_image_tensor = torch.from_numpy(np.dstack((test_image, np.full(test_image.shape[:2], 255)))).permute(2, 0, 1).float() / 255.0  # HWC to CHW and normalize
+
+    # Apply bgra_to_rgba
+    rgba_image_tensor = bgra_to_rgba(test_image_tensor)
+
+    # Convert back to numpy for comparison
+    rgba_image = rgba_image_tensor.permute(1, 2, 0).numpy() * 255.0  # CHW to HWC and denormalize
+
+    # Check if the channels are correctly swapped
+    assert np.array_equal(rgba_image[:, :, 0], test_image[:, :, 2])  # R channel
+    assert np.array_equal(rgba_image[:, :, 1], test_image[:, :, 1])  # G channel
+    assert np.array_equal(rgba_image[:, :, 2], test_image[:, :, 0])  # B channel
+    assert np.array_equal(rgba_image[:, :, 3], np.full(test_image.shape[:2], 255))  # A channel
+
+@pytest.mark.asyncio
+async def test_bgra_to_rgba_async(async_test_image):
+    """Test bgra_to_rgba function (async)."""
+    # Convert the test image to a tensor with an alpha channel
+    test_image_tensor = torch.from_numpy(np.dstack((async_test_image, np.full(async_test_image.shape[:2], 255)))).permute(2, 0, 1).float() / 255.0  # HWC to CHW and normalize
+
+    # Apply bgra_to_rgba
+    rgba_image_tensor = bgra_to_rgba(test_image_tensor)
+
+    # Convert back to numpy for comparison
+    rgba_image = rgba_image_tensor.permute(1, 2, 0).numpy() * 255.0  # CHW to HWC and denormalize
+
+    # Check if the channels are correctly swapped
+    assert np.array_equal(rgba_image[:, :, 0], async_test_image[:, :, 2])  # R channel
+    assert np.array_equal(rgba_image[:, :, 1], async_test_image[:, :, 1])  # G channel
+    assert np.array_equal(rgba_image[:, :, 2], async_test_image[:, :, 0])  # B channel
+    assert np.array_equal(rgba_image[:, :, 3], np.full(async_test_image.shape[:2], 255))  # A channel
+
 @pytest.mark.asyncio
 async def test_bgr_to_rgb_async(async_test_image):
     """Test bgr_to_rgb function (async)."""
