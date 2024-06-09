@@ -452,6 +452,8 @@ def test_resize_image_and_bbox(mocker, test_image, return_percent_coords):
 
     assert resized_image_path == test_image_path
 
+@pytest.mark.asyncio
+async def test_handle_predict_one(mocker):
     """Test handle_predict_one function."""
     image_path = "tests/fixtures/screenshot_image_larger00013.PNG"
     mocker.patch("goob_ai.utils.imgops.Image.open", return_value=Image.open(image_path))
