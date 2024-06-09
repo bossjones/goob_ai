@@ -58,8 +58,40 @@ def test_auto_split_upscale_max_depth(test_image, mocker):
         auto_split_upscale(test_image, dummy_upscale_function, scale, overlap, max_depth=max_depth)
 
 
+def test_bgr_to_rgb(test_image):
+    """Test bgr_to_rgb function."""
+    # Convert the test image to a tensor
+    test_image_tensor = torch.from_numpy(test_image).permute(2, 0, 1).float() / 255.0  # HWC to CHW and normalize
+
+    # Apply bgr_to_rgb
+    rgb_image_tensor = bgr_to_rgb(test_image_tensor)
+
+    # Convert back to numpy for comparison
+    rgb_image = rgb_image_tensor.permute(1, 2, 0).numpy() * 255.0  # CHW to HWC and denormalize
+
+    # Check if the channels are correctly swapped
+    assert np.array_equal(rgb_image[:, :, 0], test_image[:, :, 2])  # R channel
+    assert np.array_equal(rgb_image[:, :, 1], test_image[:, :, 1])  # G channel
+    assert np.array_equal(rgb_image[:, :, 2], test_image[:, :, 0])  # B channel
+
+
 @pytest.mark.asyncio
-async def test_auto_split_upscale_with_split_async(async_test_image, mocker):
+async def test_bgr_to_rgb_async(async_test_image):
+    """Test bgr_to_rgb function (async)."""
+    # Convert the test image to a tensor
+    test_image_tensor = torch.from_numpy(async_test_image).permute(2, 0, 1).float() / 255.0  # HWC to CHW and normalize
+
+    # Apply bgr_to_rgb
+    rgb_image_tensor = bgr_to_rgb(test_image_tensor)
+
+    # Convert back to numpy for comparison
+    rgb_image = rgb_image_tensor.permute(1, 2, 0).numpy() * 255.0  # CHW to HWC and denormalize
+
+    # Check if the channels are correctly swapped
+    assert np.array_equal(rgb_image[:, :, 0], async_test_image[:, :, 2])  # R channel
+    assert np.array_equal(rgb_image[:, :, 1], async_test_image[:, :, 1])  # G channel
+    assert np.array_equal(rgb_image[:, :, 2], async_test_image[:, :, 0])  # B channel
+
     """Test auto_split_upscale with splitting the image (async)."""
     scale = 2
     overlap = 32
