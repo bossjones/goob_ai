@@ -376,6 +376,53 @@ async def test_np2tensor(mocker):
     assert isinstance(tensor_image, torch.Tensor)
     assert tensor_image.min() >= 0.0
     assert tensor_image.max() <= 1.0
+
+@pytest.mark.asyncio
+async def test_tensor2np(mocker):
+    """Test tensor2np function."""
+    from goob_ai.utils.imgops import tensor2np
+
+    # Load the test image
+    image_path = "tests/fixtures/screenshot_image_larger00013.PNG"
+    test_image = np.array(Image.open(image_path))
+
+    # Convert the test image to a tensor
+    test_image_tensor = torch.from_numpy(test_image).permute(2, 0, 1).float() / 255.0  # HWC to CHW and normalize
+
+    # Test with default parameters
+    numpy_image = await tensor2np(test_image_tensor)
+    assert isinstance(numpy_image, np.ndarray)
+    assert numpy_image.shape == (test_image.shape[0], test_image.shape[1], test_image.shape[2])
+
+    # Test with rgb2bgr=False
+    numpy_image = await tensor2np(test_image_tensor, rgb2bgr=False)
+    assert isinstance(numpy_image, np.ndarray)
+    assert numpy_image.shape == (test_image.shape[0], test_image.shape[1], test_image.shape[2])
+
+    # Test with remove_batch=False
+    test_image_tensor = test_image_tensor.unsqueeze(0)  # Add batch dimension
+    numpy_image = await tensor2np(test_image_tensor, remove_batch=False)
+    assert isinstance(numpy_image, np.ndarray)
+    assert numpy_image.shape == (test_image_tensor.shape[1], test_image_tensor.shape[2], test_image_tensor.shape[3])
+
+    # Test with denormalize=True
+    test_image_tensor = (test_image_tensor - 0.5) * 2.0  # Normalize to [-1, 1]
+    numpy_image = await tensor2np(test_image_tensor, denormalize=True)
+    assert isinstance(numpy_image, np.ndarray)
+    assert numpy_image.min() >= 0.0
+    assert numpy_image.max() <= 255.0
+
+    # Test with change_range=False
+    numpy_image = await tensor2np(test_image_tensor, change_range=False)
+    assert isinstance(numpy_image, np.ndarray)
+    assert numpy_image.min() >= -1.0
+    assert numpy_image.max() <= 1.0
+
+    # Test with data_range=1.0
+    numpy_image = await tensor2np(test_image_tensor, data_range=1.0)
+    assert isinstance(numpy_image, np.ndarray)
+    assert numpy_image.min() >= 0.0
+    assert numpy_image.max() <= 1.0
     """Test handle_resize_one function."""
     from goob_ai.utils.imgops import handle_resize_one
 
