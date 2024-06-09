@@ -1069,15 +1069,20 @@ def predict_from_file(
     model: torch.nn.Module,
     device: torch.device = DEVICE,
 ) -> Tuple[Image.Image, List[Tuple[int, int, int, int]]]:
-    """wrapper function to perform predictions on individual files
+    """
+    Perform predictions on an individual image file.
+
+    This function takes the path to an image file, loads the image, and uses the provided model
+    to predict bounding boxes for objects in the image. The function returns the image and the
+    predicted bounding boxes.
 
     Args:
-        path_to_image_from_cli (str): eg.  "/Users/malcolm/Downloads/2020-11-25_10-47-32_867.jpeg
-        model (torch.nn.Module): _description_
-        transform (torchvision.transforms): _description_
-        class_names (List[str]): _description_
-        device (torch.device): _description_
-        args (argparse.Namespace): _description_
+        path_to_image_from_cli (str): The file path to the image for prediction.
+        model (torch.nn.Module): The model used for prediction.
+        device (torch.device, optional): The device to run the model on. Defaults to DEVICE.
+
+    Returns:
+        Tuple[Image.Image, List[Tuple[int, int, int, int]]]: A tuple containing the image and a list of bounding boxes.
     """
     # ic(f"Predict | individual file {path_to_image_from_cli} ...")
     LOGGER.info(f"Predict | individual file {path_to_image_from_cli} ...")
