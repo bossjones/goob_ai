@@ -293,6 +293,15 @@ async def data_uri_to_file(data_uri: str, filename: str) -> discord.File:
 
 @async_.to_async
 def get_logger_tree_printout() -> None:
+    """Print the logger tree structure.
+
+    This function prints the logger tree structure using the `printout` function
+    from the `logging_tree` module. It is decorated with `@async_.to_async` to
+    run asynchronously.
+    """
+    printout()
+
+def get_logger_tree_printout() -> None:
     printout()
 
 
