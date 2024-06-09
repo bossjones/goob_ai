@@ -84,7 +84,7 @@ HOME_PATH = os.environ.get("HOME")
 COMMAND_RUNNER = {"dl_thumb": shell.run_coroutine_subprocess}
 
 
-def unlink_orig_file(a_filepath: str):
+def unlink_orig_file(a_filepath: str) -> str:
     """_summary_
 
     Args:
@@ -119,7 +119,7 @@ async def save_attachment(attm: discord.Attachment, basedir: str = "./") -> None
 
 
 # TODO: Remove this when we eventually upgrade to 2.0 discord.py
-def attachment_to_dict(attm: discord.Attachment):
+def attachment_to_dict(attm: discord.Attachment) -> Dict[str, Any]:
     """Converts a discord.Attachment object to a dictionary.
 
     Args:
@@ -148,7 +148,7 @@ def attachment_to_dict(attm: discord.Attachment):
     return result
 
 
-def file_to_local_data_dict(fname: str, dir_root: str):
+def file_to_local_data_dict(fname: str, dir_root: str) -> Dict[str, Any]:
     """Convert a file to a dictionary.
 
     Args:
@@ -167,7 +167,7 @@ def file_to_local_data_dict(fname: str, dir_root: str):
     }
 
 
-async def handle_save_attachment_locally(attm_data_dict, dir_root):
+async def handle_save_attachment_locally(attm_data_dict: Dict[str, Any], dir_root: str) -> str:
     """Save an attachment locally.
 
     Args:
@@ -185,7 +185,7 @@ async def handle_save_attachment_locally(attm_data_dict, dir_root):
 
 
 # SOURCE: https://github.com/CrosswaveOmega/NikkiBot/blob/75c7ecd307f50390cfc798d39098fdb78535650c/cogs/AiCog.py#L237
-async def download_image(url: str):
+async def download_image(url: str) -> BytesIO:
     """
     Summary:
     Download an image from a given URL asynchronously.
@@ -238,12 +238,12 @@ def get_logger_tree_printout() -> None:
 
 
 # SOURCE: https://realpython.com/how-to-make-a-discord-bot-python/#responding-to-messages
-def dump_logger_tree():
+def dump_logger_tree() -> None:
     rootm = generate_tree()
     LOGGER.debug(rootm)
 
 
-def dump_logger(logger_name: str):
+def dump_logger(logger_name: str) -> Any:
     LOGGER.debug(f"getting logger {logger_name}")
     rootm = generate_tree()
     return get_lm_from_tree(rootm, logger_name)
@@ -293,7 +293,7 @@ async def worker(name: str, queue: asyncio.Queue) -> NoReturn:
 
 
 # SOURCE: https://realpython.com/python-async-features/#building-a-synchronous-web-server
-async def co_task(name: str, queue: asyncio.Queue):
+async def co_task(name: str, queue: asyncio.Queue) -> AsyncIterator[None]:
     """_summary_
 
     Args:
@@ -313,7 +313,7 @@ async def co_task(name: str, queue: asyncio.Queue):
 
 
 # SOURCE: https://github.com/makupi/cookiecutter-discord.py-postgres/blob/master/%7B%7Bcookiecutter.bot_slug%7D%7D/bot/__init__.py
-async def get_prefix(_bot: AsyncGoobBot, message: discord.Message):
+async def get_prefix(_bot: AsyncGoobBot, message: discord.Message) -> Any:
     """_summary_
 
     Args:
@@ -336,7 +336,7 @@ async def get_prefix(_bot: AsyncGoobBot, message: discord.Message):
 
 
 # SOURCE: https://github.com/makupi/cookiecutter-discord.py-postgres/blob/master/%7B%7Bcookiecutter.bot_slug%7D%7D/bot/__init__.py#L28
-async def preload_guild_data():
+async def preload_guild_data() -> Dict[int, Dict[str, str]]:
     """_summary_
 
     Returns:
@@ -347,7 +347,7 @@ async def preload_guild_data():
     return {guild.id: {"prefix": guild.prefix} for guild in guilds}
 
 
-def extensions():
+def extensions() -> Iterable[str]:
     """_summary_
 
     Yields:
@@ -360,7 +360,7 @@ def extensions():
         yield file.as_posix()[:-3].replace("/", ".")
 
 
-def _prefix_callable(bot: AsyncGoobBot, msg: discord.Message):
+def _prefix_callable(bot: AsyncGoobBot, msg: discord.Message) -> List[str]:
     user_id = bot.user.id
     base = [f"<@!{user_id}> ", f"<@{user_id}> "]
     if msg.guild is None:  # pyright: ignore[reportAttributeAccessIssue]
@@ -370,7 +370,7 @@ def _prefix_callable(bot: AsyncGoobBot, msg: discord.Message):
     return base
 
 
-async def details_from_file(path_to_media_from_cli: str, cwd: typing.Union[str, None] = None):
+async def details_from_file(path_to_media_from_cli: str, cwd: typing.Union[str, None] = None) -> Tuple[str, str, str]:
     """Take a file path and return the input and output file paths and the timestamp of the input file.
 
     Args:
@@ -949,7 +949,7 @@ class AsyncGoobBot(commands.Bot):
     #     )
 
     # SOURCE: https://github.com/aronweiler/assistant/blob/a8abd34c6973c21bc248f4782f1428a810daf899/src/discord/rag_bot.py#L90
-    async def process_attachments(self, message: discord.Message):
+    async def process_attachments(self, message: discord.Message) -> None:
         """
         Summary:
         Process attachments in a Discord message by downloading and handling the attached files.
@@ -1017,7 +1017,7 @@ class AsyncGoobBot(commands.Bot):
     #     embed.timestamp = discord.utils.utcnow()
     #     return await wh.send(embed=embed)
 
-    async def check_for_attachments(self, message: discord.Message):
+    async def check_for_attachments(self, message: discord.Message) -> str:
         """
         Summary:
         Check a Discord message for attachments, extract information, and process image URLs.
@@ -1073,7 +1073,7 @@ class AsyncGoobBot(commands.Bot):
         # message_content = f"{message_content} [{message.author.display_name} posts a picture of {caption}]"
         return message_content
 
-    def get_attachments(self, message: discord.Message):
+    def get_attachments(self, message: discord.Message) -> Tuple[List[Dict[str, Any]], List[str], List[Dict[str, Any]], List[str]]:
         """
         Summary:
         Retrieve attachment data from a Discord message.
@@ -1093,7 +1093,7 @@ class AsyncGoobBot(commands.Bot):
 
         return attachment_data_list_dicts, local_attachment_file_list, local_attachment_data_list_dicts, media_filepaths
 
-    async def write_attachments_to_disk(self, message: discord.Message):
+    async def write_attachments_to_disk(self, message: discord.Message) -> None:
         ctx = await self.get_context(message)
         attachment_data_list_dicts, local_attachment_file_list, local_attachment_data_list_dicts, media_filepaths = (
             self.get_attachments(message)
@@ -1218,7 +1218,7 @@ class AsyncGoobBot(commands.Bot):
         #         thread_ts = msg.get("message").get("ts", None)
         # return f"slack_{channel_id}_{thread_ts}"
 
-    async def handle_dm_from_user(self, message: discord.Message):
+    async def handle_dm_from_user(self, message: discord.Message) -> bool:
         ctx = await self.get_context(message)
         # Process DMs
         LOGGER.info("Processing direct message")
@@ -1294,7 +1294,7 @@ class AsyncGoobBot(commands.Bot):
 
         return await super().get_context(origin, cls=cls)
 
-    async def process_commands(self, message: discord.Message):
+    async def process_commands(self, message: discord.Message) -> None:
         """
         Summary:
         Process commands based on the received Discord message.
@@ -1405,7 +1405,7 @@ class AsyncGoobBot(commands.Bot):
 
         await self.invoke(ctx)
 
-    async def handle_user_task(self, message: discord.Message):
+    async def handle_user_task(self, message: discord.Message) -> JSONResponse:
         """
         Summary:
         Handle a user task received through a Discord message.
@@ -1603,7 +1603,7 @@ class AsyncGoobBot(commands.Bot):
 
 # SOURCE: https://github.com/darren-rose/DiscordDocChatBot/blob/63a2f25d2cb8aaace6c1a0af97d48f664588e94e/main.py#L28
 # TODO: maybe enable this
-async def send_long_message(channel: Any, message: discord.Message, max_length: int = 2000):
+async def send_long_message(channel: Any, message: discord.Message, max_length: int = 2000) -> None:
     """
     Summary:
     Send a long message by splitting it into chunks and sending each chunk.
