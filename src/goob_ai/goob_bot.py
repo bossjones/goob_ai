@@ -942,18 +942,17 @@ class AsyncGoobBot(commands.Bot):
 
     # SOURCE: https://github.com/aronweiler/assistant/blob/a8abd34c6973c21bc248f4782f1428a810daf899/src/discord/rag_bot.py#L90
     async def process_attachments(self, message: discord.Message) -> None:
-        """
-        Summary:
-        Process attachments in a Discord message by downloading and handling the attached files.
+        """Process attachments in a Discord message.
 
-        Explanation:
-        This asynchronous function processes attachments in a Discord message by downloading each attached file, storing it in a temporary directory, and then loading and processing the files. It sends a message to indicate the start of processing and handles any errors that occur during the download process.
+        This asynchronous function processes attachments in a Discord message by downloading each attached file,
+        storing it in a temporary directory, and then loading and processing the files. It sends a message to indicate
+        the start of processing and handles any errors that occur during the download process.
 
         Args:
-        - message (discord.Message): The Discord message containing attachments to be processed.
+            message (discord.Message): The Discord message containing attachments to be processed.
 
         Returns:
-        - None
+            None
         """
 
         if len(message.attachments) > 0:  # pyright: ignore[reportAttributeAccessIssue]
