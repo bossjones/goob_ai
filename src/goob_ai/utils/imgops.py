@@ -909,7 +909,7 @@ def convert_pil_image_to_rgb_channels(image_path: str) -> Image:
     return Image.open(image_path).convert("RGB") if get_pil_image_channels(image_path) != 4 else Image.open(image_path)
 
 
-def read_image_to_bgr(image_path: str):
+def read_image_to_bgr(image_path: str) -> Tuple[np.ndarray, int, int, int]:
     """Read the image from image id.
 
     returns ImageNdarrayBGR.
