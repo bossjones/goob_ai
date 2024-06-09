@@ -916,7 +916,8 @@ class AsyncGoobBot(commands.Bot):
         await self.blacklist.put(object_id, True)
 
     async def remove_from_blacklist(self, object_id: int) -> None:
-        """Remove an object ID from the blacklist.
+        """
+        Remove an object ID from the blacklist.
 
         This asynchronous function removes the specified object ID from the blacklist.
         If the object ID is not found in the blacklist, it handles the KeyError exception.
