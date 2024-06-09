@@ -233,6 +233,29 @@ async def test_handle_autocrop_one(mocker):
     assert cropped_image_path == image_path
 
 
+@pytest.mark.asyncio
+async def test_handle_autocrop_one(mocker):
+    """Test handle_autocrop_one function."""
+    image_path = "tests/fixtures/screenshot_image_larger00013.PNG"
+    mocker.patch("goob_ai.utils.imgops.Image.open", return_value=Image.open(image_path))
+    mocker.patch("goob_ai.utils.imgops.cv2.cvtColor", return_value=np.array(Image.open(image_path)))
+    mocker.patch("goob_ai.utils.imgops.cv2.imwrite", return_value=True)
+    mocker.patch("goob_ai.utils.imgops.file_functions.fix_path", return_value=image_path)
+
+    mock_model = mocker.Mock()
+    mock_model.name = "mock_model"
+
+    predict_results = (Image.open(image_path), [(0, 0, 100, 100)])
+
+    cropped_image_path = await handle_autocrop_one(
+        images_filepath=image_path,
+        model=mock_model,
+        predict_results=predict_results
+    )
+
+    assert cropped_image_path == image_path
+
+
 @pytest.mark.parametrize("input_tensor, min_max, expected_output", [
     (torch.tensor([-1.0, 0.0, 1.0]), (-1.0, 1.0), torch.tensor([0.0, 0.5, 1.0])),
     (torch.tensor([0.0, 0.5, 1.0]), (0.0, 1.0), torch.tensor([0.0, 0.5, 1.0])),
