@@ -116,6 +116,12 @@ def path_for(attm: discord.Attachment, basedir: str = "./") -> pathlib.Path:
 
     Returns:
         pathlib.Path: A pathlib.Path object representing the path for the attachment file.
+
+    Example:
+        >>> attm = discord.Attachment(filename="example.png")
+        >>> path = path_for(attm, basedir="/attachments")
+        >>> print(path)
+        /attachments/example.png
     """
     p = pathlib.Path(basedir, str(attm.filename))  # pyright: ignore[reportAttributeAccessIssue]
     LOGGER.debug(f"path_for: p -> {p}")
