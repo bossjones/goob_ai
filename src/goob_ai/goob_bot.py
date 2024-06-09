@@ -1208,6 +1208,24 @@ class AsyncGoobBot(commands.Bot):
         # return f"slack_{channel_id}_{thread_ts}"
 
     async def handle_dm_from_user(self, message: discord.Message) -> bool:
+        """
+        Handle a direct message (DM) from a user.
+
+        This asynchronous function processes a direct message (DM) received from a user.
+        It prepares the surface information, constructs the agent input, and processes
+        the user task using the AI agent. The function sends a temporary message to the
+        user indicating that the request is being processed and then sends the agent's
+        response in multiple messages if necessary.
+
+        Args:
+            message (discord.Message): The Discord message object representing the direct message.
+
+        Returns:
+            bool: True if the message was successfully processed, False otherwise.
+
+        Example:
+            >>> await bot.handle_dm_from_user(message)
+        """
         ctx = await self.get_context(message)
         # Process DMs
         LOGGER.info("Processing direct message")
