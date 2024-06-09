@@ -170,38 +170,23 @@ def mock_model(mocker):
     model.name = "mock_model"
     return model
 
-@pytest.mark.parametrize("input_tensor, expected_output", [
-    (torch.tensor([0.0, 0.5, 1.0]), torch.tensor([-1.0, 0.0, 1.0])),
-    (torch.tensor([0.0, 0.25, 0.5, 0.75, 1.0]), torch.tensor([-1.0, -0.5, 0.0, 0.5, 1.0])),
-    (torch.tensor([0.0, 1.0]), torch.tensor([-1.0, 1.0])),
-    (np.array([0.0, 0.5, 1.0]), np.array([-1.0, 0.0, 1.0])),
-    (np.array([0.0, 0.25, 0.5, 0.75, 1.0]), np.array([-1.0, -0.5, 0.0, 0.5, 1.0])),
-    (np.array([0.0, 1.0]), np.array([-1.0, 1.0])),
-])
-def test_norm(input_tensor, expected_output):
-    """Test norm function with different input ranges."""
-    from goob_ai.utils.imgops import norm
-
-    output = norm(input_tensor)
-    if isinstance(input_tensor, torch.Tensor):
-        assert torch.allclose(output, expected_output), f"Expected {expected_output}, but got {output}"
-    elif isinstance(input_tensor, np.ndarray):
-        assert np.allclose(output, expected_output), f"Expected {expected_output}, but got {output}"
+@pytest.mark.asyncio
+async def test_handle_resize_one(mocker, test_image_path, mock_model):
+    """Test handle_resize_one function."""
+    from goob_ai.utils.imgops import handle_resize_one
 
     mocker.patch("goob_ai.utils.imgops.Image.open", return_value=Image.open(test_image_path))
     mocker.patch("goob_ai.utils.imgops.cv2.cvtColor", return_value=np.array(Image.open(test_image_path)))
     mocker.patch("goob_ai.utils.imgops.cv2.imwrite", return_value=True)
     mocker.patch("goob_ai.utils.imgops.file_functions.fix_path", return_value=test_image_path)
 
-    images_filepaths = [test_image_path]
-    resized_image_paths = handle_resize(
-        images_filepaths=images_filepaths,
+    resized_image_path = handle_resize_one(
+        images_filepath=test_image_path,
         model=mock_model,
         resize=True
     )
 
-    assert len(resized_image_paths) == 1
-    assert resized_image_paths[0] == test_image_path
+    assert resized_image_path == test_image_path
 
 @pytest.mark.parametrize("input_tensor, expected_output", [
     (torch.tensor([0.0, 0.5, 1.0]), torch.tensor([-1.0, 0.0, 1.0])),
