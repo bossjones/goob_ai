@@ -317,6 +317,18 @@ def dump_logger_tree() -> None:
 
 
 def dump_logger(logger_name: str) -> Any:
+    """Dump the logger tree structure for a specific logger.
+
+    This function generates the logger tree structure using the `generate_tree` function
+    and retrieves the logger metadata for the specified logger name using the `get_lm_from_tree` function.
+    It logs the retrieval process using the `LOGGER.debug` method.
+
+    Args:
+        logger_name (str): The name of the logger to retrieve the tree structure for.
+
+    Returns:
+        Any: The logger metadata for the specified logger name.
+    """
     LOGGER.debug(f"getting logger {logger_name}")
     rootm = generate_tree()
     return get_lm_from_tree(rootm, logger_name)
