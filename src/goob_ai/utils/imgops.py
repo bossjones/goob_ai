@@ -1004,16 +1004,18 @@ def predict_from_file(
 
 
 def get_pixel_rgb(image_pil: Image) -> str:
-    """Get first pixel in image and return a humanreadable name of what color is represented
+    """Get the color of the first pixel in an image.
+
+    This function retrieves the RGB values of the first pixel (at position (1, 1)) in the provided PIL image.
+    It then determines if the color is white or dark mode based on the RGB values.
 
     Args:
-        image_pil (Image): _description_
+        image_pil (Image): The input image in PIL format.
 
     Returns:
-        _type_: _description_
+        str: A string indicating the color of the first pixel, either "white" or "darkmode".
     """
     r, g, b = image_pil.getpixel((1, 1))  # pyright: ignore[reportAttributeAccessIssue]
-    # ic(r,g,b)
 
     color = "white" if (r, g, b) == (255, 255, 255) else "darkmode"
     print(f"GOT COLOR {color} -- {r},{g},{b}")
