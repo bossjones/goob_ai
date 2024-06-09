@@ -14,6 +14,10 @@ import torch
 from goob_ai.utils.imgops import convert_tensor_to_pil_image
 
 import pytest
+import pytest_asyncio
+from PIL import Image
+from pathlib import Path
+from goob_ai.utils.imgops import get_all_corners_color
 import torch
 from goob_ai.utils.imgops import denorm
 
@@ -153,6 +157,21 @@ def test_convert_pil_image_to_torch_tensor(test_image):
     # Check if the tensor values are in the correct range [0, 1]
     assert tensor_image.min() >= 0.0
     assert tensor_image.max() <= 1.0
+
+
+@pytest.mark.asyncio
+async def test_get_all_corners_color(mocker):
+    """Test get_all_corners_color function."""
+    image_path = "tests/fixtures/screenshot_image_larger00013.PNG"
+    mocker.patch("goob_ai.utils.imgops.Image.open", return_value=Image.open(image_path))
+
+    urls = [image_path]
+    corner_colors = get_all_corners_color(urls)
+
+    assert corner_colors["top_left"] == (255, 255, 255)
+    assert corner_colors["top_right"] == (255, 255, 255)
+    assert corner_colors["bottom_left"] == (255, 255, 255)
+    assert corner_colors["bottom_right"] == (255, 255, 255)
 
 
 @pytest.mark.parametrize("input_tensor, min_max, expected_output", [
