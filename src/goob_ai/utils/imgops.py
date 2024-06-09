@@ -1170,12 +1170,20 @@ def rgba_to_bgra(image: torch.Tensor) -> torch.Tensor:
 
 
 def denorm(x: torch.Tensor | np.ndarray, min_max: tuple[float, float] = (-1.0, 1.0)) -> torch.Tensor | np.ndarray:
-    """
-    Denormalize from [-1,1] range to [0,1]
-    formula: xi' = (xi - mu)/sigma
-    Example: "out = (x + 1.0) / 2.0" for denorm
-        range (-1,1) to (0,1)
-    for use with proper act in Generator output (ie. tanh)
+    """Denormalize a tensor or numpy array from a specified range to [0, 1].
+
+    This function converts values from a given range (default is [-1, 1]) to the range [0, 1].
+    It is useful for reversing normalization applied during preprocessing.
+
+    Args:
+        x (torch.Tensor | np.ndarray): The input tensor or numpy array to be denormalized.
+        min_max (tuple[float, float], optional): The range of the input values. Defaults to (-1.0, 1.0).
+
+    Returns:
+        torch.Tensor | np.ndarray: The denormalized tensor or numpy array.
+
+    Raises:
+        TypeError: If the input is not a torch.Tensor or np.ndarray.
     """
     out = (x - min_max[0]) / (min_max[1] - min_max[0])
     if isinstance(x, torch.Tensor):
