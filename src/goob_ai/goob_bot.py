@@ -1144,42 +1144,29 @@ class AsyncGoobBot(commands.Bot):
             rich.print(file_to_upload_list)
 
     def prepare_agent_input(self, message: discord.Message, user_real_name: str, surface_info: Dict) -> Dict[str, Any]:
-        """
-        Prepares the agent input from the incoming Slack event.
-        params:
-        - event: the incoming Slack event
-        - user_real_name: the real name of the user who sent the event
-        - surface_info: the surface information
-        returns:
-        - Dict[str, Any]: the input we want to send to the agent
+        """Prepare the agent input from the incoming Discord message.
+
+        This function constructs the input dictionary to be sent to the agent based on the
+        provided Discord message, user's real name, and surface information. It includes
+        the message content, user name, and any attachments if present.
+
+        Args:
+            message (discord.Message): The Discord message containing the user input.
+            user_real_name (str): The real name of the user who sent the message.
+            surface_info (Dict): The surface information related to the message.
+
+        Returns:
+            Dict[str, Any]: The input dictionary to be sent to the agent.
         """
         agent_input = {"user name": user_real_name, "message": message.content}  # pyright: ignore[reportAttributeAccessIssue]
 
-        # TODO: ENABLE ATTACHMENT HANDLING
-        # if message.attachments:
-        # if "files" in event:
         if len(message.attachments) > 0:  # pyright: ignore[reportAttributeAccessIssue]
-            # attachment_data_list_dicts, local_attachment_file_list, local_attachment_data_list_dicts, media_filepaths = self.get_attachments(message)
             for attachment in message.attachments:  # pyright: ignore[reportAttributeAccessIssue]
-                # import bpdb
-                # bpdb.set_trace()
                 print(f"attachment -> {attachment}")  # pyright: ignore[reportAttributeAccessIssue]
                 agent_input["file_name"] = attachment.filename  # pyright: ignore[reportAttributeAccessIssue]
-                # Handle images
                 if attachment.content_type.startswith("image/"):
                     agent_input["image_url"] = attachment.url  # pyright: ignore[reportAttributeAccessIssue]
-                # Handle text-based files, PDFs, and .txt files identified either by MIME type or name pattern
-                # .txt files sometimes show up as application/octet-stream MIME type
-                # elif (
-                #     file_info["mimetype"].startswith("text/")
-                #     or file_info["mimetype"] == "application/pdf"
-                #     or file_info["mimetype"]
-                #     == "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-                #     or (file_info["mimetype"] == "application/octet-stream" and file_info["name"].endswith(".txt"))
-                # ):
-                #     agent_input["file_url"] = file_info["url_private"]
 
-        # Add surface information to the agent input
         agent_input["surface_info"] = surface_info
 
         return agent_input
