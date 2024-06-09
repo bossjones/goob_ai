@@ -45,7 +45,7 @@ def test_auto_split_upscale_with_split(test_image, mocker):
     assert depth > 1
 
 
-def test_auto_split_upscale_max_depth(test_image, pytest_mocker):
+def test_auto_split_upscale_max_depth(test_image, mocker):
     """Test auto_split_upscale with a maximum recursion depth."""
     scale = 2
     overlap = 32
@@ -147,7 +147,7 @@ async def test_auto_split_upscale_max_depth_async(async_test_image, mocker):
     max_depth = 2
 
     # Mock the dummy upscale function to raise an error to force splitting
-    pytest_mocker.patch("src.goob_ai.utils.imgops.dummy_upscale_function", side_effect=RuntimeError("Out of memory"))
+    mocker.patch("src.goob_ai.utils.imgops.dummy_upscale_function", side_effect=RuntimeError("Out of memory"))
 
     with pytest.raises(RecursionError):
         auto_split_upscale(async_test_image, dummy_upscale_function, scale, overlap, max_depth=max_depth)
