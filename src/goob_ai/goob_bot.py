@@ -243,24 +243,24 @@ async def handle_save_attachment_locally(attm_data_dict: Dict[str, Any], dir_roo
 
 # SOURCE: https://github.com/CrosswaveOmega/NikkiBot/blob/75c7ecd307f50390cfc798d39098fdb78535650c/cogs/AiCog.py#L237
 async def download_image(url: str) -> BytesIO:
-        """
-        Download an image from a given URL asynchronously.
+    """
+    Download an image from a given URL asynchronously.
 
-        This asynchronous function uses aiohttp to make a GET request to the provided URL 
-        and downloads the image data. If the response status is 200 (OK), it reads the 
-        response data and returns it as a BytesIO object.
+    This asynchronous function uses aiohttp to make a GET request to the provided URL
+    and downloads the image data. If the response status is 200 (OK), it reads the
+    response data and returns it as a BytesIO object.
 
-        Args:
-            url (str): The URL of the image to download.
+    Args:
+        url (str): The URL of the image to download.
 
-        Returns:
-            BytesIO: A BytesIO object containing the downloaded image data.
-        """
-        async with aiohttp.ClientSession() as session:
-            async with session.get(url) as response:
-                if response.status == 200:
-                    data = await response.read()
-                    return io.BytesIO(data)
+    Returns:
+        BytesIO: A BytesIO object containing the downloaded image data.
+    """
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url) as response:
+            if response.status == 200:
+                data = await response.read()
+                return io.BytesIO(data)
 
 
 # SOURCE: https://github.com/CrosswaveOmega/NikkiBot/blob/7092ae6da21c86c7686549edd5c45335255b73ec/cogs/GlobalCog.py#L23
@@ -316,9 +316,6 @@ def get_logger_tree_printout() -> None:
     from the `logging_tree` module. It is decorated with `@async_.to_async` to
     run asynchronously.
     """
-    printout()
-
-def get_logger_tree_printout() -> None:
     printout()
 
 
@@ -540,93 +537,6 @@ async def details_from_file(path_to_media_from_cli: str, cwd: typing.Union[str, 
         )
 
     return full_path_input_file, full_path_output_file, get_timestamp
-
-
-# def unlink_orig_file(a_filepath: str):
-#     """_summary_
-
-#     Args:
-#         a_filepath (str): _description_
-
-#     Returns:
-#         _type_: _description_
-#     """
-#     # for orig_to_rm in media_filepaths:
-#     rich.print(f"deleting ... {a_filepath}")
-#     os.unlink(f"{a_filepath}")
-#     return a_filepath
-
-
-# # https://github.com/discord-math/bot/blob/babb41b71a68b4b099684b3e1ed583f84083f971/plugins/log.py#L63
-# def path_for(attm: discord.Attachment, basedir: str = "./") -> pathlib.Path:
-#     """
-#     Summary:
-#     Generate a pathlib.Path object for an attachment with a specified base directory.
-
-#     Explanation:
-#     This function constructs a pathlib.Path object for a given attachment 'attm' using the specified base directory 'basedir'. It logs the generated path for debugging purposes and returns the pathlib.Path object.
-
-#     Args:
-#     - attm (discord.Attachment): The attachment for which the path is generated.
-#     - basedir (str): The base directory path where the attachment file will be located. Default is the current directory.
-
-#     Returns:
-#     - pathlib.Path: A pathlib.Path object representing the path for the attachment file.
-#     """
-#     p = pathlib.Path(basedir, str(attm.filename))  # pyright: ignore[reportAttributeAccessIssue]
-#     LOGGER.debug(f"path_for: p -> {p}")
-#     return p
-
-
-# # SOURCE: https://github.com/discord-math/bot/blob/babb41b71a68b4b099684b3e1ed583f84083f971/plugins/log.py#L63
-# async def save_attachment(attm: discord.Attachment, basedir: str = "./") -> None:
-#     """
-#     Summary:
-#     Save a Discord attachment to a specified directory.
-
-#     Explanation:
-#     This asynchronous function saves a Discord attachment 'attm' to the specified base directory 'basedir'. It constructs the path for the attachment, creates the necessary directories, and saves the attachment to the generated path. If an HTTPException occurs during saving, it retries the save operation.
-#     """
-
-#     path = path_for(attm, basedir=basedir)
-#     LOGGER.debug(f"save_attachment: path -> {path}")
-#     path.parent.mkdir(parents=True, exist_ok=True)
-#     try:
-#         ret_code = await attm.save(path, use_cached=True)
-#         await asyncio.sleep(5)
-#     except discord.HTTPException:
-#         await attm.save(path)
-
-
-# # TODO: Remove this when we eventually upgrade to 2.0 discord.py
-# def attachment_to_dict(attm: discord.Attachment):
-#     """Converts a discord.Attachment object to a dictionary.
-
-#     Args:
-#         attm (discord.Attachment): _description_
-
-#     Returns:
-#         _type_: _description_
-#     """
-#     result = {
-#         "filename": attm.filename,  # pyright: ignore[reportAttributeAccessIssue]
-#         "id": attm.id,
-#         "proxy_url": attm.proxy_url,  # pyright: ignore[reportAttributeAccessIssue]
-#         "size": attm.size,  # pyright: ignore[reportAttributeAccessIssue]
-#         "url": attm.url,  # pyright: ignore[reportAttributeAccessIssue]
-#         "spoiler": attm.is_spoiler(),
-#     }
-#     if attm.height:  # pyright: ignore[reportAttributeAccessIssue]
-#         result["height"] = attm.height  # pyright: ignore[reportAttributeAccessIssue]
-#     if attm.width:  # pyright: ignore[reportAttributeAccessIssue]
-#         result["width"] = attm.width  # pyright: ignore[reportAttributeAccessIssue]
-#     if attm.content_type:  # pyright: ignore[reportAttributeAccessIssue]
-#         result["content_type"] = attm.content_type  # pyright: ignore[reportAttributeAccessIssue]
-
-#     result["attachment_obj"] = attm
-
-#     return result
-
 
 class ProxyObject(discord.Object):
     def __init__(self, guild: Optional[discord.abc.Snowflake]):
@@ -865,74 +775,6 @@ class AsyncGoobBot(commands.Bot):
         proxy_msg = ProxyObject(guild)
         return local_inject(self, proxy_msg)  # type: ignore  # lying
 
-    def get_raw_guild_prefixes(self, guild_id: int) -> list[str]:
-        """
-        Retrieve the raw command prefixes for a specific guild.
-
-        This function fetches the list of command prefixes for the bot based on the provided guild ID.
-        If the guild ID is not found in the prefixes dictionary, it returns the default prefixes.
-
-        Args:
-            guild_id (int): The ID of the guild for which to retrieve the command prefixes.
-
-        Returns:
-            list[str]: A list of command prefixes for the specified guild.
-        """
-        return self.prefixes.get(guild_id, ["?", "!"])
-
-    async def set_guild_prefixes(self, guild: discord.abc.Snowflake, prefixes: list[str]) -> None:
-        """
-        Set the command prefixes for a specific guild.
-
-        This asynchronous function sets the command prefixes for the bot in the specified guild.
-        It validates the number of prefixes and updates the prefixes dictionary for the guild.
-
-        Args:
-            guild (discord.abc.Snowflake): The guild for which to set the command prefixes.
-            prefixes (list[str]): A list of command prefixes to be set for the guild.
-
-        Raises:
-            RuntimeError: If the number of prefixes exceeds 10.
-        """
-        if len(prefixes) == 0:
-            await self.prefixes.put(guild.id, [])
-        elif len(prefixes) > 10:
-            raise RuntimeError("Cannot have more than 10 custom prefixes.")
-        else:
-            await self.prefixes.put(guild.id, sorted(set(prefixes), reverse=True))
-
-    async def add_to_blacklist(self, object_id: int) -> None:
-        """Add an object ID to the blacklist.
-
-        This asynchronous function adds the specified object ID to the blacklist.
-        The blacklist is used to prevent certain users or guilds from interacting with the bot.
-
-        Args:
-            object_id (int): The ID of the object (user or guild) to be added to the blacklist.
-
-        Returns:
-            None
-        """
-        await self.blacklist.put(object_id, True)
-
-    async def remove_from_blacklist(self, object_id: int) -> None:
-        """
-        Remove an object ID from the blacklist.
-
-        This asynchronous function removes the specified object ID from the blacklist.
-        If the object ID is not found in the blacklist, it handles the KeyError exception.
-
-        Args:
-            object_id (int): The ID of the object (user or guild) to be removed from the blacklist.
-
-        Returns:
-            None
-        """
-        try:
-            await self.blacklist.remove(object_id)
-        except KeyError:
-            pass
-
     async def query_member_named(
         self, guild: discord.Guild, argument: str, *, cache: bool = False
     ) -> Optional[discord.Member]:
@@ -1078,132 +920,7 @@ class AsyncGoobBot(commands.Bot):
         LOGGER.info("Shard ID %s has resumed...", shard_id)
         self.resumes[shard_id].append(discord.utils.utcnow())
 
-    # # SOURCE: https://github.com/aronweiler/assistant/blob/a8abd34c6973c21bc248f4782f1428a810daf899/src/discord/rag_bot.py#L90
-    # async def load_files(self, uploaded_file_paths, root_temp_dir, message: discord.Message):
-    #     documents_helper = Documents()
-    #     user_id = Users().get_user_by_email(self.user_email).id
-    #     logging.info(f"Processing {len(uploaded_file_paths)} files...")
-    #     # First see if there are any files we can't load
-    #     files = []
-    #     for uploaded_file_path in uploaded_file_paths:
-    #         # Get the file name
-    #         file_name = (
-    #             uploaded_file_path.replace(root_temp_dir, "").strip("/").strip("\\")
-    #         )
 
-    #         logging.info(f"Verifying {uploaded_file_path}...")
-
-    #         # See if it exists in this collection
-    #         existing_file = documents_helper.get_file_by_name(
-    #             file_name, self.target_collection_id
-    #         )
-
-    #         if existing_file:
-    #             await message.channel.send(
-    #                 f"File '{file_name}' already exists, and overwrite is not enabled.  Ignoring..."
-    #             )
-    #             logging.warning(
-    #                 f"File '{file_name}' already exists, and overwrite is not enabled"
-    #             )
-    #             logging.debug(f"Deleting temp file: {uploaded_file_path}")
-    #             os.remove(uploaded_file_path)
-
-    #             continue
-
-    #         # Read the file
-    #         with open(uploaded_file_path, "rb") as file:
-    #             file_data = file.read()
-
-    #         # Start off with the default file classification
-    #         file_classification = "Document"
-
-    #         # Override the classification if necessary
-    #         IMAGE_TYPES = [".jpg", ".jpeg", ".png", ".gif", ".bmp", ".svg"]
-    #         # Get the file extension
-    #         file_extension = os.path.splitext(file_name)[1]
-    #         # Check to see if it's an image
-    #         if file_extension in IMAGE_TYPES:
-    #             # It's an image, reclassify it
-    #             file_classification = "Image"
-
-    #         # Create the file
-    #         logging.info(f"Creating file '{file_name}'...")
-    #         file = documents_helper.create_file(
-    #             FileModel(
-    #                 user_id=user_id,
-    #                 collection_id=self.target_collection_id,
-    #                 file_name=file_name,
-    #                 file_hash=calculate_sha256(uploaded_file_path),
-    #                 file_classification=file_classification,
-    #             ),
-    #             file_data,
-    #         )
-    #         files.append(file)
-
-    #     if not files or len(files) == 0:
-    #         logging.warning("No files to ingest")
-    #         await message.channel.send(
-    #             "It looks like I couldn't split (or read) any of the files that you uploaded."
-    #         )
-    #         return
-
-    #     logging.info("Splitting documents...")
-
-    #     is_code = False
-
-    #     # Pass the root temp dir to the ingestion function
-    #     documents = load_and_split_documents(
-    #         document_directory=root_temp_dir,
-    #         split_documents=True,
-    #         is_code=is_code,
-    #         chunk_size=500,
-    #         chunk_overlap=50,
-    #     )
-
-    #     if not documents or len(documents) == 0:
-    #         logging.warning("No documents to ingest")
-    #         return
-
-    #     logging.info(f"Saving {len(documents)} document chunks...")
-
-    #     # For each document, create the file if it doesn't exist and then the document chunks
-    #     for document in documents:
-    #         # Get the file name without the root_temp_dir (preserving any subdirectories)
-    #         file_name = (
-    #             document.metadata["filename"].replace(root_temp_dir, "").strip("/")
-    #         )
-
-    #         # Get the file reference
-    #         file = next((f for f in files if f.file_name == file_name), None)
-
-    #         if not file:
-    #             logging.error(
-    #                 f"Could not find file '{file_name}' in the database after uploading"
-    #             )
-    #             break
-
-    #         # Create the document chunks
-    #         logging.info(f"Inserting document chunk for file '{file_name}'...")
-    #         documents_helper.store_document(
-    #             DocumentModel(
-    #                 collection_id=self.target_collection_id,
-    #                 file_id=file.id,
-    #                 user_id=user_id,
-    #                 document_text=document.page_content,
-    #                 document_text_summary="",
-    #                 document_text_has_summary=False,
-    #                 additional_metadata=document.metadata,
-    #                 document_name=document.metadata["filename"],
-    #             )
-    #         )
-
-    #     logging.info(
-    #         f"Successfully ingested {len(documents)} document chunks from {len(files)} files"
-    #     )
-
-    #     await message.channel.send(
-    #         f"Successfully ingested {len(documents)} document chunks from {len(files)} files"
-    #     )
 
     # SOURCE: https://github.com/aronweiler/assistant/blob/a8abd34c6973c21bc248f4782f1428a810daf899/src/discord/rag_bot.py#L90
     async def process_attachments(self, message: discord.Message) -> None:
@@ -1252,27 +969,6 @@ class AsyncGoobBot(commands.Bot):
             #     message=message,
             # )
 
-    # @discord.utils.cached_property # pyright: ignore[reportAttributeAccessIssue]
-    # def stats_webhook(self) -> discord.Webhook:
-    #     wh_id, wh_token = self.aiosettings.stat_webhook
-    #     hook = discord.Webhook.partial(id=wh_id, token=wh_token, session=self.session)
-    #     return hook
-
-    # async def log_spammer(self, ctx: Context, message: discord.Message, retry_after: float, *, autoblock: bool = False):
-    #     guild_name = getattr(ctx.guild, "name", "No Guild (DMs)")
-    #     guild_id = getattr(ctx.guild, "id", None)
-    #     fmt = "User %s (ID %s) in guild %r (ID %s) spamming, retry_after: %.2fs"
-    #     LOGGER.warning(fmt, message.author, message.author.id, guild_name, guild_id, retry_after)
-    #     if not autoblock:
-    #         return
-
-    #     wh = self.stats_webhook
-    #     embed = discord.Embed(title="Auto-blocked Member", colour=0xDDA453)
-    #     embed.add_field(name="Member", value=f"{message.author} (ID: {message.author.id})", inline=False)
-    #     embed.add_field(name="Guild Info", value=f"{guild_name} (ID: {guild_id})", inline=False)
-    #     embed.add_field(name="Channel Info", value=f"{message.channel} (ID: {message.channel.id}", inline=False) # pyright: ignore[reportAttributeAccessIssue]
-    #     embed.timestamp = discord.utils.utcnow()
-    #     return await wh.send(embed=embed)
 
     async def check_for_attachments(self, message: discord.Message) -> str:
         """
@@ -1739,12 +1435,6 @@ class AsyncGoobBot(commands.Bot):
             # send everything to ai bot
             await self.process_commands(message)
 
-        # import bpdb
-        # bpdb.set_trace()
-
-    # async def on_guild_join(self, guild: discord.Guild) -> None:
-    #     if guild.id in self.blacklist:
-    #         await guild.leave()
 
     async def close(self) -> None:
         await super().close()
@@ -1775,90 +1465,6 @@ class AsyncGoobBot(commands.Bot):
             print(f" len(self.tasks) = {len(self.tasks)}")
             await asyncio.sleep(10)  # task runs every 60 seconds
 
-    # async def setup_workers(self) -> None:
-    #     await self.wait_until_ready()
-
-    #     # Create three worker tasks to process the queue concurrently.
-
-    #     for i in range(self.num_workers):
-    #         task = asyncio.create_task(worker(f"worker-{i}", self.queue))
-    #         self.tasks.append(task)
-
-    #     # Wait until the queue is fully processed.
-    #     started_at = time.monotonic()
-    #     await self.queue.join()
-    #     total_slept_for = time.monotonic() - started_at
-
-    #     # Cancel our worker tasks.
-    #     for task in self.tasks:
-    #         task.cancel()
-    #     # Wait until all worker tasks are cancelled.
-    #     await asyncio.gather(*self.tasks, return_exceptions=True)
-
-    #     print("====")
-    #     print(f"3 workers slept in parallel for {total_slept_for:.2f} seconds")
-
-    # async def setup_co_tasks(self) -> None:
-    #     await self.wait_until_ready()
-
-    #     # Create three worker tasks to process the queue concurrently.
-
-    #     for i in range(self.num_workers):
-    #         task = asyncio.create_task(co_task(f"worker-{i}", self.queue))
-    #         self.tasks.append(task)
-
-    #     # Wait until the queue is fully processed.
-    #     started_at = time.monotonic()
-    #     await self.queue.join()
-    #     total_slept_for = time.monotonic() - started_at
-
-    #     # Cancel our worker tasks.
-    #     for task in self.tasks:
-    #         task.cancel()
-    #     # Wait until all worker tasks are cancelled.
-    #     await asyncio.gather(*self.tasks, return_exceptions=True)
-
-    #     print("====")
-    #     print(f"3 workers slept in parallel for {total_slept_for:.2f} seconds")
-
-    # # TODO: Need to get this working 5/5/2024
-    # def input_classifier(self, event: dict) -> bool:
-    #     """
-    #     Determines whether the bot should respond to a message in a channel or group.
-
-    #     :param event: the incoming Slack event
-    #     :return: True if the bot should respond, False otherwise
-    #     """
-    #     LOGGER.info(f"event = {event}")
-    #     LOGGER.info(f"type(event) = {type(event)}")
-    #     try:
-    #         classification = UserInputEnrichment().input_classifier_tool(event.get("text", ""))
-
-    #         # Explicitly not respond to "Not a question" or "Not for me"
-    #         if classification.get("classification") in [
-    #             INPUT_CLASSIFICATION_NOT_A_QUESTION,
-    #             INPUT_CLASSIFICATION_NOT_FOR_ME,
-    #         ]:
-    #             return False
-    #     except Exception as e:
-    #         # Log the error but choose to respond since the classification is uncertain
-    #         LOGGER.error(f"Error during classification, but choosing to respond: {e}")
-
-    #         # Default behavior is to respond unless it's explicitly classified as "Not a question" or "Not for me"
-    #         return True
-
-    # @property
-    # def config(self):
-    #     return __import__('config')
-
-    # @property
-    # def reminder(self) -> Optional[Reminder]:
-    #     return self.get_cog('Reminder')  # type: ignore
-
-    # @property
-    # def config_cog(self) -> Optional[ConfigCog]:
-    #     return self.get_cog('Config')  # type: ignore
-
 
 # SOURCE: https://github.com/darren-rose/DiscordDocChatBot/blob/63a2f25d2cb8aaace6c1a0af97d48f664588e94e/main.py#L28
 # TODO: maybe enable this
@@ -1881,34 +1487,3 @@ async def send_long_message(channel: Any, message: discord.Message, max_length: 
     chunks = [message[i : i + max_length] for i in range(0, len(message), max_length)]
     for chunk in chunks:
         await channel.send(chunk)
-
-
-# # TODO: turn both of these into functions that the bot calls inside of on_message
-
-#   # SOURCE: https://github.com/darren-rose/DiscordDocChatBot/blob/63a2f25d2cb8aaace6c1a0af97d48f664588e94e/main.py#L28
-#   if 'http://' in  message.content or 'https://' in message.content:
-#     urls = extract_url(message.content)
-#     for url in urls:
-#       download_html(url, web_doc_path)
-#       loader = BSHTMLLoader(web_doc_path)
-#       data = loader.load()
-#       for page_info in data:
-#         chunks = get_text_chunks(page_info.page_content)
-#         vectorstore = get_vectorstore(chunks)
-#         answer = retrieve_answer(vectorstore=vectorstore)
-#       os.remove(os.path.join(web_doc_path))
-#       await send_long_message(message.channel, answer)
-
-#   if message.attachments:
-#     vectorstore=None
-#     for attachment in message.attachments:
-#         if attachment.filename.endswith('.pdf'):  # if the attachment is a pdf
-#           data = await attachment.read()  # read the content of the file
-#           with open(os.path.join(pdf_path, attachment.filename), 'wb') as f:  # save the pdf to a file
-#               f.write(data)
-#           raw_text = get_pdf_text(pdf_path)
-#           chunks = get_text_chunks(raw_text)
-#           vectorstore = get_vectorstore(chunks)
-#           answer = retrieve_answer(vectorstore=vectorstore)
-#         await send_long_message(message.channel, answer)
-#         return
