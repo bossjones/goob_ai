@@ -132,7 +132,7 @@ def path_for(attm: discord.Attachment, basedir: str = "./") -> pathlib.Path:
 async def save_attachment(attm: discord.Attachment, basedir: str = "./") -> None:
     """Save a Discord attachment to a specified directory.
 
-    This asynchronous function saves a Discord attachment 'attm' to the specified base directory 'basedir'.
+    This asynchronous function saves a Discord attachment to the specified base directory.
     It constructs the path for the attachment, creates the necessary directories, and saves the attachment
     to the generated path. If an HTTPException occurs during saving, it retries the save operation.
 
