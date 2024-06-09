@@ -1300,19 +1300,17 @@ class AsyncGoobBot(commands.Bot):
         return await super().get_context(origin, cls=cls)
 
     async def process_commands(self, message: discord.Message) -> None:
-        """
-        Summary:
-        Process commands based on the received Discord message.
+        """Process commands based on the received Discord message.
 
-        Explanation:
-        This asynchronous function processes commands based on the provided Discord message. It retrieves the context for the message, logs information, and then invokes the command handling. It includes commented-out sections for potential future functionality like spam control and blacklisting.
+        This asynchronous function processes commands based on the provided Discord message.
+        It retrieves the context for the message, logs information, and then invokes the command handling.
+        It includes commented-out sections for potential future functionality like spam control and blacklisting.
 
         Args:
-        - self: The instance of the class.
-        - message (discord.Message): The Discord message to process commands from.
+            message (discord.Message): The Discord message to process commands from.
 
         Returns:
-        - None
+            None
         """
 
         ctx = await self.get_context(message)
