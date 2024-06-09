@@ -642,12 +642,12 @@ def handle_resize(
 
 def handle_resize_one(
     images_filepath: str,
-    cols=5,
-    model=None,
+    cols: int = 5,
+    model: Optional[torch.nn.Module] = None,
     device: torch.device = DEVICE,
-    args=None,
-    resize=False,
-):
+    args: Optional[dict] = None,
+    resize: bool = False,
+) -> str:
     image_path_api = pathlib.Path(images_filepath).resolve()
     fname = f"{image_path_api.parent}/cropped-{model.name}-{image_path_api.stem}{image_path_api.suffix}"
 
