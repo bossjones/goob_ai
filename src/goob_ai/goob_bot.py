@@ -1511,6 +1511,19 @@ class AsyncGoobBot(commands.Bot):
         await self.session.close()
 
     async def start(self) -> None:
+        """
+        Start the bot and connect to Discord.
+
+        This asynchronous method initiates the bot's connection to Discord using the token
+        specified in the settings. It ensures that the bot attempts to reconnect if the
+        connection is lost.
+
+        The method overrides the default `start` method from the `commands.Bot` class to
+        include the bot's specific token and reconnection behavior.
+
+        Returns:
+            None
+        """
         await super().start(aiosettings.discord_token, reconnect=True)
 
     async def my_background_task(self) -> None:
