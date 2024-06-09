@@ -880,13 +880,26 @@ class AsyncGoobBot(commands.Bot):
         """
         return self.prefixes.get(guild_id, ["?", "!"])
 
-    # async def set_guild_prefixes(self, guild: discord.abc.Snowflake, prefixes: list[str]) -> None:
-    #     if len(prefixes) == 0:
-    #         await self.prefixes.put(guild.id, [])
-    #     elif len(prefixes) > 10:
-    #         raise RuntimeError("Cannot have more than 10 custom prefixes.")
-    #     else:
-    #         await self.prefixes.put(guild.id, sorted(set(prefixes), reverse=True))
+    async def set_guild_prefixes(self, guild: discord.abc.Snowflake, prefixes: list[str]) -> None:
+        """
+        Set the command prefixes for a specific guild.
+
+        This asynchronous function sets the command prefixes for the bot in the specified guild.
+        It validates the number of prefixes and updates the prefixes dictionary for the guild.
+
+        Args:
+            guild (discord.abc.Snowflake): The guild for which to set the command prefixes.
+            prefixes (list[str]): A list of command prefixes to be set for the guild.
+
+        Raises:
+            RuntimeError: If the number of prefixes exceeds 10.
+        """
+        if len(prefixes) == 0:
+            await self.prefixes.put(guild.id, [])
+        elif len(prefixes) > 10:
+            raise RuntimeError("Cannot have more than 10 custom prefixes.")
+        else:
+            await self.prefixes.put(guild.id, sorted(set(prefixes), reverse=True))
 
     # async def add_to_blacklist(self, object_id: int):
     #     await self.blacklist.put(object_id, True)
