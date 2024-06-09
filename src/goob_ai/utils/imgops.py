@@ -1466,17 +1466,36 @@ async def tensor2np(
     change_range: bool = True,
     imtype: type = np.uint8,
 ) -> np.ndarray:
-    """
-    Converts a Tensor array into a numpy image array.
-    Parameters:
-        img (tensor): the input image tensor array
-            4D(B,(3/1),H,W), 3D(C,H,W), or 2D(H,W), any range, RGB channel order
-        remove_batch (bool): choose if tensor of shape BCHW needs to be squeezed
-        denormalize (bool): Used to denormalize from [-1,1] range back to [0,1]
-        imtype (type): the desired type of the converted numpy array (np.uint8
-            default)
-    Output:
-        img (np array): 3D(H,W,C) or 2D(H,W), [0,255], np.uint8 (default)
+    """Convert a Tensor array into a numpy image array.
+
+    This function converts a PyTorch tensor into a numpy image array. It supports
+    various options such as converting RGB to BGR, removing the batch dimension,
+    changing the data range, and denormalizing the image.
+
+    Args:
+        img (torch.Tensor): The input image tensor array. It can be 4D (B, (3/1), H, W),
+            3D (C, H, W), or 2D (H, W), with any range and RGB channel order.
+        rgb2bgr (bool, optional): Whether to convert RGB to BGR. Defaults to True.
+        remove_batch (bool, optional): Whether to remove the batch dimension if the tensor
+            is of shape BCHW. Defaults to True.
+        data_range (int, optional): The data range for the image. Defaults to 255.
+        denormalize (bool, optional): Whether to denormalize the image from [-1, 1] range
+            back to [0, 1]. Defaults to False.
+        change_range (bool, optional): Whether to change the data range. Defaults to True.
+        imtype (type, optional): The desired type of the converted numpy array. Defaults to np.uint8.
+
+    Returns:
+        np.ndarray: The converted image as a numpy array. It will be 3D (H, W, C) or 2D (H, W),
+            with values in the range [0, 255] and of type np.uint8 (default).
+
+    Raises:
+        TypeError: If the input is not a torch.Tensor.
+
+    Example:
+        >>> tensor_image = torch.randn(1, 3, 256, 256)
+        >>> numpy_image = await tensor2np(tensor_image)
+        >>> print(numpy_image.shape)
+        (256, 256, 3)
     """
     if not isinstance(img, torch.Tensor):
         raise TypeError("Got unexpected object type, expected torch.Tensor")
