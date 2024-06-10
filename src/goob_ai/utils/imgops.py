@@ -167,9 +167,9 @@ def normalize_rectangle_coords(
     img_as_array = np.asarray(temp)
     img_as_array = cv2.cvtColor(img_as_array, cv2.COLOR_RGB2BGR)
 
-    import bpdb
+    # import bpdb
 
-    bpdb.set_trace()
+    # bpdb.set_trace()
 
     # get fullsize bboxes
     xmin_fullsize, ymin_fullsize, xmax_fullsize, ymax_fullsize = bboxes[0]
@@ -611,9 +611,9 @@ def get_pil_image_channels(image_path: str) -> int:
     pil_img = Image.open(
         image_path
     )  # 'pil_img': <PIL.PngImagePlugin.PngImageFile image mode=RGB size=1179x2556 at 0x32AA189D0>,
-    import bpdb
+    # import bpdb
 
-    bpdb.set_trace()
+    # bpdb.set_trace()
 
     # PILToTensor: Convert a PIL Image to a tensor of the same type - this does not scale values.
     # This transform does not support torchscript.
@@ -1306,9 +1306,9 @@ async def aio_main():
 
     # Test with default parameters
     tensor_image = await np2tensor(test_image)
-    import bpdb
+    # import bpdb
 
-    bpdb.set_trace()
+    # bpdb.set_trace()
     assert isinstance(tensor_image, torch.Tensor)
     assert tensor_image.shape == (1, test_image.shape[2], test_image.shape[0], test_image.shape[1])
     # asyncio.run(schedule_jobs())
@@ -1353,7 +1353,7 @@ if __name__ == "__main__":
 
     predict_results = handle_predict(images_filepaths=[image_path], model=model)
 
-    import bpdb
+    # import bpdb
 
-    bpdb.set_trace()
+    # bpdb.set_trace()
     assert isinstance(predict_results, list)
