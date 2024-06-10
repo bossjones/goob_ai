@@ -406,7 +406,7 @@ def run_predict_and_display(
 def run_final() -> None:
     """Manually run screencrop's download_and_predict service and get bounding boxes"""
 
-    img_path = "/Users/malcolm/dev/bossjones/goob_ai/tests/fixtures/screenshot_image_larger00000.JPEG"
+    img_path = "/Users/malcolm/dev/bossjones/goob_ai/tests/fixtures/screenshot_image_larger00013.PNG"
     path_to_image_from_cli = fix_path(img_path)
     try:
         ImageService.handle_final(path_to_image_from_cli)
