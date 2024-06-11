@@ -38,7 +38,7 @@ Answer the question based on the above context: {question}
 
 
 # Function to perform the query and get the response
-def get_response(query_text):
+def get_response(query_text: str) -> str:
     # Prepare the DB
     embedding_function = OpenAIEmbeddings()
     db = Chroma(persist_directory=CHROMA_PATH, embedding_function=embedding_function)
