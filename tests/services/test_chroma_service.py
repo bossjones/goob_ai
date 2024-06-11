@@ -17,6 +17,19 @@ from pytest_mock import MockerFixture
 
 @pytest.fixture
 def mock_openai_api_key(mocker: MockerFixture) -> str:
+    """
+    Fixture to provide a mock OpenAI API key for testing purposes.
+
+    This fixture returns a mock OpenAI API key that can be used in tests
+    to simulate the presence of a valid API key without making actual
+    API calls.
+
+    Args:
+        mocker (MockerFixture): The mocker fixture for patching.
+
+    Returns:
+        str: A mock OpenAI API key.
+    """
     return "test_api_key"
 
 
