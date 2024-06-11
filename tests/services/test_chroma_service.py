@@ -17,7 +17,7 @@ def mock_openai_api_key(mocker):
 
 
 @pytest.fixture
-def custom_embeddings(mock_openai_api_key):
+def custom_embeddings(mock_openai_api_key: str) -> CustomOpenAIEmbeddings:
     return CustomOpenAIEmbeddings(openai_api_key=mock_openai_api_key)
 
 
@@ -29,7 +29,7 @@ def test_custom_openai_embeddings_init(mocker):
     assert embeddings.openai_api_key == mock_openai_api_key
 
 
-def test_custom_openai_embeddings_call(mocker, custom_embeddings):
+def test_custom_openai_embeddings_call(mocker: MockerFixture, custom_embeddings: CustomOpenAIEmbeddings) -> None:
     mock_texts = ["This is a test document."]
     mock_embeddings = [[0.1, 0.2, 0.3]]
 
@@ -47,7 +47,7 @@ def mock_pdf_file(tmp_path):
     return test_pdf_path
 
 
-def test_load_documents(mocker: MockerFixture, mock_pdf_file):
+def test_load_documents(mocker: MockerFixture, mock_pdf_file: str) -> None:
     mocker.patch("os.listdir", return_value=["rich-readthedocs-io-en-latest.pdf"])
     mocker.patch("os.path.join", return_value=mock_pdf_file)
     mock_loader = mocker.patch("goob_ai.services.chroma_service.PyPDFLoader")
@@ -76,7 +76,7 @@ def test_load_documents(mocker: MockerFixture, mock_pdf_file):
     mock_save_to_chroma.assert_called_once_with([Document(page_content="Test chunk", metadata={})])
 
 
-def test_split_text(mocker: MockerFixture):
+def test_split_text(mocker: MockerFixture) -> None:
     mock_documents = [Document(page_content="This is a test document.", metadata={})]
     mock_chunks = [
         Document(page_content="This is a test", metadata={"start_index": 0}),
