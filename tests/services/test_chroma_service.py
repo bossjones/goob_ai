@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import shutil
 
+
 from goob_ai.aio_settings import aiosettings
 from goob_ai.services.chroma_service import CustomOpenAIEmbeddings, generate_data_store, get_response, save_to_chroma
 from langchain.schema import Document
