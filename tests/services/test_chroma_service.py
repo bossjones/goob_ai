@@ -28,7 +28,25 @@ def test_custom_openai_embeddings_call(mocker, custom_embeddings):
     result = custom_embeddings(mock_texts)
     assert result == mock_embeddings
 
-def test_generate_data_store(mocker: MockerFixture):
+@pytest.fixture
+def mock_pdf_file(tmp_path):
+    # Create a temporary directory and copy the test PDF file into it
+    test_pdf_path = tmp_path / "rich-readthedocs-io-en-latest.pdf"
+    shutil.copy("src/goob_ai/data/chroma/documents/rich-readthedocs-io-en-latest.pdf", test_pdf_path)
+    return test_pdf_path
+
+def test_load_documents(mocker: MockerFixture, mock_pdf_file):
+    mocker.patch("os.listdir", return_value=["rich-readthedocs-io-en-latest.pdf"])
+    mocker.patch("os.path.join", return_value=mock_pdf_file)
+    mock_loader = mocker.patch("goob_ai.services.chroma_service.PyPDFLoader")
+    mock_loader.return_value.load.return_value = [Document(page_content="Test content", metadata={})]
+
+    from goob_ai.services.chroma_service import load_documents
+    documents = load_documents()
+
+    assert len(documents) == 1
+    assert documents[0].page_content == "Test content"
+    mock_loader.return_value.load.assert_called_once_with()
     mock_load_documents = mocker.patch("goob_ai.services.chroma_service.load_documents", return_value=[Document(page_content="Test content", metadata={})])
     mock_split_text = mocker.patch("goob_ai.services.chroma_service.split_text", return_value=[Document(page_content="Test chunk", metadata={})])
     mock_save_to_chroma = mocker.patch("goob_ai.services.chroma_service.save_to_chroma")
