@@ -115,6 +115,18 @@ class CustomOpenAIEmbeddings(OpenAIEmbeddings):
 
 
 def generate_data_store() -> None:
+    """
+    Generate and store document embeddings in a Chroma vector store.
+
+    This function performs the following steps:
+    1. Loads documents from the specified data path.
+    2. Splits the loaded documents into smaller chunks.
+    3. Saves the chunks into a Chroma vector store for efficient retrieval.
+
+    Returns
+    -------
+    None
+    """
     documents = load_documents()
     chunks = split_text(documents)
     save_to_chroma(chunks)
