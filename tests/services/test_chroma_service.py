@@ -59,7 +59,7 @@ def mock_pdf_file(tmp_path: Path) -> Generator[Path, None, None]:
     return test_pdf_path
 
 
-def test_load_documents(mocker: MockerFixture, mock_pdf_file: str) -> None:
+def test_load_documents(mocker: MockerFixture, mock_pdf_file: Path) -> None:
     mocker.patch("os.listdir", return_value=["rich-readthedocs-io-en-latest.pdf"])
     mocker.patch("os.path.join", return_value=mock_pdf_file)
     mock_loader = mocker.patch("goob_ai.services.chroma_service.PyPDFLoader")
