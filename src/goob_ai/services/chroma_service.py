@@ -79,6 +79,15 @@ def main() -> None:
 
 
 class CustomOpenAIEmbeddings(OpenAIEmbeddings):
+    """Custom embeddings class using OpenAI's API.
+
+    This class extends the OpenAIEmbeddings class to provide custom functionality
+    for embedding documents using OpenAI's API.
+
+    Attributes:
+        openai_api_key (str): The API key for accessing OpenAI services.
+    """
+
     def __init__(self, openai_api_key: str = aiosettings.openai_api_key) -> None:
         """Initialize the CustomOpenAIEmbeddings class.
 
@@ -102,6 +111,17 @@ class CustomOpenAIEmbeddings(OpenAIEmbeddings):
         return super().embed_documents(texts)
 
     def __call__(self, input: list[str]) -> list[float]:
+        """Embed a list of documents.
+
+        This method is a callable that takes a list of document texts and returns
+        their embeddings as a list of float vectors.
+
+        Args:
+            input (list of str): The list of document texts to be embedded.
+
+        Returns:
+            list of float: The embeddings of the input documents.
+        """
         return self._embed_documents(input)
 
 
