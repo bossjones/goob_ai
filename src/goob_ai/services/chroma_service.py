@@ -90,7 +90,7 @@ class CustomOpenAIEmbeddings(OpenAIEmbeddings):
         return self._embed_documents(input)
 
 
-def generate_data_store():
+def generate_data_store() -> None:
     documents = load_documents()
     chunks = split_text(documents)
     save_to_chroma(chunks)
