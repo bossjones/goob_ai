@@ -66,7 +66,7 @@ def test_custom_openai_embeddings_call(mocker: MockerFixture, custom_embeddings:
 
     This test verifies that the call method of CustomOpenAIEmbeddings returns
     the expected embeddings for the given texts.
-    
+
     Args:
         mocker (MockerFixture): The mocker fixture for patching.
         custom_embeddings (CustomOpenAIEmbeddings): An instance of CustomOpenAIEmbeddings.
@@ -78,6 +78,7 @@ def test_custom_openai_embeddings_call(mocker: MockerFixture, custom_embeddings:
 
     result: list[list[float]] = custom_embeddings(mock_texts)
     assert result == mock_embeddings
+
     mock_texts = ["This is a test document."]
     mock_embeddings = [[0.1, 0.2, 0.3]]
 
