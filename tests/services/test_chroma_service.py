@@ -17,8 +17,7 @@ from pytest_mock import MockerFixture
 
 @pytest.fixture
 def mock_openai_api_key(mocker: MockerFixture) -> str:
-    """
-    Fixture to provide a mock OpenAI API key for testing purposes.
+    """Fixture to provide a mock OpenAI API key for testing purposes.
 
     This fixture returns a mock OpenAI API key that can be used in tests
     to simulate the presence of a valid API key without making actual
@@ -91,7 +90,17 @@ def test_custom_openai_embeddings_call(mocker: MockerFixture, custom_embeddings:
 
 @pytest.fixture
 def mock_pdf_file(tmp_path: Path) -> Generator[Path, None, None]:
-    # Create a temporary directory and copy the test PDF file into it
+    """Fixture to create a mock PDF file for testing purposes.
+
+    This fixture creates a temporary directory and copies a test PDF file into it.
+    The path to the mock PDF file is then returned for use in tests.
+
+    Args:
+        tmp_path (Path): The temporary path provided by pytest.
+
+    Returns:
+        Generator[Path, None, None]: A generator yielding the path to the mock PDF file.
+    """
     test_pdf_path = tmp_path / "rich-readthedocs-io-en-latest.pdf"
     shutil.copy("src/goob_ai/data/chroma/documents/rich-readthedocs-io-en-latest.pdf", test_pdf_path)
     return test_pdf_path
