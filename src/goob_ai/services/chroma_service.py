@@ -6,9 +6,9 @@ from __future__ import annotations
 import argparse
 import os
 import shutil
-from typing import List
 
 from dataclasses import dataclass
+from typing import List
 
 from langchain.prompts import ChatPromptTemplate
 from langchain.schema import Document
@@ -137,6 +137,7 @@ def generate_data_store() -> None:
     chunks = split_text(documents)
     save_to_chroma(chunks)
 
+
 def load_documents() -> List[Document]:
     """Load documents from the specified data path.
 
@@ -153,7 +154,6 @@ def load_documents() -> List[Document]:
             loader = PyPDFLoader(pdf_path)
             documents.extend(loader.load())
     return documents
-
 
 
 def split_text(documents: List[Document]) -> List[Document]:
