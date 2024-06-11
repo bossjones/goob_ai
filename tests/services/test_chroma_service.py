@@ -1,7 +1,7 @@
 import pytest
 import shutil
 from pytest_mock import MockerFixture
-from goob_ai.services.chroma_service import CustomOpenAIEmbeddings, generate_data_store, get_response
+from goob_ai.services.chroma_service import CustomOpenAIEmbeddings, generate_data_store, get_response, save_to_chroma
 from goob_ai.aio_settings import aiosettings
 from langchain.schema import Document
 
@@ -58,7 +58,17 @@ def test_load_documents(mocker: MockerFixture, mock_pdf_file):
     mock_split_text.assert_called_once_with([Document(page_content="Test content", metadata={})])
     mock_save_to_chroma.assert_called_once_with([Document(page_content="Test chunk", metadata={})])
 
-def test_main(mocker: MockerFixture):
+def test_save_to_chroma(mocker: MockerFixture):
+    mock_chunks = [Document(page_content="Test chunk", metadata={})]
+    mock_embeddings = mocker.patch("goob_ai.services.chroma_service.CustomOpenAIEmbeddings")
+    mock_chroma = mocker.patch("goob_ai.services.chroma_service.Chroma")
+    mock_db = mock_chroma.from_documents.return_value
+
+    save_to_chroma(mock_chunks)
+
+    mock_embeddings.assert_called_once_with(openai_api_key=aiosettings.openai_api_key)
+    mock_chroma.from_documents.assert_called_once_with(mock_chunks, mock_embeddings.return_value, persist_directory=mocker.ANY)
+    mock_db.persist.assert_called_once()
     mock_generate_data_store = mocker.patch("goob_ai.services.chroma_service.generate_data_store")
     from goob_ai.services.chroma_service import main
     main()
