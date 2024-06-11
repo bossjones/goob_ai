@@ -55,8 +55,7 @@ class CustomOllamaEmbeddings:
         super().__init__(*args, **kwargs)
 
     def _embed_documents(self, texts):
-        embeddings = [OllamaEmbeddings(model="llama3", prompt=text)["embedding"] for text in texts]
-        return embeddings
+        return [OllamaEmbeddings(model="llama3", prompt=text)["embedding"] for text in texts]
 
     def __call__(self, input):
         return self._embed_documents(input)
@@ -71,9 +70,7 @@ class query_rag:
 
         sources = [doc.get("chunk_id") for doc in query_results["metadatas"][0]]
 
-        formated_response = f"Response: {response}\n\nSources: {sources}"
-
-        return formated_response
+        return f"Response: {response}\n\nSources: {sources}"
 
 
 def load_pdf(file_path: str) -> Dict[str, Any]:

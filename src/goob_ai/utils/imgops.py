@@ -197,10 +197,13 @@ def display_normalized_rectangle(image, out_bbox):
     out_pt1 = (int(out_xmin), int(out_ymin))
     out_pt2 = (int(out_xmax), int(out_ymax))
 
-    out_img = cv2.rectangle(image.squeeze().permute(1, 2, 0).cpu().numpy(), out_pt1, out_pt2, OPENCV_RED, 2)
-    # out_img = cv2.rectangle(out_img, out_pt1, out_pt2, OPENCV_RED, 2)
-
-    return out_img
+    return cv2.rectangle(
+        image.squeeze().permute(1, 2, 0).cpu().numpy(),
+        out_pt1,
+        out_pt2,
+        OPENCV_RED,
+        2,
+    )
     # plt.imshow(out_img)
 
 
@@ -647,11 +650,7 @@ def convert_pil_image_to_rgb_channels(image_path: str) -> Image:
     Returns:
         Image: The converted PIL image with RGB channels.
     """
-    if get_pil_image_channels(image_path) != 4:
-        pil_img = Image.open(image_path).convert("RGB")
-    else:
-        pil_img = Image.open(image_path)
-    return pil_img
+    return Image.open(image_path).convert("RGB") if get_pil_image_channels(image_path) != 4 else Image.open(image_path)
 
 
 def read_image_to_bgr(image_path: str) -> Tuple[np.ndarray, int, int, int]:

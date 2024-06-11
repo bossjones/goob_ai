@@ -33,8 +33,7 @@ def find_urls(text: str):
     """
 
     url_pattern = r"http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*(),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+"
-    urls = re.findall(url_pattern, text)
-    return urls
+    return re.findall(url_pattern, text)
 
 
 def split_and_cluster_strings(input_string: str, max_cluster_size: int, split_substring: str, length=len) -> list[str]:
@@ -66,7 +65,7 @@ def split_and_cluster_strings(input_string: str, max_cluster_size: int, split_su
         substrings = [r for r in result if r]
     else:
         if "%s" not in split_substring:
-            split_by = "%s" + split_by
+            split_by = f"%s{split_by}"
         split_character = split_by.replace("%s", "")
 
         # Split the input string based on the specified substring
@@ -94,11 +93,7 @@ def split_and_cluster_strings(input_string: str, max_cluster_size: int, split_su
             if current_cluster:
                 # Don't add to clusters if current_cluster is empty.
                 clusters.append(current_cluster)
-            current_cluster = ""
-            if substring:
-                # Don't add to current_cluster if substring is empty.
-                # Add the last cluster if not empty.
-                current_cluster = new_string
+            current_cluster = new_string if substring else ""
     if current_cluster:
         clusters.append(current_cluster)  # Remove the trailing split_substring
 
@@ -138,9 +133,7 @@ def prioritized_string_split(
     # Initalize new cluster
     current_clusters = [input_string]
     for e, arg in enumerate(substring_split_order):
-        if isinstance(arg, str):
-            s, max_len = arg, None
-        elif isinstance(arg, re.Pattern):
+        if isinstance(arg, (str, re.Pattern)):
             s, max_len = arg, None
         elif len(arg) == 1:
             s, max_len = arg[0], None
@@ -206,8 +199,7 @@ def split_string_with_code_blocks(input_str: str, max_length: int, oncode=False)
     pattern = re.compile(f"({symbol}(?:(?!{symbol}).)+{symbol})", re.DOTALL)
 
     splitorder = [pattern, "\n### %s", "%s\n", " %s"]
-    fil = prioritized_string_split(input_str, splitorder, default_max_len=max_length)
-    return fil
+    return prioritized_string_split(input_str, splitorder, default_max_len=max_length)
 
 
 def replace_working_directory(text: str):
@@ -264,8 +256,8 @@ def the_string_numerizer(num: int, thestring: str, comma: bool = False, force: b
     if num > 0 or force:
         retstr = "{:.2f} {}".format(num, thestring)
         if num > 1 and have_s:
-            retstr = retstr + "s"
-        if comma == True:
+            retstr += "s"
+        if comma:
             retstr += ", "
         return retstr
     return ""
@@ -281,13 +273,12 @@ def seconds_to_time_string(seconds_start):
     hours = hours_r % 24
     days = (hours_r - hours) // 24
 
-    retme = "{}{}{}{}".format(
+    return "{}{}{}{}".format(
         the_string_numerizer(days, "day", True),
         the_string_numerizer(hours, "hour", True),
         the_string_numerizer(minutes, "minute", True),
         the_string_numerizer(seconds, "second", force=True),
     )
-    return retme
 
 
 def seconds_to_time_stamp(seconds_init: int | float):
@@ -332,8 +323,7 @@ async def get_server_icon_color(guild: discord.Guild) -> str | int:
 
     # Convert the color to hex format
     hex_color = "{:02x}{:02x}{:02x}".format(icon_color[0], icon_color[1], icon_color[2])
-    hex = int(hex_color, 16)
-    return hex
+    return int(hex_color, 16)
 
 
 def extract_timestamp(timestamp: str):
@@ -358,17 +348,13 @@ def extract_timestamp(timestamp: str):
     timestamp_parts = timestamp.split(".")
     timestamp_adjusted = timestamp
     if len(timestamp_parts) >= 2:
-        timestamp_adjusted = timestamp_parts[0] + "." + timestamp_parts[1][:6]
-        if not timestamp_adjusted.endswith("Z"):
-            timestamp_adjusted += "Z"
+        timestamp_adjusted = f"{timestamp_parts[0]}.{timestamp_parts[1][:6]}"
     else:
         format_string = "%Y-%m-%dT%H:%M:%SZ"
-        if not timestamp_adjusted.endswith("Z"):
-            timestamp_adjusted += "Z"
         # timestamp_adjusted=timestamp_adjusted
-    # Convert the adjusted timestamp string to a datetime object
-    datetime_obj = datetime.strptime(timestamp_adjusted, format_string).replace(tzinfo=timezone.utc)
-    return datetime_obj
+    if not timestamp_adjusted.endswith("Z"):
+        timestamp_adjusted += "Z"
+    return datetime.strptime(timestamp_adjusted, format_string).replace(tzinfo=timezone.utc)
 
 
 def human_format(num):

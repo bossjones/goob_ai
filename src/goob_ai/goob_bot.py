@@ -279,8 +279,7 @@ async def file_to_data_uri(file: discord.File) -> str:
     with BytesIO(file.fp.read()) as f:
         file_bytes = f.read()
     base64_encoded = base64.b64encode(file_bytes).decode("ascii")
-    data_uri = f'data:{"image"};base64,{base64_encoded}'
-    return data_uri
+    return f"data:image;base64,{base64_encoded}"
 
 
 # SOURCE: https://github.com/CrosswaveOmega/NikkiBot/blob/7092ae6da21c86c7686549edd5c45335255b73ec/cogs/GlobalCog.py#L23
@@ -303,9 +302,7 @@ async def data_uri_to_file(data_uri: str, filename: str) -> discord.File:
     content_type = metadata.split(";")[0].split(":")[1]
     # Decode the base64 data
     file_bytes = base64.b64decode(base64_data)
-    # Create a discord.File object
-    file = discord.File(BytesIO(file_bytes), filename=filename, spoiler=False)
-    return file
+    return discord.File(BytesIO(file_bytes), filename=filename, spoiler=False)
 
 
 @async_.to_async
@@ -956,28 +953,29 @@ class AsyncGoobBot(commands.Bot):
             None
         """
 
-        if len(message.attachments) > 0:  # pyright: ignore[reportAttributeAccessIssue]
-            await message.channel.send("Processing attachments... (this may take a minute)", delete_after=30.0)  # pyright: ignore[reportAttributeAccessIssue]
+        if len(message.attachments) <= 0:
+            return
+        await message.channel.send("Processing attachments... (this may take a minute)", delete_after=30.0)  # pyright: ignore[reportAttributeAccessIssue]
 
-            root_temp_dir = "temp/" + str(uuid.uuid4())
-            uploaded_file_paths = []
-            for attachment in message.attachments:  # pyright: ignore[reportAttributeAccessIssue]
-                logging.debug(f"Downloading file from {attachment.url}")
-                # Download the file
-                file_path = os.path.join(root_temp_dir, attachment.filename)
-                os.makedirs(os.path.dirname(file_path), exist_ok=True)
+        root_temp_dir = f"temp/{str(uuid.uuid4())}"
+        uploaded_file_paths = []
+        for attachment in message.attachments:  # pyright: ignore[reportAttributeAccessIssue]
+            logging.debug(f"Downloading file from {attachment.url}")
+            # Download the file
+            file_path = os.path.join(root_temp_dir, attachment.filename)
+            os.makedirs(os.path.dirname(file_path), exist_ok=True)
 
-                # Download the file from the URL
-                async with aiohttp.ClientSession() as session:
-                    async with session.get(attachment.url) as resp:
-                        if resp.status != 200:
-                            raise aiohttp.ClientException(f"Error downloading file from {attachment.url}")
-                        data = await resp.read()
+            # Download the file from the URL
+            async with aiohttp.ClientSession() as session:
+                async with session.get(attachment.url) as resp:
+                    if resp.status != 200:
+                        raise aiohttp.ClientException(f"Error downloading file from {attachment.url}")
+                    data = await resp.read()
 
-                        with open(file_path, "wb") as f:
-                            f.write(data)
+                    with open(file_path, "wb") as f:
+                        f.write(data)
 
-                uploaded_file_paths.append(file_path)
+            uploaded_file_paths.append(file_path)
 
             # FIXME: RE ENABLE THIS SHIT 6/5/2024
             # # Process the files
@@ -1020,9 +1018,7 @@ class AsyncGoobBot(commands.Bot):
             # Join the words into a sentence
             sentence = " ".join(words)
             message_content = f"{message_content} [{message.author.display_name} posts an animated {sentence} ]"
-            message_content = message_content.replace(tenor_url, "")
-            return message_content
-
+            return message_content.replace(tenor_url, "")
         elif url_pattern.match(message_content):
             LOGGER.info(f"Message content is a URL: {message_content}")
             # Download the image from the URL and convert it to a PIL image
@@ -1093,7 +1089,7 @@ class AsyncGoobBot(commands.Bot):
         )
 
         # Create a temporary directory to store the attachments
-        tmpdirname = "temp/" + str(uuid.uuid4())
+        tmpdirname = f"temp/{str(uuid.uuid4())}"
         os.makedirs(os.path.dirname(tmpdirname), exist_ok=True)
         print("created temporary directory", tmpdirname)
         with Timer(text="\nTotal elapsed time: {:.1f}"):
@@ -1117,7 +1113,7 @@ class AsyncGoobBot(commands.Bot):
             print("standy")
 
             try:
-                for count, media_fpaths in enumerate(media_filepaths):
+                for media_fpaths in media_filepaths:
                     # Compute all predictions first
                     full_path_input_file, full_path_output_file, get_timestamp = await details_from_file(
                         media_fpaths, cwd=f"{tmpdirname}"
@@ -1190,10 +1186,7 @@ class AsyncGoobBot(commands.Bot):
         is_dm: bool = str(message.channel.type) == "private"  # pyright: ignore[reportAttributeAccessIssue]
         user_id: int = message.author.id  # pyright: ignore[reportAttributeAccessIssue]
 
-        if is_dm:
-            return f"discord_{user_id}"
-        else:
-            return f"discord_{message.channel.id}"  # pyright: ignore[reportAttributeAccessIssue]
+        return f"discord_{user_id}" if is_dm else f"discord_{message.channel.id}"
 
         # TODO: ENABLE THIS AND THREAD HANDLING
         # channel_id = message.channel.id
@@ -1479,7 +1472,7 @@ class AsyncGoobBot(commands.Bot):
             None
         """
         LOGGER.info(f"message = {message}")
-        LOGGER.info(f"ITS THIS ONE BOSS")
+        LOGGER.info("ITS THIS ONE BOSS")
 
         LOGGER.info(f"You are in function: {CURRENTFUNCNAME()}")
         LOGGER.info(f"This function's caller was: {CURRENTFUNCNAME(1)}")

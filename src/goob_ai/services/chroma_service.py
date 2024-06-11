@@ -46,7 +46,7 @@ def get_response(query_text):
     # Search the DB
     results = db.similarity_search_with_relevance_scores(query_text, k=3)
     if len(results) == 0 or results[0][1] < 0.7:
-        return f"Unable to find matching results."
+        return "Unable to find matching results."
 
     context_text = "\n\n---\n\n".join([doc.page_content for doc, _score in results])
     prompt_template = ChatPromptTemplate.from_template(PROMPT_TEMPLATE)
@@ -56,8 +56,7 @@ def get_response(query_text):
     response_text = model.predict(prompt)
 
     sources = [doc.metadata.get("source", None) for doc, _score in results]
-    formatted_response = f"Response: {response_text}\nSources: {sources}"
-    return formatted_response
+    return f"Response: {response_text}\nSources: {sources}"
 
 
 # # Gradio interface components

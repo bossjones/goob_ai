@@ -121,7 +121,7 @@ class DocLoader:
         docs = loader.load_and_split(self.splitter)
         # Add document_id as metadata to all docs
         for doc in docs:
-            doc.metadata["filename"] = Path(self.path).stem + ".pdf"
+            doc.metadata["filename"] = f"{Path(self.path).stem}.pdf"
         return docs
 
 
@@ -155,8 +155,7 @@ class ChromaDB:
         if industry:
             industry_file = industry_files[industry]
             filter = {"filename": industry_file}
-        docs = self.chroma.similarity_search(query, k=30, filter=filter)
-        return docs
+        return self.chroma.similarity_search(query, k=30, filter=filter)
 
 
 if __name__ == "__main__":

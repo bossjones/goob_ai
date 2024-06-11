@@ -123,11 +123,13 @@ def pred_and_plot_image(
     image_path: str | PathLike,
     class_names: List[str],
     image_size: Tuple[int, int] = (224, 224),
-    transform: torchvision.transforms = None,  # pyright: ignore[reportAttributeAccessIssue]
+    transform: torchvision.transforms = None,
     device: torch.device = DEVICE,
-    y_preds: List[torch.Tensor] = [],  # pyright: ignore[reportCallInDefaultInitializer]
+    y_preds: List[torch.Tensor] = None,
     y_pred_tensor: torch.Tensor = None,
 ):
+    if y_preds is None:
+        y_preds = []
     # 2. Open image
     img = Image.open(image_path)
 

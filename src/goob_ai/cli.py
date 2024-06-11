@@ -363,29 +363,29 @@ def run_download_and_predict(
 
 
 @APP.command()
-def run_predict_and_display(
-    img_url: List[str] = [
-        # "/Users/malcolm/dev/bossjones/goob_ai/tests/fixtures/screenshot_image_larger.JPEG",
-        # "/Users/malcolm/dev/bossjones/goob_ai/tests/fixtures/screenshot_image_larger2.PNG",
-        # "/Users/malcolm/dev/bossjones/goob_ai/tests/fixtures/screenshot_image_larger3.PNG",
-        "/Users/malcolm/dev/bossjones/goob_ai/tests/fixtures/screenshot_image_larger00000.JPEG",
-        "/Users/malcolm/dev/bossjones/goob_ai/tests/fixtures/screenshot_image_larger00001.PNG",
-        "/Users/malcolm/dev/bossjones/goob_ai/tests/fixtures/screenshot_image_larger00002.PNG",
-        "/Users/malcolm/dev/bossjones/goob_ai/tests/fixtures/screenshot_image_larger00003.PNG",
-        "/Users/malcolm/dev/bossjones/goob_ai/tests/fixtures/screenshot_image_larger00004.PNG",
-        "/Users/malcolm/dev/bossjones/goob_ai/tests/fixtures/screenshot_image_larger00005.PNG",
-        "/Users/malcolm/dev/bossjones/goob_ai/tests/fixtures/screenshot_image_larger00006.PNG",
-        "/Users/malcolm/dev/bossjones/goob_ai/tests/fixtures/screenshot_image_larger00007.PNG",
-        "/Users/malcolm/dev/bossjones/goob_ai/tests/fixtures/screenshot_image_larger00008.PNG",
-        "/Users/malcolm/dev/bossjones/goob_ai/tests/fixtures/screenshot_image_larger00009.PNG",
-        # "/Users/malcolm/dev/bossjones/goob_ai/tests/fixtures/screenshot_image_larger00010.PNG",
-        # "/Users/malcolm/dev/bossjones/goob_ai/tests/fixtures/screenshot_image_larger00011.PNG",
-        # "/Users/malcolm/dev/bossjones/goob_ai/tests/fixtures/screenshot_image_larger00012.PNG",
-        # "/Users/malcolm/dev/bossjones/goob_ai/tests/fixtures/screenshot_image_larger00013.PNG",
-    ],  # type: ignore
-) -> None:
+def run_predict_and_display(img_url: List[str] = None) -> None:
     """Manually run screencrop's download_and_predict service and get bounding boxes"""
 
+    if img_url is None:
+        img_url = [
+            # "/Users/malcolm/dev/bossjones/goob_ai/tests/fixtures/screenshot_image_larger.JPEG",
+            # "/Users/malcolm/dev/bossjones/goob_ai/tests/fixtures/screenshot_image_larger2.PNG",
+            # "/Users/malcolm/dev/bossjones/goob_ai/tests/fixtures/screenshot_image_larger3.PNG",
+            "/Users/malcolm/dev/bossjones/goob_ai/tests/fixtures/screenshot_image_larger00000.JPEG",
+            "/Users/malcolm/dev/bossjones/goob_ai/tests/fixtures/screenshot_image_larger00001.PNG",
+            "/Users/malcolm/dev/bossjones/goob_ai/tests/fixtures/screenshot_image_larger00002.PNG",
+            "/Users/malcolm/dev/bossjones/goob_ai/tests/fixtures/screenshot_image_larger00003.PNG",
+            "/Users/malcolm/dev/bossjones/goob_ai/tests/fixtures/screenshot_image_larger00004.PNG",
+            "/Users/malcolm/dev/bossjones/goob_ai/tests/fixtures/screenshot_image_larger00005.PNG",
+            "/Users/malcolm/dev/bossjones/goob_ai/tests/fixtures/screenshot_image_larger00006.PNG",
+            "/Users/malcolm/dev/bossjones/goob_ai/tests/fixtures/screenshot_image_larger00007.PNG",
+            "/Users/malcolm/dev/bossjones/goob_ai/tests/fixtures/screenshot_image_larger00008.PNG",
+            "/Users/malcolm/dev/bossjones/goob_ai/tests/fixtures/screenshot_image_larger00009.PNG",
+            # "/Users/malcolm/dev/bossjones/goob_ai/tests/fixtures/screenshot_image_larger00010.PNG",
+            # "/Users/malcolm/dev/bossjones/goob_ai/tests/fixtures/screenshot_image_larger00011.PNG",
+            # "/Users/malcolm/dev/bossjones/goob_ai/tests/fixtures/screenshot_image_larger00012.PNG",
+            # "/Users/malcolm/dev/bossjones/goob_ai/tests/fixtures/screenshot_image_larger00013.PNG",
+        ]
     path_to_image_from_cli = fix_path(img_url)
     try:
         ImageService.handle_predict_and_display(path_to_image_from_cli)
