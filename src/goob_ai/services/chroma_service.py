@@ -96,7 +96,9 @@ def generate_data_store() -> None:
     save_to_chroma(chunks)
 
 
-def load_documents():
+from typing import List
+
+def load_documents() -> List[Document]:
     documents = []
     for filename in os.listdir(DATA_PATH):
         if filename.endswith(".pdf"):
