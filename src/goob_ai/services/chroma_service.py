@@ -108,14 +108,16 @@ def load_documents() -> List[Document]:
     return documents
 
 
-def split_text(documents: list[Document]):
-    text_splitter = RecursiveCharacterTextSplitter(
+from typing import List
+
+def split_text(documents: List[Document]) -> List[Document]:
+    text_splitter: RecursiveCharacterTextSplitter = RecursiveCharacterTextSplitter(
         chunk_size=300,
         chunk_overlap=100,
         length_function=len,
         add_start_index=True,
     )
-    chunks = text_splitter.split_documents(documents)
+    chunks: List[Document] = text_splitter.split_documents(documents)
     LOGGER.info(f"Split {len(documents)} documents into {len(chunks)} chunks.")
     if chunks:
         document = chunks[10]
