@@ -38,6 +38,7 @@ from loguru import logger as LOGGER
 from PIL import Image
 from scipy.spatial import KDTree
 from torch import nn
+from torchvision.transforms.functional import InterpolationMode
 from torchvision.utils import make_grid
 from tqdm.auto import tqdm
 from webcolors import CSS3_HEX_TO_NAMES, hex_to_rgb
@@ -456,7 +457,7 @@ def resize_image_and_bbox(
     image_tensor_to_resize_width = image.shape[2]
 
     # Resize image
-    new_image = FT.resize(image, dims)
+    new_image = FT.resize(image, dims, InterpolationMode.BILINEAR, antialias=True)
 
     # Resize bounding boxes
     old_dims = (

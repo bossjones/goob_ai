@@ -380,6 +380,8 @@ image, bboxes = predict_from_file(images_filepath, model, device)
 import rich
 from goob_ai.utils.imgops import DEVICE, OPENCV_RED, handle_predict_one, predict_from_file, setup_model
 from goob_ai import debugger
+import torch
+
 
 model = setup_model()
 rich.inspect(model, private=True)
@@ -389,6 +391,12 @@ path_to_image_from_cli = "/Users/malcolm/dev/bossjones/goob_ai/tests/fixtures/sc
 image_results, bboxes_results = predict_from_file(
     path_to_image_from_cli, model, DEVICE
 )
+
+# Check the first parameter's dtype
+print(next(model.parameters()).dtype)
+
+torch.tensor([1.2, 3]).dtype
+
 
 image_results
 # <PIL.Image.Image image mode=RGB size=560x1214 at 0x33995BBE0>

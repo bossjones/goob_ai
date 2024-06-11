@@ -17,7 +17,7 @@ EVAL_CRITERIA = {
 
 
 class Evaluator:
-    evaluator = None
+    evaluator: Chain | StringEvaluator | None = None
 
     def __init__(self):
         super().__init__()

@@ -593,6 +593,7 @@ def test_get_pil_image_channels(mocker):
     """Test get_pil_image_channels function."""
     image_path = "tests/fixtures/screenshot_image_larger00013.PNG"
 
+    # 'pil_img': <PIL.PngImagePlugin.PngImageFile image mode=RGB size=1179x2556 at 0x32AA189D0>,
     channels = get_pil_image_channels(image_path)
 
     assert channels == 3
