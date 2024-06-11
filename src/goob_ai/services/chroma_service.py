@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import os
 import shutil
+from typing import List
 
 from dataclasses import dataclass
 
@@ -57,22 +58,6 @@ def get_response(query_text: str) -> str:
 
     sources = [doc.metadata.get("source", None) for doc, _score in results]
     return f"Response: {response_text}\nSources: {sources}"
-
-
-# # Gradio interface components
-# def main():
-#     with gr.Blocks() as demo:
-#         with gr.Row():
-#             query_textbox = gr.Textbox(lines=2, placeholder="Enter your query here...", label="Query")
-#             response_textbox = gr.Textbox(lines=10, placeholder="Response will be shown here...", label="Response",
-#                                           interactive=False)
-
-#         query_button = gr.Button("Submit Query")
-
-#         # Define the interaction
-#         query_button.click(fn=get_response, inputs=query_textbox, outputs=response_textbox)
-
-#     demo.launch()
 
 
 def main() -> None:
@@ -142,26 +127,6 @@ def generate_data_store() -> None:
     chunks = split_text(documents)
     save_to_chroma(chunks)
 
-class Timer:
-    """Utility timer class.
-
-    This class can be used to time operations. It can be started, stopped, and reset. The duration 
-    retrieved at any time.
-
-    Example::
-
-        import time
-        from mltemplate.utils import Timer
-
-    """
-    def __init__(self):
-        """
-        Initialize the Timer class.
-        """
-
-
-from typing import List
-
 def load_documents() -> List[Document]:
     documents = []
     for filename in os.listdir(DATA_PATH):
@@ -172,7 +137,6 @@ def load_documents() -> List[Document]:
     return documents
 
 
-from typing import List
 
 def split_text(documents: List[Document]) -> List[Document]:
     """
@@ -235,24 +199,6 @@ def save_to_chroma(chunks: list[Document]) -> None:
     db = Chroma.from_documents(chunks, embeddings, persist_directory=CHROMA_PATH)
     db.persist()
     LOGGER.info(f"Saved {len(chunks)} chunks to {CHROMA_PATH}.")
-
-class TimerCollection:
-    """Utility class for timing multiple operations.
-
-    This class keeps a collection of named timers. Each timer can be started, stopped, and reset. T
-    timer can be retrieved at any time. If a timer is stopped and restarted, the duration will be a
-    duration. The timers can be reset individually, or all at once.
-
-    Example::
-
-        import time
-        from mltemplate.utils import TimerCollection
-
-    """
-    def __init__(self):
-        """
-        Initialize the TimerCollection class.
-        """
 
 
 if __name__ == "__main__":
