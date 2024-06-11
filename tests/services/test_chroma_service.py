@@ -89,6 +89,25 @@ def test_load_documents(mocker: MockerFixture, mock_pdf_file: Path) -> None:
 
 
 def test_split_text(mocker: MockerFixture) -> None:
+    from goob_ai.services.chroma_service import split_text
+    from langchain.schema import Document
+    from typing import List
+
+    mock_documents: List[Document] = [Document(page_content="This is a test document.", metadata={})]
+    mock_chunks: List[Document] = [
+        Document(page_content="This is a test", metadata={"start_index": 0}),
+        Document(page_content="document.", metadata={"start_index": 15}),
+    ]
+
+    mock_text_splitter = mocker.patch("goob_ai.services.chroma_service.RecursiveCharacterTextSplitter")
+    mock_text_splitter.return_value.split_documents.return_value = mock_chunks
+
+    chunks: List[Document] = split_text(mock_documents)
+
+    assert len(chunks) == 2
+    assert chunks[0].page_content == "This is a test"
+    assert chunks[1].page_content == "document."
+    mock_text_splitter.return_value.split_documents.assert_called_once_with(mock_documents)
     mock_documents = [Document(page_content="This is a test document.", metadata={})]
     mock_chunks = [
         Document(page_content="This is a test", metadata={"start_index": 0}),
