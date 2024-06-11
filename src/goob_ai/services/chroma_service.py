@@ -81,6 +81,14 @@ def main() -> None:
 
 class CustomOpenAIEmbeddings(OpenAIEmbeddings):
     def __init__(self, openai_api_key: str = aiosettings.openai_api_key) -> None:
+        """
+        Initialize the CustomOpenAIEmbeddings class.
+
+        Parameters
+        ----------
+        openai_api_key : str
+            The API key for accessing OpenAI services.
+        """
         super().__init__(openai_api_key=openai_api_key)
 
     def _embed_documents(self, texts: list[str]) -> list[list[float]]:
