@@ -80,7 +80,7 @@ def main():
 
 
 class CustomOpenAIEmbeddings(OpenAIEmbeddings):
-    def __init__(self, openai_api_key=aiosettings.openai_api_key):
+    def __init__(self, openai_api_key: str = aiosettings.openai_api_key) -> None:
         super().__init__(openai_api_key=openai_api_key)
 
     def _embed_documents(self, texts):
