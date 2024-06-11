@@ -42,3 +42,12 @@ def test_custom_openai_embeddings_call(mocker, custom_embeddings):
 
     result = custom_embeddings(mock_texts)
     assert result == mock_embeddings
+
+def test_embed_documents(mocker, custom_embeddings):
+    mock_texts = ["This is a test document."]
+    mock_embeddings = [[0.1, 0.2, 0.3]]
+
+    mocker.patch.object(custom_embeddings, 'embed_documents', return_value=mock_embeddings)
+
+    result = custom_embeddings._embed_documents(mock_texts)
+    assert result == mock_embeddings
