@@ -46,11 +46,12 @@ def custom_embeddings(mock_openai_api_key: str) -> CustomOpenAIEmbeddings:
 
 
 def test_custom_openai_embeddings_init(mocker: MockerFixture) -> None:
-    """Test the initialization of CustomOpenAIEmbeddings.
+    """
+    Test the initialization of CustomOpenAIEmbeddings.
 
     This test verifies that the CustomOpenAIEmbeddings instance is initialized
     with the correct OpenAI API key.
-    
+
     Args:
         mocker (MockerFixture): The mocker fixture for patching.
     """
