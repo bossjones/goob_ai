@@ -13,19 +13,27 @@ import chromadb
 from langchain.prompts import ChatPromptTemplate
 from langchain.schema.document import Document
 from langchain_community.document_loaders import PyMuPDFLoader
+from langchain_community.embeddings import OpenAIEmbeddings
 from langchain_community.llms.ollama import Ollama
 from langchain_text_splitters import RecursiveCharacterTextSplitter
+from loguru import logger as LOGGER
 from tqdm import tqdm
 
+from goob_ai.aio_settings import aiosettings
 
-DATA_PATH = "/Users/malcolm/dev/bossjones/goob_ai/src/goob_ai/data/db"
+
+HERE = os.path.dirname(__file__)
+# DATA_PATH = "/Users/malcolm/dev/bossjones/goob_ai/src/goob_ai/data/db"
 QDRANT_URL = os.getenv("QDRANT_URL", "https://localhost:6333")
 QDRANT_COLLECTION_NAME = os.getenv("QDRANT_COLLECTION_NAME", "ragcollection")
-DATA_DOC_PATH = os.getenv("DATA_DOC_PATH", os.path.join(DATA_PATH, "documents"))
-CHROMA_PATH = os.getenv("CHROMA_PATH", os.path.join(DATA_PATH, "chroma_db"))
+# DATA_DOC_PATH = os.getenv("DATA_DOC_PATH", os.path.join(DATA_PATH, "documents"))
+# CHROMA_PATH = os.getenv("CHROMA_PATH", os.path.join(DATA_PATH, "chroma_db"))
 CHUNK_SIZE = int(os.getenv("CHUNK_SIZE", "800"))
 CHUNK_OVERLAP = int(os.getenv("CHUNK_OVERLAP", "80"))
 RAG_TOP_K = int(os.getenv("RAG_TOP_K", "5"))
+
+DATA_PATH = os.path.join(HERE, "data", "chroma", "data")
+CHROMA_PATH = os.path.join(HERE, "data", "chroma", "vectorstorage")
 
 PROMPT_TEMPLATE = """
 Answer the question based only basedon the on the following context:
@@ -50,12 +58,23 @@ def split_documents(documents: list[Document]):
     return splitter.split_documents(documents)
 
 
-class CustomOllamaEmbeddings:
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+# class CustomOllamaEmbeddings:
+#     def __init__(self, *args, **kwargs):
+#         super().__init__(*args, **kwargs)
+
+#     def _embed_documents(self, texts):
+#         return [OllamaEmbeddings(model="llama3", prompt=text)["embedding"] for text in texts]
+
+#     def __call__(self, input):
+#         return self._embed_documents(input)
+
+
+class CustomOpenAIEmbeddings(OpenAIEmbeddings):
+    def __init__(self, openai_api_key=aiosettings.openai_api_key):
+        super().__init__(openai_api_key=openai_api_key)
 
     def _embed_documents(self, texts):
-        return [OllamaEmbeddings(model="llama3", prompt=text)["embedding"] for text in texts]
+        return super().embed_documents(texts)
 
     def __call__(self, input):
         return self._embed_documents(input)
@@ -170,7 +189,9 @@ class ChromaDBManager:
         return self.vector_db.get_list_collections()
 
     def get_collection(self, collection_name: str, embedding_function):
-        return self.vector_db.get_collection(collection_name, CustomOllamaEmbeddings())
+        return self.vector_db.get_collection(
+            collection_name, CustomOpenAIEmbeddings(openai_api_key=aiosettings.openai_api_key)
+        )
 
     def initialize_database(self, pdf_path: str, collection_name: str, debug: bool = False):
         documents_data = load_pdf(pdf_path)
@@ -181,13 +202,17 @@ class ChromaDBManager:
         if debug:
             print("Split Documents Data:", split_documents_data)
 
-        self.collection = self.vector_db.add_collection(collection_name, CustomOllamaEmbeddings())
+        self.collection = self.vector_db.add_collection(
+            collection_name, CustomOpenAIEmbeddings(openai_api_key=aiosettings.openai_api_key)
+        )
         self.vector_db.add_chunks(split_documents_data)
 
         print(f"Collection '{collection_name}' created and data added.")
 
     def delete_collection(self, collection_name: str):
-        self.collection = self.vector_db.get_collection(collection_name, CustomOllamaEmbeddings())
+        self.collection = self.vector_db.get_collection(
+            collection_name, CustomOpenAIEmbeddings(openai_api_key=aiosettings.openai_api_key)
+        )
         if self.collection:
             self.vector_db.chroma_client.delete_collection(collection_name)
             print(f"Collection '{collection_name}' deleted.")
@@ -195,7 +220,9 @@ class ChromaDBManager:
             print(f"Collection '{collection_name}' not found.")
 
     def query_database(self, query_text: str, collection_name: str, debug: bool = False):
-        collection = self.get_collection(collection_name, CustomOllamaEmbeddings())
+        collection = self.get_collection(
+            collection_name, CustomOpenAIEmbeddings(openai_api_key=aiosettings.openai_api_key)
+        )
         query_context, prompt = query_database(collection, query_text)
 
         if debug:
