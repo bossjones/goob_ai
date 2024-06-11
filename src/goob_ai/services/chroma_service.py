@@ -119,6 +119,23 @@ def generate_data_store() -> None:
     chunks = split_text(documents)
     save_to_chroma(chunks)
 
+class Timer:
+    """Utility timer class.
+
+    This class can be used to time operations. It can be started, stopped, and reset. The duration 
+    retrieved at any time.
+
+    Example::
+
+        import time
+        from mltemplate.utils import Timer
+
+    """
+    def __init__(self):
+        """
+        Initialize the Timer class.
+        """
+
 
 from typing import List
 
@@ -161,6 +178,24 @@ def save_to_chroma(chunks: list[Document]) -> None:
     db = Chroma.from_documents(chunks, embeddings, persist_directory=CHROMA_PATH)
     db.persist()
     LOGGER.info(f"Saved {len(chunks)} chunks to {CHROMA_PATH}.")
+
+class TimerCollection:
+    """Utility class for timing multiple operations.
+
+    This class keeps a collection of named timers. Each timer can be started, stopped, and reset. T
+    timer can be retrieved at any time. If a timer is stopped and restarted, the duration will be a
+    duration. The timers can be reset individually, or all at once.
+
+    Example::
+
+        import time
+        from mltemplate.utils import TimerCollection
+
+    """
+    def __init__(self):
+        """
+        Initialize the TimerCollection class.
+        """
 
 
 if __name__ == "__main__":
