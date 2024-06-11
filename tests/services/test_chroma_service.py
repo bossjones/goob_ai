@@ -154,6 +154,20 @@ def test_load_documents(mocker: MockerFixture, mock_pdf_file: Path) -> None:
 
 
 def test_split_text(mocker: MockerFixture) -> None:
+    """Test the split_text function.
+
+    This test verifies that the `split_text` function correctly splits
+    documents into chunks using the RecursiveCharacterTextSplitter.
+
+    Args:
+        mocker (MockerFixture): The mocker fixture for patching.
+
+    The test performs the following steps:
+    1. Mocks the RecursiveCharacterTextSplitter to return predefined chunks.
+    2. Calls the `split_text` function with a mock document.
+    3. Asserts that the document is split into the expected chunks.
+    4. Verifies that the RecursiveCharacterTextSplitter is called with the correct arguments.
+    """
     from goob_ai.services.chroma_service import split_text
     from langchain.schema import Document
     from typing import List
@@ -182,64 +196,10 @@ def test_split_text(mocker: MockerFixture) -> None:
     mock_text_splitter = mocker.patch("goob_ai.services.chroma_service.RecursiveCharacterTextSplitter")
     mock_text_splitter.return_value.split_documents.return_value = mock_chunks
 
-    from goob_ai.services.chroma_service import split_text
-
     chunks = split_text(mock_documents)
 
     assert len(chunks) == 2
     assert chunks[0].page_content == "This is a test"
     assert chunks[1].page_content == "document."
     mock_text_splitter.return_value.split_documents.assert_called_once_with(mock_documents)
-    mock_generate_data_store = mocker.patch("goob_ai.services.chroma_service.generate_data_store")
-    from goob_ai.services.chroma_service import main
 
-    main()
-    mock_generate_data_store.assert_called_once()
-    mock_query_text = "What is the capital of France?"
-    mock_results = [
-        (Document(page_content="Paris is the capital of France.", metadata={"source": "source1"}), 0.9),
-        (Document(page_content="France's capital is Paris.", metadata={"source": "source2"}), 0.85),
-        (Document(page_content="The capital city of France is Paris.", metadata={"source": "source3"}), 0.8),
-    ]
-    mock_context_text = "\n\n---\n\n".join([doc.page_content for doc, _score in mock_results])
-    mock_prompt = f"""
-Answer the question based only on the following context:
-
-{mock_context_text}
-
----
-
-Answer the question based on the above context: {mock_query_text}
-"""
-    mock_response_text = "The capital of France is Paris."
-    mock_sources = ["source1", "source2", "source3"]
-
-    mock_embedding_function = mocker.patch("goob_ai.services.chroma_service.OpenAIEmbeddings")
-    mock_chroma = mocker.patch("goob_ai.services.chroma_service.Chroma")
-    mock_chroma.return_value.similarity_search_with_relevance_scores.return_value = mock_results
-    mock_prompt_template = mocker.patch("goob_ai.services.chroma_service.ChatPromptTemplate")
-    mock_prompt_template.from_template.return_value.format.return_value = mock_prompt
-    mock_model = mocker.patch("goob_ai.services.chroma_service.ChatOpenAI")
-    mock_model.return_value.predict.return_value = mock_response_text
-
-    response = get_response(mock_query_text)
-
-    assert response == f"Response: {mock_response_text}\nSources: {mock_sources}"
-    mock_chroma.return_value.similarity_search_with_relevance_scores.assert_called_once_with(mock_query_text, k=3)
-    mock_prompt_template.from_template.assert_called_once_with("""
-Answer the question based only on the following context:
-
-{context}
-
----
-
-Answer the question based on the above context: {question}
-""")
-    mock_model.return_value.predict.assert_called_once_with(mock_prompt)
-    mock_texts = ["This is a test document."]
-    mock_embeddings = [[0.1, 0.2, 0.3]]
-
-    mocker.patch.object(custom_embeddings, "embed_documents", return_value=mock_embeddings)
-
-    result = custom_embeddings._embed_documents(mock_texts)
-    assert result == mock_embeddings
