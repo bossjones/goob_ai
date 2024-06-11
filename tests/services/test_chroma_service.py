@@ -22,10 +22,26 @@ def mock_openai_api_key(mocker: MockerFixture) -> str:
 
 @pytest.fixture
 def custom_embeddings(mock_openai_api_key: str) -> CustomOpenAIEmbeddings:
+    """Create a CustomOpenAIEmbeddings instance with the provided API key.
+
+    Args:
+        mock_openai_api_key (str): The OpenAI API key to use for the embeddings.
+
+    Returns:
+        CustomOpenAIEmbeddings: An instance of CustomOpenAIEmbeddings initialized with the provided API key.
+    """
     return CustomOpenAIEmbeddings(openai_api_key=mock_openai_api_key)
 
 
 def test_custom_openai_embeddings_init(mocker: MockerFixture) -> None:
+    """Test the initialization of CustomOpenAIEmbeddings.
+
+    This test verifies that the CustomOpenAIEmbeddings instance is initialized
+    with the correct OpenAI API key.
+    
+    Args:
+        mocker (MockerFixture): The mocker fixture for patching.
+    """
     mock_openai_api_key = "test_api_key"
     mocker.patch.object(aiosettings, "openai_api_key", mock_openai_api_key)
 
@@ -34,6 +50,15 @@ def test_custom_openai_embeddings_init(mocker: MockerFixture) -> None:
 
 
 def test_custom_openai_embeddings_call(mocker: MockerFixture, custom_embeddings: CustomOpenAIEmbeddings) -> None:
+    """Test the call method of CustomOpenAIEmbeddings.
+
+    This test verifies that the call method of CustomOpenAIEmbeddings returns
+    the expected embeddings for the given texts.
+    
+    Args:
+        mocker (MockerFixture): The mocker fixture for patching.
+        custom_embeddings (CustomOpenAIEmbeddings): An instance of CustomOpenAIEmbeddings.
+    """
     mock_texts: list[str] = ["This is a test document."]
     mock_embeddings: list[list[float]] = [[0.1, 0.2, 0.3]]
 
