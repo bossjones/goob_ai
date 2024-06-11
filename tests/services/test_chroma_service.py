@@ -3,6 +3,9 @@ from __future__ import annotations
 import shutil
 
 
+from pathlib import Path
+from typing import Generator
+
 from goob_ai.aio_settings import aiosettings
 from goob_ai.services.chroma_service import CustomOpenAIEmbeddings, generate_data_store, get_response, save_to_chroma
 from langchain.schema import Document
@@ -40,9 +43,6 @@ def test_custom_openai_embeddings_call(mocker: MockerFixture, custom_embeddings:
     assert result == mock_embeddings
 
 
-@pytest.fixture
-from pathlib import Path
-from typing import Generator
 
 def mock_pdf_file(tmp_path: Path) -> Generator[Path, None, None]:
     # Create a temporary directory and copy the test PDF file into it
