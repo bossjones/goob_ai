@@ -1,33 +1,43 @@
-import pytest
+from __future__ import annotations
+
 import shutil
-from pytest_mock import MockerFixture
-from goob_ai.services.chroma_service import CustomOpenAIEmbeddings, generate_data_store, get_response, save_to_chroma
+
 from goob_ai.aio_settings import aiosettings
+from goob_ai.services.chroma_service import CustomOpenAIEmbeddings, generate_data_store, get_response, save_to_chroma
 from langchain.schema import Document
+
+import pytest
+
+from pytest_mock import MockerFixture
+
 
 @pytest.fixture
 def mock_openai_api_key(mocker):
     return "test_api_key"
 
+
 @pytest.fixture
 def custom_embeddings(mock_openai_api_key):
     return CustomOpenAIEmbeddings(openai_api_key=mock_openai_api_key)
 
+
 def test_custom_openai_embeddings_init(mocker):
     mock_openai_api_key = "test_api_key"
-    mocker.patch.object(aiosettings, 'openai_api_key', mock_openai_api_key)
-    
+    mocker.patch.object(aiosettings, "openai_api_key", mock_openai_api_key)
+
     embeddings = CustomOpenAIEmbeddings()
     assert embeddings.openai_api_key == mock_openai_api_key
+
 
 def test_custom_openai_embeddings_call(mocker, custom_embeddings):
     mock_texts = ["This is a test document."]
     mock_embeddings = [[0.1, 0.2, 0.3]]
 
-    mocker.patch.object(custom_embeddings, '_embed_documents', return_value=mock_embeddings)
+    mocker.patch.object(custom_embeddings, "_embed_documents", return_value=mock_embeddings)
 
     result = custom_embeddings(mock_texts)
     assert result == mock_embeddings
+
 
 @pytest.fixture
 def mock_pdf_file(tmp_path):
@@ -36,6 +46,7 @@ def mock_pdf_file(tmp_path):
     shutil.copy("src/goob_ai/data/chroma/documents/rich-readthedocs-io-en-latest.pdf", test_pdf_path)
     return test_pdf_path
 
+
 def test_load_documents(mocker: MockerFixture, mock_pdf_file):
     mocker.patch("os.listdir", return_value=["rich-readthedocs-io-en-latest.pdf"])
     mocker.patch("os.path.join", return_value=mock_pdf_file)
@@ -43,13 +54,19 @@ def test_load_documents(mocker: MockerFixture, mock_pdf_file):
     mock_loader.return_value.load.return_value = [Document(page_content="Test content", metadata={})]
 
     from goob_ai.services.chroma_service import load_documents
+
     documents = load_documents()
 
     assert len(documents) == 1
     assert documents[0].page_content == "Test content"
     mock_loader.return_value.load.assert_called_once_with()
-    mock_load_documents = mocker.patch("goob_ai.services.chroma_service.load_documents", return_value=[Document(page_content="Test content", metadata={})])
-    mock_split_text = mocker.patch("goob_ai.services.chroma_service.split_text", return_value=[Document(page_content="Test chunk", metadata={})])
+    mock_load_documents = mocker.patch(
+        "goob_ai.services.chroma_service.load_documents",
+        return_value=[Document(page_content="Test content", metadata={})],
+    )
+    mock_split_text = mocker.patch(
+        "goob_ai.services.chroma_service.split_text", return_value=[Document(page_content="Test chunk", metadata={})]
+    )
     mock_save_to_chroma = mocker.patch("goob_ai.services.chroma_service.save_to_chroma")
 
     generate_data_store()
@@ -58,15 +75,19 @@ def test_load_documents(mocker: MockerFixture, mock_pdf_file):
     mock_split_text.assert_called_once_with([Document(page_content="Test content", metadata={})])
     mock_save_to_chroma.assert_called_once_with([Document(page_content="Test chunk", metadata={})])
 
+
 def test_split_text(mocker: MockerFixture):
     mock_documents = [Document(page_content="This is a test document.", metadata={})]
-    mock_chunks = [Document(page_content="This is a test", metadata={"start_index": 0}),
-                   Document(page_content="document.", metadata={"start_index": 15})]
+    mock_chunks = [
+        Document(page_content="This is a test", metadata={"start_index": 0}),
+        Document(page_content="document.", metadata={"start_index": 15}),
+    ]
 
     mock_text_splitter = mocker.patch("goob_ai.services.chroma_service.RecursiveCharacterTextSplitter")
     mock_text_splitter.return_value.split_documents.return_value = mock_chunks
 
     from goob_ai.services.chroma_service import split_text
+
     chunks = split_text(mock_documents)
 
     assert len(chunks) == 2
@@ -75,6 +96,7 @@ def test_split_text(mocker: MockerFixture):
     mock_text_splitter.return_value.split_documents.assert_called_once_with(mock_documents)
     mock_generate_data_store = mocker.patch("goob_ai.services.chroma_service.generate_data_store")
     from goob_ai.services.chroma_service import main
+
     main()
     mock_generate_data_store.assert_called_once()
     mock_query_text = "What is the capital of France?"
@@ -121,7 +143,7 @@ Answer the question based on the above context: {question}
     mock_texts = ["This is a test document."]
     mock_embeddings = [[0.1, 0.2, 0.3]]
 
-    mocker.patch.object(custom_embeddings, 'embed_documents', return_value=mock_embeddings)
+    mocker.patch.object(custom_embeddings, "embed_documents", return_value=mock_embeddings)
 
     result = custom_embeddings._embed_documents(mock_texts)
     assert result == mock_embeddings
