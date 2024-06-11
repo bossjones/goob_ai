@@ -58,17 +58,21 @@ def test_load_documents(mocker: MockerFixture, mock_pdf_file):
     mock_split_text.assert_called_once_with([Document(page_content="Test content", metadata={})])
     mock_save_to_chroma.assert_called_once_with([Document(page_content="Test chunk", metadata={})])
 
-def test_save_to_chroma(mocker: MockerFixture):
-    mock_chunks = [Document(page_content="Test chunk", metadata={})]
-    mock_embeddings = mocker.patch("goob_ai.services.chroma_service.CustomOpenAIEmbeddings")
-    mock_chroma = mocker.patch("goob_ai.services.chroma_service.Chroma")
-    mock_db = mock_chroma.from_documents.return_value
+def test_split_text(mocker: MockerFixture):
+    mock_documents = [Document(page_content="This is a test document.", metadata={})]
+    mock_chunks = [Document(page_content="This is a test", metadata={"start_index": 0}),
+                   Document(page_content="document.", metadata={"start_index": 15})]
 
-    save_to_chroma(mock_chunks)
+    mock_text_splitter = mocker.patch("goob_ai.services.chroma_service.RecursiveCharacterTextSplitter")
+    mock_text_splitter.return_value.split_documents.return_value = mock_chunks
 
-    mock_embeddings.assert_called_once_with(openai_api_key=aiosettings.openai_api_key)
-    mock_chroma.from_documents.assert_called_once_with(mock_chunks, mock_embeddings.return_value, persist_directory=mocker.ANY)
-    mock_db.persist.assert_called_once()
+    from goob_ai.services.chroma_service import split_text
+    chunks = split_text(mock_documents)
+
+    assert len(chunks) == 2
+    assert chunks[0].page_content == "This is a test"
+    assert chunks[1].page_content == "document."
+    mock_text_splitter.return_value.split_documents.assert_called_once_with(mock_documents)
     mock_generate_data_store = mocker.patch("goob_ai.services.chroma_service.generate_data_store")
     from goob_ai.services.chroma_service import main
     main()
