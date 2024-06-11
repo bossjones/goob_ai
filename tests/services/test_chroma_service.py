@@ -44,6 +44,7 @@ def test_custom_openai_embeddings_call(mocker: MockerFixture, custom_embeddings:
 
 
 
+@pytest.fixture
 def mock_pdf_file(tmp_path: Path) -> Generator[Path, None, None]:
     # Create a temporary directory and copy the test PDF file into it
     test_pdf_path = tmp_path / "rich-readthedocs-io-en-latest.pdf"
