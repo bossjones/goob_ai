@@ -8,8 +8,6 @@ import shutil
 
 from dataclasses import dataclass
 
-import gradio as gr
-
 from langchain.chat_models import ChatOpenAI
 from langchain.document_loaders import PyPDFLoader
 from langchain.embeddings import OpenAIEmbeddings
@@ -127,7 +125,7 @@ def save_to_chroma(chunks: list[Document]):
     if os.path.exists(CHROMA_PATH):
         shutil.rmtree(CHROMA_PATH)
 
-    embeddings = CustomOpenAIEmbeddings(openai_api_key=os.environ["OPENAI_API_KEY"])
+    embeddings = CustomOpenAIEmbeddings(openai_api_key=aiosettings.openai_api_key)
     LOGGER.info(embeddings)
     # Create a new DB from the documents.
     db = Chroma.from_documents(chunks, embeddings, persist_directory=CHROMA_PATH)
