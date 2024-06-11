@@ -34,6 +34,13 @@ def test_custom_openai_embeddings_init(mocker):
 
 
 def test_custom_openai_embeddings_call(mocker: MockerFixture, custom_embeddings: CustomOpenAIEmbeddings) -> None:
+    mock_texts: list[str] = ["This is a test document."]
+    mock_embeddings: list[list[float]] = [[0.1, 0.2, 0.3]]
+
+    mocker.patch.object(custom_embeddings, "_embed_documents", return_value=mock_embeddings)
+
+    result: list[list[float]] = custom_embeddings(mock_texts)
+    assert result == mock_embeddings
     mock_texts = ["This is a test document."]
     mock_embeddings = [[0.1, 0.2, 0.3]]
 
