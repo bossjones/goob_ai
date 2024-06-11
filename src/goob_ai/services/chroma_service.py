@@ -40,7 +40,14 @@ Answer the question based on the above context: {question}
 
 # Function to perform the query and get the response
 def get_response(query_text: str) -> str:
-    # Prepare the DB
+    """Perform the query and get the response.
+
+    Args:
+        query_text (str): The query text to search in the database.
+
+    Returns:
+        str: The response text based on the query.
+    """
     embedding_function = OpenAIEmbeddings()
     db = Chroma(persist_directory=CHROMA_PATH, embedding_function=embedding_function)
 
@@ -67,42 +74,30 @@ def main() -> None:
     This function initializes the process of generating and storing document embeddings
     in a Chroma vector store. It calls the `generate_data_store` function to perform
     the necessary steps.
-
-    Returns
-    -------
-    None
     """
     generate_data_store()
 
 
 class CustomOpenAIEmbeddings(OpenAIEmbeddings):
     def __init__(self, openai_api_key: str = aiosettings.openai_api_key) -> None:
-        """
-        Initialize the CustomOpenAIEmbeddings class.
+        """Initialize the CustomOpenAIEmbeddings class.
 
-        Parameters
-        ----------
-        openai_api_key : str
-            The API key for accessing OpenAI services.
+        Args:
+            openai_api_key (str): The API key for accessing OpenAI services.
         """
         super().__init__(openai_api_key=openai_api_key)
 
     def _embed_documents(self, texts: list[str]) -> list[list[float]]:
-        """
-        Embed a list of documents.
+        """Embed a list of documents.
 
         This method takes a list of document texts and returns their embeddings
         as a list of float vectors.
 
-        Parameters
-        ----------
-        texts : list of str
-            The list of document texts to be embedded.
+        Args:
+            texts (list of str): The list of document texts to be embedded.
 
-        Returns
-        -------
-        list of list of float
-            The embeddings of the input documents.
+        Returns:
+            list of list of float: The embeddings of the input documents.
         """
         return super().embed_documents(texts)
 
@@ -111,23 +106,26 @@ class CustomOpenAIEmbeddings(OpenAIEmbeddings):
 
 
 def generate_data_store() -> None:
-    """
-    Generate and store document embeddings in a Chroma vector store.
+    """Generate and store document embeddings in a Chroma vector store.
 
     This function performs the following steps:
     1. Loads documents from the specified data path.
     2. Splits the loaded documents into smaller chunks.
     3. Saves the chunks into a Chroma vector store for efficient retrieval.
-
-    Returns
-    -------
-    None
     """
     documents = load_documents()
     chunks = split_text(documents)
     save_to_chroma(chunks)
 
 def load_documents() -> List[Document]:
+    """Load documents from the specified data path.
+
+    This function loads documents from the specified data path and returns them
+    as a list of Document objects.
+
+    Returns:
+        List[Document]: The list of loaded documents.
+    """
     documents = []
     for filename in os.listdir(DATA_PATH):
         if filename.endswith(".pdf"):
@@ -139,22 +137,17 @@ def load_documents() -> List[Document]:
 
 
 def split_text(documents: List[Document]) -> List[Document]:
-    """
-    Split documents into smaller chunks.
+    """Split documents into smaller chunks.
 
     This function takes a list of documents and splits each document into smaller chunks
     using the RecursiveCharacterTextSplitter. The chunks are then returned as a list of
     Document objects.
 
-    Parameters
-    ----------
-    documents : List[Document]
-        The list of documents to be split into chunks.
+    Args:
+        documents (List[Document]): The list of documents to be split into chunks.
 
-    Returns
-    -------
-    List[Document]
-        The list of document chunks.
+    Returns:
+        List[Document]: The list of document chunks.
     """
     text_splitter: RecursiveCharacterTextSplitter = RecursiveCharacterTextSplitter(
         chunk_size=300,
@@ -172,22 +165,15 @@ def split_text(documents: List[Document]) -> List[Document]:
 
 
 def save_to_chroma(chunks: list[Document]) -> None:
-    """
-    Save document chunks to a Chroma vector store.
+    """Save document chunks to a Chroma vector store.
 
     This function performs the following steps:
     1. Initializes the embeddings using the OpenAI API key.
     2. Creates a new Chroma database from the document chunks.
     3. Persists the database to the specified directory.
 
-    Parameters
-    ----------
-    chunks : list of Document
-        The list of document chunks to be saved.
-
-    Returns
-    -------
-    None
+    Args:
+        chunks (list of Document): The list of document chunks to be saved.
     """
     # Clear out the database first.
     # if os.path.exists(CHROMA_PATH):
