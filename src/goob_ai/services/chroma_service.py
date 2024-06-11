@@ -191,6 +191,23 @@ def split_text(documents: List[Document]) -> List[Document]:
 
 
 def save_to_chroma(chunks: list[Document]) -> None:
+    """
+    Save document chunks to a Chroma vector store.
+
+    This function performs the following steps:
+    1. Initializes the embeddings using the OpenAI API key.
+    2. Creates a new Chroma database from the document chunks.
+    3. Persists the database to the specified directory.
+
+    Parameters
+    ----------
+    chunks : list of Document
+        The list of document chunks to be saved.
+
+    Returns
+    -------
+    None
+    """
     # Clear out the database first.
     # if os.path.exists(CHROMA_PATH):
     #     shutil.rmtree(CHROMA_PATH)
