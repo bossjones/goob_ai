@@ -1,4 +1,5 @@
 import pytest
+import shutil
 from pytest_mock import MockerFixture
 from goob_ai.services.chroma_service import CustomOpenAIEmbeddings, generate_data_store, get_response
 from goob_ai.aio_settings import aiosettings
