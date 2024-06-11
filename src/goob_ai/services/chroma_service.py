@@ -75,7 +75,7 @@ def get_response(query_text: str) -> str:
 #     demo.launch()
 
 
-def main():
+def main() -> None:
     generate_data_store()
 
 
