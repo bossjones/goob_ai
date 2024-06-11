@@ -2,9 +2,8 @@ from __future__ import annotations
 
 import shutil
 
-
 from pathlib import Path
-from typing import Generator
+from typing import TYPE_CHECKING, Generator, Iterable, Iterator
 
 from goob_ai.aio_settings import aiosettings
 from goob_ai.services.chroma_service import CustomOpenAIEmbeddings, generate_data_store, get_response, save_to_chroma
@@ -12,7 +11,14 @@ from langchain.schema import Document
 
 import pytest
 
-from pytest_mock import MockerFixture
+
+if TYPE_CHECKING:
+    from unittest.mock import AsyncMock, MagicMock, NonCallableMagicMock
+
+    from _pytest.fixtures import FixtureRequest
+    from _pytest.monkeypatch import MonkeyPatch
+
+    from pytest_mock.plugin import MockerFixture
 
 
 @pytest.fixture
@@ -45,7 +51,7 @@ def custom_embeddings(mock_openai_api_key: str) -> CustomOpenAIEmbeddings:
     return CustomOpenAIEmbeddings(openai_api_key=mock_openai_api_key)
 
 
-def test_custom_openai_embeddings_init(mocker: MockerFixture) -> None:
+def test_custom_openai_embeddings_init(mocker: MockerFixture, monkeypatch: MonkeyPatch) -> None:
     """
     Test the initialization of CustomOpenAIEmbeddings.
 
@@ -55,11 +61,12 @@ def test_custom_openai_embeddings_init(mocker: MockerFixture) -> None:
     Args:
         mocker (MockerFixture): The mocker fixture for patching.
     """
-    mock_openai_api_key = "test_api_key"
-    mocker.patch.object(aiosettings, "openai_api_key", mock_openai_api_key)
+    # mock_openai_api_key = "test_api_key"
+    monkeypatch.setenv("GOOB_AI_CONFIG_OPENAI_API_KEY", "test_api_key")
+    # mocker.patch.object(aiosettings, "openai_api_key", mock_openai_api_key)
 
     embeddings = CustomOpenAIEmbeddings()
-    assert embeddings.openai_api_key == mock_openai_api_key
+    assert embeddings.openai_api_key == "test_api_key"
 
 
 def test_custom_openai_embeddings_call(mocker: MockerFixture, custom_embeddings: CustomOpenAIEmbeddings) -> None:
@@ -89,9 +96,8 @@ def test_custom_openai_embeddings_call(mocker: MockerFixture, custom_embeddings:
     assert result == mock_embeddings
 
 
-
 @pytest.fixture
-def mock_pdf_file(tmp_path: Path) -> Generator[Path, None, None]:
+def mock_pdf_file(tmp_path: Path) -> Path:
     """Fixture to create a mock PDF file for testing purposes.
 
     This fixture creates a temporary directory and copies a test PDF file into it.
@@ -101,9 +107,9 @@ def mock_pdf_file(tmp_path: Path) -> Generator[Path, None, None]:
         tmp_path (Path): The temporary path provided by pytest.
 
     Returns:
-        Generator[Path, None, None]: A generator yielding the path to the mock PDF file.
+        Path: A Path object of the path to the mock PDF file.
     """
-    test_pdf_path = tmp_path / "rich-readthedocs-io-en-latest.pdf"
+    test_pdf_path: Path = tmp_path / "rich-readthedocs-io-en-latest.pdf"
     shutil.copy("src/goob_ai/data/chroma/documents/rich-readthedocs-io-en-latest.pdf", test_pdf_path)
     return test_pdf_path
 
@@ -144,7 +150,9 @@ def test_load_documents(mocker: MockerFixture, mock_pdf_file: Path) -> None:
     mock_split_text = mocker.patch(
         "goob_ai.services.chroma_service.split_text", return_value=[Document(page_content="Test chunk", metadata={})]
     )
-    mock_save_to_chroma = mocker.patch("goob_ai.services.chroma_service.save_to_chroma")
+    mock_save_to_chroma: MagicMock | AsyncMock | NonCallableMagicMock = mocker.patch(
+        "goob_ai.services.chroma_service.save_to_chroma"
+    )
 
     generate_data_store()
 
@@ -168,9 +176,10 @@ def test_split_text(mocker: MockerFixture) -> None:
     3. Asserts that the document is split into the expected chunks.
     4. Verifies that the RecursiveCharacterTextSplitter is called with the correct arguments.
     """
+    from typing import List
+
     from goob_ai.services.chroma_service import split_text
     from langchain.schema import Document
-    from typing import List
 
     mock_documents: List[Document] = [Document(page_content="This is a test document.", metadata={})]
     mock_chunks: List[Document] = [
@@ -178,7 +187,9 @@ def test_split_text(mocker: MockerFixture) -> None:
         Document(page_content="document.", metadata={"start_index": 15}),
     ]
 
-    mock_text_splitter = mocker.patch("goob_ai.services.chroma_service.RecursiveCharacterTextSplitter")
+    mock_text_splitter: MagicMock | AsyncMock | NonCallableMagicMock = mocker.patch(
+        "goob_ai.services.chroma_service.RecursiveCharacterTextSplitter"
+    )
     mock_text_splitter.return_value.split_documents.return_value = mock_chunks
 
     chunks: List[Document] = split_text(mock_documents)
@@ -202,4 +213,3 @@ def test_split_text(mocker: MockerFixture) -> None:
     assert chunks[0].page_content == "This is a test"
     assert chunks[1].page_content == "document."
     mock_text_splitter.return_value.split_documents.assert_called_once_with(mock_documents)
-
