@@ -76,6 +76,17 @@ def get_response(query_text: str) -> str:
 
 
 def main() -> None:
+    """
+    Main function to generate and store document embeddings.
+
+    This function initializes the process of generating and storing document embeddings
+    in a Chroma vector store. It calls the `generate_data_store` function to perform
+    the necessary steps.
+
+    Returns
+    -------
+    None
+    """
     generate_data_store()
 
 
