@@ -9,21 +9,22 @@ import shutil
 
 from dataclasses import dataclass
 
-from langchain.chat_models import ChatOpenAI
-from langchain.document_loaders import PyPDFLoader
-from langchain.embeddings import OpenAIEmbeddings
 from langchain.prompts import ChatPromptTemplate
 from langchain.schema import Document
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain.vectorstores import Chroma
-from langchain.vectorstores.chroma import Chroma
+from langchain_community.chat_models import ChatOpenAI
+from langchain_community.document_loaders import PyPDFLoader
+from langchain_community.embeddings import OpenAIEmbeddings
+from langchain_community.vectorstores import Chroma
 from loguru import logger as LOGGER
 
 from goob_ai.aio_settings import aiosettings
 
 
-CHROMA_PATH = "chroma"
-DATA_PATH = "data"
+HERE = os.path.dirname(__file__)
+
+DATA_PATH = os.path.join(HERE, "...", "data", "chroma", "data")
+CHROMA_PATH = os.path.join(HERE, "...", "data", "chroma", "vectorstorage")
 
 PROMPT_TEMPLATE = """
 Answer the question based only on the following context:
@@ -123,8 +124,8 @@ def split_text(documents: list[Document]):
 
 def save_to_chroma(chunks: list[Document]):
     # Clear out the database first.
-    if os.path.exists(CHROMA_PATH):
-        shutil.rmtree(CHROMA_PATH)
+    # if os.path.exists(CHROMA_PATH):
+    #     shutil.rmtree(CHROMA_PATH)
 
     embeddings = CustomOpenAIEmbeddings(openai_api_key=aiosettings.openai_api_key)
     LOGGER.info(embeddings)
