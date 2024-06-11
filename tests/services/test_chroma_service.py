@@ -25,7 +25,7 @@ def custom_embeddings(mock_openai_api_key: str) -> CustomOpenAIEmbeddings:
     return CustomOpenAIEmbeddings(openai_api_key=mock_openai_api_key)
 
 
-def test_custom_openai_embeddings_init(mocker):
+def test_custom_openai_embeddings_init(mocker: MockerFixture) -> None:
     mock_openai_api_key = "test_api_key"
     mocker.patch.object(aiosettings, "openai_api_key", mock_openai_api_key)
 
