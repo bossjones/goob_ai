@@ -87,6 +87,22 @@ class CustomOpenAIEmbeddings(OpenAIEmbeddings):
         return super().embed_documents(texts)
 
     def __call__(self, input: list[str]) -> list[float]:
+        """
+        Embed a list of documents.
+
+        This method takes a list of document texts and returns their embeddings
+        as a list of float vectors.
+
+        Parameters
+        ----------
+        input : list of str
+            The list of document texts to be embedded.
+
+        Returns
+        -------
+        list of float
+            The embeddings of the input documents.
+        """
         return self._embed_documents(input)
 
 
