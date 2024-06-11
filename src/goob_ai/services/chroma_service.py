@@ -92,9 +92,6 @@ class CustomOpenAIEmbeddings(OpenAIEmbeddings):
         super().__init__(openai_api_key=openai_api_key)
 
     def _embed_documents(self, texts: list[str]) -> list[list[float]]:
-        return super().embed_documents(texts)
-
-    def __call__(self, input: list[str]) -> list[float]:
         """
         Embed a list of documents.
 
@@ -103,14 +100,17 @@ class CustomOpenAIEmbeddings(OpenAIEmbeddings):
 
         Parameters
         ----------
-        input : list of str
+        texts : list of str
             The list of document texts to be embedded.
 
         Returns
         -------
-        list of float
+        list of list of float
             The embeddings of the input documents.
         """
+        return super().embed_documents(texts)
+
+    def __call__(self, input: list[str]) -> list[float]:
         return self._embed_documents(input)
 
 
