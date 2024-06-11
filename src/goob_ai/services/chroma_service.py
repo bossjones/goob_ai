@@ -175,6 +175,23 @@ def load_documents() -> List[Document]:
 from typing import List
 
 def split_text(documents: List[Document]) -> List[Document]:
+    """
+    Split documents into smaller chunks.
+
+    This function takes a list of documents and splits each document into smaller chunks
+    using the RecursiveCharacterTextSplitter. The chunks are then returned as a list of
+    Document objects.
+
+    Parameters
+    ----------
+    documents : List[Document]
+        The list of documents to be split into chunks.
+
+    Returns
+    -------
+    List[Document]
+        The list of document chunks.
+    """
     text_splitter: RecursiveCharacterTextSplitter = RecursiveCharacterTextSplitter(
         chunk_size=300,
         chunk_overlap=100,
