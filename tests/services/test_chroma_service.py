@@ -109,6 +109,22 @@ def mock_pdf_file(tmp_path: Path) -> Generator[Path, None, None]:
 
 
 def test_load_documents(mocker: MockerFixture, mock_pdf_file: Path) -> None:
+    """Test the loading of documents from a PDF file.
+
+    This test verifies that the `load_documents` function correctly loads
+    documents from a PDF file, splits the text into chunks, and saves the
+    chunks to Chroma.
+
+    Args:
+        mocker (MockerFixture): The mocker fixture for patching.
+        mock_pdf_file (Path): The path to the mock PDF file.
+
+    The test performs the following steps:
+    1. Mocks the `os.listdir` and `os.path.join` functions to simulate the presence of the PDF file.
+    2. Mocks the `PyPDFLoader` to return a document with test content.
+    3. Calls the `generate_data_store` function to load, split, and save the document.
+    4. Asserts that the document is loaded, split, and saved correctly.
+    """
     mocker.patch("os.listdir", return_value=["rich-readthedocs-io-en-latest.pdf"])
     mocker.patch("os.path.join", return_value=mock_pdf_file)
     mock_loader = mocker.patch("goob_ai.services.chroma_service.PyPDFLoader")
