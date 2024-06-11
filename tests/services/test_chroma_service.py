@@ -58,7 +58,11 @@ def test_load_documents(mocker: MockerFixture, mock_pdf_file):
     mock_split_text.assert_called_once_with([Document(page_content="Test content", metadata={})])
     mock_save_to_chroma.assert_called_once_with([Document(page_content="Test chunk", metadata={})])
 
-def test_get_response(mocker: MockerFixture):
+def test_main(mocker: MockerFixture):
+    mock_generate_data_store = mocker.patch("goob_ai.services.chroma_service.generate_data_store")
+    from goob_ai.services.chroma_service import main
+    main()
+    mock_generate_data_store.assert_called_once()
     mock_query_text = "What is the capital of France?"
     mock_results = [
         (Document(page_content="Paris is the capital of France.", metadata={"source": "source1"}), 0.9),
