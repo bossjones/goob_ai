@@ -327,3 +327,4 @@ data/repomgr.db
 typingcov/
 diditwork.webp
 temp/
+*.pdf
