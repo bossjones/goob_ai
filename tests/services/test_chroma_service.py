@@ -12,7 +12,7 @@ from pytest_mock import MockerFixture
 
 
 @pytest.fixture
-def mock_openai_api_key(mocker):
+def mock_openai_api_key(mocker: MockerFixture) -> str:
     return "test_api_key"
 
 
