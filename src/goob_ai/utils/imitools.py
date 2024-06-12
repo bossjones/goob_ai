@@ -512,6 +512,12 @@ class LivePlotter:
         self.out.update(self.fig)
 
     def close(self) -> None:
+        """
+        Close the matplotlib figure.
+
+        This method closes the figure associated with the LivePlotter instance,
+        freeing up the resources used by the figure.
+        """
         plt.close()
 
 
