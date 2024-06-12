@@ -381,15 +381,15 @@ class LivePlotter:
 
         self.queue = []
 
-    def plot(self, subplot_id, *args, **kwargs) -> DynaPlot:
+    def plot(self, subplot_id, *args, **kwargs) -> LivePlotter:
         self.queue.append(("plot", subplot_id, args, kwargs))
         return self
 
-    def title(self, subplot_id, title) -> DynaPlot:
+    def title(self, subplot_id, title) -> LivePlotter:
         self.queue.append(("title", subplot_id, title))
         return self
 
-    def imshow(self, subplot_id, image) -> DynaPlot:
+    def imshow(self, subplot_id, image) -> LivePlotter:
         self.queue.append(("imshow", subplot_id, image))
         return self
 
