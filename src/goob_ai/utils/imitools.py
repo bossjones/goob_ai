@@ -617,11 +617,34 @@ class ImageWrapper:
         return VideoWrapper(video_path, video_size)
 
 
-def wrap(input_data: Union[ImageWrapper, torch.Tensor, Image.Image, list[Union[torch.Tensor, Image.Image, ImageWrapper]]], labels: list[int] | None = None) -> ImageWrapper:
+def wrap(
+    input_data: Union[ImageWrapper, torch.Tensor, Image.Image, list[Union[torch.Tensor, Image.Image, ImageWrapper]]],
+    labels: list[int] | None = None
+) -> ImageWrapper:
+    """
+    Wrap various types of image data into an ImageWrapper instance.
+
+    This function takes different types of image data, such as ImageWrapper instances,
+    PyTorch tensors, PIL Images, or lists of these types, and wraps them into a single
+    ImageWrapper instance.
+
+    Args:
+        input_data (Union[ImageWrapper, torch.Tensor, Image.Image, list[Union[torch.Tensor, Image.Image, ImageWrapper]]]):
+            The image data to be wrapped.
+        labels (list[int] | None, optional): The labels for the images. Defaults to None.
+
+    Returns:
+        ImageWrapper: An ImageWrapper instance containing the wrapped image data.
+
+    Raises:
+        Exception: If the input data type is not supported.
+    """
     if isinstance(input_data, ImageWrapper):
+        # If the input data is already an ImageWrapper, return it as is.
         return input_data
 
     if isinstance(input_data, torch.Tensor):
+        # If the input data is a PyTorch tensor, adjust its dimensions and wrap it.
         if len(input_data.shape) == 2:
             input_data = input_data.unsqueeze(0).unsqueeze(0)
 
@@ -631,9 +654,11 @@ def wrap(input_data: Union[ImageWrapper, torch.Tensor, Image.Image, list[Union[t
         return ImageWrapper(input_data.detach().float(), "pt", labels)
 
     if isinstance(input_data, Image.Image):
+        # If the input data is a single PIL Image, wrap it in a list and then wrap it.
         return ImageWrapper([input_data], "pil", labels)
 
     if isinstance(input_data, list):
+        # If the input data is a list, determine the type of its elements and wrap accordingly.
         if isinstance(input_data[0], torch.Tensor):
             images = torch.stack(input_data).squeeze(1).detach().float()
             return ImageWrapper(images, "pt", labels)
@@ -647,6 +672,7 @@ def wrap(input_data: Union[ImageWrapper, torch.Tensor, Image.Image, list[Union[t
             return ImageWrapper(images, "pt", labels)
 
     raise Exception("not implemented!")
+        # Raise an exception if the input data type is not supported.
 
 
 def from_dir(dir_path: str) -> ImageWrapper:
