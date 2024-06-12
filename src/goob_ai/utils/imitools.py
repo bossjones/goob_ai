@@ -8,23 +8,22 @@ import tempfile
 
 from base64 import b64encode
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from os import PathLike
 from pathlib import Path
+from typing import Any, Callable, List, Union
 
 import requests
 import torch
 
-from IPython.display import HTML, display
+from loguru import logger as LOGGER
 from matplotlib import pyplot as plt
 from PIL import Image, UnidentifiedImageError
 from pkg_resources import parse_version
 from torchvision.transforms import transforms
 
 
-# if parse_version(pil.__version__)>=parse_version('10.0.0'):
-#     Image.Resampling.BILINEAR=Image.LANCZOS
-
-
-from duckduckgo_search import ddg_images
+_last_search_wrapper = None
+N_WORKERS = min(10, os.cpu_count())
 
 
 class ImageDefaults:
@@ -56,7 +55,7 @@ def download_image(img_url: str) -> Image.Image | None:
     """
     image = None
     try:
-        buffer = tempfile.SpooledTemporaryFile(max_size=1e9)
+        buffer = tempfile.SpooledTemporaryFile(max_size=1e9)  # type: ignore
         r = requests.get(img_url, stream=True)
         if r.status_code == 200:
             for chunk in r.iter_content(chunk_size=1024):
@@ -127,9 +126,7 @@ def image_crop(img: Image.Image, size: tuple[int, int], crop_type: str = "middle
     return img
 
 
-from typing import Callable, List, Any
-
-def thread_loop(fn: Callable[[Any], Any], input_array: List[Any], n_workers: int = min(10, os.cpu_count())) -> List[Any]:
+def thread_loop(fn: Callable[[Any], Any], input_array: List[Any], n_workers: int = N_WORKERS) -> List[Any]:
     return_data = []
 
     with ThreadPoolExecutor(n_workers) as executor:
@@ -169,24 +166,26 @@ class VideoWrapper:
         """
         return self.video_path
 
-    def show(self) -> HTML:
-        mp4 = open(self.video_path, "rb").read()
-        data_url = "data:video/mp4;base64," + b64encode(mp4).decode()
+    # def show(self) -> HTML:
+    #     mp4 = open(self.video_path, "rb").read()
+    #     data_url = "data:video/mp4;base64," + b64encode(mp4).decode()
 
-        width, height = self.video_size
+    #     width, height = self.video_size
 
-        return HTML(
-            f"""
-        <video width={width} height={height} controls>
-              <source src="%s" type="video/mp4">
-        </video>
-        """
-            % data_url
-        )
+    #     return HTML(
+    #         f"""
+    #     <video width={width} height={height} controls>
+    #           <source src="%s" type="video/mp4">
+    #     </video>
+    #     """
+    #         % data_url
+    #     )
 
 
 class ImageWrapper:
-    def __init__(self, data: list[Image.Image] | torch.Tensor, image_type: str, labels: list[int] | None = None) -> None:
+    def __init__(
+        self, data: list[Image.Image] | torch.Tensor, image_type: str, labels: list[int] | None = None
+    ) -> None:
         """
         Initialize the ImageWrapper class.
 
@@ -200,9 +199,9 @@ class ImageWrapper:
             image_type (str): The type of the image data ('pil' or 'pt').
             labels (list[int]): The labels for the images.
         """
-        self.data = data
-        self.image_type = image_type
-        self.labels = list(range(len(data))) if labels is None else labels
+        self.data: List[Image.Image] | torch.Tensor = data
+        self.image_type: str = image_type
+        self.labels: List[int] = list(range(len(data))) if labels is None else labels
 
     def resize(self, size: tuple[int, int] = (256, 256), **kwargs: Any) -> ImageWrapper:
         """
@@ -270,16 +269,10 @@ class ImageWrapper:
         if self.image_type != "pt":
             ref = self.cpt()
 
-        normalized: torch.Tensor = (ref.data - ref.data.min()) / (ref.data.max() - ref.data.min())
-        return ImageWrapper(normalized, "pt")
-        ref = self
-        if self.image_type != "pt":
-            ref = self.cpt()
-
         normalized = (ref.data - ref.data.min()) / (ref.data.max() - ref.data.min())
         return ImageWrapper(normalized, "pt")
 
-    def pick(self, *args: int | list[int]) -> ImageWrapper:
+    def pick(self, *args: int | list[int]) -> ImageWrapper:  # type: ignore
         """
         Select specific images from the ImageWrapper instance.
 
@@ -289,7 +282,7 @@ class ImageWrapper:
 
         Args:
             *args (int | list[int]): The indexes of the images to be picked. Can be individual
-                                     integers or a list of integers.
+                                        integers or a list of integers.
 
         Returns:
             ImageWrapper: A new ImageWrapper instance containing the selected images.
@@ -326,7 +319,7 @@ class ImageWrapper:
 
         return ImageWrapper(ref.data * 2 - 1, "pt")
 
-    def pil(self) -> Image.Image | list[Image.Image]:
+    def pil(self) -> Image.Image | list[Image.Image]:  # type: ignore
         """
         Convert the image data to PIL format.
 
@@ -335,15 +328,15 @@ class ImageWrapper:
 
         Returns:
             Image.Image | list[Image.Image]: The image data in PIL format. If there is only one image,
-                                             it returns a single PIL Image object. Otherwise, it returns
-                                             a list of PIL Image objects.
+                                                it returns a single PIL Image object. Otherwise, it returns
+                                                a list of PIL Image objects.
         """
         if self.image_type == "pil":
             return self.data[0] if len(self.data) == 1 else self.data
 
         if self.image_type == "pt":
             make_pil = transforms.ToPILImage()
-            pt_images = self.data.cpu()
+            pt_images = self.data.cpu()  # type: ignore
             pil_images = [make_pil(i) for i in pt_images]
             return pil_images[0] if len(pil_images) == 1 else pil_images
 
@@ -383,7 +376,7 @@ class ImageWrapper:
         if self.image_type != "pt":
             raise Exception("to() only applied for pytorch tensors")
 
-        return ImageWrapper(self.data.to(device), "pt")
+        return ImageWrapper(self.data.to(device), "pt")  # type: ignore
 
     def cpil(self) -> ImageWrapper:
         """
@@ -413,48 +406,21 @@ class ImageWrapper:
         """
         return ImageWrapper(self.pt(), "pt")
 
-        """
-        Display the images in the ImageWrapper instance.
-
-        This method displays the images contained in the ImageWrapper instance using matplotlib.
-        It supports displaying a single image or a grid of images with optional captions.
-
-        Args:
-            cmap (Any, optional): The colormap to be used for displaying the images. Defaults to None.
-            figsize (tuple[int, int], optional): The size of the figure (width, height) in inches. Defaults to None.
-            cols (int, optional): The number of columns in the grid. Defaults to 6.
-            max_count (int, optional): The maximum number of images to display. Defaults to 36.
-            scale (int, optional): The scale factor for the image size. Defaults to -1.
-            captions (bool, optional): Whether to display captions for the images. Defaults to True.
-
-        Returns:
-            None
-        """
-        """
-        Display the images in the ImageWrapper instance.
-
-        This method displays the images contained in the ImageWrapper instance using matplotlib.
-        It supports displaying a single image or a grid of images with optional captions.
-
-        Args:
-            cmap (Any, optional): The colormap to be used for displaying the images. Defaults to None.
-            figsize (tuple[int, int], optional): The size of the figure (width, height) in inches. Defaults to None.
-            cols (int, optional): The number of columns in the grid. Defaults to 6.
-            max_count (int, optional): The maximum number of images to display. Defaults to 36.
-            scale (int, optional): The scale factor for the image size. Defaults to -1.
-            captions (bool, optional): Whether to display captions for the images. Defaults to True.
-
-        Returns:
-            None
-        """
-    def show(self, 
+    def show(
+        self,
         cmap: Any = None,
         figsize: tuple[int, int] | None = None,
         cols: int = 6,
         max_count: int = 36,
         scale: int = -1,
-        captions: bool = True
+        captions: bool = True,
     ) -> None:
+        """
+        Display a grid of images.
+
+        If there are multiple images in the ImageWrapper instance, they are displayed in a grid with the specified
+        number of columns, scale, and optional captions.
+        """
         if len(self.data) == 1:
             """
             Display a single image.
@@ -467,27 +433,16 @@ class ImageWrapper:
             if self.image_type == "pil":
                 plt.imshow(self.data[0], cmap=cmap)
             else:
-                plt.imshow(self.data[0].permute(1, 2, 0).cpu(), cmap=cmap)
+                plt.imshow(self.data[0].permute(1, 2, 0).cpu(), cmap=cmap)  # type: ignore
 
             return
 
         scale = 2.5 if scale == -1 else scale
-        """
-        Display a grid of images.
-
-        If there are multiple images in the ImageWrapper instance, they are displayed in a grid with the specified
-        number of columns, scale, and optional captions.
-        """
-        images = self.data.cpu() if self.image_type == "pt" else self.data
+        images = self.data.cpu() if self.image_type == "pt" else self.data  # type: ignore
         labels = self.labels
         image_count = len(self.data)
 
         if image_count > max_count:
-            """
-            Limit the number of images displayed.
-
-            If the number of images exceeds the maximum count, only the first max_count images are displayed.
-            """
             print(
                 f"Only showing {max_count} images of the total {image_count}. Use the `max_count` parameter to change it."
             )
@@ -500,22 +455,12 @@ class ImageWrapper:
         rows = math.ceil(image_count / cols)
 
         if figsize == None:
-            """
-            Set the default figure size.
-
-            If no figure size is specified, the default size is calculated based on the number of columns and scale.
-            """
             figsize = figsize = (cols * scale, rows * scale)
 
         _, ax = plt.subplots(rows, cols, figsize=figsize)
         if rows == 1:
-            """
-            Display images in a single row.
-
-            If there is only one row of images, they are displayed in a single row with optional captions.
-            """
             for i in range(image_count):
-                image = images[i] if self.image_type == "pil" else images[i].permute(1, 2, 0)
+                image = images[i] if self.image_type == "pil" else images[i].permute(1, 2, 0)  # type: ignore
                 ax[i].imshow(image, cmap=cmap)
                 ax[i].axis("off")
                 if captions:
@@ -525,7 +470,7 @@ class ImageWrapper:
                 for col in range(cols):
                     i = row * cols + col
                     if i < image_count:
-                        image = images[i] if self.image_type == "pil" else images[i].permute(1, 2, 0)
+                        image = images[i] if self.image_type == "pil" else images[i].permute(1, 2, 0)  # type: ignore
                         ax[row][col].imshow(image, cmap=cmap)
                         ax[row][col].axis("off")
                         if captions:
@@ -533,7 +478,7 @@ class ImageWrapper:
                     else:
                         ax[row][col].axis("off")
 
-    def to_dir(self, output_dir: str, prefix: str = "image", max_workers: int = min(10, os.cpu_count())) -> None:
+    def to_dir(self, output_dir: str, prefix: str = "image", max_workers: int = N_WORKERS) -> None:
         """
         Save images to a specified directory.
 
@@ -544,7 +489,7 @@ class ImageWrapper:
         Args:
             output_dir (str): The path to the directory where the images will be saved.
             prefix (str, optional): The prefix for the saved image filenames. Defaults to "image".
-            max_workers (int, optional): The maximum number of worker threads to use for saving images. Defaults to min(10, os.cpu_count()).
+            max_workers (int, optional): The maximum number of worker threads to use for saving images. Defaults to N_WORKERS.
 
         Returns:
             None
@@ -578,9 +523,9 @@ class ImageWrapper:
             except Exception as e:
                 print("image saving error:", e)
 
-        thread_loop(save_image, range(len(images)))
+        thread_loop(save_image, range(len(images)))  # type: ignore
 
-    def to_video(self, out_path: str | None = None, frame_rate: int = 12) -> VideoWrapper:
+    def to_video(self, out_path: PathLike | str | None = None, frame_rate: int = 12) -> VideoWrapper:
         """
         Convert a sequence of images to a video.
 
@@ -605,21 +550,21 @@ class ImageWrapper:
         if out_path == None:
             out_path = f"/tmp/{id}/video.mp4"
 
-        video_path = Path(out_path)
+        video_path = Path(out_path)  # type: ignore
         video_size = ref.data[0].size
         images_selector = image_dir / "image_%04d.png"
 
-        ref.to_dir(image_dir, prefix="image")
+        ref.to_dir(image_dir, prefix="image")  # type: ignore
 
         command = f"ffmpeg -v 0 -y -f image2 -framerate {frame_rate} -i {images_selector} -c:v h264_nvenc -preset slow -qp 18 -pix_fmt yuv420p {video_path}"
         os.system(command)
 
-        return VideoWrapper(video_path, video_size)
+        return VideoWrapper(video_path, video_size)  # type: ignore
 
 
 def wrap(
     input_data: Union[ImageWrapper, torch.Tensor, Image.Image, list[Union[torch.Tensor, Image.Image, ImageWrapper]]],
-    labels: list[int] | None = None
+    labels: list[int] | None = None,
 ) -> ImageWrapper:
     """
     Wrap various types of image data into an ImageWrapper instance.
@@ -667,12 +612,12 @@ def wrap(
             return ImageWrapper(input_data, "pil", labels)
 
         if isinstance(input_data[0], ImageWrapper):
-            image_list = list(map(lambda w: w.pt(), input_data))
+            image_list = list(map(lambda w: w.pt(), input_data))  # type: ignore
             images = torch.stack(image_list).squeeze(1).detach().float()
             return ImageWrapper(images, "pt", labels)
 
     raise Exception("not implemented!")
-        # Raise an exception if the input data type is not supported.
+    # Raise an exception if the input data type is not supported.
 
 
 def from_dir(dir_path: str) -> ImageWrapper:
@@ -734,182 +679,180 @@ def from_path(input_data: Union[str, Path]) -> ImageWrapper:
     return ImageWrapper([pil_image], "pil")
 
 
-class LivePlotter:
-    def __init__(self, cols: int = 2, figsize: tuple[int, int] = (15, 4)) -> None:
-        """
-        Initialize the LivePlotter class.
+# class LivePlotter:
+#     def __init__(self, cols: int = 2, figsize: tuple[int, int] = (15, 4)) -> None:
+#         """
+#         Initialize the LivePlotter class.
 
-        Args:
-            cols (int, optional): The number of columns in the plot. Defaults to 2.
-            figsize (tuple[int, int], optional): The size of the figure. Defaults to (15, 4).
+#         Args:
+#             cols (int, optional): The number of columns in the plot. Defaults to 2.
+#             figsize (tuple[int, int], optional): The size of the figure. Defaults to (15, 4).
 
-        Attributes:
-            cols (int): The number of columns in the plot.
-            fig (Figure): The matplotlib figure object.
-            out (DisplayHandle): The display handle for updating the plot.
-            subplots (Axes or array of Axes): The subplots in the figure.
-            queue (list): The queue of plot commands.
-        """
-        fig, subplots = plt.subplots(1, cols, figsize=(20, 5))
-        fig.patch.set_facecolor("white")
-        fig.tight_layout()
-        out = display(fig, display_id=True)
+#         Attributes:
+#             cols (int): The number of columns in the plot.
+#             fig (Figure): The matplotlib figure object.
+#             out (DisplayHandle): The display handle for updating the plot.
+#             subplots (Axes or array of Axes): The subplots in the figure.
+#             queue (list): The queue of plot commands.
+#         """
+#         fig, subplots = plt.subplots(1, cols, figsize=(20, 5))
+#         fig.patch.set_facecolor("white")
+#         fig.tight_layout()
+#         out = display(fig, display_id=True)
 
-        self.cols = cols
-        self.fig = fig
-        self.out = out
-        self.subplots = subplots
+#         self.cols = cols
+#         self.fig = fig
+#         self.out = out
+#         self.subplots = subplots
 
-        self.queue = []
+#         self.queue = []
 
-    def plot(self, subplot_id: int, *args: Any, **kwargs: Any) -> LivePlotter:
-        """
-        Plot data on the specified subplot.
+#     def plot(self, subplot_id: int, *args: Any, **kwargs: Any) -> LivePlotter:
+#         """
+#         Plot data on the specified subplot.
 
-        This method queues a command to plot data on the specified subplot.
-        The data to be plotted and any additional keyword arguments are passed
-        to the matplotlib plot function.
+#         This method queues a command to plot data on the specified subplot.
+#         The data to be plotted and any additional keyword arguments are passed
+#         to the matplotlib plot function.
 
-        Args:
-            subplot_id (int): The ID of the subplot where the data will be plotted.
-            *args (Any): Positional arguments to be passed to the matplotlib plot function.
-            **kwargs (Any): Keyword arguments to be passed to the matplotlib plot function.
+#         Args:
+#             subplot_id (int): The ID of the subplot where the data will be plotted.
+#             *args (Any): Positional arguments to be passed to the matplotlib plot function.
+#             **kwargs (Any): Keyword arguments to be passed to the matplotlib plot function.
 
-        Returns:
-            LivePlotter: The LivePlotter instance with the queued command.
-        """
-        self.queue.append(("plot", subplot_id, args, kwargs))
-        return self
+#         Returns:
+#             LivePlotter: The LivePlotter instance with the queued command.
+#         """
+#         self.queue.append(("plot", subplot_id, args, kwargs))
+#         return self
 
-    def title(self, subplot_id: int, title: str) -> LivePlotter:
-        """
-        Set the title of a subplot.
+#     def title(self, subplot_id: int, title: str) -> LivePlotter:
+#         """
+#         Set the title of a subplot.
 
-        This method queues a command to set the title of the specified subplot.
-        
-        Args:
-            subplot_id (int): The ID of the subplot where the title will be set.
-            title (str): The title text to be set for the subplot.
+#         This method queues a command to set the title of the specified subplot.
 
-        Returns:
-            LivePlotter: The LivePlotter instance with the queued command.
-        """
-        self.queue.append(("title", subplot_id, title))
-        return self
+#         Args:
+#             subplot_id (int): The ID of the subplot where the title will be set.
+#             title (str): The title text to be set for the subplot.
 
-    def imshow(self, subplot_id: int, image: Union[Image.Image, torch.Tensor]) -> LivePlotter:
-        """
-        Display an image in the specified subplot.
+#         Returns:
+#             LivePlotter: The LivePlotter instance with the queued command.
+#         """
+#         self.queue.append(("title", subplot_id, title))
+#         return self
 
-        This method queues a command to display an image in the specified subplot.
-        The image can be a PIL Image or a PyTorch tensor.
+#     def imshow(self, subplot_id: int, image: Union[Image.Image, torch.Tensor]) -> LivePlotter:
+#         """
+#         Display an image in the specified subplot.
 
-        Args:
-            subplot_id (int): The ID of the subplot where the image will be displayed.
-            image (Union[Image.Image, torch.Tensor]): The image to be displayed.
+#         This method queues a command to display an image in the specified subplot.
+#         The image can be a PIL Image or a PyTorch tensor.
 
-        Returns:
-            LivePlotter: The LivePlotter instance with the queued command.
-        """
-        self.queue.append(("imshow", subplot_id, image))
-        return self
+#         Args:
+#             subplot_id (int): The ID of the subplot where the image will be displayed.
+#             image (Union[Image.Image, torch.Tensor]): The image to be displayed.
 
-    def update(self) -> None:
-        """
-        Update the live plot with the queued commands.
+#         Returns:
+#             LivePlotter: The LivePlotter instance with the queued command.
+#         """
+#         self.queue.append(("imshow", subplot_id, image))
+#         return self
 
-        This method processes the queued commands to update the live plot.
-        It clears the subplots, executes the queued commands (imshow, plot, title),
-        and updates the display with the new plot.
+#     def update(self) -> None:
+#         """
+#         Update the live plot with the queued commands.
 
-        Returns:
-            None
-        """
-        for col in range(self.cols):
-            if self.cols == 1:
-                self.subplots.clear()
-            else:
-                self.subplots[col].clear()
+#         This method processes the queued commands to update the live plot.
+#         It clears the subplots, executes the queued commands (imshow, plot, title),
+#         and updates the display with the new plot.
 
-        for item in self.queue:
-            if item[0] == "imshow":
-                _, subplot_id, image = item
-                if self.cols == 1:
-                    self.subplots.imshow(wrap(image).pt().detach().cpu()[0].permute(1, 2, 0))
-                    self.subplots.axis("off")
-                else:
-                    self.subplots[subplot_id].imshow(wrap(image).pt().detach().cpu()[0].permute(1, 2, 0))
-                    self.subplots[subplot_id].axis("off")
+#         Returns:
+#             None
+#         """
+#         for col in range(self.cols):
+#             if self.cols == 1:
+#                 self.subplots.clear()
+#             else:
+#                 self.subplots[col].clear()
 
-            if item[0] == "plot":
-                _, subplot_id, args, kwargs = item
-                self.subplots[subplot_id].plot(*args, **kwargs)
-                if "label" in kwargs:
-                    self.subplots[subplot_id].legend()
+#         for item in self.queue:
+#             if item[0] == "imshow":
+#                 _, subplot_id, image = item
+#                 if self.cols == 1:
+#                     self.subplots.imshow(wrap(image).pt().detach().cpu()[0].permute(1, 2, 0))
+#                     self.subplots.axis("off")
+#                 else:
+#                     self.subplots[subplot_id].imshow(wrap(image).pt().detach().cpu()[0].permute(1, 2, 0))
+#                     self.subplots[subplot_id].axis("off")
 
-            if item[0] == "title":
-                _, subplot_id, title = item
-                self.subplots[subplot_id].title.set_text(title)
+#             if item[0] == "plot":
+#                 _, subplot_id, args, kwargs = item
+#                 self.subplots[subplot_id].plot(*args, **kwargs)
+#                 if "label" in kwargs:
+#                     self.subplots[subplot_id].legend()
 
-        self.queue = []
-        self.out.update(self.fig)
-        for col in range(self.cols):
-            if self.cols == 1:
-                self.subplots.clear()
-            else:
-                self.subplots[col].clear()
+#             if item[0] == "title":
+#                 _, subplot_id, title = item
+#                 self.subplots[subplot_id].title.set_text(title)
 
-        for item in self.queue:
-            if item[0] == "imshow":
-                _, subplot_id, image = item
-                if self.cols == 1:
-                    self.subplots.imshow(wrap(image).pt().detach().cpu()[0].permute(1, 2, 0))
-                    self.subplots.axis("off")
-                else:
-                    self.subplots[subplot_id].imshow(wrap(image).pt().detach().cpu()[0].permute(1, 2, 0))
-                    self.subplots[subplot_id].axis("off")
+#         self.queue = []
+#         self.out.update(self.fig)
+#         for col in range(self.cols):
+#             if self.cols == 1:
+#                 self.subplots.clear()
+#             else:
+#                 self.subplots[col].clear()
 
-            if item[0] == "plot":
-                _, subplot_id, args, kwargs = item
-                self.subplots[subplot_id].plot(*args, **kwargs)
-                if "label" in kwargs:
-                    self.subplots[subplot_id].legend()
+#         for item in self.queue:
+#             if item[0] == "imshow":
+#                 _, subplot_id, image = item
+#                 if self.cols == 1:
+#                     self.subplots.imshow(wrap(image).pt().detach().cpu()[0].permute(1, 2, 0))
+#                     self.subplots.axis("off")
+#                 else:
+#                     self.subplots[subplot_id].imshow(wrap(image).pt().detach().cpu()[0].permute(1, 2, 0))
+#                     self.subplots[subplot_id].axis("off")
 
-            if item[0] == "title":
-                _, subplot_id, title = item
-                self.subplots[subplot_id].title.set_text(title)
+#             if item[0] == "plot":
+#                 _, subplot_id, args, kwargs = item
+#                 self.subplots[subplot_id].plot(*args, **kwargs)
+#                 if "label" in kwargs:
+#                     self.subplots[subplot_id].legend()
 
-        self.queue = []
-        self.out.update(self.fig)
+#             if item[0] == "title":
+#                 _, subplot_id, title = item
+#                 self.subplots[subplot_id].title.set_text(title)
 
-    def close(self) -> None:
-        """
-        Close the matplotlib figure.
+#         self.queue = []
+#         self.out.update(self.fig)
 
-        This method closes the figure associated with the LivePlotter instance,
-        freeing up the resources used by the figure.
-        """
-        plt.close()
+#     def close(self) -> None:
+#         """
+#         Close the matplotlib figure.
 
-
-def live_plot(*args: Any, **kwargs: Any) -> LivePlotter:
-    """
-    Create a LivePlotter instance for live plotting.
-
-    This function initializes a LivePlotter instance with the given arguments and keyword arguments.
-    The LivePlotter instance can be used to create and update live plots.
-
-    Args:
-        *args (Any): Positional arguments to be passed to the LivePlotter constructor.
-        **kwargs (Any): Keyword arguments to be passed to the LivePlotter constructor.
-
-    Returns:
-        LivePlotter: An instance of the LivePlotter class for live plotting.
-    """
-    return LivePlotter(*args, **kwargs)
+#         This method closes the figure associated with the LivePlotter instance,
+#         freeing up the resources used by the figure.
+#         """
+#         plt.close()
 
 
-from typing import List, Union, Any
+# def live_plot(*args: Any, **kwargs: Any) -> LivePlotter:
+#     """
+#     Create a LivePlotter instance for live plotting.
+
+#     This function initializes a LivePlotter instance with the given arguments and keyword arguments.
+#     The LivePlotter instance can be used to create and update live plots.
+
+#     Args:
+#         *args (Any): Positional arguments to be passed to the LivePlotter constructor.
+#         **kwargs (Any): Keyword arguments to be passed to the LivePlotter constructor.
+
+#     Returns:
+#         LivePlotter: An instance of the LivePlotter class for live plotting.
+#     """
+#     return LivePlotter(*args, **kwargs)
+
 
 def download(image_urls: Union[str, List[str]]) -> ImageWrapper:
     """
@@ -953,73 +896,69 @@ def download(image_urls: Union[str, List[str]]) -> ImageWrapper:
         images.append(image)
 
     return wrap(images)
-    """
-    Wrap the downloaded images in an ImageWrapper instance.
-
-    The function wraps the filtered images in an ImageWrapper instance and returns it.
-    """
 
 
-def merge(*args: Union[ImageWrapper, List[ImageWrapper], List[Image.Image], List[torch.Tensor], ImageWrapper, torch.Tensor, Image.Image]) -> ImageWrapper:
-    """
-    Merge multiple image data sources into a single ImageWrapper instance.
+# def merge(
+#     *args: Union[
+#         ImageWrapper, List[ImageWrapper], List[Image.Image], List[torch.Tensor], ImageWrapper, torch.Tensor, Image.Image
+#     ],
+# ) -> ImageWrapper:
+#     """
+#     Merge multiple image data sources into a single ImageWrapper instance.
 
-    This function takes multiple image data sources, which can be ImageWrapper instances,
-    lists of ImageWrapper instances, lists of PIL Images, lists of PyTorch tensors, or
-    individual PIL Images or PyTorch tensors. It merges these sources into a single
-    ImageWrapper instance.
+#     This function takes multiple image data sources, which can be ImageWrapper instances,
+#     lists of ImageWrapper instances, lists of PIL Images, lists of PyTorch tensors, or
+#     individual PIL Images or PyTorch tensors. It merges these sources into a single
+#     ImageWrapper instance.
 
-    Args:
-        *args (Union[ImageWrapper, List[ImageWrapper], List[Image.Image], List[torch.Tensor], ImageWrapper, torch.Tensor, Image.Image]):
-            The image data sources to be merged.
+#     Args:
+#         *args (Union[ImageWrapper, List[ImageWrapper], List[Image.Image], List[torch.Tensor], ImageWrapper, torch.Tensor, Image.Image]):
+#             The image data sources to be merged.
 
-    Returns:
-        ImageWrapper: An ImageWrapper instance containing the merged image data.
+#     Returns:
+#         ImageWrapper: An ImageWrapper instance containing the merged image data.
 
-    Raises:
-        Exception: If the input data type is not supported.
-    """
-    args = list(args)
-    if isinstance(args[0], list) and not isinstance(args[0][0], Image.Image):
-        args = args[0]
+#     Raises:
+#         Exception: If the input data type is not supported.
+#     """
+#     args = list(args)
+#     if isinstance(args[0], list) and not isinstance(args[0][0], Image.Image):
+#         args = args[0]
 
-    wrappers = [wrap(i) for i in args]
+#     wrappers = [wrap(i) for i in args]
 
-    if wrappers[0].image_type == "pil":
-        images = []
-        for w in wrappers:
-            convered = w.cpil()
-            for i in convered.data:
-                images.append(i)
+#     if wrappers[0].image_type == "pil":
+#         images = []
+#         for w in wrappers:
+#             convered = w.cpil()
+#             for i in convered.data:
+#                 images.append(i)
 
-        return ImageWrapper(images, "pil")
+#         return ImageWrapper(images, "pil")
 
-    if wrappers[0].image_type == "pt":
-        tensor_list = [w.pt() for w in wrappers]
-        return ImageWrapper(torch.cat(tensor_list, dim=0), "pt")
-
-
-_last_search_wrapper = None
+#     if wrappers[0].image_type == "pt":
+#         tensor_list = [w.pt() for w in wrappers]
+#         return ImageWrapper(torch.cat(tensor_list, dim=0), "pt")
 
 
-def search_images(prompt: str, max_results: int = 10) -> ImageWrapper:
-    """
-    Search for images using a given prompt.
+# def search_images(prompt: str, max_results: int = 10) -> ImageWrapper:
+#     """
+#     Search for images using a given prompt.
 
-    This function uses the DuckDuckGo search engine to find images based on the provided prompt.
-    It returns an ImageWrapper instance containing the downloaded images.
+#     This function uses the DuckDuckGo search engine to find images based on the provided prompt.
+#     It returns an ImageWrapper instance containing the downloaded images.
 
-    Args:
-        prompt (str): The search query to find images.
-        max_results (int, optional): The maximum number of images to retrieve. Defaults to 10.
+#     Args:
+#         prompt (str): The search query to find images.
+#         max_results (int, optional): The maximum number of images to retrieve. Defaults to 10.
 
-    Returns:
-        ImageWrapper: An ImageWrapper instance containing the downloaded images.
-    """
-    image_urls = [item["image"] for item in ddg_images(prompt, max_results=max_results)]
-    global _last_search_wrapper
-    _last_search_wrapper = download(image_urls)
-    return _last_search_wrapper
+#     Returns:
+#         ImageWrapper: An ImageWrapper instance containing the downloaded images.
+#     """
+#     image_urls = [item["image"] for item in ddg_images(prompt, max_results=max_results)]
+#     global _last_search_wrapper
+#     _last_search_wrapper = download(image_urls)
+#     return _last_search_wrapper
 
 
 def search_history() -> ImageWrapper | None:
@@ -1032,7 +971,7 @@ def search_history() -> ImageWrapper | None:
 
     Returns:
         ImageWrapper | None: The ImageWrapper instance containing the last searched images,
-                             or None if no search has been performed.
+                                or None if no search has been performed.
     """
     return _last_search_wrapper
 
@@ -1061,3 +1000,9 @@ def search_history() -> ImageWrapper | None:
 
 # I = ImiTools()
 # I.defaults.device = device
+
+
+# from duckduckgo_search import ddg_images
+# from IPython.display import HTML, display
+# if parse_version(pil.__version__)>=parse_version('10.0.0'):
+#     Image.Resampling.BILINEAR=Image.LANCZOS

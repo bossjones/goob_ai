@@ -195,7 +195,7 @@ docutils==0.21.2
     # via rich-rst
 dominate==2.9.1
     # via pytablewriter
-duckduckgo-search==6.1.5
+duckduckgo-search==6.1.6
     # via goob-ai
 durabledict==0.9.4
     # via gutter
@@ -533,7 +533,7 @@ opentelemetry-semantic-conventions==0.46b0
 opentelemetry-util-http==0.46b0
     # via opentelemetry-instrumentation-asgi
     # via opentelemetry-instrumentation-fastapi
-orjson==3.10.3
+orjson==3.10.4
     # via aioprometheus
     # via chromadb
     # via duckduckgo-search

@@ -82,6 +82,7 @@ async def bot():
 #     os.getenv("GOOB_AI_BOT_SANITY"),  # noqa
 #     reason="These tests are meant to only run locally on laptop prior to porting it over to new system",
 # )
+@pytest.mark.filterwarnings("ignore:unclosed <ssl.SSLSocket ")
 @pytest.mark.integration
 class TestBot:
     @pytest.mark.asyncio

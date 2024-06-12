@@ -54,6 +54,7 @@ else
     echo "Invalid input. Please enter yes or no."
 fi
 
+set -e
 # Iterate over the array and run the aider command to annotate first
 for func in "${sorted_unique_array[@]}"; do
     echo "cmd: aider --message \"add typing annotations to function ${func} in ${ONLY_FILE_NAME}. Be sure to include return types when necessary.\" ${PYTHON_FILE}"
