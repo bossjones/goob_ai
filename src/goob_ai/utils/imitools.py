@@ -200,6 +200,19 @@ class ImageWrapper:
         self.labels = list(range(len(data))) if labels is None else labels
 
     def resize(self, size: tuple[int, int] = (256, 256), **kwargs: Any) -> ImageWrapper:
+        """
+        Resize the images to the specified size.
+
+        This method resizes the images in the ImageWrapper instance to the specified size.
+        Additional keyword arguments can be passed to the resize method of the PIL Image class.
+
+        Args:
+            size (tuple[int, int], optional): The desired size (width, height) of the resized images. Defaults to (256, 256).
+            **kwargs (Any): Additional keyword arguments to be passed to the resize method of the PIL Image class.
+
+        Returns:
+            ImageWrapper: A new ImageWrapper instance containing the resized images.
+        """
         ref = self
         if self.image_type != "pil":
             ref = self.cpil()
