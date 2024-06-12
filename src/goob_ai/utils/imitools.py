@@ -288,7 +288,7 @@ class ImageWrapper:
 
         images = ref.data
 
-        def save_image(i):
+        def save_image(i: int) -> None:
             try:
                 path = Path(output_dir) / f"{prefix}_{i:04}.png"
                 images[i].save(path)
