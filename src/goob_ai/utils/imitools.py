@@ -789,6 +789,16 @@ class LivePlotter:
         return self
 
     def update(self) -> None:
+        """
+        Update the live plot with the queued commands.
+
+        This method processes the queued commands to update the live plot.
+        It clears the subplots, executes the queued commands (imshow, plot, title),
+        and updates the display with the new plot.
+
+        Returns:
+            None
+        """
         for col in range(self.cols):
             if self.cols == 1:
                 self.subplots.clear()
