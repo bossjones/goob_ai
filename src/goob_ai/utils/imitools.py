@@ -331,7 +331,7 @@ class ImageWrapper:
         return VideoWrapper(video_path, video_size)
 
 
-def wrap(input_data: Union[ImageWrapper, torch.Tensor, Image.Image, list], labels: list[int] | None = None) -> ImageWrapper:
+def wrap(input_data: Union[ImageWrapper, torch.Tensor, Image.Image, list[Union[torch.Tensor, Image.Image, ImageWrapper]]], labels: list[int] | None = None) -> ImageWrapper:
     if isinstance(input_data, ImageWrapper):
         return input_data
 
