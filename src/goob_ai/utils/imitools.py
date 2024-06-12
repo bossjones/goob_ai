@@ -423,7 +423,7 @@ class LivePlotter:
         self.queue = []
         self.out.update(self.fig)
 
-    def close(self):
+    def close(self) -> None:
         plt.close()
 
 
