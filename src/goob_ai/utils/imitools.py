@@ -468,6 +468,21 @@ def from_dir(dir_path: str) -> ImageWrapper:
 
 
 def from_path(input_data: Union[str, Path]) -> ImageWrapper:
+    """
+    Load an image from a file path and return it as an ImageWrapper instance.
+
+    This function reads an image from the specified file path, converts it to RGB format,
+    and wraps it in an ImageWrapper instance.
+
+    Args:
+        input_data (Union[str, Path]): The path to the image file.
+
+    Returns:
+        ImageWrapper: An ImageWrapper instance containing the loaded image.
+
+    Raises:
+        UnidentifiedImageError: If the file at the specified path is not a valid image.
+    """
     pil_image = Image.open(input_data).convert("RGB")
     return ImageWrapper([pil_image], "pil")
 
