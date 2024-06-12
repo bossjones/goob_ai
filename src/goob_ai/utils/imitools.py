@@ -581,6 +581,19 @@ class ImageWrapper:
         thread_loop(save_image, range(len(images)))
 
     def to_video(self, out_path: str | None = None, frame_rate: int = 12) -> VideoWrapper:
+        """
+        Convert a sequence of images to a video.
+
+        This method converts the images in the ImageWrapper instance to a video file.
+        The video is saved to the specified output path with the given frame rate.
+
+        Args:
+            out_path (str | None, optional): The path to save the video file. If None, a temporary path is used. Defaults to None.
+            frame_rate (int, optional): The frame rate of the video. Defaults to 12.
+
+        Returns:
+            VideoWrapper: An instance of the VideoWrapper class containing the video file path and size.
+        """
         ref = self
         if self.image_type == "pt":
             ref = self.cpil()
