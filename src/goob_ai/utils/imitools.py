@@ -357,7 +357,7 @@ def from_dir(dir_path: str) -> ImageWrapper:
     file_list = [f for f in Path(dir_path).iterdir() if not f.is_dir()]
     image_list = []
 
-    def read_image(f):
+    def read_image(f: Path) -> None:
         try:
             image_list.append(Image.open(f).convert("RGB"))
         except UnidentifiedImageError:
