@@ -191,7 +191,7 @@ class ImageWrapper:
 
         return ImageWrapper(ref.data * 2 - 1, "pt")
 
-    def pil(self) -> Image:
+    def pil(self) -> Image.Image | list[Image.Image]:
         if self.image_type == "pil":
             return self.data[0] if len(self.data) == 1 else self.data
 
