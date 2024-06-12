@@ -347,7 +347,7 @@ def wrap(input_data, labels=None) -> ImageWrapper:
     raise Exception("not implemented!")
 
 
-def from_dir(dir_path) -> ImageWrapper:
+def from_dir(dir_path: str) -> ImageWrapper:
     file_list = [f for f in Path(dir_path).iterdir() if not f.is_dir()]
     image_list = []
 
