@@ -142,15 +142,19 @@ def thread_loop(fn: Callable[[Any], Any], input_array: List[Any], n_workers: int
 
 
 class VideoWrapper:
+    """
+    A class to wrap video file information.
+
+    Attributes:
+        video_path (str): The path to the video file.
+        video_size (tuple[int, int]): The size of the video (width, height).
+    """
+
     def __init__(self, video_path: str, video_size: tuple[int, int]) -> None:
         """
         Initialize the VideoWrapper class.
 
         Args:
-            video_path (str): The path to the video file.
-            video_size (tuple[int, int]): The size of the video (width, height).
-
-        Attributes:
             video_path (str): The path to the video file.
             video_size (tuple[int, int]): The size of the video (width, height).
         """
@@ -160,8 +164,6 @@ class VideoWrapper:
     def path(self) -> str:
         """
         Get the path to the video file.
-
-        This method returns the path to the video file associated with the VideoWrapper instance.
 
         Returns:
             str: The path to the video file.
