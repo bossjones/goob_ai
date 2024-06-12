@@ -187,32 +187,20 @@ class VideoWrapper:
 
 
 class ImageWrapper:
-    def __init__(
-        self, data: list[Image.Image] | torch.Tensor, image_type: str, labels: list[int] | None = None
-    ) -> None:
-        """
-        Initialize the ImageWrapper class.
+    def __init__(self, data: list[Image.Image] | torch.Tensor, image_type: str, labels: list[int] | None = None) -> None:
+        """Initialize the ImageWrapper class.
 
         Args:
             data (list[Image.Image] | torch.Tensor): The image data.
             image_type (str): The type of the image data ('pil' or 'pt').
             labels (list[int] | None, optional): The labels for the images. Defaults to None.
-
-        Attributes:
-            data (list[Image.Image] | torch.Tensor): The image data.
-            image_type (str): The type of the image data ('pil' or 'pt').
-            labels (list[int]): The labels for the images.
         """
-        self.data: List[Image.Image] | torch.Tensor = data
+        self.data: list[Image.Image] | torch.Tensor = data
         self.image_type: str = image_type
-        self.labels: List[int] = list(range(len(data))) if labels is None else labels
+        self.labels: list[int] = list(range(len(data))) if labels is None else labels
 
     def resize(self, size: tuple[int, int] = (256, 256), **kwargs: Any) -> ImageWrapper:
-        """
-        Resize the images to the specified size.
-
-        This method resizes the images in the ImageWrapper instance to the specified size.
-        Additional keyword arguments can be passed to the resize method of the PIL Image class.
+        """Resize the images to the specified size.
 
         Args:
             size (tuple[int, int], optional): The desired size (width, height) of the resized images. Defaults to (256, 256).
@@ -234,11 +222,7 @@ class ImageWrapper:
         return ImageWrapper(new_images, "pil")
 
     def crop(self, size: tuple[int, int] = (256, 256), crop_type: str = "middle") -> ImageWrapper:
-        """
-        Crop the images to the specified size.
-
-        This method crops the images in the ImageWrapper instance to the specified size.
-        The cropping can be done from the top, middle, or bottom of the image.
+        """Crop the images to the specified size.
 
         Args:
             size (tuple[int, int], optional): The desired size (width, height) of the cropped images. Defaults to (256, 256).
@@ -260,11 +244,7 @@ class ImageWrapper:
         return ImageWrapper(new_images, "pil")
 
     def normalize(self) -> ImageWrapper:
-        """
-        Normalize the image data.
-
-        This method normalizes the image data to a range between 0 and 1.
-        If the image data is not in PyTorch tensor format, it will be converted.
+        """Normalize the image data.
 
         Returns:
             ImageWrapper: A new ImageWrapper instance containing the normalized image data.
@@ -277,16 +257,10 @@ class ImageWrapper:
         return ImageWrapper(normalized, "pt")
 
     def pick(self, *args: int | list[int]) -> ImageWrapper:  # type: ignore
-        """
-        Select specific images from the ImageWrapper instance.
-
-        This method allows you to pick specific images from the ImageWrapper instance
-        based on the provided indexes. The indexes can be passed as individual arguments
-        or as a list of integers.
+        """Select specific images from the ImageWrapper instance.
 
         Args:
-            *args (int | list[int]): The indexes of the images to be picked. Can be individual
-                                        integers or a list of integers.
+            *args (int | list[int]): The indexes of the images to be picked. Can be individual integers or a list of integers.
 
         Returns:
             ImageWrapper: A new ImageWrapper instance containing the selected images.
@@ -308,11 +282,7 @@ class ImageWrapper:
             return ImageWrapper(self.data[indexes], "pt")
 
     def sinrange(self: ImageWrapper) -> ImageWrapper:
-        """
-        Scale image data to the range [-1, 1].
-
-        This method scales the image data in the ImageWrapper instance to the range [-1, 1].
-        If the image data is not in PyTorch tensor format, it will be converted.
+        """Scale image data to the range [-1, 1].
 
         Returns:
             ImageWrapper: A new ImageWrapper instance containing the scaled image data.
@@ -324,16 +294,10 @@ class ImageWrapper:
         return ImageWrapper(ref.data * 2 - 1, "pt")
 
     def pil(self) -> Image.Image | list[Image.Image]:  # type: ignore
-        """
-        Convert the image data to PIL format.
-
-        This method converts the image data to a list of PIL images if it is not already in that format.
-        If the image data is a single PIL image, it returns the image directly.
+        """Convert the image data to PIL format.
 
         Returns:
-            Image.Image | list[Image.Image]: The image data in PIL format. If there is only one image,
-                                                it returns a single PIL Image object. Otherwise, it returns
-                                                a list of PIL Image objects.
+            Image.Image | list[Image.Image]: The image data in PIL format. If there is only one image, it returns a single PIL Image object. Otherwise, it returns a list of PIL Image objects.
         """
         if self.image_type == "pil":
             return self.data[0] if len(self.data) == 1 else self.data
@@ -345,11 +309,7 @@ class ImageWrapper:
             return pil_images[0] if len(pil_images) == 1 else pil_images
 
     def pt(self) -> torch.Tensor:
-        """
-        Convert the image data to PyTorch tensor format.
-
-        This method converts the image data to a PyTorch tensor if it is not already in that format.
-        If the image data is in PIL format, it will be converted to a tensor and moved to the default device.
+        """Convert the image data to PyTorch tensor format.
 
         Returns:
             torch.Tensor: The image data in PyTorch tensor format.
@@ -362,11 +322,7 @@ class ImageWrapper:
             return self.data
 
     def to(self, device: str = "cpu") -> ImageWrapper:
-        """
-        Move the image data to the specified device.
-
-        This method moves the image data to the specified device (e.g., "cpu" or "cuda").
-        It only applies to image data in PyTorch tensor format.
+        """Move the image data to the specified device.
 
         Args:
             device (str, optional): The device to move the image data to. Defaults to "cpu".
@@ -383,11 +339,7 @@ class ImageWrapper:
         return ImageWrapper(self.data.to(device), "pt")  # type: ignore
 
     def cpil(self) -> ImageWrapper:
-        """
-        Convert the image data to PIL format.
-
-        This method converts the image data to a list of PIL images if it is not already in that format.
-        If the image data is a single PIL image, it wraps it in a list.
+        """Convert the image data to PIL format.
 
         Returns:
             ImageWrapper: A new ImageWrapper instance containing the image data in PIL format.
@@ -399,11 +351,7 @@ class ImageWrapper:
         return ImageWrapper(images, "pil")
 
     def cpt(self) -> ImageWrapper:
-        """
-        Convert the image data to PyTorch tensor format.
-
-        This method converts the image data to a PyTorch tensor if it is not already in that format.
-        If the image data is in PIL format, it will be converted to a tensor and moved to the default device.
+        """Convert the image data to PyTorch tensor format.
 
         Returns:
             ImageWrapper: A new ImageWrapper instance containing the image data in PyTorch tensor format.
@@ -419,11 +367,15 @@ class ImageWrapper:
         scale: int = -1,
         captions: bool = True,
     ) -> None:
-        """
-        Display a grid of images.
+        """Display a grid of images.
 
-        If there are multiple images in the ImageWrapper instance, they are displayed in a grid with the specified
-        number of columns, scale, and optional captions.
+        Args:
+            cmap (Any, optional): The colormap to use for displaying the images. Defaults to None.
+            figsize (tuple[int, int] | None, optional): The size of the figure. Defaults to None.
+            cols (int, optional): The number of columns in the grid. Defaults to 6.
+            max_count (int, optional): The maximum number of images to display. Defaults to 36.
+            scale (int, optional): The scale of the images. Defaults to -1.
+            captions (bool, optional): Whether to display captions for the images. Defaults to True.
         """
         if len(self.data) == 1:
             """
@@ -483,20 +435,12 @@ class ImageWrapper:
                         ax[row][col].axis("off")
 
     def to_dir(self, output_dir: str, prefix: str = "image", max_workers: int = N_WORKERS) -> None:
-        """
-        Save images to a specified directory.
-
-        This method saves the images contained in the ImageWrapper instance to the specified
-        directory. Each image is saved with a given prefix and an index. If the image data is
-        not in PIL format, it will be converted.
+        """Save images to a specified directory.
 
         Args:
             output_dir (str): The path to the directory where the images will be saved.
             prefix (str, optional): The prefix for the saved image filenames. Defaults to "image".
             max_workers (int, optional): The maximum number of worker threads to use for saving images. Defaults to N_WORKERS.
-
-        Returns:
-            None
         """
         ref = self
         if self.image_type != "pil":
@@ -530,14 +474,10 @@ class ImageWrapper:
         thread_loop(save_image, range(len(images)))  # type: ignore
 
     def to_video(self, out_path: PathLike | str | None = None, frame_rate: int = 12) -> VideoWrapper:
-        """
-        Convert a sequence of images to a video.
-
-        This method converts the images in the ImageWrapper instance to a video file.
-        The video is saved to the specified output path with the given frame rate.
+        """Convert a sequence of images to a video.
 
         Args:
-            out_path (str | None, optional): The path to save the video file. If None, a temporary path is used. Defaults to None.
+            out_path (PathLike | str | None, optional): The path to save the video file. If None, a temporary path is used. Defaults to None.
             frame_rate (int, optional): The frame rate of the video. Defaults to 12.
 
         Returns:
