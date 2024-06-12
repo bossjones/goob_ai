@@ -456,11 +456,22 @@ class ImageWrapper:
         images = ref.data
 
         def save_image(i: int) -> None:
-            try:
-                path = Path(output_dir) / f"{prefix}_{i:04}.png"
-                images[i].save(path)
-            except Exception as e:
-                print("image saving error:", e)
+            """Save an image to the specified directory.
+
+            This function saves an image from the list of images to the specified
+            directory with a given prefix and index. If an error occurs during
+            the saving process, it prints an error message.
+
+            Args:
+                i (int): The index of the image in the list to be saved.
+
+            Raises:
+                Exception: If an error occurs during the image saving process.
+            """
+            path = Path(output_dir) / f"{prefix}_{i:04}.png"
+            images[i].save(path)
+        except Exception as e:
+            print("image saving error:", e)
 
         thread_loop(save_image, range(len(images)))
 
@@ -541,17 +552,13 @@ def from_dir(dir_path: str) -> ImageWrapper:
     image_list = []
 
     def read_image(f: Path) -> None:
-        """
-        Read an image from a file and convert it to RGB format.
+        """Read an image from a file and convert it to RGB format.
 
         This function attempts to open an image file and convert it to RGB format.
         If the file is not a valid image, it is ignored.
 
         Args:
             f (Path): The path to the image file.
-
-        Returns:
-            None
         """
         try:
             image_list.append(Image.open(f).convert("RGB"))
