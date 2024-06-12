@@ -857,6 +857,17 @@ def search_images(prompt: str, max_results: int = 10) -> ImageWrapper:
 
 
 def search_history() -> ImageWrapper | None:
+    """
+    Retrieve the last searched images.
+
+    This function returns the ImageWrapper instance containing the images
+    from the last search performed using the `search_images` function.
+    If no search has been performed yet, it returns None.
+
+    Returns:
+        ImageWrapper | None: The ImageWrapper instance containing the last searched images,
+                             or None if no search has been performed.
+    """
     return _last_search_wrapper
 
 
