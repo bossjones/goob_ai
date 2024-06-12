@@ -311,6 +311,15 @@ class ImageWrapper:
             return ImageWrapper(self.data[indexes], "pt")
 
     def sinrange(self: ImageWrapper) -> ImageWrapper:
+        """
+        Scale image data to the range [-1, 1].
+
+        This method scales the image data in the ImageWrapper instance to the range [-1, 1].
+        If the image data is not in PyTorch tensor format, it will be converted.
+
+        Returns:
+            ImageWrapper: A new ImageWrapper instance containing the scaled image data.
+        """
         ref = self
         if self.image_type != "pt":
             ref = self.cpt()
