@@ -67,7 +67,7 @@ def download_image(img_url: str) -> Image.Image | None:
             image = Image.open(io.BytesIO(buffer.read()))
         buffer.close()
         return image
-    except:
+    except Exception:
         return image
 
 
@@ -235,7 +235,7 @@ class ImageWrapper:
             ImageWrapper: A new ImageWrapper instance containing the cropped images.
         """
         ref = self
-        if self.image_type != "pil":
+        if ref.image_type != "pil":
             ref = ref.cpil()
 
         if not isinstance(size, tuple):
@@ -271,7 +271,7 @@ class ImageWrapper:
         Raises:
             Exception: If no indexes are provided.
         """
-        if len(args) == 0:
+        if not args:
             raise Exception("provide some indexes to pick")
 
         indexes = list(args)
@@ -405,7 +405,7 @@ class ImageWrapper:
             print(
                 f"Only showing {max_count} images of the total {image_count}. Use the `max_count` parameter to change it."
             )
-            images = self.data[0:max_count]
+            images = self.data[:max_count]
             image_count = max_count
 
         if image_count < cols:
@@ -413,7 +413,7 @@ class ImageWrapper:
 
         rows = math.ceil(image_count / cols)
 
-        if figsize == None:
+        if figsize is None:
             figsize = figsize = (cols * scale, rows * scale)
 
         _, ax = plt.subplots(rows, cols, figsize=figsize)
@@ -494,7 +494,7 @@ class ImageWrapper:
         image_dir = Path(f"/tmp/{id}/images")
         image_dir.mkdir(exist_ok=True, parents=True)
 
-        if out_path == None:
+        if out_path is None:
             out_path = f"/tmp/{id}/video.mp4"
 
         video_path = Path(out_path)  # type: ignore
@@ -837,11 +837,7 @@ def download(image_urls: Union[str, List[str]]) -> ImageWrapper:
 
     The function iterates through the downloaded images and filters out any None values.
     """
-    for image in result_list:
-        if image is None:
-            continue
-        images.append(image)
-
+    images.extend(image for image in result_list if image is not None)
     return wrap(images)
 
 
