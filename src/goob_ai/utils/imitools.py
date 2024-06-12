@@ -389,7 +389,7 @@ class LivePlotter:
         self.queue.append(("title", subplot_id, title))
         return self
 
-    def imshow(self, subplot_id, image) -> LivePlotter:
+    def imshow(self, subplot_id: int, image: Union[Image.Image, torch.Tensor]) -> LivePlotter:
         self.queue.append(("imshow", subplot_id, image))
         return self
 
