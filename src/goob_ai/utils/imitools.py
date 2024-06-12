@@ -157,6 +157,12 @@ class ImageWrapper:
         return ImageWrapper(new_images, "pil")
 
     def normalize(self) -> ImageWrapper:
+        ref: ImageWrapper = self
+        if self.image_type != "pt":
+            ref = self.cpt()
+
+        normalized: torch.Tensor = (ref.data - ref.data.min()) / (ref.data.max() - ref.data.min())
+        return ImageWrapper(normalized, "pt")
         ref = self
         if self.image_type != "pt":
             ref = self.cpt()
