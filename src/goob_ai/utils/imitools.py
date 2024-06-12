@@ -262,6 +262,23 @@ class ImageWrapper:
         return ImageWrapper(normalized, "pt")
 
     def pick(self, *args: int | list[int]) -> ImageWrapper:
+        """
+        Select specific images from the ImageWrapper instance.
+
+        This method allows you to pick specific images from the ImageWrapper instance
+        based on the provided indexes. The indexes can be passed as individual arguments
+        or as a list of integers.
+
+        Args:
+            *args (int | list[int]): The indexes of the images to be picked. Can be individual
+                                     integers or a list of integers.
+
+        Returns:
+            ImageWrapper: A new ImageWrapper instance containing the selected images.
+
+        Raises:
+            Exception: If no indexes are provided.
+        """
         if len(args) == 0:
             raise Exception("provide some indexes to pick")
 
