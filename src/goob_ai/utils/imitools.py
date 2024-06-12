@@ -110,7 +110,7 @@ class VideoWrapper:
     def path(self) -> str:
         return self.video_path
 
-    def show(self):
+    def show(self) -> HTML:
         mp4 = open(self.video_path, "rb").read()
         data_url = "data:video/mp4;base64," + b64encode(mp4).decode()
 
@@ -211,7 +211,7 @@ class ImageWrapper:
         if self.image_type == "pt":
             return self.data
 
-    def to(self, device="cpu") -> ImageWrapper:
+    def to(self, device: str = "cpu") -> ImageWrapper:
         if self.image_type != "pt":
             raise Exception("to() only applied for pytorch tensors")
 
@@ -288,7 +288,7 @@ class ImageWrapper:
                     else:
                         ax[row][col].axis("off")
 
-    def to_dir(self, output_dir, prefix="image", max_workers=min(10, os.cpu_count())):
+    def to_dir(self, output_dir: str, prefix: str = "image", max_workers: int = min(10, os.cpu_count())) -> None:
         ref = self
         if self.image_type != "pil":
             ref = self.cpil()
@@ -307,7 +307,7 @@ class ImageWrapper:
 
         thread_loop(save_image, range(len(images)))
 
-    def to_video(self, out_path=None, frame_rate=12):
+    def to_video(self, out_path: str | None = None, frame_rate: int = 12) -> VideoWrapper:
         ref = self
         if self.image_type == "pt":
             ref = self.cpil()
@@ -331,7 +331,7 @@ class ImageWrapper:
         return VideoWrapper(video_path, video_size)
 
 
-def wrap(input_data, labels=None) -> ImageWrapper:
+def wrap(input_data: Union[ImageWrapper, torch.Tensor, Image.Image, list], labels: list[int] | None = None) -> ImageWrapper:
     if isinstance(input_data, ImageWrapper):
         return input_data
 
@@ -409,7 +409,7 @@ class LivePlotter:
         self.queue.append(("imshow", subplot_id, image))
         return self
 
-    def update(self):
+    def update(self) -> None:
         for col in range(self.cols):
             if self.cols == 1:
                 self.subplots.clear()
