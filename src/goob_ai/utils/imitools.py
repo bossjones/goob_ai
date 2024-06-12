@@ -437,6 +437,22 @@ def wrap(input_data: Union[ImageWrapper, torch.Tensor, Image.Image, list[Union[t
 
 
 def from_dir(dir_path: str) -> ImageWrapper:
+    """
+    Load images from a directory and return them as an ImageWrapper instance.
+
+    This function iterates through the files in the specified directory,
+    reads the images, and converts them to RGB format. The images are then
+    wrapped in an ImageWrapper instance and returned.
+
+    Args:
+        dir_path (str): The path to the directory containing the images.
+
+    Returns:
+        ImageWrapper: An ImageWrapper instance containing the loaded images.
+
+    Raises:
+        UnidentifiedImageError: If a file in the directory is not a valid image.
+    """
     file_list = [f for f in Path(dir_path).iterdir() if not f.is_dir()]
     image_list = []
 
