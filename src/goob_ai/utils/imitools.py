@@ -71,6 +71,23 @@ def download_image(img_url: str) -> Image.Image | None:
 
 # based on https://gist.github.com/sigilioso/2957026
 def image_crop(img: Image.Image, size: tuple[int, int], crop_type: str = "middle") -> Image.Image:
+    """
+    Crop an image to the specified size.
+
+    This function resizes and crops an image to the desired size. The cropping can be done
+    from the top, middle, or bottom of the image based on the specified crop type.
+
+    Args:
+        img (Image.Image): The input image to be cropped.
+        size (tuple[int, int]): The desired size (width, height) of the cropped image.
+        crop_type (str, optional): The type of cropping to perform. Can be 'top', 'middle', or 'bottom'. Defaults to 'middle'.
+
+    Returns:
+        Image.Image: The cropped image.
+
+    Raises:
+        ValueError: If an invalid value is provided for crop_type.
+    """
     # Get current and desired ratio for the images
     img_ratio = img.size[0] / float(img.size[1])
     ratio = size[0] / float(size[1])
