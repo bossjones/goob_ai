@@ -56,6 +56,11 @@ rule_settings:
   - gpsg-type-annotations
   - gpsg-docstrings
   - docstrings-for-functions
+  - docstrings-for-classes
+  - docstrings-for-packages
+  - docstrings-for-modules
+  # - require-parameter-annotation
+  # - require-return-annotation
   disable: []  # A list of rule IDs Sourcery will never suggest.
   rule_types:
   - refactoring
