@@ -35,7 +35,7 @@ class ImageDefaults:
 defaults = ImageDefaults()
 
 
-def download_image(img_url):
+def download_image(img_url: str) -> Image.Image | None:
     image = None
     try:
         buffer = tempfile.SpooledTemporaryFile(max_size=1e9)
