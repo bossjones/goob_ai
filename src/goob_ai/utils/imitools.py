@@ -143,7 +143,7 @@ class ImageWrapper:
         new_images = [im.resize(i_size, **kwargs) for im in ref.data]
         return ImageWrapper(new_images, "pil")
 
-    def crop(self, size=(256, 256), crop_type="middle") -> ImageWrapper:
+    def crop(self, size: tuple[int, int] = (256, 256), crop_type: str = "middle") -> ImageWrapper:
         ref = self
         if self.image_type != "pil":
             ref = ref.cpil()
