@@ -24,7 +24,7 @@ from torchvision.transforms import transforms
 #     Image.Resampling.BILINEAR=Image.LANCZOS
 
 
-# from duckduckgo_search import ddg_images
+from duckduckgo_search import ddg_images
 
 
 class ImageDefaults:
