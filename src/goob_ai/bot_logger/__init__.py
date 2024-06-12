@@ -42,6 +42,22 @@ from loguru._defaults import LOGURU_FORMAT
 from goob_ai.models.loggers import LoggerModel, LoggerPatch
 
 
+# ###################################################################################################
+# # NOTE: Make sure we don't log secrets
+# # SOURCE: https://github.com/Delgan/loguru/issues/537#issuecomment-986259036
+# def obfuscate_message(message: str):
+#     """Obfuscate sensitive information."""
+#     result = re.sub(r"pass: .*", "pass: xxx", s)
+#     return result
+#
+# def formatter(record):
+#     record["extra"]["obfuscated_message"] = obfuscate_message(record["message"])
+#     return "[{level}] {extra[obfuscated_message]}\n{exception}"
+#
+# logger.add(sys.stderr, format=formatter)
+# ###################################################################################################
+
+
 # SOURCE: https://github.com/bossjones/sandbox/blob/8ad412d9726e8ffc76ea8822f32e18a0cb5fc84f/dancedetector/dancedetector/dbx_logger/__init__.py
 # References
 # Solution comes from:

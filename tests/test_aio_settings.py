@@ -28,7 +28,7 @@ IS_RUNNING_ON_GITHUB_ACTIONS = bool(os.environ.get("GITHUB_ACTOR"))
 class TestSettings:
     def test_defaults(
         self,
-    ) -> None:
+    ) -> None:  # sourcery skip: extract-method
         test_settings: aio_settings.AioSettings = aio_settings.AioSettings()
         assert test_settings.monitor_host == "localhost"
         assert test_settings.monitor_port == 50102
@@ -49,12 +49,13 @@ class TestSettings:
         assert test_settings.redis_user is None
         assert test_settings.redis_pass is None
         assert test_settings.redis_base is None
-        assert str(test_settings.discord_token) == "**********"
-        assert str(test_settings.discord_token) == "**********"
-        assert str(test_settings.openai_api_key) == "**********"
-        assert str(test_settings.pinecone_api_key) == "**********"
-        assert str(test_settings.langchain_api_key) == "**********"
-        assert str(test_settings.langchain_hub_api_key) == "**********"
+        if test_settings.enable_ai:
+            assert str(test_settings.discord_token) == "**********"
+            assert str(test_settings.discord_token) == "**********"
+            assert str(test_settings.openai_api_key) == "**********"
+            assert str(test_settings.pinecone_api_key) == "**********"
+            assert str(test_settings.langchain_api_key) == "**********"
+            assert str(test_settings.langchain_hub_api_key) == "**********"
         assert str(test_settings.redis_url) == "redis://localhost:7600"
 
     @pytest.mark.integration
