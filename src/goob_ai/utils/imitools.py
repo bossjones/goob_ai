@@ -427,7 +427,7 @@ class LivePlotter:
         plt.close()
 
 
-def live_plot(*args, **kwargs) -> LivePlotter:
+def live_plot(*args: Any, **kwargs: Any) -> LivePlotter:
     return LivePlotter(*args, **kwargs)
 
 
