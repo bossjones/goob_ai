@@ -387,7 +387,7 @@ class LivePlotter:
 
         self.queue = []
 
-    def plot(self, subplot_id, *args, **kwargs) -> LivePlotter:
+    def plot(self, subplot_id: int, *args: Any, **kwargs: Any) -> LivePlotter:
         self.queue.append(("plot", subplot_id, args, kwargs))
         return self
 
