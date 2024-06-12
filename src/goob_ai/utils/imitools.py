@@ -210,9 +210,8 @@ class ImageWrapper:
         return ImageWrapper(self.data.to(device), "pt")
 
     def cpil(self) -> ImageWrapper:
+        images: list[Image.Image] | Image.Image = self.pil()
         images = self.pil()
-        if isinstance(images, Image.Image):
-            images = [images]
 
         return ImageWrapper(images, "pil")
 
