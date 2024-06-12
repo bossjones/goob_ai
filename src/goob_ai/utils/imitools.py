@@ -87,7 +87,9 @@ def image_crop(img: Image.Image, size: tuple[int, int], crop_type: str = "middle
     return img
 
 
-def thread_loop(fn, input_array, n_workers=min(10, os.cpu_count())):
+from typing import Callable, List, Any
+
+def thread_loop(fn: Callable[[Any], Any], input_array: List[Any], n_workers: int = min(10, os.cpu_count())) -> List[Any]:
     return_data = []
 
     with ThreadPoolExecutor(n_workers) as executor:
