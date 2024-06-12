@@ -42,6 +42,18 @@ defaults = ImageDefaults()
 
 
 def download_image(img_url: str) -> Image.Image | None:
+    """
+    Download an image from a given URL.
+
+    This function downloads an image from the specified URL and returns it as a PIL Image object.
+    If the download fails or the image cannot be opened, it returns None.
+
+    Args:
+        img_url (str): The URL of the image to be downloaded.
+
+    Returns:
+        Image.Image | None: The downloaded image as a PIL Image object, or None if the download fails.
+    """
     image = None
     try:
         buffer = tempfile.SpooledTemporaryFile(max_size=1e9)
