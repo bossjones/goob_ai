@@ -477,7 +477,7 @@ def merge(*args: Union[ImageWrapper, List[ImageWrapper], List[Image.Image], List
 _last_search_wrapper = None
 
 
-def search_images(prompt, max_results=10):
+def search_images(prompt: str, max_results: int = 10) -> ImageWrapper:
     image_urls = [item["image"] for item in ddg_images(prompt, max_results=max_results)]
     global _last_search_wrapper
     _last_search_wrapper = download(image_urls)
