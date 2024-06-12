@@ -447,7 +447,7 @@ def download(image_urls: Union[str, List[str]]) -> ImageWrapper:
     return wrap(images)
 
 
-def merge(*args):
+def merge(*args: Union[ImageWrapper, List[ImageWrapper], List[Image.Image], List[torch.Tensor], ImageWrapper, torch.Tensor, Image.Image]) -> ImageWrapper:
     args = list(args)
     if isinstance(args[0], list) and not isinstance(args[0][0], Image.Image):
         args = args[0]
