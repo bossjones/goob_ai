@@ -225,7 +225,15 @@ class ImageWrapper:
     def cpt(self) -> ImageWrapper:
         return ImageWrapper(self.pt(), "pt")
 
-    def show(self, cmap=None, figsize=None, cols=6, max_count=36, scale=-1, captions=True):
+    def show(
+        self,
+        cmap: Any = None,
+        figsize: tuple[int, int] | None = None,
+        cols: int = 6,
+        max_count: int = 36,
+        scale: int = -1,
+        captions: bool = True
+    ) -> None:
         if len(self.data) == 1:
             scale = 4 if scale == -1 else scale
             plt.figure(figsize=(scale, scale))
