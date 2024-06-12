@@ -850,6 +850,19 @@ _last_search_wrapper = None
 
 
 def search_images(prompt: str, max_results: int = 10) -> ImageWrapper:
+    """
+    Search for images using a given prompt.
+
+    This function uses the DuckDuckGo search engine to find images based on the provided prompt.
+    It returns an ImageWrapper instance containing the downloaded images.
+
+    Args:
+        prompt (str): The search query to find images.
+        max_results (int, optional): The maximum number of images to retrieve. Defaults to 10.
+
+    Returns:
+        ImageWrapper: An ImageWrapper instance containing the downloaded images.
+    """
     image_urls = [item["image"] for item in ddg_images(prompt, max_results=max_results)]
     global _last_search_wrapper
     _last_search_wrapper = download(image_urls)
