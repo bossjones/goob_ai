@@ -130,7 +130,7 @@ class ImageWrapper:
         self.image_type = image_type
         self.labels = list(range(len(data))) if labels is None else labels
 
-    def resize(self, size=(256, 256), **kwargs) -> ImageWrapper:
+    def resize(self, size: tuple[int, int] = (256, 256), **kwargs: Any) -> ImageWrapper:
         ref = self
         if self.image_type != "pil":
             ref = ref.cpil()
