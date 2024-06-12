@@ -438,6 +438,34 @@ class LivePlotter:
 
         self.queue = []
         self.out.update(self.fig)
+        for col in range(self.cols):
+            if self.cols == 1:
+                self.subplots.clear()
+            else:
+                self.subplots[col].clear()
+
+        for item in self.queue:
+            if item[0] == "imshow":
+                _, subplot_id, image = item
+                if self.cols == 1:
+                    self.subplots.imshow(wrap(image).pt().detach().cpu()[0].permute(1, 2, 0))
+                    self.subplots.axis("off")
+                else:
+                    self.subplots[subplot_id].imshow(wrap(image).pt().detach().cpu()[0].permute(1, 2, 0))
+                    self.subplots[subplot_id].axis("off")
+
+            if item[0] == "plot":
+                _, subplot_id, args, kwargs = item
+                self.subplots[subplot_id].plot(*args, **kwargs)
+                if "label" in kwargs:
+                    self.subplots[subplot_id].legend()
+
+            if item[0] == "title":
+                _, subplot_id, title = item
+                self.subplots[subplot_id].title.set_text(title)
+
+        self.queue = []
+        self.out.update(self.fig)
 
     def close(self) -> None:
         plt.close()
