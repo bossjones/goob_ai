@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 import shutil
 
 from pathlib import Path
@@ -68,6 +69,10 @@ def test_custom_openai_embeddings_init(mocker: MockerFixture, monkeypatch: Monke
     assert embeddings.openai_api_key == "test_api_key"
 
 
+@pytest.mark.skipif(
+    os.getenv("PINECONE_ENV"),
+    reason="These tests are meant to only run locally on laptop prior to porting it over to new system",
+)
 def test_custom_openai_embeddings_call(mocker: MockerFixture, custom_embeddings: CustomOpenAIEmbeddings) -> None:
     """Test the call method of CustomOpenAIEmbeddings.
 
@@ -160,6 +165,10 @@ def test_load_documents(mocker: MockerFixture, mock_pdf_file: Path) -> None:
     mock_save_to_chroma.assert_called_once_with([Document(page_content="Test chunk", metadata={})])
 
 
+@pytest.mark.skipif(
+    os.getenv("PINECONE_ENV"),
+    reason="These tests are meant to only run locally on laptop prior to porting it over to new system",
+)
 def test_split_text(mocker: MockerFixture) -> None:
     """Test the split_text function.
 
