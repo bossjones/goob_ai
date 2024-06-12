@@ -105,7 +105,7 @@ class VideoWrapper:
         self.video_path = video_path
         self.video_size = video_size
 
-    def path(self):
+    def path(self) -> str:
         return self.video_path
 
     def show(self):
