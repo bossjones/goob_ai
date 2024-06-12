@@ -17,7 +17,7 @@ EVAL_CRITERIA = {
 
 
 class Evaluator:
-    evaluator = None
+    evaluator: Chain | StringEvaluator | None = None
 
     def __init__(self):
         super().__init__()
@@ -26,8 +26,7 @@ class Evaluator:
         )
 
     def evaluate_prediction(self, input_question, prediction):
-        eval_result = self.evaluator.evaluate_strings(
+        return self.evaluator.evaluate_strings(
             prediction=prediction,
             input=input_question,
-        )  # pyright: ignore[reportAttributeAccessIssue]
-        return eval_result
+        )

@@ -196,7 +196,6 @@ def rename_without_cachebuster(working_dir: list[str]) -> list[str]:
             orig.rename(f"{without_cb}")
             working_dir_only.append(f"{without_cb}")
     return working_dir_only
-    return working_dir_only
 
 
 def filter_videos(working_dir: list[str]) -> list[str]:
@@ -646,8 +645,6 @@ def format_size(a_file: int) -> str:
         return "{:.0f} GB".format(a_file / float(1024**3))
     elif a_file > 1024**2:
         return "{:.0f} MB".format(a_file / float(1024**2))
-    elif a_file > 1024:
-        return "{:.0f} KB".format(a_file / float(1024))
     elif a_file > 1024:
         return "{:.0f} KB".format(a_file / float(1024))
     else:

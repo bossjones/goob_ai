@@ -97,7 +97,7 @@ dependencies = [
     "lazy-object-proxy>=1.10.0",
     "httpx[http2]>=0.27.0",
     "python-json-logger>=2.0.7",
-    "torch>=2.3.0",
+    "torch==2.0.1",
     "chromadb>=0.5.0",
     "duckduckgo-search>=5.3.0",
     "wikipedia>=1.4.0",
@@ -106,7 +106,7 @@ dependencies = [
     "dask>=2024.5.0",
     "invoke>=2.2.0",
     "click>=8.1.7",
-    "torchvision>=0.18.0",
+    "torchvision==0.15.2",
     "asyncer>=0.0.7",
     "bump-pydantic>=0.8.0",
     "pinecone-client[grpc]>=4.1.1",
@@ -119,6 +119,7 @@ dependencies = [
     "yfinance>=0.2.40",
     "youtube-search>=2.1.2",
     "timm>=1.0.3",
+    "huggingface-hub>=0.23.3",
 ]
 
 readme = "README.md"
@@ -202,6 +203,7 @@ dev-dependencies = [
     "types-protobuf>=5.26.0.20240422",
     "types-contextvars>=2.4.7.3",
     "pytest-aiohttp>=1.0.5",
+    "pytest-skip-slow>=0.0.5",
 ]
 
 [tool.rye.scripts]
@@ -232,7 +234,8 @@ typecheck = {chain = [
 "open:mypy-coverage" = " open typingcov/index.html"
 unittests-debug = {cmd = "pytest --verbose --pdb --pdbcls bpdb:BPdb --showlocals --tb=short --cov-append --cov-report=term-missing --junitxml=junit/test-results.xml --cov-report=xml:cov.xml --cov-report=html:htmlcov --cov-report=annotate:cov_annotate --cov=."}
 unittests = {cmd = "pytest --verbose --showlocals --tb=short --cov-append --cov-report=term-missing --junitxml=junit/test-results.xml --cov-report=xml:cov.xml --cov-report=html:htmlcov --cov-report=annotate:cov_annotate --cov=."}
-test-simple = {cmd = "pytest --disable-warnings"}
+test-simple = {cmd = "pytest -p no:warnings"}
+simple-test = {cmd = "pytest -p no:warnings"}
 new-unittests-debug = {cmd = "pytest --verbose --pdb --pdbcls bpdb:BPdb --showlocals --tb=short"}
 test = {chain = [
     "lint",
@@ -374,6 +377,7 @@ addopts = [
 markers = [
     "configonly: marks tests that run code that utilizes the config module (deselect with '-m \"not configonly\"')",
     "fast: marks tests as fast (run with '-m fast')",
+    "imgops: marks tests as imgops (run with '-m imgops')",
     "httpclientonly: marks tests that run code that utilizes the http_client module (deselect with '-m \"not httpclientonly\"')",
     "integration: marks tests dealing with integration testing (deselect with '-m \"not integration\"')",
     "onboardingonly: marks tests that run code that utilizes the new_dev_onboarding_tool module (deselect with '-m \"not onboardingonly\"')",

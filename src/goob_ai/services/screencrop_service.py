@@ -29,7 +29,15 @@ from loguru import logger as LOGGER
 from PIL import Image
 
 from goob_ai.utils import async_
-from goob_ai.utils.imgops import DEVICE, OPENCV_RED, handle_predict_one, predict_from_file, setup_model
+from goob_ai.utils.imgops import (
+    DEVICE,
+    OPENCV_RED,
+    display_normalized_rectangle,
+    handle_predict_one,
+    normalize_rectangle_coords,
+    predict_from_file,
+    setup_model,
+)
 
 
 def display_image_grid(
@@ -115,11 +123,13 @@ def pred_and_plot_image(
     image_path: str | PathLike,
     class_names: List[str],
     image_size: Tuple[int, int] = (224, 224),
-    transform: torchvision.transforms = None,  # pyright: ignore[reportAttributeAccessIssue]
+    transform: torchvision.transforms = None,
     device: torch.device = DEVICE,
-    y_preds: List[torch.Tensor] = [],  # pyright: ignore[reportCallInDefaultInitializer]
+    y_preds: List[torch.Tensor] = None,
     y_pred_tensor: torch.Tensor = None,
 ):
+    if y_preds is None:
+        y_preds = []
     # 2. Open image
     img = Image.open(image_path)
 
@@ -271,3 +281,25 @@ class ImageService:
         display_image_grid(
             path_to_image_from_cli, cols=5, model=model, device=device
         )  # mypy: disable-error-code="arg-type"
+
+    # @async_.to_async
+    @staticmethod
+    def handle_final(
+        path_to_image_from_cli: List[str] | List[PathLike],
+        model: torch.nn.Module | None = None,
+        device: torch.device = DEVICE,
+    ):
+        if model is None:
+            model = setup_model()
+
+        image_results, bboxes_results = predict_from_file(path_to_image_from_cli, model, DEVICE)
+
+        # FIXME: don't do this, explicity call args in func
+        image_and_bbox = [image_results, bboxes_results]
+
+        # normalized creds
+        out_bbox_norm = normalize_rectangle_coords(image_and_bbox)
+
+        image_data_with_bounding_box = display_normalized_rectangle(image_results, out_bbox_norm)
+
+        plt.imshow(image_data_with_bounding_box)

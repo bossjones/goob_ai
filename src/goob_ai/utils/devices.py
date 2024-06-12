@@ -6,7 +6,7 @@ import contextlib
 
 from typing import Optional, Union
 
-import torch  # type: ignore
+import torch
 
 from goob_ai.core import errors
 
@@ -22,9 +22,11 @@ def get_device() -> torch.device:
     Explanation:
     This function determines the device to be used for PyTorch operations based on the availability of MPS, CUDA, or CPU.
     """
-    device = torch.device(
-        "mps" if torch.backends.mps.is_available() else ("cuda" if torch.cuda.is_available() else "cpu")
-    )
+    # device = torch.device(
+    #     "mps" if torch.backends.mps.is_available() else ("cuda" if torch.cuda.is_available() else "cpu")
+    # )
+    device = torch.device("cpu")
+    torch.set_default_dtype(torch.float32)
     return device
 
 

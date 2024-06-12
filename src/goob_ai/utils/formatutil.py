@@ -59,12 +59,10 @@ def progress_bar(current: int, total: int, width: int = 5):
     half_width = int(fraction * width * 2) % 2
     empty_width = width - filled_width - half_width
     bar = f"{'f' * filled_width}{'h' * half_width}{'e' * empty_width}"
-    if len(bar) > 1:
-        middle = "".join(bar_emoji[i] for i in bar[1:-1])
-        bar = f"{bar_emoji['1'+bar[0]]}{middle}{bar_emoji['2'+bar[-1]]}"
-    else:
-        bar = f"{bar_emoji['1e']}{bar_emoji['2e']}"
-    return bar
+    if len(bar) <= 1:
+        return f"{bar_emoji['1e']}{bar_emoji['2e']}"
+    middle = "".join(bar_emoji[i] for i in bar[1:-1])
+    return f"{bar_emoji[f'1{bar[0]}']}{middle}{bar_emoji[f'2{bar[-1]}']}"
 
 
 # https://github.com/darren-rose/DiscordDocChatBot/blob/63a2f25d2cb8aaace6c1a0af97d48f664588e94e/main.py#L28
@@ -85,8 +83,7 @@ def extract_url(s: str):
     """
 
     url_pattern = re.compile(r"http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\\(\\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+")
-    urls = re.findall(url_pattern, s)
-    return urls
+    return re.findall(url_pattern, s)
 
 
 async def download_html(url: str, filepath: str):
@@ -161,5 +158,4 @@ def get_text_chunks(text: str):
     """
 
     text_splitter = CharacterTextSplitter(separator="\n", chunk_size=1000, chunk_overlap=200, length_function=len)
-    chunks = text_splitter.split_text(text)
-    return chunks
+    return text_splitter.split_text(text)
