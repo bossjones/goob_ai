@@ -534,6 +534,21 @@ class ImageWrapper:
                         ax[row][col].axis("off")
 
     def to_dir(self, output_dir: str, prefix: str = "image", max_workers: int = min(10, os.cpu_count())) -> None:
+        """
+        Save images to a specified directory.
+
+        This method saves the images contained in the ImageWrapper instance to the specified
+        directory. Each image is saved with a given prefix and an index. If the image data is
+        not in PIL format, it will be converted.
+
+        Args:
+            output_dir (str): The path to the directory where the images will be saved.
+            prefix (str, optional): The prefix for the saved image filenames. Defaults to "image".
+            max_workers (int, optional): The maximum number of worker threads to use for saving images. Defaults to min(10, os.cpu_count()).
+
+        Returns:
+            None
+        """
         ref = self
         if self.image_type != "pil":
             ref = self.cpil()
@@ -544,19 +559,8 @@ class ImageWrapper:
         images = ref.data
 
         def save_image(i: int) -> None:
-            """Save an image to the specified directory.
-
-            This function saves an image from the list of images to the specified
-            directory with a given prefix and index. If an error occurs during
-            the saving process, it prints an error message.
-
-            Args:
-                i (int): The index of the image in the list to be saved.
-
-            Raises:
-                Exception: If an error occurs during the image saving process.
             """
-            """Save an image to the specified directory.
+            Save an image to the specified directory.
 
             This function saves an image from the list of images to the specified
             directory with a given prefix and index. If an error occurs during
