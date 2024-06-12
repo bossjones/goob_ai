@@ -184,7 +184,7 @@ class ImageWrapper:
         if self.image_type == "pt":
             return ImageWrapper(self.data[indexes], "pt")
 
-    def sinrange(self) -> ImageWrapper:
+    def sinrange(self: ImageWrapper) -> ImageWrapper:
         ref = self
         if self.image_type != "pt":
             ref = self.cpt()
