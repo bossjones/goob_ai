@@ -626,6 +626,19 @@ class LivePlotter:
 
 
 def live_plot(*args: Any, **kwargs: Any) -> LivePlotter:
+    """
+    Create a LivePlotter instance for live plotting.
+
+    This function initializes a LivePlotter instance with the given arguments and keyword arguments.
+    The LivePlotter instance can be used to create and update live plots.
+
+    Args:
+        *args (Any): Positional arguments to be passed to the LivePlotter constructor.
+        **kwargs (Any): Keyword arguments to be passed to the LivePlotter constructor.
+
+    Returns:
+        LivePlotter: An instance of the LivePlotter class for live plotting.
+    """
     return LivePlotter(*args, **kwargs)
 
 
