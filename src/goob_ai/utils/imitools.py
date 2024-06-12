@@ -724,6 +724,18 @@ class LivePlotter:
         return self
 
     def title(self, subplot_id: int, title: str) -> LivePlotter:
+        """
+        Set the title of a subplot.
+
+        This method queues a command to set the title of the specified subplot.
+        
+        Args:
+            subplot_id (int): The ID of the subplot where the title will be set.
+            title (str): The title text to be set for the subplot.
+
+        Returns:
+            LivePlotter: The LivePlotter instance with the queued command.
+        """
         self.queue.append(("title", subplot_id, title))
         return self
 
