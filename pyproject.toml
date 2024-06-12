@@ -203,6 +203,7 @@ dev-dependencies = [
     "types-protobuf>=5.26.0.20240422",
     "types-contextvars>=2.4.7.3",
     "pytest-aiohttp>=1.0.5",
+    "pytest-skip-slow>=0.0.5",
 ]
 
 [tool.rye.scripts]

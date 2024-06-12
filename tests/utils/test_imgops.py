@@ -264,6 +264,7 @@ async def test_setup_model(mocker):
     os.getenv("PINECONE_ENV"),
     reason="These tests are meant to only run locally on laptop prior to porting it over to new system",
 )
+@pytest.mark.slow
 @pytest.mark.imgops
 @pytest.mark.integration
 async def test_pred_and_store(mocker):
@@ -539,6 +540,7 @@ def test_resize_image_and_bbox(mocker, test_image, return_percent_coords):
     reason="These tests are meant to only run locally on laptop prior to porting it over to new system",
 )
 @pytest.mark.imgops
+@pytest.mark.slow
 # @pytest.mark.asyncio
 def test_handle_predict_one(mocker):
     """Test handle_predict_one function."""
@@ -562,6 +564,7 @@ def test_handle_predict_one(mocker):
     os.getenv("PINECONE_ENV"),
     reason="These tests are meant to only run locally on laptop prior to porting it over to new system",
 )
+@pytest.mark.slow
 @pytest.mark.imgops
 def test_handle_predict(mocker):
     """Test handle_predict function."""
@@ -615,6 +618,7 @@ def test_get_pil_image_channels(mocker):
     os.getenv("PINECONE_ENV"),
     reason="These tests are meant to only run locally on laptop prior to porting it over to new system",
 )
+@pytest.mark.slow
 @pytest.mark.imgops
 # @pytest.mark.asyncio
 def test_handle_autocrop(mocker):
@@ -638,6 +642,7 @@ def test_handle_autocrop(mocker):
     os.getenv("PINECONE_ENV"),
     reason="These tests are meant to only run locally on laptop prior to porting it over to new system",
 )
+@pytest.mark.slow
 @pytest.mark.imgops
 # @pytest.mark.asyncio
 def test_handle_autocrop_one(mocker):
