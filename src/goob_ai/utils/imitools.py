@@ -321,6 +321,15 @@ class ImageWrapper:
             return pil_images[0] if len(pil_images) == 1 else pil_images
 
     def pt(self) -> torch.Tensor:
+        """
+        Convert the image data to PyTorch tensor format.
+
+        This method converts the image data to a PyTorch tensor if it is not already in that format.
+        If the image data is in PIL format, it will be converted to a tensor and moved to the default device.
+
+        Returns:
+            torch.Tensor: The image data in PyTorch tensor format.
+        """
         if self.image_type == "pil":
             pt_images = [transforms.ToTensor()(im) for im in self.data]
             return torch.stack(pt_images).to(defaults.device)
