@@ -694,6 +694,24 @@ def download(image_urls: Union[str, List[str]]) -> ImageWrapper:
 
 
 def merge(*args: Union[ImageWrapper, List[ImageWrapper], List[Image.Image], List[torch.Tensor], ImageWrapper, torch.Tensor, Image.Image]) -> ImageWrapper:
+    """
+    Merge multiple image data sources into a single ImageWrapper instance.
+
+    This function takes multiple image data sources, which can be ImageWrapper instances,
+    lists of ImageWrapper instances, lists of PIL Images, lists of PyTorch tensors, or
+    individual PIL Images or PyTorch tensors. It merges these sources into a single
+    ImageWrapper instance.
+
+    Args:
+        *args (Union[ImageWrapper, List[ImageWrapper], List[Image.Image], List[torch.Tensor], ImageWrapper, torch.Tensor, Image.Image]):
+            The image data sources to be merged.
+
+    Returns:
+        ImageWrapper: An ImageWrapper instance containing the merged image data.
+
+    Raises:
+        Exception: If the input data type is not supported.
+    """
     args = list(args)
     if isinstance(args[0], list) and not isinstance(args[0][0], Image.Image):
         args = args[0]
