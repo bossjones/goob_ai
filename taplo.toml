@@ -51,6 +51,8 @@ keys = [
     "tool.ruff.lint.ignore",
     "tool.ruff.lint.extend-select",
     "tool.ruff.per-file-ignores",
+    "tool.rye.dev-dependencies",
+    "dependencies"
 ]
 
 [rule.formatting]

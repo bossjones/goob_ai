@@ -10,9 +10,18 @@ from pathlib import Path
 from tempfile import gettempdir
 from typing import Any, Callable, Dict, List, Optional, Set, Union, cast
 
-from pydantic import AliasChoices, AmqpDsn, BaseModel, Field, ImportString, PostgresDsn, RedisDsn
-
-# from pydantic.functional_validators import field_validator
+from pydantic import (
+    AliasChoices,
+    AmqpDsn,
+    BaseModel,
+    Field,
+    ImportString,
+    PostgresDsn,
+    RedisDsn,
+    SecretBytes,
+    SecretStr,
+    field_serializer,
+)
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from rich.console import Console
 from rich.table import Table
@@ -112,10 +121,10 @@ class AioSettings(BaseSettings):
     discord_server_id: int = 0
     discord_client_id: int | str = 0
 
-    discord_token: str = ""
+    discord_token: SecretStr = ""
 
     # openai_token: str = ""
-    openai_api_key: str = ""
+    openai_api_key: SecretStr = ""
 
     discord_admin_user_invited: bool = False
 
@@ -156,7 +165,7 @@ class AioSettings(BaseSettings):
     redis_host: str = "localhost"
     redis_port: int = 7600
     redis_user: Optional[str] = None
-    redis_pass: Optional[str] = None
+    redis_pass: Optional[SecretStr] = None
     redis_base: Optional[int] = None
     enable_redis: bool = False
 
@@ -179,7 +188,7 @@ class AioSettings(BaseSettings):
     retry_wait_exponential_min: Union[int, float] = 1
     retry_wait_fixed: Union[int, float] = 15
 
-    pinecone_api_key: str = Field(env="PINECONE_API_KEY", description="pinecone api key", default="")
+    pinecone_api_key: SecretStr = Field(env="PINECONE_API_KEY", description="pinecone api key", default="")
     pinecone_env: str = Field(env="PINECONE_ENV", description="pinecone env", default="")
     pinecone_index: str = Field(env="PINECONE_INDEX", description="pinecone index", default="")
 
@@ -187,11 +196,13 @@ class AioSettings(BaseSettings):
     langchain_tracing_v2: bool = Field(
         env="LANGCHAIN_TRACING_V2", description="langchain tracing version", default=False
     )
-    langchain_api_key: str = Field(env="LANGCHAIN_API_KEY", description="langchain api key for langsmith", default="")
+    langchain_api_key: SecretStr = Field(
+        env="LANGCHAIN_API_KEY", description="langchain api key for langsmith", default=""
+    )
     langchain_hub_api_url: str = Field(
         env="LANGCHAIN_HUB_API_URL", description="langchain hub api url for langsmith", default=""
     )
-    langchain_hub_api_key: str = Field(
+    langchain_hub_api_key: SecretStr = Field(
         env="LANGCHAIN_HUB_API_KEY", description="langchain hub api key for langsmith", default=""
     )
     langchain_project: str = Field(env="LANGCHAIN_PROJECT", description="langsmith project name", default="")
@@ -212,6 +223,18 @@ class AioSettings(BaseSettings):
             password=self.redis_pass,
             path=path,
         )
+
+    @field_serializer(
+        "discord_token",
+        "openai_api_key",
+        "redis_pass",
+        "pinecone_api_key",
+        "langchain_api_key",
+        "langchain_hub_api_key",
+        when_used="json",
+    )
+    def dump_secret(self, v):
+        return v.get_secret_value()
 
 
 aiosettings = AioSettings()  # sourcery skip: docstrings-for-classes, avoid-global-variables
