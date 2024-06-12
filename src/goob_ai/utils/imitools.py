@@ -248,6 +248,15 @@ class ImageWrapper:
         return ImageWrapper(self.data.to(device), "pt")
 
     def cpil(self) -> ImageWrapper:
+        """
+        Convert the image data to PIL format.
+
+        This method converts the image data to a list of PIL images if it is not already in that format.
+        If the image data is a single PIL image, it wraps it in a list.
+
+        Returns:
+            ImageWrapper: A new ImageWrapper instance containing the image data in PIL format.
+        """
         images: list[Image.Image] | Image.Image = self.pil()
         if isinstance(images, Image.Image):
             images = [images]
