@@ -528,6 +528,18 @@ def from_dir(dir_path: str) -> ImageWrapper:
     image_list = []
 
     def read_image(f: Path) -> None:
+        """
+        Read an image from a file and convert it to RGB format.
+
+        This function attempts to open an image file and convert it to RGB format.
+        If the file is not a valid image, it is ignored.
+
+        Args:
+            f (Path): The path to the image file.
+
+        Returns:
+            None
+        """
         try:
             image_list.append(Image.open(f).convert("RGB"))
         except UnidentifiedImageError:
