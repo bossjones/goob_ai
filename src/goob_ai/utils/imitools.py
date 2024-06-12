@@ -559,17 +559,52 @@ def live_plot(*args: Any, **kwargs: Any) -> LivePlotter:
 from typing import List, Union, Any
 
 def download(image_urls: Union[str, List[str]]) -> ImageWrapper:
+    """
+    Download images from the given URLs.
+
+    This function takes a single URL or a list of URLs, downloads the images,
+    and returns them wrapped in an ImageWrapper instance.
+
+    Args:
+        image_urls (Union[str, List[str]]): A single image URL or a list of image URLs.
+
+    Returns:
+        ImageWrapper: An ImageWrapper instance containing the downloaded images.
+
+    Raises:
+        Exception: If the image URLs are invalid or the images cannot be downloaded.
+    """
     if isinstance(image_urls, str):
+        """
+        Convert a single URL to a list of URLs.
+
+        If the input is a single URL, it is converted to a list containing that URL.
+        """
         image_urls = [image_urls]
 
     result_list = thread_loop(download_image, image_urls)
+    """
+    Download images using multiple threads.
+
+    The function uses a thread pool to download images concurrently.
+    """
     images = []
+    """
+    Filter out None values from the downloaded images.
+
+    The function iterates through the downloaded images and filters out any None values.
+    """
     for image in result_list:
         if image is None:
             continue
         images.append(image)
 
     return wrap(images)
+    """
+    Wrap the downloaded images in an ImageWrapper instance.
+
+    The function wraps the filtered images in an ImageWrapper instance and returns it.
+    """
 
 
 def merge(*args: Union[ImageWrapper, List[ImageWrapper], List[Image.Image], List[torch.Tensor], ImageWrapper, torch.Tensor, Image.Image]) -> ImageWrapper:
