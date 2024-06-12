@@ -541,6 +541,19 @@ class LivePlotter:
         return self
 
     def imshow(self, subplot_id: int, image: Union[Image.Image, torch.Tensor]) -> LivePlotter:
+        """
+        Display an image in the specified subplot.
+
+        This method queues a command to display an image in the specified subplot.
+        The image can be a PIL Image or a PyTorch tensor.
+
+        Args:
+            subplot_id (int): The ID of the subplot where the image will be displayed.
+            image (Union[Image.Image, torch.Tensor]): The image to be displayed.
+
+        Returns:
+            LivePlotter: The LivePlotter instance with the queued command.
+        """
         self.queue.append(("imshow", subplot_id, image))
         return self
 
