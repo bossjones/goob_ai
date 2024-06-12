@@ -29,6 +29,12 @@ from duckduckgo_search import ddg_images
 
 class ImageDefaults:
     def __init__(self) -> None:
+        """
+        Initialize the ImageDefaults class with default settings.
+
+        Attributes:
+            device (str): The device to be used for image processing, default is "cpu".
+        """
         self.device = "cpu"
 
 
@@ -104,6 +110,17 @@ def thread_loop(fn: Callable[[Any], Any], input_array: List[Any], n_workers: int
 
 class VideoWrapper:
     def __init__(self, video_path: str, video_size: tuple[int, int]) -> None:
+        """
+        Initialize the VideoWrapper class.
+
+        Args:
+            video_path (str): The path to the video file.
+            video_size (tuple[int, int]): The size of the video (width, height).
+
+        Attributes:
+            video_path (str): The path to the video file.
+            video_size (tuple[int, int]): The size of the video (width, height).
+        """
         self.video_path = video_path
         self.video_size = video_size
 
@@ -128,6 +145,19 @@ class VideoWrapper:
 
 class ImageWrapper:
     def __init__(self, data: list[Image.Image] | torch.Tensor, image_type: str, labels: list[int] | None = None) -> None:
+        """
+        Initialize the ImageWrapper class.
+
+        Args:
+            data (list[Image.Image] | torch.Tensor): The image data.
+            image_type (str): The type of the image data ('pil' or 'pt').
+            labels (list[int] | None, optional): The labels for the images. Defaults to None.
+
+        Attributes:
+            data (list[Image.Image] | torch.Tensor): The image data.
+            image_type (str): The type of the image data ('pil' or 'pt').
+            labels (list[int]): The labels for the images.
+        """
         self.data = data
         self.image_type = image_type
         self.labels = list(range(len(data))) if labels is None else labels
@@ -385,6 +415,20 @@ def from_path(input_data: Union[str, Path]) -> ImageWrapper:
 
 class LivePlotter:
     def __init__(self, cols: int = 2, figsize: tuple[int, int] = (15, 4)) -> None:
+        """
+        Initialize the LivePlotter class.
+
+        Args:
+            cols (int, optional): The number of columns in the plot. Defaults to 2.
+            figsize (tuple[int, int], optional): The size of the figure. Defaults to (15, 4).
+
+        Attributes:
+            cols (int): The number of columns in the plot.
+            fig (Figure): The matplotlib figure object.
+            out (DisplayHandle): The display handle for updating the plot.
+            subplots (Axes or array of Axes): The subplots in the figure.
+            queue (list): The queue of plot commands.
+        """
         fig, subplots = plt.subplots(1, cols, figsize=(20, 5))
         fig.patch.set_facecolor("white")
         fig.tight_layout()
