@@ -1,3 +1,4 @@
+# pylint: disable=consider-using-with, consider-using-min-builtin
 # SOURCE: https://github.com/GDi4K/imitools/blob/main/imitools.py
 from __future__ import annotations
 
