@@ -52,7 +52,7 @@ def download_image(img_url: str) -> Image.Image | None:
 
 
 # based on https://gist.github.com/sigilioso/2957026
-def image_crop(img, size, crop_type="middle"):
+def image_crop(img: Image.Image, size: tuple[int, int], crop_type: str = "middle") -> Image.Image:
     # Get current and desired ratio for the images
     img_ratio = img.size[0] / float(img.size[1])
     ratio = size[0] / float(size[1])
