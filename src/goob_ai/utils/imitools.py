@@ -468,10 +468,23 @@ class ImageWrapper:
             Raises:
                 Exception: If an error occurs during the image saving process.
             """
-            path = Path(output_dir) / f"{prefix}_{i:04}.png"
-            images[i].save(path)
-        except Exception as e:
-            print("image saving error:", e)
+            """Save an image to the specified directory.
+
+            This function saves an image from the list of images to the specified
+            directory with a given prefix and index. If an error occurs during
+            the saving process, it prints an error message.
+
+            Args:
+                i (int): The index of the image in the list to be saved.
+
+            Raises:
+                Exception: If an error occurs during the image saving process.
+            """
+            try:
+                path = Path(output_dir) / f"{prefix}_{i:04}.png"
+                images[i].save(path)
+            except Exception as e:
+                print("image saving error:", e)
 
         thread_loop(save_image, range(len(images)))
 
