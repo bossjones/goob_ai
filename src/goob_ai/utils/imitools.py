@@ -176,6 +176,19 @@ class ImageWrapper:
         return ImageWrapper(new_images, "pil")
 
     def crop(self, size: tuple[int, int] = (256, 256), crop_type: str = "middle") -> ImageWrapper:
+        """
+        Crop the images to the specified size.
+
+        This method crops the images in the ImageWrapper instance to the specified size.
+        The cropping can be done from the top, middle, or bottom of the image.
+
+        Args:
+            size (tuple[int, int], optional): The desired size (width, height) of the cropped images. Defaults to (256, 256).
+            crop_type (str, optional): The type of cropping to perform. Can be 'top', 'middle', or 'bottom'. Defaults to 'middle'.
+
+        Returns:
+            ImageWrapper: A new ImageWrapper instance containing the cropped images.
+        """
         ref = self
         if self.image_type != "pil":
             ref = ref.cpil()
