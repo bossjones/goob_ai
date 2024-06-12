@@ -102,6 +102,11 @@ def image_crop(img: Image.Image, size: tuple[int, int], crop_type: str = "middle
         elif crop_type == "bottom":
             box = (0, img.size[1] - size[1], img.size[0], img.size[1])
         else:
+            """
+            Display images in multiple rows.
+
+            If there are multiple rows of images, they are displayed in a grid with optional captions.
+            """
             raise ValueError("ERROR: invalid value for crop_type")
         img = img.crop(box)
     elif ratio < img_ratio:
@@ -384,7 +389,7 @@ class ImageWrapper:
         """
         return ImageWrapper(self.pt(), "pt")
 
-    def show(
+    def show(self, 
         self,
         cmap: Any = None,
         figsize: tuple[int, int] | None = None,
@@ -394,6 +399,11 @@ class ImageWrapper:
         captions: bool = True
     ) -> None:
         if len(self.data) == 1:
+            """
+            Display a single image.
+
+            If there is only one image in the ImageWrapper instance, it is displayed with the specified scale.
+            """
             scale = 4 if scale == -1 else scale
             plt.figure(figsize=(scale, scale))
             plt.axis("off")
@@ -405,11 +415,22 @@ class ImageWrapper:
             return
 
         scale = 2.5 if scale == -1 else scale
+        """
+        Display a grid of images.
+
+        If there are multiple images in the ImageWrapper instance, they are displayed in a grid with the specified
+        number of columns, scale, and optional captions.
+        """
         images = self.data.cpu() if self.image_type == "pt" else self.data
         labels = self.labels
         image_count = len(self.data)
 
         if image_count > max_count:
+            """
+            Limit the number of images displayed.
+
+            If the number of images exceeds the maximum count, only the first max_count images are displayed.
+            """
             print(
                 f"Only showing {max_count} images of the total {image_count}. Use the `max_count` parameter to change it."
             )
@@ -422,10 +443,20 @@ class ImageWrapper:
         rows = math.ceil(image_count / cols)
 
         if figsize == None:
+            """
+            Set the default figure size.
+
+            If no figure size is specified, the default size is calculated based on the number of columns and scale.
+            """
             figsize = figsize = (cols * scale, rows * scale)
 
         _, ax = plt.subplots(rows, cols, figsize=figsize)
         if rows == 1:
+            """
+            Display images in a single row.
+
+            If there is only one row of images, they are displayed in a single row with optional captions.
+            """
             for i in range(image_count):
                 image = images[i] if self.image_type == "pil" else images[i].permute(1, 2, 0)
                 ax[i].imshow(image, cmap=cmap)
