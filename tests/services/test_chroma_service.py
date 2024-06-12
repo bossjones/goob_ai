@@ -89,7 +89,7 @@ def test_custom_openai_embeddings_call(mocker: MockerFixture, custom_embeddings:
     mock_texts = ["This is a test document."]
     mock_embeddings = [[0.1, 0.2, 0.3]]
 
-    mocker.patch.object(custom_embeddings, "_embed_documents", return_value=mock_embeddings)
+    mocker.patch.object(CustomOpenAIEmbeddings, "_embed_documents", return_value=mock_embeddings)
 
     result = custom_embeddings(mock_texts)
     assert result == mock_embeddings
