@@ -214,7 +214,7 @@ clean = {cmd = "python -m invoke ci.clean -vvv"}
 fmt = {cmd = "pre-commit run --all-files"}
 pylint = {cmd = "python -m invoke ci.pylint --everything"}
 pylint-error-only = {cmd = "pylint --output-format=colorized --generated-members=torch.*,numpy.*,cv2.* --disable=all --max-line-length=120 --enable=F,E --rcfile pyproject.toml src tests"}
-lint-all = {cmd = "python -m pylint --output-format=colorized --rcfile pyproject.toml tests src"}
+lint-all = {cmd = "python -m pylint -j4 --output-format=colorized --rcfile pyproject.toml tests src"}
 lint = {cmd = "python -m pylint --output-format=colorized --disable=C0111,E0401,C,W,R0402 --enable=F,E tests src"}
 typecheck = {chain = [
     "typecheck:pyright",

@@ -49,6 +49,12 @@ class TestSettings:
         assert test_settings.redis_user is None
         assert test_settings.redis_pass is None
         assert test_settings.redis_base is None
+        assert str(test_settings.discord_token) == "**********"
+        assert str(test_settings.discord_token) == "**********"
+        assert str(test_settings.openai_api_key) == "**********"
+        assert str(test_settings.pinecone_api_key) == "**********"
+        assert str(test_settings.langchain_api_key) == "**********"
+        assert str(test_settings.langchain_hub_api_key) == "**********"
         assert str(test_settings.redis_url) == "redis://localhost:7600"
 
     @pytest.mark.integration

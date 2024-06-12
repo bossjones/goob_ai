@@ -69,6 +69,7 @@ def test_custom_openai_embeddings_init(mocker: MockerFixture, monkeypatch: Monke
     assert embeddings.openai_api_key == "test_api_key"
 
 
+@pytest.mark.slow
 @pytest.mark.skipif(
     os.getenv("PINECONE_ENV"),
     reason="These tests are meant to only run locally on laptop prior to porting it over to new system",
@@ -165,6 +166,7 @@ def test_load_documents(mocker: MockerFixture, mock_pdf_file: Path) -> None:
     mock_save_to_chroma.assert_called_once_with([Document(page_content="Test chunk", metadata={})])
 
 
+@pytest.mark.slow
 @pytest.mark.skipif(
     os.getenv("PINECONE_ENV"),
     reason="These tests are meant to only run locally on laptop prior to porting it over to new system",
