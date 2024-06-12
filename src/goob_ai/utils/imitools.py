@@ -192,7 +192,6 @@ class ImageWrapper:
         self.labels = list(range(len(data))) if labels is None else labels
 
     def resize(self, size: tuple[int, int] = (256, 256), **kwargs: Any) -> ImageWrapper:
-        ref = self
         if self.image_type != "pil":
             ref = ref.cpil()
 
@@ -231,6 +230,15 @@ class ImageWrapper:
         return ImageWrapper(new_images, "pil")
 
     def normalize(self) -> ImageWrapper:
+        """
+        Normalize the image data.
+
+        This method normalizes the image data to a range between 0 and 1.
+        If the image data is not in PyTorch tensor format, it will be converted.
+
+        Returns:
+            ImageWrapper: A new ImageWrapper instance containing the normalized image data.
+        """
         ref: ImageWrapper = self
         if self.image_type != "pt":
             ref = self.cpt()
