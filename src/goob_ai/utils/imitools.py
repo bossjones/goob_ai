@@ -300,6 +300,17 @@ class ImageWrapper:
         return ImageWrapper(ref.data * 2 - 1, "pt")
 
     def pil(self) -> Image.Image | list[Image.Image]:
+        """
+        Convert the image data to PIL format.
+
+        This method converts the image data to a list of PIL images if it is not already in that format.
+        If the image data is a single PIL image, it returns the image directly.
+
+        Returns:
+            Image.Image | list[Image.Image]: The image data in PIL format. If there is only one image,
+                                             it returns a single PIL Image object. Otherwise, it returns
+                                             a list of PIL Image objects.
+        """
         if self.image_type == "pil":
             return self.data[0] if len(self.data) == 1 else self.data
 
