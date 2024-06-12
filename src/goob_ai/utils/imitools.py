@@ -484,7 +484,7 @@ def search_images(prompt, max_results=10):
     return _last_search_wrapper
 
 
-def search_history():
+def search_history() -> ImageWrapper | None:
     return _last_search_wrapper
 
 
