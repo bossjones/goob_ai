@@ -362,7 +362,7 @@ def from_dir(dir_path: str) -> ImageWrapper:
     return ImageWrapper(image_list, "pil")
 
 
-def from_path(input_data) -> ImageWrapper:
+def from_path(input_data: Union[str, Path]) -> ImageWrapper:
     pil_image = Image.open(input_data).convert("RGB")
     return ImageWrapper([pil_image], "pil")
 
