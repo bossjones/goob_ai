@@ -177,10 +177,6 @@ def split_text(documents: List[Document]) -> List[Document]:
     )
     chunks: List[Document] = text_splitter.split_documents(documents)
     LOGGER.info(f"Split {len(documents)} documents into {len(chunks)} chunks.")
-    if chunks:
-        document = chunks[10]
-        LOGGER.info(document.page_content)
-        LOGGER.info(document.metadata)
     return chunks
 
 
