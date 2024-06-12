@@ -170,7 +170,7 @@ class ImageWrapper:
         normalized = (ref.data - ref.data.min()) / (ref.data.max() - ref.data.min())
         return ImageWrapper(normalized, "pt")
 
-    def pick(self, *args):
+    def pick(self, *args: int | list[int]) -> ImageWrapper:
         if len(args) == 0:
             raise Exception("provide some indexes to pick")
 
