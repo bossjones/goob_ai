@@ -61,11 +61,10 @@ def test_custom_openai_embeddings_init(mocker: MockerFixture, monkeypatch: Monke
     Args:
         mocker (MockerFixture): The mocker fixture for patching.
     """
-    # mock_openai_api_key = "test_api_key"
-    monkeypatch.setenv("GOOB_AI_CONFIG_OPENAI_API_KEY", "test_api_key")
-    # mocker.patch.object(aiosettings, "openai_api_key", mock_openai_api_key)
+    mock_openai_api_key = "test_api_key"
+    monkeypatch.setattr(aiosettings, "openai_api_key", mock_openai_api_key)
 
-    embeddings = CustomOpenAIEmbeddings()
+    embeddings = CustomOpenAIEmbeddings(openai_api_key=mock_openai_api_key)
     assert embeddings.openai_api_key == "test_api_key"
 
 
@@ -82,7 +81,7 @@ def test_custom_openai_embeddings_call(mocker: MockerFixture, custom_embeddings:
     mock_texts: list[str] = ["This is a test document."]
     mock_embeddings: list[list[float]] = [[0.1, 0.2, 0.3]]
 
-    mocker.patch.object(custom_embeddings, "_embed_documents", return_value=mock_embeddings)
+    mocker.patch.object(CustomOpenAIEmbeddings, "_embed_documents", return_value=mock_embeddings)
 
     result: list[list[float]] = custom_embeddings(mock_texts)
     assert result == mock_embeddings
