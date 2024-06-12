@@ -154,6 +154,14 @@ class VideoWrapper:
         self.video_size = video_size
 
     def path(self) -> str:
+        """
+        Get the path to the video file.
+
+        This method returns the path to the video file associated with the VideoWrapper instance.
+
+        Returns:
+            str: The path to the video file.
+        """
         return self.video_path
 
     def show(self) -> HTML:
