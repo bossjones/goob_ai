@@ -578,6 +578,21 @@ class LivePlotter:
         self.queue = []
 
     def plot(self, subplot_id: int, *args: Any, **kwargs: Any) -> LivePlotter:
+        """
+        Plot data on the specified subplot.
+
+        This method queues a command to plot data on the specified subplot.
+        The data to be plotted and any additional keyword arguments are passed
+        to the matplotlib plot function.
+
+        Args:
+            subplot_id (int): The ID of the subplot where the data will be plotted.
+            *args (Any): Positional arguments to be passed to the matplotlib plot function.
+            **kwargs (Any): Keyword arguments to be passed to the matplotlib plot function.
+
+        Returns:
+            LivePlotter: The LivePlotter instance with the queued command.
+        """
         self.queue.append(("plot", subplot_id, args, kwargs))
         return self
 
