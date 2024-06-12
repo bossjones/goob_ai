@@ -365,6 +365,21 @@ class ImageWrapper:
             return self.data
 
     def to(self, device: str = "cpu") -> ImageWrapper:
+        """
+        Move the image data to the specified device.
+
+        This method moves the image data to the specified device (e.g., "cpu" or "cuda").
+        It only applies to image data in PyTorch tensor format.
+
+        Args:
+            device (str, optional): The device to move the image data to. Defaults to "cpu".
+
+        Returns:
+            ImageWrapper: A new ImageWrapper instance with the image data moved to the specified device.
+
+        Raises:
+            Exception: If the image data is not in PyTorch tensor format.
+        """
         if self.image_type != "pt":
             raise Exception("to() only applied for pytorch tensors")
 
