@@ -389,6 +389,23 @@ class ImageWrapper:
         """
         return ImageWrapper(self.pt(), "pt")
 
+        """
+        Display the images in the ImageWrapper instance.
+
+        This method displays the images contained in the ImageWrapper instance using matplotlib.
+        It supports displaying a single image or a grid of images with optional captions.
+
+        Args:
+            cmap (Any, optional): The colormap to be used for displaying the images. Defaults to None.
+            figsize (tuple[int, int], optional): The size of the figure (width, height) in inches. Defaults to None.
+            cols (int, optional): The number of columns in the grid. Defaults to 6.
+            max_count (int, optional): The maximum number of images to display. Defaults to 36.
+            scale (int, optional): The scale factor for the image size. Defaults to -1.
+            captions (bool, optional): Whether to display captions for the images. Defaults to True.
+
+        Returns:
+            None
+        """
     def show(self, 
         self,
         cmap: Any = None,
