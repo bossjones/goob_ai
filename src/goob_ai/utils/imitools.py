@@ -431,7 +431,7 @@ def live_plot(*args: Any, **kwargs: Any) -> LivePlotter:
     return LivePlotter(*args, **kwargs)
 
 
-from typing import List, Union
+from typing import List, Union, Any
 
 def download(image_urls: Union[str, List[str]]) -> ImageWrapper:
     if isinstance(image_urls, str):
