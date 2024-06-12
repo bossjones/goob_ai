@@ -28,7 +28,7 @@ from torchvision.transforms import transforms
 
 
 class ImageDefaults:
-    def __init__(self):
+    def __init__(self) -> None:
         self.device = "cpu"
 
 
@@ -101,7 +101,7 @@ def thread_loop(fn, input_array, n_workers=min(10, os.cpu_count())):
 
 
 class VideoWrapper:
-    def __init__(self, video_path, video_size):
+    def __init__(self, video_path: str, video_size: tuple[int, int]) -> None:
         self.video_path = video_path
         self.video_size = video_size
 
@@ -125,7 +125,7 @@ class VideoWrapper:
 
 
 class ImageWrapper:
-    def __init__(self, data, image_type, labels=None):
+    def __init__(self, data: list[Image.Image] | torch.Tensor, image_type: str, labels: list[int] | None = None) -> None:
         self.data = data
         self.image_type = image_type
         self.labels = list(range(len(data))) if labels is None else labels
@@ -368,7 +368,7 @@ def from_path(input_data) -> ImageWrapper:
 
 
 class LivePlotter:
-    def __init__(self, cols=2, figsize=(15, 4)):
+    def __init__(self, cols: int = 2, figsize: tuple[int, int] = (15, 4)) -> None:
         fig, subplots = plt.subplots(1, cols, figsize=(20, 5))
         fig.patch.set_facecolor("white")
         fig.tight_layout()
