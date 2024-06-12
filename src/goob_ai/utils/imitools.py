@@ -264,6 +264,15 @@ class ImageWrapper:
         return ImageWrapper(images, "pil")
 
     def cpt(self) -> ImageWrapper:
+        """
+        Convert the image data to PyTorch tensor format.
+
+        This method converts the image data to a PyTorch tensor if it is not already in that format.
+        If the image data is in PIL format, it will be converted to a tensor and moved to the default device.
+
+        Returns:
+            ImageWrapper: A new ImageWrapper instance containing the image data in PyTorch tensor format.
+        """
         return ImageWrapper(self.pt(), "pt")
 
     def show(
