@@ -27,13 +27,15 @@ N_WORKERS = min(10, os.cpu_count())
 
 
 class ImageDefaults:
-    def __init__(self) -> None:
-        """
-        Initialize the ImageDefaults class with default settings.
+    """
+    A class to hold default settings for image processing.
 
-        Attributes:
-            device (str): The device to be used for image processing, default is "cpu".
-        """
+    Attributes:
+        device (str): The device to be used for image processing, default is "cpu".
+    """
+
+    def __init__(self) -> None:
+        """Initialize the ImageDefaults class with default settings."""
         self.device = "cpu"
 
 
