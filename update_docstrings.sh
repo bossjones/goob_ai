@@ -71,3 +71,7 @@ for func in "${sorted_unique_array[@]}"; do
 done
 
 echo -e "\n\n\n"
+
+
+# add descriptive docstrings to class CustomOpenAIEmbeddings in chroma_service.py. Please use pep257 convention. Update existing docstrings if they do not conform to pep257, otherwise move on to the next.
+# add descriptive docstrings to class ImageDefaults in imitools.py. Please use pep257 convention. Update existing docstrings if they do not conform to pep257, otherwise move on to the next.

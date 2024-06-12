@@ -187,7 +187,9 @@ class VideoWrapper:
 
 
 class ImageWrapper:
-    def __init__(self, data: list[Image.Image] | torch.Tensor, image_type: str, labels: list[int] | None = None) -> None:
+    def __init__(
+        self, data: list[Image.Image] | torch.Tensor, image_type: str, labels: list[int] | None = None
+    ) -> None:
         """Initialize the ImageWrapper class.
 
         Args:
