@@ -24,8 +24,8 @@ from goob_ai.aio_settings import aiosettings
 
 HERE = os.path.dirname(__file__)
 
-DATA_PATH = os.path.join(HERE, "...", "data", "chroma", "documents")
-CHROMA_PATH = os.path.join(HERE, "...", "data", "chroma", "vectorstorage")
+DATA_PATH = os.path.join(HERE, "..", "data", "chroma", "documents")
+CHROMA_PATH = os.path.join(HERE, "..", "data", "chroma", "vectorstorage")
 
 PROMPT_TEMPLATE = """
 Answer the question based only on the following context:

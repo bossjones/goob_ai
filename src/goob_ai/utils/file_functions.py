@@ -13,6 +13,7 @@ import pathlib
 import string
 import sys
 
+from os import PathLike
 from typing import TYPE_CHECKING, List, Optional, Tuple, Union
 
 import aiofiles
@@ -20,6 +21,7 @@ import pandas as pd
 import rich
 
 from loguru import logger as LOGGER
+from numpy import isin
 from rich.console import Console
 from rich.table import Table
 
@@ -57,6 +59,7 @@ M3U8_EXTENSIONS = [".m3u8", ".M3U8"]
 WEBM_EXTENSIONS = [".webm", ".WEBM"]
 IMAGE_EXTENSIONS = [".png", ".jpeg", ".jpg", ".gif", ".PNG", ".JPEG", ".JPG", ".GIF"]
 TORCH_MODEL_EXTENSIONS = [".pth", ".PTH"]
+PDF_EXTENSIONS = [".pdf", ".PDF"]
 
 
 async def aio_read_jsonfile(jsonfile: str) -> dict:
@@ -310,7 +313,7 @@ def filter_images(working_dir: list[str]) -> list[str]:
     ]
 
 
-def filter_pdfs(working_dir: list[str]) -> list[str]:
+def filter_pdfs(working_dir: list[str]) -> list[pathlib.PosixPath]:
     """Filter PDF files from a directory.
 
     Args:
@@ -320,7 +323,9 @@ def filter_pdfs(working_dir: list[str]) -> list[str]:
         list[str]: List of PDF file paths.
     """
     return [
-        f for f in working_dir if (pathlib.Path(f"{f}").is_file()) and pathlib.Path(f"{f}").suffix.lower() in {".pdf"}
+        f
+        for f in working_dir
+        if (pathlib.Path(f"{f}").is_file()) and pathlib.Path(f"{f}").suffix.lower() in PDF_EXTENSIONS
     ]
 
 
@@ -603,7 +608,7 @@ def print_and_append(dir_listing: list[str], tree_str: str, silent: bool = False
     dir_listing.append(tree_str)
 
 
-def tree(directory: pathlib.Path, silent: bool = False) -> list[pathlib.Path]:
+def tree(directory: str | pathlib.Path, silent: bool = False) -> list[pathlib.Path]:
     """Generate a tree structure of a directory.
 
     Args:
@@ -613,7 +618,18 @@ def tree(directory: pathlib.Path, silent: bool = False) -> list[pathlib.Path]:
     Returns:
         list[pathlib.Path]: List of file paths in the directory.
     """
-    """"""
+
+    LOGGER.debug(f"directory -> {directory}")
+    if isinstance(directory, str):
+        directory = fix_path(directory)
+        LOGGER.debug(f"directory -> {directory}")
+        directory = pathlib.Path(directory)
+        LOGGER.debug(f"directory -> {directory}")
+    try:
+        assert directory.is_dir()
+    except:
+        raise OSError(f"{directory} is not a directory.")
+
     # from ffmpeg_tools import fileobject
     file_system: List[pathlib.Path]
     file_system = []

@@ -71,7 +71,7 @@ def test_custom_openai_embeddings_init(mocker: MockerFixture, monkeypatch: Monke
 
 @pytest.mark.slow
 @pytest.mark.skipif(
-    os.getenv("PINECONE_ENV"),
+    not os.getenv("DEBUG_AIDER"),
     reason="These tests are meant to only run locally on laptop prior to porting it over to new system",
 )
 def test_custom_openai_embeddings_call(mocker: MockerFixture, custom_embeddings: CustomOpenAIEmbeddings) -> None:
@@ -167,10 +167,10 @@ def test_load_documents(mocker: MockerFixture, mock_pdf_file: Path) -> None:
 
 
 @pytest.mark.slow
-@pytest.mark.skipif(
-    os.getenv("PINECONE_ENV"),
-    reason="These tests are meant to only run locally on laptop prior to porting it over to new system",
-)
+# @pytest.mark.skipif(
+#     os.getenv("PINECONE_ENV"),
+#     reason="These tests are meant to only run locally on laptop prior to porting it over to new system",
+# )
 def test_split_text(mocker: MockerFixture) -> None:
     """Test the split_text function.
 
