@@ -16,6 +16,7 @@ from typing import Any, Callable, List, Union
 import requests
 import torch
 
+from IPython.core.display import HTML
 from loguru import logger as LOGGER
 from matplotlib import pyplot as plt
 from PIL import Image, UnidentifiedImageError

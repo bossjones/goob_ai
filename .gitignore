@@ -361,3 +361,4 @@ temp/
 .aider*
 !.aider.conf.yml
 !.aiderignore
+rtdocs
