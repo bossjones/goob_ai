@@ -1,13 +1,16 @@
 from __future__ import annotations
 
 import json
+import os
 import pathlib
 
+from os import PathLike
 from typing import List
 
 import aiofiles
 import pandas as pd
 
+from goob_ai.services.chroma_service import CHROMA_PATH, DATA_PATH
 from goob_ai.utils.file_functions import (
     aio_json_loads,
     aio_read_jsonfile,
@@ -50,6 +53,14 @@ from goob_ai.utils.file_functions import (
 )
 
 import pytest
+
+
+HERE = os.path.dirname(__file__)
+
+# DATA_PATH = os.path.join(HERE, "..", "..", "src", "goob_ai", "data", "chroma", "documents")
+# CHROMA_PATH = os.path.join(HERE, "..", "..","src", "goob_ai", "data", "chroma", "vectorstorage")
+
+# ~/dev/bossjones/goob_ai/tests/utils/../../src/goob_ai/data/chroma/documents
 
 
 # @pytest.mark.asyncio
@@ -102,6 +113,19 @@ def test_get_all_media_files_to_upload(mocker):
     assert result == ["file1"]
     mock_tree.assert_called_once_with(pathlib.Path("test_dir"))
     mock_filter_media.assert_called_once_with(["file1", "file2"])
+
+
+def test_filter_pdfs():
+    d = tree(DATA_PATH)
+    result = filter_pdfs(d)
+    expected = [
+        "opencv-tutorial-readthedocs-io-en-latest.pdf",
+        "pillow-readthedocs-io-en-latest.pdf",
+        "rich-readthedocs-io-en-latest.pdf",
+    ]
+
+    for i in result:
+        assert i.name in expected
 
 
 # def test_filter_pth():

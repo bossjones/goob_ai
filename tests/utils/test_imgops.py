@@ -260,10 +260,10 @@ async def test_setup_model(mocker):
     assert result_bboxes == mock_bboxes
 
 
-@pytest.mark.skipif(
-    os.getenv("PINECONE_ENV"),
-    reason="These tests are meant to only run locally on laptop prior to porting it over to new system",
-)
+# @pytest.mark.skipif(
+#     os.getenv("PINECONE_ENV"),
+#     reason="These tests are meant to only run locally on laptop prior to porting it over to new system",
+# )
 @pytest.mark.slow
 @pytest.mark.imgops
 @pytest.mark.integration
@@ -535,10 +535,10 @@ def test_resize_image_and_bbox(mocker, test_image, return_percent_coords):
     # assert resized_image_path == test_image_path
 
 
-@pytest.mark.skipif(
-    os.getenv("PINECONE_ENV"),
-    reason="These tests are meant to only run locally on laptop prior to porting it over to new system",
-)
+# @pytest.mark.skipif(
+#     os.getenv("PINECONE_ENV"),
+#     reason="These tests are meant to only run locally on laptop prior to porting it over to new system",
+# )
 @pytest.mark.imgops
 @pytest.mark.slow
 # @pytest.mark.asyncio
@@ -560,10 +560,10 @@ def test_handle_predict_one(mocker):
     # assert predict_result[1][0] == (0, 0, 100, 100)
 
 
-@pytest.mark.skipif(
-    os.getenv("PINECONE_ENV"),
-    reason="These tests are meant to only run locally on laptop prior to porting it over to new system",
-)
+# @pytest.mark.skipif(
+#     os.getenv("PINECONE_ENV"),
+#     reason="These tests are meant to only run locally on laptop prior to porting it over to new system",
+# )
 @pytest.mark.slow
 @pytest.mark.imgops
 def test_handle_predict(mocker):
@@ -614,10 +614,10 @@ def test_get_pil_image_channels(mocker):
     assert channels == 3
 
 
-@pytest.mark.skipif(
-    os.getenv("PINECONE_ENV"),
-    reason="These tests are meant to only run locally on laptop prior to porting it over to new system",
-)
+# @pytest.mark.skipif(
+#     os.getenv("PINECONE_ENV"),
+#     reason="These tests are meant to only run locally on laptop prior to porting it over to new system",
+# )
 @pytest.mark.slow
 @pytest.mark.imgops
 # @pytest.mark.asyncio
@@ -638,10 +638,10 @@ def test_handle_autocrop(mocker):
     os.remove(cropped_image_paths[0])
 
 
-@pytest.mark.skipif(
-    os.getenv("PINECONE_ENV"),
-    reason="These tests are meant to only run locally on laptop prior to porting it over to new system",
-)
+# @pytest.mark.skipif(
+#     os.getenv("PINECONE_ENV"),
+#     reason="These tests are meant to only run locally on laptop prior to porting it over to new system",
+# )
 @pytest.mark.slow
 @pytest.mark.imgops
 # @pytest.mark.asyncio

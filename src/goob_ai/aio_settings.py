@@ -206,6 +206,7 @@ class AioSettings(BaseSettings):
         env="LANGCHAIN_HUB_API_KEY", description="langchain hub api key for langsmith", default=""
     )
     langchain_project: str = Field(env="LANGCHAIN_PROJECT", description="langsmith project name", default="")
+    debug_aider: bool = Field(env="DEBUG_AIDER", description="debug tests stuff written by aider", default=False)
 
     @property
     def redis_url(self) -> URL:
