@@ -16,13 +16,14 @@ from typing import Any, Callable, List, Union
 import requests
 import torch
 
-from IPython.core.display import HTML
 from loguru import logger as LOGGER
 from matplotlib import pyplot as plt
 from PIL import Image, UnidentifiedImageError
 from pkg_resources import parse_version
 from torchvision.transforms import transforms
 
+
+# from IPython.core.display import HTML
 
 _last_search_wrapper = None
 N_WORKERS = min(10, os.cpu_count())
