@@ -343,7 +343,7 @@ def filter_media(working_dir: list[str]) -> list[str]:
     return imgs + videos
 
 
-def filter_pdf(working_dir: list[str]) -> list[str]:
+def filter_pdf(working_dir: list[str]) -> list[pathlib.PosixPath]:
     """Filter PDF files from a directory.
 
     Args:

@@ -20,6 +20,7 @@ from langchain_community.vectorstores import Chroma
 from loguru import logger as LOGGER
 
 from goob_ai.aio_settings import aiosettings
+from goob_ai.utils import file_functions
 
 
 HERE = os.path.dirname(__file__)
@@ -148,11 +149,22 @@ def load_documents() -> List[Document]:
         List[Document]: The list of loaded documents.
     """
     documents = []
-    for filename in os.listdir(DATA_PATH):
-        if filename.endswith(".pdf"):
-            pdf_path = os.path.join(DATA_PATH, filename)
-            loader = PyPDFLoader(pdf_path)
-            documents.extend(loader.load())
+
+    d = file_functions.tree(DATA_PATH)
+    result = file_functions.filter_pdfs(d)
+
+    for filename in result:
+        LOGGER.info(f"Loading document: {filename}")
+        loader = PyPDFLoader(f"{filename}")
+        LOGGER.info(f"Loader: {loader}")
+        documents.extend(loader.load())
+    # for filename in os.listdir(DATA_PATH):
+    #     LOGGER.info(f"Loading document: {filename}")
+    #     if filename.endswith(".pdf"):
+    #         pdf_path = os.path.join(DATA_PATH, filename)
+    #         LOGGER.info(f"Loading PDF: {pdf_path}")
+    #         loader = PyPDFLoader(pdf_path)
+    #         documents.extend(loader.load())
     return documents
 
 
