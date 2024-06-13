@@ -54,6 +54,7 @@ else
     echo "Invalid input. Please enter yes or no."
 fi
 
+set -e
 # Iterate over the array and run the aider command to annotate first
 for func in "${sorted_unique_array[@]}"; do
     echo "cmd: aider --message \"add typing annotations to function ${func} in ${ONLY_FILE_NAME}. Be sure to include return types when necessary.\" ${PYTHON_FILE}"
@@ -70,3 +71,11 @@ for func in "${sorted_unique_array[@]}"; do
 done
 
 echo -e "\n\n\n"
+
+
+# add descriptive docstrings to class CustomOpenAIEmbeddings in chroma_service.py. Please use pep257 convention. Update existing docstrings if they do not conform to pep257, otherwise move on to the next.
+# add descriptive docstrings to class ImageDefaults in imitools.py. Please use pep257 convention. Update existing docstrings if they do not conform to pep257, otherwise move on to the next.
+
+
+# Annotate public function/method `${name}` with a return type annotation
+# Annotate parameter `${arg}` in public function/method `${name}` with a type annotation

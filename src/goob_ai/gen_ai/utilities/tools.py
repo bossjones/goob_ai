@@ -1,3 +1,4 @@
+# SOURCE: https://github.com/RareMojo/discord-ai/blob/d40240c098abc57b4b71ebf8eeb9c0dc4e5bfc3f/utils/tools.py#L252
 from __future__ import annotations
 
 import json

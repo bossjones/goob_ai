@@ -328,3 +328,4 @@ tests/fixtures/screenshot_image_larger00013.PNG
 # diditwork.webp
 # temp/
 *.pdf
+rtdocs

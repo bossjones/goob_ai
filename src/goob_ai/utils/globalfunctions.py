@@ -79,10 +79,7 @@ def split_and_cluster_strings(input_string: str, max_cluster_size: int, split_su
 
     current_cluster = substrings[0]
     for substring in substrings[1:]:
-        if not is_regex:
-            new_string = split_by.replace("%s", substring, 1)
-        else:
-            new_string = substring
+        new_string = substring if is_regex else split_by.replace("%s", substring, 1)
         sublength = length(new_string)
         if length(current_cluster) + sublength <= max_cluster_size:
             # Add the substring to the current cluster
