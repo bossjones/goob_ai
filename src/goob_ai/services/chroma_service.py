@@ -8,7 +8,7 @@ import os
 import shutil
 
 from dataclasses import dataclass
-from typing import List
+from typing import Any, List, Optional, Sequence
 
 import chromadb
 
@@ -233,13 +233,40 @@ def save_to_chroma(chunks: list[Document]) -> None:
 
 
 class ChromaService:
-    client: chromadb.ClientAPI = get_client()
+    client: chromadb.ClientAPI | None = get_client()
+    collection: chromadb.Collection | None = None
 
     def __init__(self):
+        # self.name = "ChromaService"
+        # self.client = get_client()
         pass
 
     @staticmethod
-    def get_client(query_text: str) -> chromadb.ClientAPI:
+    def add_collection(collection_name: str, embedding_function: Any) -> chromadb.Collection:
+        collection = ChromaService.client.get_or_create_collection(
+            name=collection_name, embedding_function=embedding_function
+        )
+        return collection
+
+    @staticmethod
+    def get_list_collections() -> Sequence[chromadb.Collection]:
+        return ChromaService.client.list_collections()
+
+    @staticmethod
+    def get_collection(collection_name: str, embedding_function: Any) -> chromadb.Collection | None:
+        return ChromaService.client.get_collection(name=collection_name, embedding_function=embedding_function)
+
+    @staticmethod
+    def get_client() -> chromadb.ClientAPI:
+        """get chroma client
+
+        Returns:
+            str: _description_
+        """
+        return ChromaService.client
+
+    @staticmethod
+    def get_or_create_collection(query_text: str) -> chromadb.ClientAPI:
         """_summary_
 
         Args:
@@ -248,9 +275,7 @@ class ChromaService:
         Returns:
             str: _description_
         """
-        return chromadb.HttpClient(
-            host=aiosettings.chroma_host, port=aiosettings.chroma_port, settings=ChromaSettings(allow_reset=True)
-        )
+        return ChromaService.client
 
     @staticmethod
     def get_response(query_text: str) -> str:
