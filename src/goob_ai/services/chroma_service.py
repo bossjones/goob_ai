@@ -233,6 +233,13 @@ def save_to_chroma(chunks: list[Document]) -> None:
 
 
 class ChromaService:
+    """
+    Service class for interacting with ChromaDB.
+
+    This class provides static methods to interact with ChromaDB, including
+    adding collections, listing collections, and retrieving collections.
+    """
+
     client: chromadb.ClientAPI | None = get_client()
     collection: chromadb.Collection | None = None
 
@@ -243,83 +250,117 @@ class ChromaService:
 
     @staticmethod
     def add_collection(collection_name: str, embedding_function: Any) -> chromadb.Collection:
+        """
+        Add a collection to ChromaDB.
+
+        Args:
+            collection_name (str): The name of the collection to add.
+            embedding_function (Any): The embedding function to use.
+
+        Returns:
+            chromadb.Collection: The created or retrieved collection.
+        """
         return ChromaService.client.get_or_create_collection(
             name=collection_name, embedding_function=embedding_function
         )
 
     @staticmethod
     def get_list_collections() -> Sequence[chromadb.Collection]:
+        """
+        List all collections in ChromaDB.
+
+        Returns:
+            Sequence[chromadb.Collection]: A sequence of all collections.
+        """
         return ChromaService.client.list_collections()
 
     @staticmethod
     def get_collection(collection_name: str, embedding_function: Any) -> chromadb.Collection | None:
+        """
+        Retrieve a collection from ChromaDB.
+
+        Args:
+            collection_name (str): The name of the collection to retrieve.
+            embedding_function (Any): The embedding function to use.
+
+        Returns:
+            chromadb.Collection | None: The retrieved collection or None if not found.
+        """
         return ChromaService.client.get_collection(name=collection_name, embedding_function=embedding_function)
 
     @staticmethod
     def get_client() -> chromadb.ClientAPI:
-        """get chroma client
+        """
+        Get the ChromaDB client.
 
         Returns:
-            str: _description_
+            chromadb.ClientAPI: The ChromaDB client.
         """
         return ChromaService.client
 
     @staticmethod
     def get_or_create_collection(query_text: str) -> chromadb.ClientAPI:
-        """_summary_
+        """
+        Get or create a collection in ChromaDB.
 
         Args:
-            query_text (str): _description_
+            query_text (str): The query text to search in the database.
 
         Returns:
-            str: _description_
+            chromadb.ClientAPI: The ChromaDB client.
         """
         return ChromaService.client
 
     @staticmethod
     def get_response(query_text: str) -> str:
-        """_summary_
+        """
+        Get a response from ChromaDB based on the query text.
 
         Args:
-            query_text (str): _description_
+            query_text (str): The query text to search in the database.
 
         Returns:
-            str: _description_
+            str: The response text based on the query.
         """
         return get_response(query_text)
 
     @staticmethod
     def generate_data_store() -> None:
-        """_summary_"""
+        """
+        Generate and store document embeddings in a Chroma vector store.
+        """
         generate_data_store()
 
     @staticmethod
     def load_documents() -> List[Document]:
-        """_summary_
+        """
+        Load documents from the specified data path.
 
         Returns:
-            List[Document]: _description_
+            List[Document]: The list of loaded documents.
         """
         return load_documents()
 
     @staticmethod
     def split_text(documents: List[Document]) -> List[Document]:
-        """_summary_
+        """
+        Split documents into smaller chunks.
 
         Args:
-            documents (List[Document]): _description_
+            documents (List[Document]): The list of documents to be split into chunks.
 
         Returns:
-            List[Document]: _description_
+            List[Document]: The list of document chunks.
         """
         return split_text(documents)
 
     @staticmethod
     def save_to_chroma(chunks: list[Document]) -> None:
-        """_summary_
+        """
+        Save document chunks to a Chroma vector store.
 
         Args:
-            chunks (list[Document]): _description_
+            chunks (list[Document]): The list of document chunks to be saved.
         """
         save_to_chroma(chunks)
 
