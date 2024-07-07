@@ -71,7 +71,7 @@ jobs:
         continue-on-error: true
 
       - name: Start Chroma
-        id: start chroma
+        id: chroma-docker-compose-up
         run: |
           git clone --depth 1 --branch feature-boss-chroma https://github.com/bossjones/chroma.git vendored_chroma
           cd vendored_chroma
