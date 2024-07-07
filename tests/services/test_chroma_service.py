@@ -95,6 +95,27 @@ def test_add_collection(mocker: MockerFixture) -> None:
         name=collection_name, embedding_function=embedding_function
     )
 
+def test_get_list_collections(mocker: MockerFixture) -> None:
+    """
+    Test the get_list_collections function of ChromaService.
+
+    This test verifies that the get_list_collections function correctly retrieves
+    the list of collections from ChromaDB.
+
+    Args:
+        mocker (MockerFixture): The mocker fixture for patching.
+    """
+    from goob_ai.services.chroma_service import ChromaService
+
+    mock_client = mocker.patch.object(ChromaService, 'client')
+    mock_collections = [mocker.Mock(), mocker.Mock()]
+    mock_client.list_collections.return_value = mock_collections
+
+    result = ChromaService.get_list_collections()
+
+    assert result == mock_collections
+    mock_client.list_collections.assert_called_once()
+
 @pytest.mark.slow
 @pytest.mark.skipif(
     not os.getenv("DEBUG_AIDER"),
