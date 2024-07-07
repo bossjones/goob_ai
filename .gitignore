@@ -362,3 +362,5 @@ temp/
 !.aider.conf.yml
 !.aiderignore
 rtdocs
+notebooks/chroma_db
+notebooks/chroma
