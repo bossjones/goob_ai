@@ -95,6 +95,32 @@ def test_add_collection(mocker: MockerFixture) -> None:
         name=collection_name, embedding_function=embedding_function
     )
 
+def test_get_collection(mocker: MockerFixture) -> None:
+    """
+    Test the get_collection function of ChromaService.
+
+    This test verifies that the get_collection function correctly retrieves
+    a collection from ChromaDB using the provided collection name and embedding function.
+
+    Args:
+        mocker (MockerFixture): The mocker fixture for patching.
+    """
+    from goob_ai.services.chroma_service import ChromaService
+
+    mock_client = mocker.patch.object(ChromaService, 'client')
+    mock_collection = mocker.Mock()
+    mock_client.get_collection.return_value = mock_collection
+
+    collection_name = "test_collection"
+    embedding_function = mocker.Mock()
+
+    result = ChromaService.get_collection(collection_name, embedding_function)
+
+    assert result == mock_collection
+    mock_client.get_collection.assert_called_once_with(
+        name=collection_name, embedding_function=embedding_function
+    )
+
 def test_get_list_collections(mocker: MockerFixture) -> None:
     """
     Test the get_list_collections function of ChromaService.
