@@ -243,10 +243,9 @@ class ChromaService:
 
     @staticmethod
     def add_collection(collection_name: str, embedding_function: Any) -> chromadb.Collection:
-        collection = ChromaService.client.get_or_create_collection(
+        return ChromaService.client.get_or_create_collection(
             name=collection_name, embedding_function=embedding_function
         )
-        return collection
 
     @staticmethod
     def get_list_collections() -> Sequence[chromadb.Collection]:
