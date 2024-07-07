@@ -72,7 +72,7 @@ check-taplo-installed:
 	@command -v taplo >/dev/null 2>&1 || { echo >&2 "taplo is required but it's not installed. run 'brew install taplo'"; exit 1; }
 
 fmt-python:
-	git ls-files '*.py' | xargs rye run pre-commit run --files
+	git ls-files '*.py' '*.ipynb' | xargs rye run pre-commit run --files
 
 # format pyproject.toml using taplo
 fmt-toml:

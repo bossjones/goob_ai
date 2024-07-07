@@ -41,7 +41,7 @@ repos:
       - id: ruff-format
         # entry: ruff format --force-exclude
         args: [--config=pyproject.toml]
-        files: ^((src|tests)/.+)?[^/]+\.(py|pyi)$
+        files: ^((src|tests|notebooks)/.+)?[^/]+\.(py|pyi|ipynb)$
         exclude: (.tasks|hack)
 
   # SOURCE: https://github.com/Ruzzy77/python-template/blob/57c8964f1efb2635d0bdca5684613a8d8736aed0/.pre-commit-config.yaml
