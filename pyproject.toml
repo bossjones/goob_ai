@@ -266,6 +266,14 @@ coverage-report-debug = {chain = [
     "coverage-html",
     "coverage-open",
 ]}
+e2e-coverage-pytest-debug = {cmd = "coverage run --rcfile=pyproject.toml -m pytest --verbose --pdb --pdbcls bpdb:BPdb --showlocals --tb=short --capture=no tests -m e2e"}
+e2e-coverage-report-debug = {chain = [
+    "e2e-coverage-pytest-debug",
+    "coverage-combine",
+    "coverage-show",
+    "coverage-html",
+    "coverage-open",
+]}
 coverage-show = {cmd = "python -m coverage report --fail-under=5"}
 coverage-open = {cmd = "just local-open-coverage"}
 ci = {chain = [
@@ -386,6 +394,7 @@ markers = [
     "imgops: marks tests as imgops (run with '-m imgops')",
     "httpclientonly: marks tests that run code that utilizes the http_client module (deselect with '-m \"not httpclientonly\"')",
     "integration: marks tests dealing with integration testing (deselect with '-m \"not integration\"')",
+    "e2e: marks tests dealing with e2e testing (deselect with '-m \"not e2e\"')",
     "onboardingonly: marks tests that run code that utilizes the new_dev_onboarding_tool module (deselect with '-m \"not onboardingonly\"')",
     "retryonly: marks tests that run code that utilizes the retry module (deselect with '-m \"not retryonly\"')",
     "skip_in_parallel: marks tests that should be run in serial only (deselect with '-m \"not skip_in_parallel\"')",

@@ -6,6 +6,7 @@ import shutil
 from pathlib import Path
 from typing import TYPE_CHECKING, Generator, Iterable, Iterator
 
+from chromadb import Collection
 from goob_ai.aio_settings import aiosettings
 from goob_ai.services.chroma_service import CustomOpenAIEmbeddings, generate_data_store, get_response, save_to_chroma
 from langchain.schema import Document
@@ -81,7 +82,7 @@ def test_add_collection(mocker: MockerFixture) -> None:
     """
     from goob_ai.services.chroma_service import ChromaService
 
-    mock_client = mocker.patch.object(ChromaService, 'client')
+    mock_client = mocker.patch.object(ChromaService, "client")
     mock_collection = mocker.Mock()
     mock_client.get_or_create_collection.return_value = mock_collection
 
@@ -94,6 +95,7 @@ def test_add_collection(mocker: MockerFixture) -> None:
     mock_client.get_or_create_collection.assert_called_once_with(
         name=collection_name, embedding_function=embedding_function
     )
+
 
 def test_get_client(mocker: MockerFixture) -> None:
     """
@@ -108,11 +110,12 @@ def test_get_client(mocker: MockerFixture) -> None:
     from goob_ai.services.chroma_service import ChromaService
 
     mock_client = mocker.Mock()
-    mocker.patch.object(ChromaService, 'client', mock_client)
+    mocker.patch.object(ChromaService, "client", mock_client)
 
     result = ChromaService.get_client()
 
     assert result == mock_client
+
 
 def test_get_collection(mocker: MockerFixture) -> None:
     """
@@ -126,7 +129,7 @@ def test_get_collection(mocker: MockerFixture) -> None:
     """
     from goob_ai.services.chroma_service import ChromaService
 
-    mock_client = mocker.patch.object(ChromaService, 'client')
+    mock_client = mocker.patch.object(ChromaService, "client")
     mock_collection = mocker.Mock()
     mock_client.get_collection.return_value = mock_collection
 
@@ -136,9 +139,8 @@ def test_get_collection(mocker: MockerFixture) -> None:
     result = ChromaService.get_collection(collection_name, embedding_function)
 
     assert result == mock_collection
-    mock_client.get_collection.assert_called_once_with(
-        name=collection_name, embedding_function=embedding_function
-    )
+    mock_client.get_collection.assert_called_once_with(name=collection_name, embedding_function=embedding_function)
+
 
 def test_get_list_collections(mocker: MockerFixture) -> None:
     """
@@ -152,7 +154,7 @@ def test_get_list_collections(mocker: MockerFixture) -> None:
     """
     from goob_ai.services.chroma_service import ChromaService
 
-    mock_client = mocker.patch.object(ChromaService, 'client')
+    mock_client = mocker.patch.object(ChromaService, "client")
     mock_collections = [mocker.Mock(), mocker.Mock()]
     mock_client.list_collections.return_value = mock_collections
 
@@ -160,6 +162,7 @@ def test_get_list_collections(mocker: MockerFixture) -> None:
 
     assert result == mock_collections
     mock_client.list_collections.assert_called_once()
+
 
 @pytest.mark.slow
 @pytest.mark.skipif(
@@ -209,6 +212,24 @@ def mock_pdf_file(tmp_path: Path) -> Path:
     test_pdf_path: Path = tmp_path / "rich-readthedocs-io-en-latest.pdf"
     shutil.copy("src/goob_ai/data/chroma/documents/rich-readthedocs-io-en-latest.pdf", test_pdf_path)
     return test_pdf_path
+
+
+@pytest.fixture
+def mock_txt_file(tmp_path: Path) -> Path:
+    """Fixture to create a mock text file for testing purposes.
+
+    This fixture creates a temporary directory and copies a test txt file into it.
+    The path to the mock txt file is then returned for use in tests.
+
+    Args:
+        tmp_path (Path): The temporary path provided by pytest.
+
+    Returns:
+        Path: A Path object of the path to the mock txt file.
+    """
+    test_txt_path: Path = tmp_path / "state_of_the_union.txt"
+    shutil.copy("src/goob_ai/data/chroma/documents/state_of_the_union.txt", test_txt_path)
+    return test_txt_path
 
 
 def test_load_documents(mocker: MockerFixture, mock_pdf_file: Path) -> None:
@@ -316,3 +337,48 @@ def test_split_text(mocker: MockerFixture) -> None:
     assert chunks[0].page_content == "This is a test"
     assert chunks[1].page_content == "document."
     mock_text_splitter.return_value.split_documents.assert_called_once_with(mock_documents)
+
+
+# FIXME: This is a work in progress till I can incorporate this into the main codebase
+@pytest.mark.slow
+@pytest.mark.integration
+@pytest.mark.e2e
+def test_chroma_service_e2e(mocker: MockerFixture, mock_txt_file: Path) -> None:
+    import chromadb
+
+    from goob_ai.services.chroma_service import ChromaService
+    from langchain_chroma import Chroma
+    from langchain_community.document_loaders import TextLoader
+    from langchain_community.embeddings.sentence_transformer import SentenceTransformerEmbeddings
+    from langchain_text_splitters import CharacterTextSplitter
+
+    client = ChromaService.client
+    test_collection_name = "test_chroma_service_e2e"
+
+    # load the document and split it into chunks
+    loader = TextLoader(f"{mock_txt_file}")
+    documents = loader.load()
+
+    # split it into chunks
+    text_splitter = CharacterTextSplitter(chunk_size=1000, chunk_overlap=0)
+    docs = text_splitter.split_documents(documents)
+
+    # create the open-source embedding function
+    embedding_function = SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2")
+
+    # FIXME: We need to make embedding_function optional
+    # collection: chromadb.Collection = ChromaService.add_collection(test_collection_name, embedding_function)
+
+    collection = client.get_or_create_collection(test_collection_name)
+
+    # load it into Chroma
+    db = Chroma.from_documents(docs, embedding_function, collection_name=test_collection_name, client=client)
+
+    # query it
+    query = "What did the president say about Ketanji Brown Jackson"
+    docs = db.similarity_search(query)
+
+    assert (
+        docs[0].page_content
+        == "In state after state, new laws have been passed, not only to suppress the vote, but to subvert entire elections.\n\nWe cannot let this happen.\n\nTonight. I call on the Senate to: Pass the Freedom to Vote Act. Pass the John Lewis Voting Rights Act. And while you're at it, pass the Disclose Act so Americans can know who is funding our elections.\n\nTonight, I'd like to honor someone who has dedicated his life to serve this country: Justice Stephen Breyer-an Army veteran, Constitutional scholar, and retiring Justice of the United States Supreme Court. Justice Breyer, thank you for your service.\n\nOne of the most serious constitutional responsibilities a President has is nominating someone to serve on the United States Supreme Court.\n\nAnd I did that 4 days ago, when I nominated Circuit Court of Appeals Judge Ketanji Brown Jackson. One of our nation's top legal minds, who will continue Justice Breyer's legacy of excellence."
+    )
