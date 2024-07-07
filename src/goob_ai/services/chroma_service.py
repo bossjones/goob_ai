@@ -10,6 +10,9 @@ import shutil
 from dataclasses import dataclass
 from typing import List
 
+import chromadb
+
+from chromadb.config import Settings as ChromaSettings
 from langchain.prompts import ChatPromptTemplate
 from langchain.schema import Document
 from langchain.text_splitter import RecursiveCharacterTextSplitter
@@ -37,6 +40,20 @@ Answer the question based only on the following context:
 
 Answer the question based on the above context: {question}
 """
+
+
+def get_client() -> chromadb.ClientAPI:
+    """_summary_
+
+    Args:
+        query_text (str): _description_
+
+    Returns:
+        str: _description_
+    """
+    return chromadb.HttpClient(
+        host=aiosettings.chroma_host, port=aiosettings.chroma_port, settings=ChromaSettings(allow_reset=True)
+    )
 
 
 # Function to perform the query and get the response
@@ -216,8 +233,24 @@ def save_to_chroma(chunks: list[Document]) -> None:
 
 
 class ChromaService:
+    client: chromadb.ClientAPI = get_client()
+
     def __init__(self):
         pass
+
+    @staticmethod
+    def get_client(query_text: str) -> chromadb.ClientAPI:
+        """_summary_
+
+        Args:
+            query_text (str): _description_
+
+        Returns:
+            str: _description_
+        """
+        return chromadb.HttpClient(
+            host=aiosettings.chroma_host, port=aiosettings.chroma_port, settings=ChromaSettings(allow_reset=True)
+        )
 
     @staticmethod
     def get_response(query_text: str) -> str:

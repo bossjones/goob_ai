@@ -169,6 +169,13 @@ class AioSettings(BaseSettings):
     redis_base: Optional[int] = None
     enable_redis: bool = False
 
+    # Variables for ChromaDB
+
+    # client = chromadb.HttpClient(host="localhost", port="8010", settings=Settings(allow_reset=True))
+    chroma_host: str = "localhost"
+    chroma_port: int = 8010
+    enable_chroma: bool = False
+
     # azure_openai_api_key: str
     # openai_api_type: str
     # openai_api_version: str
