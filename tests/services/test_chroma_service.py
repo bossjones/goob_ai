@@ -69,6 +69,32 @@ def test_custom_openai_embeddings_init(mocker: MockerFixture, monkeypatch: Monke
     assert embeddings.openai_api_key == "test_api_key"
 
 
+def test_add_collection(mocker: MockerFixture) -> None:
+    """
+    Test the add_collection function of ChromaService.
+
+    This test verifies that the add_collection function correctly adds a collection
+    to ChromaDB using the provided collection name and embedding function.
+
+    Args:
+        mocker (MockerFixture): The mocker fixture for patching.
+    """
+    from goob_ai.services.chroma_service import ChromaService
+
+    mock_client = mocker.patch.object(ChromaService, 'client')
+    mock_collection = mocker.Mock()
+    mock_client.get_or_create_collection.return_value = mock_collection
+
+    collection_name = "test_collection"
+    embedding_function = mocker.Mock()
+
+    result = ChromaService.add_collection(collection_name, embedding_function)
+
+    assert result == mock_collection
+    mock_client.get_or_create_collection.assert_called_once_with(
+        name=collection_name, embedding_function=embedding_function
+    )
+
 @pytest.mark.slow
 @pytest.mark.skipif(
     not os.getenv("DEBUG_AIDER"),
