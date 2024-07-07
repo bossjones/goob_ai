@@ -14,6 +14,7 @@ import sys
 import tempfile
 import traceback
 
+from enum import Enum
 from functools import partial, wraps
 from importlib import import_module, metadata
 from pathlib import Path
@@ -48,6 +49,7 @@ from goob_ai.aio_settings import aiosettings, get_rich_console
 from goob_ai.asynctyper import AsyncTyper
 from goob_ai.bot_logger import get_logger, global_log_config
 from goob_ai.goob_bot import AsyncGoobBot
+from goob_ai.services.chroma_service import ChromaService
 from goob_ai.services.screencrop_service import ImageService
 from goob_ai.utils import repo_typing
 from goob_ai.utils.file_functions import fix_path
@@ -57,6 +59,12 @@ global_log_config(
     log_level=logging.getLevelName("DEBUG"),
     json=False,
 )
+
+
+class ChromaChoices(str, Enum):
+    load = "load"
+    generate = "generate"
+    get_response = "get_response"
 
 
 APP = AsyncTyper()
@@ -410,6 +418,30 @@ def run_final() -> None:
     path_to_image_from_cli = fix_path(img_path)
     try:
         ImageService.handle_final(path_to_image_from_cli)
+    except Exception as ex:
+        print(f"{ex}")
+        exc_type, exc_value, exc_traceback = sys.exc_info()
+        print(f"Error Class: {ex.__class__}")
+        output = f"[UNEXPECTED] {type(ex).__name__}: {ex}"
+        print(output)
+        print(f"exc_type: {exc_type}")
+        print(f"exc_value: {exc_value}")
+        traceback.print_tb(exc_traceback)
+        bpdb.pm()
+
+
+# THIS SHOULD BE THE FINAL ONE THAT PRODUCES THE PROPER CROP
+@APP.command()
+def chroma(choices: ChromaChoices) -> None:
+    """Interact w/ chroma local vectorstore"""
+
+    try:
+        if choices == ChromaChoices.load:
+            ChromaService.load_documents()
+        elif choices == ChromaChoices.generate:
+            ChromaService.generate_data_store()
+        elif choices == ChromaChoices.get_response:
+            ChromaService.get_response("hello")
     except Exception as ex:
         print(f"{ex}")
         exc_type, exc_value, exc_traceback = sys.exc_info()

@@ -215,5 +215,57 @@ def save_to_chroma(chunks: list[Document]) -> None:
     LOGGER.info(f"Saved {len(chunks)} chunks to {CHROMA_PATH}.")
 
 
+class ChromaService:
+    def __init__(self):
+        pass
+
+    @staticmethod
+    def get_response(query_text: str) -> str:
+        """_summary_
+
+        Args:
+            query_text (str): _description_
+
+        Returns:
+            str: _description_
+        """
+        return get_response(query_text)
+
+    @staticmethod
+    def generate_data_store() -> None:
+        """_summary_"""
+        generate_data_store()
+
+    @staticmethod
+    def load_documents() -> List[Document]:
+        """_summary_
+
+        Returns:
+            List[Document]: _description_
+        """
+        return load_documents()
+
+    @staticmethod
+    def split_text(documents: List[Document]) -> List[Document]:
+        """_summary_
+
+        Args:
+            documents (List[Document]): _description_
+
+        Returns:
+            List[Document]: _description_
+        """
+        return split_text(documents)
+
+    @staticmethod
+    def save_to_chroma(chunks: list[Document]) -> None:
+        """_summary_
+
+        Args:
+            chunks (list[Document]): _description_
+        """
+        save_to_chroma(chunks)
+
+
 if __name__ == "__main__":
     main()

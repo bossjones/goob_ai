@@ -58,8 +58,12 @@ anyio==4.4.0
     # via sse-starlette
     # via starlette
     # via watchfiles
+appnope==0.1.4
+    # via ipykernel
 asgiref==3.8.1
     # via opentelemetry-instrumentation-asgi
+asttokens==2.4.1
+    # via stack-data
 async-timeout==4.0.3
     # via aiohttp
     # via langchain
@@ -135,6 +139,7 @@ chroma-hnswlib==0.7.3
     # via chromadb
 chromadb==0.5.0
     # via goob-ai
+    # via langchain-chroma
 click==8.1.7
     # via aiomonitor
     # via dask
@@ -155,6 +160,8 @@ codetiming==1.4.0
     # via goob-ai
 coloredlogs==15.0.1
     # via onnxruntime
+comm==0.2.2
+    # via ipykernel
 contourpy==1.2.1
     # via matplotlib
 cssselect2==0.7.0
@@ -170,6 +177,10 @@ dataproperty==1.0.1
     # via tabledata
 datasets==2.19.2
     # via simpletransformers
+debugpy==1.8.2
+    # via ipykernel
+decorator==5.1.1
+    # via ipython
 defusedxml==0.7.1
     # via langchain-anthropic
 deprecated==1.2.14
@@ -205,6 +216,9 @@ email-validator==2.1.1
 exceptiongroup==1.2.1
     # via anyio
     # via cattrs
+    # via ipython
+executing==2.0.1
+    # via stack-data
 factory-boy==3.3.0
     # via goob-ai
 faker==25.8.0
@@ -213,6 +227,7 @@ faker==25.8.0
 fastapi==0.111.0
     # via chromadb
     # via goob-ai
+    # via langchain-chroma
     # via langserve
     # via sse-starlette
 fastapi-cli==0.0.4
@@ -340,8 +355,14 @@ imutils==0.5.4
     # via goob-ai
 invoke==2.2.0
     # via goob-ai
+ipykernel==6.29.5
+    # via goob-ai
+ipython==8.26.0
+    # via ipykernel
 janus==1.0.0
     # via aiomonitor
+jedi==0.19.1
+    # via ipython
 jinja2==3.1.4
     # via aiomonitor
     # via altair
@@ -366,6 +387,11 @@ jsonschema==4.22.0
     # via pyproject-toml
 jsonschema-specifications==2023.12.1
     # via jsonschema
+jupyter-client==8.6.2
+    # via ipykernel
+jupyter-core==5.7.2
+    # via ipykernel
+    # via jupyter-client
 kiwisolver==1.4.5
     # via matplotlib
 kubernetes==30.1.0
@@ -375,12 +401,15 @@ langchain==0.2.3
     # via langchain-community
 langchain-anthropic==0.1.15
     # via goob-ai
+langchain-chroma==0.1.2
+    # via goob-ai
 langchain-community==0.2.4
     # via goob-ai
 langchain-core==0.2.5
     # via goob-ai
     # via langchain
     # via langchain-anthropic
+    # via langchain-chroma
     # via langchain-community
     # via langchain-google-genai
     # via langchain-openai
@@ -431,6 +460,9 @@ marshmallow==3.21.3
     # via dataclasses-json
 matplotlib==3.9.0
     # via goob-ai
+matplotlib-inline==0.1.7
+    # via ipykernel
+    # via ipython
 mbstrdecoder==1.1.3
     # via dataproperty
     # via pytablewriter
@@ -461,6 +493,8 @@ mutagen==1.47.0
     # via goob-ai
 mypy-extensions==1.0.0
     # via typing-inspect
+nest-asyncio==1.6.0
+    # via ipykernel
 networkx==3.3
     # via torch
 numpy==1.26.4
@@ -472,6 +506,7 @@ numpy==1.26.4
     # via goob-ai
     # via imageio
     # via langchain
+    # via langchain-chroma
     # via langchain-community
     # via matplotlib
     # via onnxruntime
@@ -548,6 +583,7 @@ packaging==23.2
     # via dask
     # via datasets
     # via huggingface-hub
+    # via ipykernel
     # via langchain-core
     # via marshmallow
     # via matplotlib
@@ -564,6 +600,8 @@ pandas==2.2.2
     # via simpletransformers
     # via streamlit
     # via yfinance
+parso==0.8.4
+    # via jedi
 partd==1.4.2
     # via dask
 passlib==1.7.4
@@ -574,6 +612,8 @@ pathvalidate==3.2.0
     # via pytablewriter
 peewee==3.17.5
     # via yfinance
+pexpect==4.9.0
+    # via ipython
 pillow==10.3.0
     # via goob-ai
     # via imageio
@@ -586,6 +626,7 @@ pinecone-client==4.1.1
 pinecone-plugin-interface==0.0.7
     # via pinecone-client
 platformdirs==4.2.2
+    # via jupyter-core
     # via requests-cache
     # via scenedetect
     # via wandb
@@ -598,6 +639,7 @@ prometheus-client==0.20.0
     # via goob-ai
 prompt-toolkit==3.0.46
     # via aiomonitor
+    # via ipython
     # via questionary
 proto-plus==1.23.0
     # via google-ai-generativelanguage
@@ -620,8 +662,13 @@ protobuf==4.25.3
 protoc-gen-openapiv2==0.0.1
     # via pinecone-client
 psutil==5.9.8
+    # via ipykernel
     # via memory-profiler
     # via wandb
+ptyprocess==0.7.0
+    # via pexpect
+pure-eval==0.2.2
+    # via stack-data
 pyarrow==16.1.0
     # via datasets
     # via streamlit
@@ -660,6 +707,7 @@ pydyf==0.10.0
     # via weasyprint
 pygments==2.18.0
     # via goob-ai
+    # via ipython
     # via rich
 pyinspect==0.1.0
     # via goob-ai
@@ -696,6 +744,7 @@ pytablewriter==1.2.0
 python-dateutil==2.9.0.post0
     # via botocore
     # via faker
+    # via jupyter-client
     # via kubernetes
     # via matplotlib
     # via pandas
@@ -735,6 +784,9 @@ pyyaml==6.0.1
     # via uvicorn
     # via wandb
     # via watchdog
+pyzmq==26.0.3
+    # via ipykernel
+    # via jupyter-client
 quantile-python==1.1
     # via aioprometheus
 questionary==1.10.0
@@ -834,6 +886,7 @@ shellingham==1.5.4
 simpletransformers==0.70.1
     # via goob-ai
 six==1.16.0
+    # via asttokens
     # via docker-pycreds
     # via html5lib
     # via kubernetes
@@ -856,6 +909,8 @@ sqlalchemy==2.0.30
     # via langchain-community
 sse-starlette==1.8.2
     # via langserve
+stack-data==0.6.3
+    # via ipython
 starlette==0.37.2
     # via aioprometheus
     # via fastapi
@@ -924,6 +979,8 @@ torchvision==0.15.2
     # via goob-ai
     # via timm
 tornado==6.4.1
+    # via ipykernel
+    # via jupyter-client
     # via streamlit
 tqdm==4.66.4
     # via chromadb
@@ -938,6 +995,13 @@ tqdm==4.66.4
     # via transformers
 trafaret==2.1.1
     # via aiomonitor
+traitlets==5.14.3
+    # via comm
+    # via ipykernel
+    # via ipython
+    # via jupyter-client
+    # via jupyter-core
+    # via matplotlib-inline
 transformers==4.41.2
     # via goob-ai
     # via simpletransformers
@@ -965,6 +1029,7 @@ typing-extensions==4.12.2
     # via fastapi
     # via google-generativeai
     # via huggingface-hub
+    # via ipython
     # via janus
     # via openai
     # via opentelemetry-sdk
