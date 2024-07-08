@@ -69,7 +69,7 @@ def get_rag_splitter(filename: str) -> CharacterTextSplitter | None:
         return None
 
 
-def get_rag_embedding_function(filename: str) -> SentenceTransformerEmbeddings | None:
+def get_rag_embedding_function(filename: str) -> SentenceTransformerEmbeddings | OpenAIEmbeddings | None:
     if pathlib.Path(f"{filename}").suffix.lower() in file_functions.TXT_EXTENSIONS:
         LOGGER.debug('selected filetype txt, using SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2")')
         return SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2")
