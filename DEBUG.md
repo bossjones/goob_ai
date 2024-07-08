@@ -1608,3 +1608,19 @@ ward_pre_hook', 'register_full_backward_hook', 'register_load_state_dict_post_ho
 state', 'share_memory', 'state_dict', 'to', 'to_empty', 'train', 'training', 'type', 'xpu', 'zero_grad']
 >>>
 ```
+
+
+# Chroma + docker-compose
+
+run the following:
+
+```
+git clone --depth 1 --branch feature-boss-chroma https://github.com/bossjones/chroma.git vendored_chroma
+cd vendored_chroma
+docker-compose up -d --build
+docker ps -a
+```
+
+enter: `http://host.docker.internal:8010` for your connection string in browser.
+
+goto http://localhost:3000/collections/test_chroma_service_e2e_add_to_chroma_url
