@@ -73,6 +73,18 @@ def get_rag_loader(filename: str) -> TextLoader | PyMuPDFLoader | None:
     Returns:
         CharacterTextSplitter | None: The text splitter for the file, or None if the file type is unsupported.
     """
+    """
+    Get the appropriate embedding function for the given file.
+
+    This function determines the appropriate embedding function based on the file extension.
+    It supports text files and PDF files.
+
+    Args:
+        filename (str): The name of the file to embed.
+
+    Returns:
+        SentenceTransformerEmbeddings | OpenAIEmbeddings | None: The embedding function for the file, or None if the file type is unsupported.
+    """
     if pathlib.Path(f"{filename}").suffix.lower() in file_functions.TXT_EXTENSIONS:
         LOGGER.debug("selected filetype txt, using TextLoader(filename)")
         return TextLoader(filename)
