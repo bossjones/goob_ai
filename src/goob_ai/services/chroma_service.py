@@ -249,7 +249,7 @@ class ChromaService:
         pass
 
     @staticmethod
-    def add_collection(collection_name: str, embedding_function: Any) -> chromadb.Collection:
+    def add_collection(collection_name: str, embedding_function: Any | None = None) -> chromadb.Collection:
         """
         Add a collection to ChromaDB.
 
@@ -260,8 +260,10 @@ class ChromaService:
         Returns:
             chromadb.Collection: The created or retrieved collection.
         """
-        return ChromaService.client.get_or_create_collection(
-            name=collection_name, embedding_function=embedding_function
+        return (
+            ChromaService.client.get_or_create_collection(name=collection_name, embedding_function=embedding_function)
+            if embedding_function
+            else ChromaService.client.get_or_create_collection(name=collection_name)
         )
 
     @staticmethod

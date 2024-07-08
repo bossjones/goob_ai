@@ -89,7 +89,7 @@ def test_add_collection(mocker: MockerFixture) -> None:
     collection_name = "test_collection"
     embedding_function = mocker.Mock()
 
-    result = ChromaService.add_collection(collection_name, embedding_function)
+    result = ChromaService.add_collection(collection_name, embedding_function=embedding_function)
 
     assert result == mock_collection
     mock_client.get_or_create_collection.assert_called_once_with(
@@ -340,7 +340,7 @@ def test_split_text(mocker: MockerFixture) -> None:
 
 
 # FIXME: This is a work in progress till I can incorporate this into the main codebase
-@pytest.mark.slow
+# @pytest.mark.slow
 @pytest.mark.integration
 @pytest.mark.e2e
 def test_chroma_service_e2e(mocker: MockerFixture, mock_txt_file: Path) -> None:
@@ -367,9 +367,9 @@ def test_chroma_service_e2e(mocker: MockerFixture, mock_txt_file: Path) -> None:
     embedding_function = SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2")
 
     # FIXME: We need to make embedding_function optional
-    # collection: chromadb.Collection = ChromaService.add_collection(test_collection_name, embedding_function)
+    collection: chromadb.Collection = ChromaService.add_collection(test_collection_name)
 
-    collection = client.get_or_create_collection(test_collection_name)
+    # collection = client.get_or_create_collection(test_collection_name)
 
     # load it into Chroma
     db = Chroma.from_documents(docs, embedding_function, collection_name=test_collection_name, client=client)
