@@ -8,12 +8,15 @@ from __future__ import annotations
 import argparse
 import os
 import pathlib
+import re
 import shutil
 
 from dataclasses import dataclass
 from typing import Any, List, Optional, Sequence
 
+import bs4
 import chromadb
+import uritools
 
 from chromadb.config import Settings as ChromaSettings
 from langchain.prompts import ChatPromptTemplate
@@ -21,20 +24,15 @@ from langchain.schema import Document
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_chroma import Chroma
 from langchain_community.chat_models import ChatOpenAI
-from langchain_community.document_loaders import PyMuPDFLoader, PyPDFLoader, TextLoader
+from langchain_community.document_loaders import PyMuPDFLoader, PyPDFLoader, TextLoader, WebBaseLoader
 from langchain_community.embeddings import OpenAIEmbeddings
 from langchain_community.embeddings.sentence_transformer import SentenceTransformerEmbeddings
 from langchain_community.vectorstores import Chroma as ChromaVectorStore
-from langchain_text_splitters import CharacterTextSplitter
+from langchain_text_splitters import CharacterTextSplitter, RecursiveCharacterTextSplitter
 from loguru import logger as LOGGER
 
 from goob_ai.aio_settings import aiosettings
 from goob_ai.utils import file_functions
-import re
-from langchain_community.document_loaders import WebBaseLoader
-from langchain_text_splitters import RecursiveCharacterTextSplitter
-import bs4
-import uritools
 
 
 HERE = os.path.dirname(__file__)
@@ -71,32 +69,14 @@ def get_rag_loader(filename: str) -> TextLoader | PyMuPDFLoader | WebBaseLoader 
         TextLoader | PyMuPDFLoader | WebBaseLoader | None: The loader for the given file,
         or None if the file type is not supported.
     """
-def get_rag_embedding_function(filename: str) -> SentenceTransformerEmbeddings | OpenAIEmbeddings | None:
-    """
-    Get the appropriate embedding function for the given filename.
-
-    This function determines the type of the given filename and returns the
-    appropriate embedding function for it. It supports embedding text files,
-    PDF files, and URLs matching the pattern for GitHub Pages.
-
-    Args:
-        filename (str): The name of the file to embed.
-
-    Returns:
-        SentenceTransformerEmbeddings | OpenAIEmbeddings | None: The embedding function for the given file,
-        or None if the file type is not supported.
-    """
+    if re.match(WEBBASE_LOADER_PATTERN, f"{filename}"):
         # verfiy it is a uri as well
         parts = uritools.urisplit(f"{filename}")
         assert parts.isuri()
         LOGGER.debug("selected filetype github.io url, using WebBaseLoader(filename)")
         return WebBaseLoader(
             web_paths=(f"{filename}",),
-            bs_kwargs=dict(
-                parse_only=bs4.SoupStrainer(
-                    class_=("post-content", "post-title", "post-header")
-                )
-            ),
+            bs_kwargs=dict(parse_only=bs4.SoupStrainer(class_=("post-content", "post-title", "post-header"))),
         )
     elif pathlib.Path(f"{filename}").suffix.lower() in file_functions.TXT_EXTENSIONS:
         LOGGER.debug("selected filetype txt, using TextLoader(filename)")
@@ -125,7 +105,9 @@ def get_rag_splitter(filename: str) -> CharacterTextSplitter | None:
         or None if the file type is not supported.
     """
     if re.match(WEBBASE_LOADER_PATTERN, f"{filename}"):
-        LOGGER.debug("selected filetype github.io url, usingRecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)")
+        LOGGER.debug(
+            "selected filetype github.io url, usingRecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)"
+        )
         return RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
     elif pathlib.Path(f"{filename}").suffix.lower() in file_functions.TXT_EXTENSIONS:
         LOGGER.debug("selected filetype txt, using CharacterTextSplitter(chunk_size=1000, chunk_overlap=0)")
@@ -136,17 +118,32 @@ def get_rag_splitter(filename: str) -> CharacterTextSplitter | None:
 
 
 def get_rag_embedding_function(filename: str) -> SentenceTransformerEmbeddings | OpenAIEmbeddings | None:
+    """
+    Get the appropriate embedding function for the given filename.
+
+    This function determines the type of the given filename and returns the
+    appropriate embedding function for it. It supports embedding text files,
+    PDF files, and URLs matching the pattern for GitHub Pages.
+
+    Args:
+        filename (str): The name of the file to embed.
+
+    Returns:
+        SentenceTransformerEmbeddings | OpenAIEmbeddings | None: The embedding function for the given file,
+        or None if the file type is not supported.
+    """
+
     if re.match(WEBBASE_LOADER_PATTERN, f"{filename}"):
         LOGGER.debug("selected filetype github.io url, using OpenAIEmbeddings()")
         return OpenAIEmbeddings()
     elif pathlib.Path(f"{filename}").suffix.lower() in file_functions.TXT_EXTENSIONS:
-        LOGGER.debug("selected filetype txt, using SentenceTransformerEmbeddings(model_name='all-MiniLM-L6-v2')")
+        LOGGER.debug('selected filetype txt, using SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2")')
         return SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2")
     elif pathlib.Path(f"{filename}").suffix.lower() in file_functions.PDF_EXTENSIONS:
         LOGGER.debug("selected filetype pdf, using OpenAIEmbeddings()")
         return OpenAIEmbeddings()
     else:
-        LOGGER.debug(f"selected filetype UNKNOWN, using None")
+        LOGGER.debug("selected filetype UNKNOWN, using None")
         return None
 
 

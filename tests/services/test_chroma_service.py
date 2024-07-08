@@ -404,3 +404,29 @@ def test_chroma_service_e2e_add_to_chroma(mocker: MockerFixture, mock_txt_file: 
         docs[0].page_content
         == "In state after state, new laws have been passed, not only to suppress the vote, but to subvert entire elections.\n\nWe cannot let this happen.\n\nTonight. I call on the Senate to: Pass the Freedom to Vote Act. Pass the John Lewis Voting Rights Act. And while you're at it, pass the Disclose Act so Americans can know who is funding our elections.\n\nTonight, I'd like to honor someone who has dedicated his life to serve this country: Justice Stephen Breyer-an Army veteran, Constitutional scholar, and retiring Justice of the United States Supreme Court. Justice Breyer, thank you for your service.\n\nOne of the most serious constitutional responsibilities a President has is nominating someone to serve on the United States Supreme Court.\n\nAnd I did that 4 days ago, when I nominated Circuit Court of Appeals Judge Ketanji Brown Jackson. One of our nation's top legal minds, who will continue Justice Breyer's legacy of excellence."
     )
+
+
+# FIXME: This is a work in progress till I can incorporate this into the main codebase
+@pytest.mark.slow
+@pytest.mark.integration
+@pytest.mark.e2e
+def test_chroma_service_e2e_add_to_chroma_url(mocker: MockerFixture) -> None:
+    from goob_ai.services.chroma_service import ChromaService
+
+    client = ChromaService.client
+    test_collection_name = "test_chroma_service_e2e_add_to_chroma_url"
+
+    db = ChromaService.add_to_chroma(
+        path_to_document="https://lilianweng.github.io/posts/2023-06-23-agent/",
+        collection_name=test_collection_name,
+        embedding_function=None,
+    )
+
+    # query it
+    query = "What is tool usage?"
+    docs = db.similarity_search(query)
+
+    assert (
+        docs[0].page_content
+        == "In state after state, new laws have been passed, not only to suppress the vote, but to subvert entire elections.\n\nWe cannot let this happen.\n\nTonight. I call on the Senate to: Pass the Freedom to Vote Act. Pass the John Lewis Voting Rights Act. And while you're at it, pass the Disclose Act so Americans can know who is funding our elections.\n\nTonight, I'd like to honor someone who has dedicated his life to serve this country: Justice Stephen Breyer-an Army veteran, Constitutional scholar, and retiring Justice of the United States Supreme Court. Justice Breyer, thank you for your service.\n\nOne of the most serious constitutional responsibilities a President has is nominating someone to serve on the United States Supreme Court.\n\nAnd I did that 4 days ago, when I nominated Circuit Court of Appeals Judge Ketanji Brown Jackson. One of our nation's top legal minds, who will continue Justice Breyer's legacy of excellence."
+    )
