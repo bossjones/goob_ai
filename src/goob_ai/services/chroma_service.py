@@ -25,9 +25,9 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_chroma import Chroma
 from langchain_community.chat_models import ChatOpenAI
 from langchain_community.document_loaders import PyMuPDFLoader, PyPDFLoader, TextLoader, WebBaseLoader
-from langchain_community.embeddings import OpenAIEmbeddings
 from langchain_community.embeddings.sentence_transformer import SentenceTransformerEmbeddings
 from langchain_community.vectorstores import Chroma as ChromaVectorStore
+from langchain_openai import OpenAIEmbeddings
 from langchain_text_splitters import CharacterTextSplitter, RecursiveCharacterTextSplitter
 from loguru import logger as LOGGER
 
