@@ -49,6 +49,18 @@ Answer the question based on the above context: {question}
 
 
 def get_rag_loader(filename: str) -> TextLoader | PyMuPDFLoader | None:
+    """
+    Get the appropriate loader for the given file.
+
+    This function determines the appropriate loader based on the file extension.
+    It supports text files and PDF files.
+
+    Args:
+        filename (str): The name of the file to load.
+
+    Returns:
+        TextLoader | PyMuPDFLoader | None: The loader for the file, or None if the file type is unsupported.
+    """
     if pathlib.Path(f"{filename}").suffix.lower() in file_functions.TXT_EXTENSIONS:
         LOGGER.debug("selected filetype txt, using TextLoader(filename)")
         return TextLoader(filename)
