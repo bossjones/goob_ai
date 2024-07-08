@@ -96,6 +96,20 @@ def get_rag_loader(filename: str) -> TextLoader | PyMuPDFLoader | WebBaseLoader 
 
 
 def get_rag_splitter(filename: str) -> CharacterTextSplitter | None:
+    """
+    Get the appropriate text splitter for the given filename.
+
+    This function determines the type of the given filename and returns the
+    appropriate text splitter for it. It supports splitting text files and
+    URLs matching the pattern for GitHub Pages.
+
+    Args:
+        filename (str): The name of the file to split.
+
+    Returns:
+        CharacterTextSplitter | None: The text splitter for the given file,
+        or None if the file type is not supported.
+    """
     if re.match(WEBBASE_LOADER_PATTERN, f"{filename}"):
         LOGGER.debug("selected filetype github.io url, usingRecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)")
         return RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
