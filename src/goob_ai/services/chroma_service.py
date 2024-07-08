@@ -30,6 +30,11 @@ from loguru import logger as LOGGER
 
 from goob_ai.aio_settings import aiosettings
 from goob_ai.utils import file_functions
+import re
+from langchain_community.document_loaders import WebBaseLoader
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+import bs4
+import uritools
 
 
 HERE = os.path.dirname(__file__)
@@ -47,57 +52,40 @@ Answer the question based only on the following context:
 Answer the question based on the above context: {question}
 """
 
+# Define the regex pattern to match a valid URL containing "github.io"
+WEBBASE_LOADER_PATTERN = r"^https?://[a-zA-Z0-9.-]+\.github\.io(/.*)?$"
 
-def get_rag_loader(filename: str) -> TextLoader | PyMuPDFLoader | None:
-    """
-    Get the appropriate loader for the given file.
 
-    This function determines the appropriate loader based on the file extension.
-    It supports text files and PDF files.
-
-    Args:
-        filename (str): The name of the file to load.
-
-    Returns:
-        TextLoader | PyMuPDFLoader | None: The loader for the file, or None if the file type is unsupported.
-    """
-    """
-    Get the appropriate text splitter for the given file.
-
-    This function determines the appropriate text splitter based on the file extension.
-    It supports text files.
-
-    Args:
-        filename (str): The name of the file to split.
-
-    Returns:
-        CharacterTextSplitter | None: The text splitter for the file, or None if the file type is unsupported.
-    """
-    """
-    Get the appropriate embedding function for the given file.
-
-    This function determines the appropriate embedding function based on the file extension.
-    It supports text files and PDF files.
-
-    Args:
-        filename (str): The name of the file to embed.
-
-    Returns:
-        SentenceTransformerEmbeddings | OpenAIEmbeddings | None: The embedding function for the file, or None if the file type is unsupported.
-    """
-    if pathlib.Path(f"{filename}").suffix.lower() in file_functions.TXT_EXTENSIONS:
+def get_rag_loader(filename: str) -> TextLoader | PyMuPDFLoader | WebBaseLoader | None:
+    if re.match(WEBBASE_LOADER_PATTERN, f"{filename}"):
+        # verfiy it is a uri as well
+        parts = uritools.urisplit(f"{filename}")
+        assert parts.isuri()
+        LOGGER.debug("selected filetype github.io url, using WebBaseLoader(filename)")
+        return WebBaseLoader(
+            web_paths=(f"{filename}",),
+            bs_kwargs=dict(
+                parse_only=bs4.SoupStrainer(
+                    class_=("post-content", "post-title", "post-header")
+                )
+            ),
+        )
+    elif pathlib.Path(f"{filename}").suffix.lower() in file_functions.TXT_EXTENSIONS:
         LOGGER.debug("selected filetype txt, using TextLoader(filename)")
         return TextLoader(filename)
     elif pathlib.Path(f"{filename}").suffix.lower() in file_functions.PDF_EXTENSIONS:
         LOGGER.debug("selected filetype pdf, using PyMuPDFLoader(filename)")
         return PyMuPDFLoader(filename)
     else:
-        LOGGER.debug(f"selected filetype UNKNOWN, using None")
+        LOGGER.debug("selected filetype UNKNOWN, using None")
         return None
 
 
 def get_rag_splitter(filename: str) -> CharacterTextSplitter | None:
-    if pathlib.Path(f"{filename}").suffix.lower() in file_functions.TXT_EXTENSIONS:
+    if re.match(WEBBASE_LOADER_PATTERN, f"{filename}"):
+        LOGGER.debug("selected filetype github.io url, usingRecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)")
+        return RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
+    elif pathlib.Path(f"{filename}").suffix.lower() in file_functions.TXT_EXTENSIONS:
         LOGGER.debug("selected filetype txt, using CharacterTextSplitter(chunk_size=1000, chunk_overlap=0)")
         return CharacterTextSplitter(chunk_size=1000, chunk_overlap=0)
     else:
@@ -106,7 +94,10 @@ def get_rag_splitter(filename: str) -> CharacterTextSplitter | None:
 
 
 def get_rag_embedding_function(filename: str) -> SentenceTransformerEmbeddings | OpenAIEmbeddings | None:
-    if pathlib.Path(f"{filename}").suffix.lower() in file_functions.TXT_EXTENSIONS:
+    if re.match(WEBBASE_LOADER_PATTERN, f"{filename}"):
+        LOGGER.debug("selected filetype github.io url, using OpenAIEmbeddings()")
+        return OpenAIEmbeddings()
+    elif pathlib.Path(f"{filename}").suffix.lower() in file_functions.TXT_EXTENSIONS:
         LOGGER.debug('selected filetype txt, using SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2")')
         return SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2")
     elif pathlib.Path(f"{filename}").suffix.lower() in file_functions.PDF_EXTENSIONS:
@@ -435,6 +426,7 @@ class ChromaService:
     def add_to_chroma(
         path_to_document: str = "", collection_name: str = "", embedding_function: Any | None = None
     ) -> ChromaVectorStore:
+        # sourcery skip: inline-immediately-returned-variable, use-named-expression
         """
         Add/Save document chunks to a Chroma vector store.
 
