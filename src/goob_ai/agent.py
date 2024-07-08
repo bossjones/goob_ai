@@ -1,5 +1,6 @@
 # pyright: reportPrivateImportUsage=false
 # pyright: reportGeneralTypeIssues=false
+# pylint: disable=no-name-in-module
 
 from __future__ import annotations
 

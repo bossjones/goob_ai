@@ -173,8 +173,8 @@ class AioSettings(BaseSettings):
 
     # client = chromadb.HttpClient(host="localhost", port="8010", settings=Settings(allow_reset=True))
     chroma_host: str = "localhost"
-    chroma_port: int = 8010
-    enable_chroma: bool = False
+    chroma_port: str = "8010"
+    enable_chroma: bool = True
 
     # azure_openai_api_key: str
     # openai_api_type: str
