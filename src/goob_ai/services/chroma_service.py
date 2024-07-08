@@ -57,6 +57,20 @@ WEBBASE_LOADER_PATTERN = r"^https?://[a-zA-Z0-9.-]+\.github\.io(/.*)?$"
 
 
 def get_rag_loader(filename: str) -> TextLoader | PyMuPDFLoader | WebBaseLoader | None:
+    """
+    Get the appropriate loader for the given filename.
+
+    This function determines the type of the given filename and returns the
+    appropriate loader for it. It supports loading from text files, PDF files,
+    and URLs matching the pattern for GitHub Pages.
+
+    Args:
+        filename (str): The name of the file to load.
+
+    Returns:
+        TextLoader | PyMuPDFLoader | WebBaseLoader | None: The loader for the given file,
+        or None if the file type is not supported.
+    """
     if re.match(WEBBASE_LOADER_PATTERN, f"{filename}"):
         # verfiy it is a uri as well
         parts = uritools.urisplit(f"{filename}")
