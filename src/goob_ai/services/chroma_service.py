@@ -71,7 +71,21 @@ def get_rag_loader(filename: str) -> TextLoader | PyMuPDFLoader | WebBaseLoader 
         TextLoader | PyMuPDFLoader | WebBaseLoader | None: The loader for the given file,
         or None if the file type is not supported.
     """
-    if re.match(WEBBASE_LOADER_PATTERN, f"{filename}"):
+def get_rag_embedding_function(filename: str) -> SentenceTransformerEmbeddings | OpenAIEmbeddings | None:
+    """
+    Get the appropriate embedding function for the given filename.
+
+    This function determines the type of the given filename and returns the
+    appropriate embedding function for it. It supports embedding text files,
+    PDF files, and URLs matching the pattern for GitHub Pages.
+
+    Args:
+        filename (str): The name of the file to embed.
+
+    Returns:
+        SentenceTransformerEmbeddings | OpenAIEmbeddings | None: The embedding function for the given file,
+        or None if the file type is not supported.
+    """
         # verfiy it is a uri as well
         parts = uritools.urisplit(f"{filename}")
         assert parts.isuri()
@@ -126,7 +140,7 @@ def get_rag_embedding_function(filename: str) -> SentenceTransformerEmbeddings |
         LOGGER.debug("selected filetype github.io url, using OpenAIEmbeddings()")
         return OpenAIEmbeddings()
     elif pathlib.Path(f"{filename}").suffix.lower() in file_functions.TXT_EXTENSIONS:
-        LOGGER.debug('selected filetype txt, using SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2")')
+        LOGGER.debug("selected filetype txt, using SentenceTransformerEmbeddings(model_name='all-MiniLM-L6-v2')")
         return SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2")
     elif pathlib.Path(f"{filename}").suffix.lower() in file_functions.PDF_EXTENSIONS:
         LOGGER.debug("selected filetype pdf, using OpenAIEmbeddings()")
