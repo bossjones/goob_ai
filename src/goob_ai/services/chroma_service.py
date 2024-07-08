@@ -1,3 +1,5 @@
+"""goob_ai.services.chroma_service"""
+
 # LINK: https://github.com/mlsmall/RAG-Application-with-LangChain
 # SOURCE: https://www.linkedin.com/pulse/building-retrieval-augmented-generation-rag-app-langchain-tiwari-stpfc/
 # NOTE: This might be the one, take inspiration from the others
@@ -5,6 +7,7 @@ from __future__ import annotations
 
 import argparse
 import os
+import pathlib
 import shutil
 
 from dataclasses import dataclass
@@ -16,10 +19,13 @@ from chromadb.config import Settings as ChromaSettings
 from langchain.prompts import ChatPromptTemplate
 from langchain.schema import Document
 from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain_chroma import Chroma
 from langchain_community.chat_models import ChatOpenAI
-from langchain_community.document_loaders import PyPDFLoader
+from langchain_community.document_loaders import PyMuPDFLoader, PyPDFLoader, TextLoader
 from langchain_community.embeddings import OpenAIEmbeddings
-from langchain_community.vectorstores import Chroma
+from langchain_community.embeddings.sentence_transformer import SentenceTransformerEmbeddings
+from langchain_community.vectorstores import Chroma as ChromaVectorStore
+from langchain_text_splitters import CharacterTextSplitter
 from loguru import logger as LOGGER
 
 from goob_ai.aio_settings import aiosettings
@@ -40,6 +46,39 @@ Answer the question based only on the following context:
 
 Answer the question based on the above context: {question}
 """
+
+
+def get_rag_loader(filename: str) -> TextLoader | PyMuPDFLoader | None:
+    if pathlib.Path(f"{filename}").suffix.lower() in file_functions.TXT_EXTENSIONS:
+        LOGGER.debug("selected filetype txt, using TextLoader(filename)")
+        return TextLoader(filename)
+    elif pathlib.Path(f"{filename}").suffix.lower() in file_functions.PDF_EXTENSIONS:
+        LOGGER.debug("selected filetype pdf, using PyMuPDFLoader(filename)")
+        return PyMuPDFLoader(filename)
+    else:
+        LOGGER.debug(f"selected filetype UNKNOWN, using None")
+        return None
+
+
+def get_rag_splitter(filename: str) -> CharacterTextSplitter | None:
+    if pathlib.Path(f"{filename}").suffix.lower() in file_functions.TXT_EXTENSIONS:
+        LOGGER.debug("selected filetype txt, using CharacterTextSplitter(chunk_size=1000, chunk_overlap=0)")
+        return CharacterTextSplitter(chunk_size=1000, chunk_overlap=0)
+    else:
+        LOGGER.debug("selected filetype UNKNOWN, using None")
+        return None
+
+
+def get_rag_embedding_function(filename: str) -> SentenceTransformerEmbeddings | None:
+    if pathlib.Path(f"{filename}").suffix.lower() in file_functions.TXT_EXTENSIONS:
+        LOGGER.debug('selected filetype txt, using SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2")')
+        return SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2")
+    elif pathlib.Path(f"{filename}").suffix.lower() in file_functions.PDF_EXTENSIONS:
+        LOGGER.debug("selected filetype pdf, using OpenAIEmbeddings()")
+        return OpenAIEmbeddings()
+    else:
+        LOGGER.debug(f"selected filetype UNKNOWN, using None")
+        return None
 
 
 def get_client() -> chromadb.ClientAPI:
@@ -227,7 +266,7 @@ def save_to_chroma(chunks: list[Document]) -> None:
     embeddings = CustomOpenAIEmbeddings(openai_api_key=aiosettings.openai_api_key)
     LOGGER.info(embeddings)
     # Create a new DB from the documents.
-    db = Chroma.from_documents(chunks, embeddings, persist_directory=CHROMA_PATH)
+    db = ChromaVectorStore.from_documents(chunks, embeddings, persist_directory=CHROMA_PATH)
     db.persist()
     LOGGER.info(f"Saved {len(chunks)} chunks to {CHROMA_PATH}.")
 
@@ -355,6 +394,43 @@ class ChromaService:
             List[Document]: The list of document chunks.
         """
         return split_text(documents)
+
+    @staticmethod
+    def add_to_chroma(
+        path_to_document: str = "", collection_name: str = "", embedding_function: Any | None = None
+    ) -> ChromaVectorStore:
+        """
+        Add/Save document chunks to a Chroma vector store.
+
+        Args:
+            chunks (list[Document]): The list of document chunks to be saved.
+        """
+
+        client = ChromaService.client
+
+        # load the document and split it into chunks
+        loader: TextLoader | PyMuPDFLoader | None = get_rag_loader(path_to_document)
+        documents: List[Document] = loader.load()
+
+        # If filetype is txt, split it into chunks
+        text_splitter = get_rag_splitter(path_to_document)
+        if text_splitter:
+            docs: List[Document] = text_splitter.split_documents(documents)
+        else:
+            docs: List[Document] = documents  # type: ignore
+
+        if embedding_function:
+            embedding_function = embedding_function
+        else:
+            # create the open-source embedding function
+            embedding_function = get_rag_embedding_function(path_to_document)
+
+        # FIXME: We need to make embedding_function optional
+        collection: chromadb.Collection = ChromaService.add_collection(collection_name)
+
+        # load it into Chroma
+        db = Chroma.from_documents(docs, embedding_function, collection_name=collection_name, client=client)
+        return db
 
     @staticmethod
     def save_to_chroma(chunks: list[Document]) -> None:

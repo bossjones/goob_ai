@@ -60,6 +60,7 @@ WEBM_EXTENSIONS = [".webm", ".WEBM"]
 IMAGE_EXTENSIONS = [".png", ".jpeg", ".jpg", ".gif", ".PNG", ".JPEG", ".JPG", ".GIF"]
 TORCH_MODEL_EXTENSIONS = [".pth", ".PTH"]
 PDF_EXTENSIONS = [".pdf", ".PDF"]
+TXT_EXTENSIONS = [".txt", ".TXT"]
 
 
 async def aio_read_jsonfile(jsonfile: str) -> dict:

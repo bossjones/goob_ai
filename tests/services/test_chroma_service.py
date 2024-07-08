@@ -340,7 +340,7 @@ def test_split_text(mocker: MockerFixture) -> None:
 
 
 # FIXME: This is a work in progress till I can incorporate this into the main codebase
-# @pytest.mark.slow
+@pytest.mark.slow
 @pytest.mark.integration
 @pytest.mark.e2e
 def test_chroma_service_e2e(mocker: MockerFixture, mock_txt_file: Path) -> None:
@@ -369,10 +369,32 @@ def test_chroma_service_e2e(mocker: MockerFixture, mock_txt_file: Path) -> None:
     # FIXME: We need to make embedding_function optional
     collection: chromadb.Collection = ChromaService.add_collection(test_collection_name)
 
-    # collection = client.get_or_create_collection(test_collection_name)
-
     # load it into Chroma
     db = Chroma.from_documents(docs, embedding_function, collection_name=test_collection_name, client=client)
+
+    # query it
+    query = "What did the president say about Ketanji Brown Jackson"
+    docs = db.similarity_search(query)
+
+    assert (
+        docs[0].page_content
+        == "In state after state, new laws have been passed, not only to suppress the vote, but to subvert entire elections.\n\nWe cannot let this happen.\n\nTonight. I call on the Senate to: Pass the Freedom to Vote Act. Pass the John Lewis Voting Rights Act. And while you're at it, pass the Disclose Act so Americans can know who is funding our elections.\n\nTonight, I'd like to honor someone who has dedicated his life to serve this country: Justice Stephen Breyer-an Army veteran, Constitutional scholar, and retiring Justice of the United States Supreme Court. Justice Breyer, thank you for your service.\n\nOne of the most serious constitutional responsibilities a President has is nominating someone to serve on the United States Supreme Court.\n\nAnd I did that 4 days ago, when I nominated Circuit Court of Appeals Judge Ketanji Brown Jackson. One of our nation's top legal minds, who will continue Justice Breyer's legacy of excellence."
+    )
+
+
+# FIXME: This is a work in progress till I can incorporate this into the main codebase
+@pytest.mark.slow
+@pytest.mark.integration
+@pytest.mark.e2e
+def test_chroma_service_e2e_add_to_chroma(mocker: MockerFixture, mock_txt_file: Path) -> None:
+    from goob_ai.services.chroma_service import ChromaService
+
+    client = ChromaService.client
+    test_collection_name = "test_chroma_service_e2e_add_to_chroma"
+
+    db = ChromaService.add_to_chroma(
+        path_to_document=f"{mock_txt_file}", collection_name=test_collection_name, embedding_function=None
+    )
 
     # query it
     query = "What did the president say about Ketanji Brown Jackson"
