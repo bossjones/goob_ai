@@ -1,3 +1,4 @@
+# pylint: disable=no-name-in-module
 # SOURCE: https://github.com/langchain-ai/langchain/blob/cb31c3611f6dadb9895011b3a3c2aa6f183d58de/templates/rag-chroma/rag_chroma/chain.py#L3
 from __future__ import annotations
 

@@ -27,14 +27,6 @@ from goob_ai.utils.writer import write_file
 import pytest
 
 
-# Define a fixture for the event loop to handle async tests
-@pytest.fixture
-def event_loop():
-    loop = asyncio.get_event_loop()
-    yield loop
-    loop.close()
-
-
 # Parametrized test for happy path scenarios
 @pytest.mark.parametrize(
     "test_id, fname, body, filetype, directory, expected_filename",

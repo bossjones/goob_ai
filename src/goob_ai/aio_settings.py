@@ -169,6 +169,13 @@ class AioSettings(BaseSettings):
     redis_base: Optional[int] = None
     enable_redis: bool = False
 
+    # Variables for ChromaDB
+
+    # client = chromadb.HttpClient(host="localhost", port="8010", settings=Settings(allow_reset=True))
+    chroma_host: str = "localhost"
+    chroma_port: str = "8010"
+    enable_chroma: bool = True
+
     # azure_openai_api_key: str
     # openai_api_type: str
     # openai_api_version: str
@@ -206,6 +213,7 @@ class AioSettings(BaseSettings):
         env="LANGCHAIN_HUB_API_KEY", description="langchain hub api key for langsmith", default=""
     )
     langchain_project: str = Field(env="LANGCHAIN_PROJECT", description="langsmith project name", default="")
+    debug_aider: bool = Field(env="DEBUG_AIDER", description="debug tests stuff written by aider", default=False)
 
     @property
     def redis_url(self) -> URL:

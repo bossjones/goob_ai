@@ -59,10 +59,14 @@ anyio==4.4.0
     # via sse-starlette
     # via starlette
     # via watchfiles
+appnope==0.1.4
+    # via ipykernel
 asgiref==3.8.1
     # via opentelemetry-instrumentation-asgi
 astroid==3.2.2
     # via pylint
+asttokens==2.4.1
+    # via stack-data
 async-timeout==4.0.3
     # via aiohttp
     # via langchain
@@ -78,6 +82,8 @@ attrs==23.2.0
     # via jsonschema
     # via referencing
     # via requests-cache
+autopep8==2.2.0
+    # via nbqa
 babel==2.15.0
     # via goob-ai
 backoff==2.2.1
@@ -150,6 +156,7 @@ chroma-hnswlib==0.7.3
     # via chromadb
 chromadb==0.5.0
     # via goob-ai
+    # via langchain-chroma
 click==8.1.7
     # via aiomonitor
     # via black
@@ -171,6 +178,9 @@ codetiming==1.4.0
     # via goob-ai
 coloredlogs==15.0.1
     # via onnxruntime
+comm==0.2.2
+    # via ipykernel
+    # via ipywidgets
 contourpy==1.2.1
     # via matplotlib
 coverage==7.5.3
@@ -196,6 +206,10 @@ dataproperty==1.0.1
     # via tabledata
 datasets==2.19.2
     # via simpletransformers
+debugpy==1.8.2
+    # via ipykernel
+decorator==5.1.1
+    # via ipython
 defusedxml==0.7.1
     # via langchain-anthropic
 deprecated==1.2.14
@@ -237,7 +251,10 @@ email-validator==2.1.1
 exceptiongroup==1.2.1
     # via anyio
     # via cattrs
+    # via ipython
     # via pytest
+executing==2.0.1
+    # via stack-data
 factory-boy==3.3.0
     # via goob-ai
 faker==25.8.0
@@ -246,6 +263,7 @@ faker==25.8.0
 fastapi==0.111.0
     # via chromadb
     # via goob-ai
+    # via langchain-chroma
     # via langserve
     # via sse-starlette
 fastapi-cli==0.0.4
@@ -356,6 +374,7 @@ httpx==0.27.0
 huggingface-hub==0.23.3
     # via datasets
     # via goob-ai
+    # via sentence-transformers
     # via timm
     # via tokenizers
     # via transformers
@@ -387,10 +406,20 @@ iniconfig==2.0.0
     # via pytest
 invoke==2.2.0
     # via goob-ai
+ipykernel==6.29.5
+    # via goob-ai
+ipython==8.26.0
+    # via ipykernel
+    # via ipywidgets
+    # via nbqa
+ipywidgets==8.1.3
+    # via goob-ai
 isort==5.13.2
     # via pylint
 janus==1.0.0
     # via aiomonitor
+jedi==0.19.1
+    # via ipython
 jinja2==3.1.4
     # via aiomonitor
     # via altair
@@ -415,6 +444,13 @@ jsonschema==4.22.0
     # via pyproject-toml
 jsonschema-specifications==2023.12.1
     # via jsonschema
+jupyter-client==8.6.2
+    # via ipykernel
+jupyter-core==5.7.2
+    # via ipykernel
+    # via jupyter-client
+jupyterlab-widgets==3.0.11
+    # via ipywidgets
 kiwisolver==1.4.5
     # via matplotlib
 kubernetes==30.1.0
@@ -424,12 +460,15 @@ langchain==0.2.3
     # via langchain-community
 langchain-anthropic==0.1.15
     # via goob-ai
+langchain-chroma==0.1.2
+    # via goob-ai
 langchain-community==0.2.4
     # via goob-ai
 langchain-core==0.2.5
     # via goob-ai
     # via langchain
     # via langchain-anthropic
+    # via langchain-chroma
     # via langchain-community
     # via langchain-google-genai
     # via langchain-openai
@@ -483,6 +522,9 @@ marshmallow==3.21.3
     # via dataclasses-json
 matplotlib==3.9.0
     # via goob-ai
+matplotlib-inline==0.1.7
+    # via ipykernel
+    # via ipython
 mbstrdecoder==1.1.3
     # via dataproperty
     # via pytablewriter
@@ -536,6 +578,10 @@ mypy-extensions==1.0.0
     # via monkeytype
     # via mypy
     # via typing-inspect
+nbqa==1.8.5
+    # via goob-ai
+nest-asyncio==1.6.0
+    # via ipykernel
 networkx==3.3
     # via torch
 nodeenv==1.9.1
@@ -550,6 +596,7 @@ numpy==1.26.4
     # via goob-ai
     # via imageio
     # via langchain
+    # via langchain-chroma
     # via langchain-community
     # via matplotlib
     # via onnxruntime
@@ -559,9 +606,11 @@ numpy==1.26.4
     # via pyarrow
     # via pydeck
     # via pyinspect
+    # via rapidocr-onnxruntime
     # via scenedetect
     # via scikit-learn
     # via scipy
+    # via sentence-transformers
     # via seqeval
     # via simpletransformers
     # via streamlit
@@ -575,10 +624,12 @@ oauthlib==3.2.2
     # via requests-oauthlib
 onnxruntime==1.18.0
     # via chromadb
+    # via rapidocr-onnxruntime
 openai==1.33.0
     # via goob-ai
     # via langchain-openai
 opencv-python==4.10.0.82
+    # via rapidocr-onnxruntime
     # via scenedetect
 opentelemetry-api==1.25.0
     # via chromadb
@@ -628,6 +679,7 @@ packaging==23.2
     # via dask
     # via datasets
     # via huggingface-hub
+    # via ipykernel
     # via langchain-core
     # via marshmallow
     # via matplotlib
@@ -649,6 +701,8 @@ pandas==2.2.2
     # via streamlit
     # via yfinance
 pandas-stubs==2.2.2.240603
+parso==0.8.4
+    # via jedi
 partd==1.4.2
     # via dask
 passlib==1.7.4
@@ -661,10 +715,14 @@ pathvalidate==3.2.0
     # via pytablewriter
 peewee==3.17.5
     # via yfinance
+pexpect==4.9.0
+    # via ipython
 pillow==10.3.0
     # via goob-ai
     # via imageio
     # via matplotlib
+    # via rapidocr-onnxruntime
+    # via sentence-transformers
     # via streamlit
     # via torchvision
     # via weasyprint
@@ -674,6 +732,7 @@ pinecone-plugin-interface==0.0.7
     # via pinecone-client
 platformdirs==4.2.2
     # via black
+    # via jupyter-core
     # via pylint
     # via requests-cache
     # via scenedetect
@@ -691,6 +750,7 @@ prometheus-client==0.20.0
     # via goob-ai
 prompt-toolkit==3.0.46
     # via aiomonitor
+    # via ipython
     # via questionary
 proto-plus==1.23.0
     # via google-ai-generativelanguage
@@ -713,8 +773,13 @@ protobuf==4.25.3
 protoc-gen-openapiv2==0.0.1
     # via pinecone-client
 psutil==5.9.8
+    # via ipykernel
     # via memory-profiler
     # via wandb
+ptyprocess==0.7.0
+    # via pexpect
+pure-eval==0.2.2
+    # via stack-data
 pyarrow==16.1.0
     # via datasets
     # via streamlit
@@ -727,7 +792,10 @@ pyasn1-modules==0.4.0
     # via google-auth
 pycares==4.4.0
     # via aiodns
+pyclipper==1.3.0.post5
+    # via rapidocr-onnxruntime
 pycodestyle==2.11.1
+    # via autopep8
     # via flake8
 pycparser==2.22
     # via cffi
@@ -759,6 +827,7 @@ pyflakes==3.2.0
 pygments==2.18.0
     # via bpython
     # via goob-ai
+    # via ipython
     # via rich
 pyinspect==0.1.0
     # via goob-ai
@@ -818,6 +887,7 @@ pytest-sugar==1.0.0
 python-dateutil==2.9.0.post0
     # via botocore
     # via faker
+    # via jupyter-client
     # via kubernetes
     # via matplotlib
     # via pandas
@@ -856,11 +926,15 @@ pyyaml==6.0.1
     # via langchain-core
     # via libcst
     # via pre-commit
+    # via rapidocr-onnxruntime
     # via timm
     # via transformers
     # via uvicorn
     # via wandb
     # via watchdog
+pyzmq==26.0.3
+    # via ipykernel
+    # via jupyter-client
 quantile-python==1.1
     # via aioprometheus
 questionary==1.10.0
@@ -869,6 +943,8 @@ rapidfuzz==3.9.3
     # via levenshtein
     # via pypi-command-line
     # via thefuzz
+rapidocr-onnxruntime==1.3.23
+    # via goob-ai
 redis==5.0.5
     # via goob-ai
 referencing==0.35.1
@@ -939,11 +1015,15 @@ safetensors==0.4.3
 scenedetect==0.6.3
     # via goob-ai
 scikit-learn==1.5.0
+    # via sentence-transformers
     # via seqeval
     # via simpletransformers
 scipy==1.13.1
     # via scikit-learn
+    # via sentence-transformers
     # via simpletransformers
+sentence-transformers==3.0.1
+    # via goob-ai
 sentencepiece==0.2.0
     # via goob-ai
     # via simpletransformers
@@ -959,18 +1039,22 @@ setuptools==70.0.0
     # via pytablewriter
     # via tensorboard
     # via wandb
+shapely==1.8.5.post1
+    # via rapidocr-onnxruntime
 shellingham==1.5.4
     # via pypi-command-line
     # via typer
 simpletransformers==0.70.1
     # via goob-ai
 six==1.16.0
+    # via asttokens
     # via blessed
     # via docker-pycreds
     # via html5lib
     # via kubernetes
     # via posthog
     # via python-dateutil
+    # via rapidocr-onnxruntime
     # via tensorboard
     # via url-normalize
 smmap==5.0.1
@@ -991,6 +1075,8 @@ sqlalchemy==2.0.30
     # via langchain-community
 sse-starlette==1.8.2
     # via langserve
+stack-data==0.6.3
+    # via ipython
 starlette==0.37.2
     # via aioprometheus
     # via fastapi
@@ -1040,6 +1126,7 @@ tinycss2==1.3.0
     # via cssselect2
     # via weasyprint
 tokenize-rt==5.2.0
+    # via nbqa
     # via pyupgrade
 tokenizers==0.19.1
     # via anthropic
@@ -1050,11 +1137,13 @@ toml==0.10.2
     # via pyproject-toml
     # via streamlit
 tomli==2.0.1
+    # via autopep8
     # via black
     # via build
     # via coverage
     # via docformatter
     # via mypy
+    # via nbqa
     # via pylint
     # via pylint-per-file-ignores
     # via pytest
@@ -1067,12 +1156,15 @@ toolz==0.12.1
     # via partd
 torch==2.0.1
     # via goob-ai
+    # via sentence-transformers
     # via timm
     # via torchvision
 torchvision==0.15.2
     # via goob-ai
     # via timm
 tornado==6.4.1
+    # via ipykernel
+    # via jupyter-client
     # via streamlit
 tqdm==4.66.4
     # via chromadb
@@ -1083,12 +1175,22 @@ tqdm==4.66.4
     # via openai
     # via pinecone-client
     # via scenedetect
+    # via sentence-transformers
     # via simpletransformers
     # via transformers
 trafaret==2.1.1
     # via aiomonitor
+traitlets==5.14.3
+    # via comm
+    # via ipykernel
+    # via ipython
+    # via ipywidgets
+    # via jupyter-client
+    # via jupyter-core
+    # via matplotlib-inline
 transformers==4.41.2
     # via goob-ai
+    # via sentence-transformers
     # via simpletransformers
 trove-classifiers==2024.5.22
     # via validate-pyproject
@@ -1158,6 +1260,7 @@ typing-extensions==4.12.2
     # via fastapi
     # via google-generativeai
     # via huggingface-hub
+    # via ipython
     # via janus
     # via mypy
     # via mypy-boto3
@@ -1249,6 +1352,9 @@ wheel==0.43.0
     # via pyproject-toml
 wheel-filename==1.4.1
     # via pypi-command-line
+widgetsnbextension==4.0.11
+    # via goob-ai
+    # via ipywidgets
 wikipedia==1.4.0
     # via goob-ai
 wrapt==1.16.0

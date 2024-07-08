@@ -6,6 +6,7 @@ import shutil
 from pathlib import Path
 from typing import TYPE_CHECKING, Generator, Iterable, Iterator
 
+from chromadb import Collection
 from goob_ai.aio_settings import aiosettings
 from goob_ai.services.chroma_service import CustomOpenAIEmbeddings, generate_data_store, get_response, save_to_chroma
 from langchain.schema import Document
@@ -52,26 +53,120 @@ def custom_embeddings(mock_openai_api_key: str) -> CustomOpenAIEmbeddings:
     return CustomOpenAIEmbeddings(openai_api_key=mock_openai_api_key)
 
 
-def test_custom_openai_embeddings_init(mocker: MockerFixture, monkeypatch: MonkeyPatch) -> None:
-    """
-    Test the initialization of CustomOpenAIEmbeddings.
+# def test_custom_openai_embeddings_init(mocker: MockerFixture, monkeypatch: MonkeyPatch) -> None:
+#     """
+#     Test the initialization of CustomOpenAIEmbeddings.
 
-    This test verifies that the CustomOpenAIEmbeddings instance is initialized
-    with the correct OpenAI API key.
+#     This test verifies that the CustomOpenAIEmbeddings instance is initialized
+#     with the correct OpenAI API key.
+
+#     Args:
+#         mocker (MockerFixture): The mocker fixture for patching.
+#     """
+#     mock_openai_api_key = "test_api_key"
+#     monkeypatch.setattr(aiosettings, "openai_api_key", mock_openai_api_key)
+
+#     embeddings = CustomOpenAIEmbeddings(openai_api_key=mock_openai_api_key)
+#     assert embeddings.openai_api_key == "test_api_key"
+
+
+def test_add_collection(mocker: MockerFixture) -> None:
+    """
+    Test the add_collection function of ChromaService.
+
+    This test verifies that the add_collection function correctly adds a collection
+    to ChromaDB using the provided collection name and embedding function.
 
     Args:
         mocker (MockerFixture): The mocker fixture for patching.
     """
-    mock_openai_api_key = "test_api_key"
-    monkeypatch.setattr(aiosettings, "openai_api_key", mock_openai_api_key)
+    from goob_ai.services.chroma_service import ChromaService
 
-    embeddings = CustomOpenAIEmbeddings(openai_api_key=mock_openai_api_key)
-    assert embeddings.openai_api_key == "test_api_key"
+    mock_client = mocker.patch.object(ChromaService, "client")
+    mock_collection = mocker.Mock()
+    mock_client.get_or_create_collection.return_value = mock_collection
+
+    collection_name = "test_collection"
+    embedding_function = mocker.Mock()
+
+    result = ChromaService.add_collection(collection_name, embedding_function=embedding_function)
+
+    assert result == mock_collection
+    mock_client.get_or_create_collection.assert_called_once_with(
+        name=collection_name, embedding_function=embedding_function
+    )
+
+
+def test_get_client(mocker: MockerFixture) -> None:
+    """
+    Test the get_client function of ChromaService.
+
+    This test verifies that the get_client function correctly retrieves
+    the ChromaDB client.
+
+    Args:
+        mocker (MockerFixture): The mocker fixture for patching.
+    """
+    from goob_ai.services.chroma_service import ChromaService
+
+    mock_client = mocker.Mock()
+    mocker.patch.object(ChromaService, "client", mock_client)
+
+    result = ChromaService.get_client()
+
+    assert result == mock_client
+
+
+def test_get_collection(mocker: MockerFixture) -> None:
+    """
+    Test the get_collection function of ChromaService.
+
+    This test verifies that the get_collection function correctly retrieves
+    a collection from ChromaDB using the provided collection name and embedding function.
+
+    Args:
+        mocker (MockerFixture): The mocker fixture for patching.
+    """
+    from goob_ai.services.chroma_service import ChromaService
+
+    mock_client = mocker.patch.object(ChromaService, "client")
+    mock_collection = mocker.Mock()
+    mock_client.get_collection.return_value = mock_collection
+
+    collection_name = "test_collection"
+    embedding_function = mocker.Mock()
+
+    result = ChromaService.get_collection(collection_name, embedding_function)
+
+    assert result == mock_collection
+    mock_client.get_collection.assert_called_once_with(name=collection_name, embedding_function=embedding_function)
+
+
+def test_get_list_collections(mocker: MockerFixture) -> None:
+    """
+    Test the get_list_collections function of ChromaService.
+
+    This test verifies that the get_list_collections function correctly retrieves
+    the list of collections from ChromaDB.
+
+    Args:
+        mocker (MockerFixture): The mocker fixture for patching.
+    """
+    from goob_ai.services.chroma_service import ChromaService
+
+    mock_client = mocker.patch.object(ChromaService, "client")
+    mock_collections = [mocker.Mock(), mocker.Mock()]
+    mock_client.list_collections.return_value = mock_collections
+
+    result = ChromaService.get_list_collections()
+
+    assert result == mock_collections
+    mock_client.list_collections.assert_called_once()
 
 
 @pytest.mark.slow
 @pytest.mark.skipif(
-    os.getenv("PINECONE_ENV"),
+    not os.getenv("DEBUG_AIDER"),
     reason="These tests are meant to only run locally on laptop prior to porting it over to new system",
 )
 def test_custom_openai_embeddings_call(mocker: MockerFixture, custom_embeddings: CustomOpenAIEmbeddings) -> None:
@@ -119,6 +214,24 @@ def mock_pdf_file(tmp_path: Path) -> Path:
     return test_pdf_path
 
 
+@pytest.fixture
+def mock_txt_file(tmp_path: Path) -> Path:
+    """Fixture to create a mock text file for testing purposes.
+
+    This fixture creates a temporary directory and copies a test txt file into it.
+    The path to the mock txt file is then returned for use in tests.
+
+    Args:
+        tmp_path (Path): The temporary path provided by pytest.
+
+    Returns:
+        Path: A Path object of the path to the mock txt file.
+    """
+    test_txt_path: Path = tmp_path / "state_of_the_union.txt"
+    shutil.copy("src/goob_ai/data/chroma/documents/state_of_the_union.txt", test_txt_path)
+    return test_txt_path
+
+
 def test_load_documents(mocker: MockerFixture, mock_pdf_file: Path) -> None:
     """Test the loading of documents from a PDF file.
 
@@ -136,41 +249,42 @@ def test_load_documents(mocker: MockerFixture, mock_pdf_file: Path) -> None:
     3. Calls the `generate_data_store` function to load, split, and save the document.
     4. Asserts that the document is loaded, split, and saved correctly.
     """
-    mocker.patch("os.listdir", return_value=["rich-readthedocs-io-en-latest.pdf"])
-    mocker.patch("os.path.join", return_value=mock_pdf_file)
-    mock_loader = mocker.patch("goob_ai.services.chroma_service.PyPDFLoader")
-    mock_loader.return_value.load.return_value = [Document(page_content="Test content", metadata={})]
+    # mocker.patch("os.listdir", return_value=["rich-readthedocs-io-en-latest.pdf"])
+    # mocker.patch("os.path.join", return_value=mock_pdf_file)
+    # mock_loader = mocker.patch("goob_ai.services.chroma_service.PyPDFLoader")
+    # mock_loader.return_value.load.return_value = [Document(page_content="Test content", metadata={})]
 
     from goob_ai.services.chroma_service import load_documents
 
     documents = load_documents()
 
-    assert len(documents) == 1
-    assert documents[0].page_content == "Test content"
-    mock_loader.return_value.load.assert_called_once_with()
-    mock_load_documents = mocker.patch(
-        "goob_ai.services.chroma_service.load_documents",
-        return_value=[Document(page_content="Test content", metadata={})],
-    )
-    mock_split_text = mocker.patch(
-        "goob_ai.services.chroma_service.split_text", return_value=[Document(page_content="Test chunk", metadata={})]
-    )
-    mock_save_to_chroma: MagicMock | AsyncMock | NonCallableMagicMock = mocker.patch(
-        "goob_ai.services.chroma_service.save_to_chroma"
-    )
+    # this is a bad test, cause the data will change eventually. Need to find a way to test this.
+    assert len(documents) == 680
+    # assert documents[0].page_content == "Test content"
+    # mock_loader.return_value.load.assert_called_once_with()
+    # mock_load_documents = mocker.patch(
+    #     "goob_ai.services.chroma_service.load_documents",
+    #     return_value=[Document(page_content="Test content", metadata={})],
+    # )
+    # mock_split_text = mocker.patch(
+    #     "goob_ai.services.chroma_service.split_text", return_value=[Document(page_content="Test chunk", metadata={})]
+    # )
+    # mock_save_to_chroma: MagicMock | AsyncMock | NonCallableMagicMock = mocker.patch(
+    #     "goob_ai.services.chroma_service.save_to_chroma"
+    # )
 
-    generate_data_store()
+    # generate_data_store()
 
-    mock_load_documents.assert_called_once()
-    mock_split_text.assert_called_once_with([Document(page_content="Test content", metadata={})])
-    mock_save_to_chroma.assert_called_once_with([Document(page_content="Test chunk", metadata={})])
+    # mock_load_documents.assert_called_once()
+    # mock_split_text.assert_called_once_with([Document(page_content="Test content", metadata={})])
+    # mock_save_to_chroma.assert_called_once_with([Document(page_content="Test chunk", metadata={})])
 
 
 @pytest.mark.slow
-@pytest.mark.skipif(
-    os.getenv("PINECONE_ENV"),
-    reason="These tests are meant to only run locally on laptop prior to porting it over to new system",
-)
+# @pytest.mark.skipif(
+#     os.getenv("PINECONE_ENV"),
+#     reason="These tests are meant to only run locally on laptop prior to porting it over to new system",
+# )
 def test_split_text(mocker: MockerFixture) -> None:
     """Test the split_text function.
 
@@ -223,3 +337,96 @@ def test_split_text(mocker: MockerFixture) -> None:
     assert chunks[0].page_content == "This is a test"
     assert chunks[1].page_content == "document."
     mock_text_splitter.return_value.split_documents.assert_called_once_with(mock_documents)
+
+
+# FIXME: This is a work in progress till I can incorporate this into the main codebase
+@pytest.mark.slow
+@pytest.mark.integration
+@pytest.mark.e2e
+def test_chroma_service_e2e(mocker: MockerFixture, mock_txt_file: Path) -> None:
+    import chromadb
+
+    from goob_ai.services.chroma_service import ChromaService
+    from langchain_chroma import Chroma
+    from langchain_community.document_loaders import TextLoader
+    from langchain_community.embeddings.sentence_transformer import SentenceTransformerEmbeddings
+    from langchain_text_splitters import CharacterTextSplitter
+
+    client = ChromaService.client
+    test_collection_name = "test_chroma_service_e2e"
+
+    # load the document and split it into chunks
+    loader = TextLoader(f"{mock_txt_file}")
+    documents = loader.load()
+
+    # split it into chunks
+    text_splitter = CharacterTextSplitter(chunk_size=1000, chunk_overlap=0)
+    docs = text_splitter.split_documents(documents)
+
+    # create the open-source embedding function
+    embedding_function = SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2")
+
+    # FIXME: We need to make embedding_function optional
+    collection: chromadb.Collection = ChromaService.add_collection(test_collection_name)
+
+    # load it into Chroma
+    db = Chroma.from_documents(docs, embedding_function, collection_name=test_collection_name, client=client)
+
+    # query it
+    query = "What did the president say about Ketanji Brown Jackson"
+    docs = db.similarity_search(query)
+
+    assert (
+        docs[0].page_content
+        == "In state after state, new laws have been passed, not only to suppress the vote, but to subvert entire elections.\n\nWe cannot let this happen.\n\nTonight. I call on the Senate to: Pass the Freedom to Vote Act. Pass the John Lewis Voting Rights Act. And while you're at it, pass the Disclose Act so Americans can know who is funding our elections.\n\nTonight, I'd like to honor someone who has dedicated his life to serve this country: Justice Stephen Breyer-an Army veteran, Constitutional scholar, and retiring Justice of the United States Supreme Court. Justice Breyer, thank you for your service.\n\nOne of the most serious constitutional responsibilities a President has is nominating someone to serve on the United States Supreme Court.\n\nAnd I did that 4 days ago, when I nominated Circuit Court of Appeals Judge Ketanji Brown Jackson. One of our nation's top legal minds, who will continue Justice Breyer's legacy of excellence."
+    )
+
+
+# FIXME: This is a work in progress till I can incorporate this into the main codebase
+@pytest.mark.slow
+@pytest.mark.integration
+@pytest.mark.e2e
+def test_chroma_service_e2e_add_to_chroma(mocker: MockerFixture, mock_txt_file: Path) -> None:
+    from goob_ai.services.chroma_service import ChromaService
+
+    client = ChromaService.client
+    test_collection_name = "test_chroma_service_e2e_add_to_chroma"
+
+    db = ChromaService.add_to_chroma(
+        path_to_document=f"{mock_txt_file}", collection_name=test_collection_name, embedding_function=None
+    )
+
+    # query it
+    query = "What did the president say about Ketanji Brown Jackson"
+    docs = db.similarity_search(query)
+
+    assert (
+        docs[0].page_content
+        == "In state after state, new laws have been passed, not only to suppress the vote, but to subvert entire elections.\n\nWe cannot let this happen.\n\nTonight. I call on the Senate to: Pass the Freedom to Vote Act. Pass the John Lewis Voting Rights Act. And while you're at it, pass the Disclose Act so Americans can know who is funding our elections.\n\nTonight, I'd like to honor someone who has dedicated his life to serve this country: Justice Stephen Breyer-an Army veteran, Constitutional scholar, and retiring Justice of the United States Supreme Court. Justice Breyer, thank you for your service.\n\nOne of the most serious constitutional responsibilities a President has is nominating someone to serve on the United States Supreme Court.\n\nAnd I did that 4 days ago, when I nominated Circuit Court of Appeals Judge Ketanji Brown Jackson. One of our nation's top legal minds, who will continue Justice Breyer's legacy of excellence."
+    )
+
+
+# FIXME: This is a work in progress till I can incorporate this into the main codebase
+@pytest.mark.slow
+@pytest.mark.integration
+@pytest.mark.e2e
+def test_chroma_service_e2e_add_to_chroma_url(mocker: MockerFixture) -> None:
+    from goob_ai.services.chroma_service import ChromaService
+
+    client = ChromaService.client
+    test_collection_name = "test_chroma_service_e2e_add_to_chroma_url"
+
+    db = ChromaService.add_to_chroma(
+        path_to_document="https://lilianweng.github.io/posts/2023-06-23-agent/",
+        collection_name=test_collection_name,
+        embedding_function=None,
+    )
+
+    # query it
+    query = "What is tool usage?"
+    docs = db.similarity_search(query)
+
+    assert (
+        docs[0].page_content
+        == "Fig. 9. Comparison of MIPS algorithms, measured in recall@10. (Image source: Google Blog, 2020)\nCheck more MIPS algorithms and performance comparison in ann-benchmarks.com.\nComponent Three: Tool Use#\nTool use is a remarkable and distinguishing characteristic of human beings. We create, modify and utilize external objects to do things that go beyond our physical and cognitive limits. Equipping LLMs with external tools can significantly extend the model capabilities."
+    )

@@ -329,3 +329,5 @@ tests/fixtures/screenshot_image_larger00013.PNG
 # temp/
 *.pdf
 rtdocs
+notebooks/chroma_db
+notebooks/chroma

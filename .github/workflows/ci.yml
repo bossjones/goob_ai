@@ -70,6 +70,15 @@ jobs:
           docker ps -a
         continue-on-error: true
 
+      - name: Start Chroma
+        id: chroma-docker-compose-up
+        run: |
+          git clone --depth 1 --branch feature-boss-chroma https://github.com/bossjones/chroma.git vendored_chroma
+          cd vendored_chroma
+          docker-compose up -d --build
+          docker ps -a
+        continue-on-error: true
+
       - name: Checkout
         uses: actions/checkout@v4
 
