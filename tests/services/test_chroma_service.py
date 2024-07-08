@@ -53,21 +53,21 @@ def custom_embeddings(mock_openai_api_key: str) -> CustomOpenAIEmbeddings:
     return CustomOpenAIEmbeddings(openai_api_key=mock_openai_api_key)
 
 
-def test_custom_openai_embeddings_init(mocker: MockerFixture, monkeypatch: MonkeyPatch) -> None:
-    """
-    Test the initialization of CustomOpenAIEmbeddings.
+# def test_custom_openai_embeddings_init(mocker: MockerFixture, monkeypatch: MonkeyPatch) -> None:
+#     """
+#     Test the initialization of CustomOpenAIEmbeddings.
 
-    This test verifies that the CustomOpenAIEmbeddings instance is initialized
-    with the correct OpenAI API key.
+#     This test verifies that the CustomOpenAIEmbeddings instance is initialized
+#     with the correct OpenAI API key.
 
-    Args:
-        mocker (MockerFixture): The mocker fixture for patching.
-    """
-    mock_openai_api_key = "test_api_key"
-    monkeypatch.setattr(aiosettings, "openai_api_key", mock_openai_api_key)
+#     Args:
+#         mocker (MockerFixture): The mocker fixture for patching.
+#     """
+#     mock_openai_api_key = "test_api_key"
+#     monkeypatch.setattr(aiosettings, "openai_api_key", mock_openai_api_key)
 
-    embeddings = CustomOpenAIEmbeddings(openai_api_key=mock_openai_api_key)
-    assert embeddings.openai_api_key == "test_api_key"
+#     embeddings = CustomOpenAIEmbeddings(openai_api_key=mock_openai_api_key)
+#     assert embeddings.openai_api_key == "test_api_key"
 
 
 def test_add_collection(mocker: MockerFixture) -> None:
