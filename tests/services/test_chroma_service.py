@@ -407,7 +407,7 @@ def test_chroma_service_e2e_add_to_chroma(mocker: MockerFixture, mock_txt_file: 
 
 
 # FIXME: This is a work in progress till I can incorporate this into the main codebase
-# @pytest.mark.slow
+@pytest.mark.slow
 @pytest.mark.integration
 @pytest.mark.e2e
 def test_chroma_service_e2e_add_to_chroma_url(mocker: MockerFixture) -> None:
