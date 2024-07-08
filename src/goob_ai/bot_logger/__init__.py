@@ -221,6 +221,8 @@ def global_log_config(log_level: Union[str, int] = logging.DEBUG, json: bool = F
         "discord.client",
         "discord.gateway",
         "discord.http",
+        "chromadb",
+        "langchain_chroma",
         # "selenium",
         # "webdriver_manager",
         # "arsenic",

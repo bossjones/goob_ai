@@ -157,7 +157,9 @@ def get_client() -> chromadb.ClientAPI:
         str: _description_
     """
     return chromadb.HttpClient(
-        host=aiosettings.chroma_host, port=aiosettings.chroma_port, settings=ChromaSettings(allow_reset=True)
+        host=aiosettings.chroma_host,
+        port=aiosettings.chroma_port,
+        settings=ChromaSettings(allow_reset=True, is_persistent=True),
     )
 
 
@@ -473,7 +475,13 @@ class ChromaService:
             chunks (list[Document]): The list of document chunks to be saved.
         """
 
+        LOGGER.debug(f"path_to_document = {path_to_document}")
+        LOGGER.debug(f"collection_name = {collection_name}")
+        LOGGER.debug(f"embedding_function = {embedding_function}")
+
         client = ChromaService.client
+        # FIXME: We need to make embedding_function optional
+        collection: chromadb.Collection = ChromaService.add_collection(collection_name)
 
         # load the document and split it into chunks
         loader: TextLoader | PyMuPDFLoader | None = get_rag_loader(path_to_document)
@@ -492,11 +500,9 @@ class ChromaService:
             # create the open-source embedding function
             embedding_function = get_rag_embedding_function(path_to_document)
 
-        # FIXME: We need to make embedding_function optional
-        collection: chromadb.Collection = ChromaService.add_collection(collection_name)
-
         # load it into Chroma
-        db = Chroma.from_documents(docs, embedding_function, collection_name=collection_name, client=client)
+        # db = Chroma.from_documents(docs, embedding=embedding_function, collection_name=collection_name, client=client, persist_directory=CHROMA_PATH)
+        db = Chroma.from_documents(docs, embedding=embedding_function, collection_name=collection_name, client=client)
         return db
 
     @staticmethod
