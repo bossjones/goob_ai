@@ -7,6 +7,7 @@
 #   all-features: true
 #   with-sources: false
 #   generate-hashes: false
+#   universal: false
 
 -e file:.
 absl-py==2.1.0
@@ -303,7 +304,7 @@ gitpython==3.1.43
     # via wandb
 google==3.0.0
     # via pyinspect
-google-ai-generativelanguage==0.6.4
+google-ai-generativelanguage==0.6.6
     # via google-generativeai
 google-api-core==2.19.0
     # via google-ai-generativelanguage
@@ -324,7 +325,7 @@ google-auth-httplib2==0.2.0
     # via google-api-python-client
 google-auth-oauthlib==1.2.0
     # via goob-ai
-google-generativeai==0.5.4
+google-generativeai==0.7.2
     # via langchain-google-genai
 googleapis-common-protos==1.63.1
     # via google-api-core
@@ -455,16 +456,16 @@ kiwisolver==1.4.5
     # via matplotlib
 kubernetes==30.1.0
     # via chromadb
-langchain==0.2.3
+langchain==0.2.7
     # via goob-ai
     # via langchain-community
-langchain-anthropic==0.1.15
+langchain-anthropic==0.1.19
     # via goob-ai
 langchain-chroma==0.1.2
     # via goob-ai
-langchain-community==0.2.4
+langchain-community==0.2.7
     # via goob-ai
-langchain-core==0.2.5
+langchain-core==0.2.12
     # via goob-ai
     # via langchain
     # via langchain-anthropic
@@ -474,9 +475,9 @@ langchain-core==0.2.5
     # via langchain-openai
     # via langchain-text-splitters
     # via langserve
-langchain-google-genai==1.0.6
+langchain-google-genai==1.0.7
     # via goob-ai
-langchain-openai==0.1.8
+langchain-openai==0.1.14
     # via goob-ai
 langchain-text-splitters==0.2.1
     # via langchain

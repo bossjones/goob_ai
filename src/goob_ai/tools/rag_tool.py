@@ -1,39 +1,40 @@
-# Standard library imports
 from __future__ import annotations
 
-import asyncio
-import json
-import logging
-import sys
-
-from dataclasses import dataclass
-from typing import Any, ClassVar, Dict, List, Optional, Type
-from uuid import UUID
+from typing import Optional, Type
 
 import langchain_chroma.vectorstores
 
 from langchain import hub
-from langchain.base_language import BaseLanguageModel
 from langchain.callbacks.manager import AsyncCallbackManagerForToolRun, CallbackManagerForToolRun
-from langchain.chains.retrieval_qa.base import RetrievalQA
-from langchain.pydantic_v1 import BaseModel, ConfigDict, Field
-from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain.chains import create_retrieval_chain
+from langchain.chains.combine_documents import create_stuff_documents_chain
+from langchain.pydantic_v1 import BaseModel, Field
 from langchain.tools import BaseTool
 from langchain.tools.base import ToolException
 from langchain_chroma import Chroma
 from langchain_core.callbacks import AsyncCallbackManagerForToolRun, CallbackManagerForToolRun
+from langchain_core.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 from loguru import logger as LOGGER
 
-# from goob_ai.gen_ai.stores.paperstore import PaperStore
 from goob_ai.llm_manager import LlmManager
 from goob_ai.services.chroma_service import ChromaService
 
 
+# from langchain.chains.retrieval_qa.base import RetrievalQA
+# from langchain.base_language import BaseLanguageModel
+# import asyncio
+# import json
+# import logging
+# import sys
+
+# from dataclasses import dataclass
+# from goob_ai.gen_ai.stores.paperstore import PaperStore
 # from langchain_community.vectorstores import Chroma as ChromaVectorStore
 # from goob_ai.clients.http_client import HttpClient
 # from langchain.chains.retrieval_qa.base import RetrievalQA, VectorDBQA
 # from langchain.chains import RetrievalQA
+# from langchain.text_splitter import RecursiveCharacterTextSplitter
 # from langchain.chains.retrieval_qa.base import RetrievalQA, VectorDBQA
 # from langchain.tools import BaseTool as LangChainBaseTool
 # from langchain.chains.summarize import load_summarize_chain
@@ -45,17 +46,17 @@ from goob_ai.services.chroma_service import ChromaService
 # https://github.com/Antony90/arxiv-discord/blob/9039612c5d346ab489e3c85e50b7f6f86a6348f4/ai/tools.py#L44
 
 
-@dataclass
-class PaperBackend:
-    """
-    Allows tools to refer to common objects.
-    Specifically the chat_id to track mentioned papers in a chat. Is inserted into pre-prompt for better tool use
-    """
+# @dataclass
+# class PaperBackend:
+#     """
+#     Allows tools to refer to common objects.
+#     Specifically the chat_id to track mentioned papers in a chat. Is inserted into pre-prompt for better tool use
+#     """
 
-    chat_id: str  # can track mentioned papers for a chat, for better tool use and easier prompting
-    vectorstore: Chroma  # for getting, inserting, filtering, document embeddings
-    # paper_store: PaperStore  # paper metadata: title, abstract, generated summaries
-    llm: BaseLanguageModel  # for various Chains
+#     chat_id: str  # can track mentioned papers for a chat, for better tool use and easier prompting
+#     vectorstore: Chroma  # for getting, inserting, filtering, document embeddings
+#     # paper_store: PaperStore  # paper metadata: title, abstract, generated summaries
+#     llm: BaseLanguageModel  # for various Chains
 
 
 # class BaseTool(LangChainBaseTool):
@@ -177,7 +178,8 @@ class ReadTheDocsQATool(BaseTool):
         # self.load_paper(paper_id)
         try:
             qa = self._make_qa_chain()
-            answer = qa.run(user_question)
+            answer = qa.invoke({"input": user_question})
+            # answer = qa.run(user_question)
             LOGGER.debug(f"Answer: {answer}")
         except Exception as e:
             LOGGER.error(f"Error invoking flex checks http api: {e}")
@@ -194,8 +196,9 @@ class ReadTheDocsQATool(BaseTool):
         # kick off the task in a thread to make sure it doesn't block other async code.
         # await self.aload_paper(paper_id)
         qa = self._make_qa_chain()
+        answer = qa.invoke({"input": user_question}, run_manager=run_manager.get_sync())
         # await asyncio.sleep(0)  # placeholder for async code
-        return qa.run(user_question, run_manager=run_manager.get_sync())
+        return answer
 
     def _make_qa_chain(self):
         """Make a RetrievalQA chain which filters by this paper_id"""
@@ -209,11 +212,17 @@ class ReadTheDocsQATool(BaseTool):
         # model = AzureChatOpenAI(azure_deployment=os.environ["AZURE_OPENAI_DEPLOYMENT"])
         model = LlmManager().llm
 
-        return RetrievalQA.from_chain_type(
-            self.model,
-            # The chain_type="stuff" lets LangChain take the list of matching documents from the retriever (Chroma DB in our case), insert everything all into a prompt, and pass it over to the llm.
-            # SOURCE: https://www.gettingstarted.ai/tutorial-chroma-db-best-vector-database-for-langchain-store-embeddings/
-            chain_type="stuff",
-            retriever=self.db.as_retriever(),
-            chain_type_kwargs={"prompt": self.hub_prompt},
-        )
+        retriever = self.db.as_retriever()
+
+        # question_answer_chain = create_stuff_documents_chain(
+        #     self.model,
+        #     # The chain_type="stuff" lets LangChain take the list of matching documents from the retriever (Chroma DB in our case), insert everything all into a prompt, and pass it over to the llm.
+        #     # SOURCE: https://www.gettingstarted.ai/tutorial-chroma-db-best-vector-database-for-langchain-store-embeddings/
+        #     chain_type="stuff",
+        #     retriever=retriever,
+        #     chain_type_kwargs={"prompt": self.hub_prompt},
+        # )
+        question_answer_chain = create_stuff_documents_chain(self.model, self.hub_prompt)
+        chain = create_retrieval_chain(retriever, question_answer_chain)
+
+        return chain
