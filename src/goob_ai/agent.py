@@ -30,6 +30,7 @@ from pydantic_settings import SettingsConfigDict
 from goob_ai.aio_settings import AioSettings, aiosettings
 from goob_ai.gen_ai.tools.vision_tool import VisionTool
 from goob_ai.llm_manager import LlmManager
+from goob_ai.tools.rag_tool import ReadTheDocsQATool
 
 
 if TYPE_CHECKING:
@@ -106,7 +107,7 @@ class AiAgent:
         )
 
     def init_tools(self):
-        self.custom_tools: Union[list[BaseTool], list[Any]] | None = [VisionTool()]
+        self.custom_tools: Union[list[BaseTool], list[Any]] | None = [VisionTool(), ReadTheDocsQATool()]
         # ***************************************************
         # NOTE: CustomTool Error handling
         # ***************************************************
@@ -133,7 +134,7 @@ class AiAgent:
 
     #     retriever = vectorstore.as_retriever(search_kwargs=kwargs.get('search_kwargs', {"k": 5}))
 
-    def init_agent_executor(self):
+    def init_agent_executor(self) -> None:
         """
         initalize agent executor.
         """

@@ -117,10 +117,7 @@ class PaperStore:
             paper_id (str): The unique identifier for the paper.
             chat_id (str): The unique identifier for the chat.
         """
-        if self.db.exists(chat_id):
-            papers = self.db.get(chat_id)
-        else:
-            papers = []
+        papers = self.db.get(chat_id) if self.db.exists(chat_id) else []
         papers.append(paper_id)
         self.db.set(chat_id, papers)
 
