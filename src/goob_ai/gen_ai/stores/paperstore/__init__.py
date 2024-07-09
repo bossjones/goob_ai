@@ -59,13 +59,17 @@ class PaperStore:
         return self.db.get(f"{paper_id}-title")
 
     def get_abstract(self, paper_id: str) -> str | None:
-        """Retrieve the abstract for a given paper.
+        """
+        Retrieve the abstract for a given paper.
+
+        This method fetches the abstract of a paper from the database using the paper's unique identifier.
+        If the abstract does not exist, it returns None.
 
         Args:
             paper_id (str): The unique identifier for the paper.
 
         Returns:
-            str | None: The abstract if it exists, otherwise None.
+            str | None: The abstract text if it exists, otherwise None.
         """
         return self.db.get(f"{paper_id}-abstract")
 
