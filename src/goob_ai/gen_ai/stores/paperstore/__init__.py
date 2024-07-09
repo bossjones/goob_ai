@@ -25,7 +25,18 @@ class PaperStore:
         self.db.set(f"{paper_id}-{summary_type}", summary)
 
     def get_summary(self, paper_id: str, summary_type: str) -> str | None:
-        """Retrieve a summary for a given paper and summary type.
+        """
+        Retrieve a summary for a given paper and summary type.
+
+        This method fetches the summary of a paper from the database using the paper's unique identifier
+        and the type of summary. If the summary does not exist, it returns None.
+
+        Args:
+            paper_id (str): The unique identifier for the paper.
+            summary_type (str): The type of summary (e.g., 'short', 'detailed').
+
+        Returns:
+            str | None: The summary text if it exists, otherwise None.
 
         Args:
             paper_id (str): The unique identifier for the paper.
