@@ -12,7 +12,7 @@ class PaperStore:
     def save_summary(self, paper_id: str, summary_type: str, summary: str):
         self.db.set(f"{paper_id}-{summary_type}", summary)
 
-    def get_summary(self, paper_id: str, summary_type: str):
+    def get_summary(self, paper_id: str, summary_type: str) -> str | None:
         return self.db.get(f"{paper_id}-{summary_type}")
 
     def save_title_abstract(self, paper_id: str, title: str, abstract: str):
