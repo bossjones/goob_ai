@@ -15,7 +15,11 @@ class PaperStore:
         self.db = PickleDB(filepath, auto_dump=False, sig=False)
 
     def save_summary(self, paper_id: str, summary_type: str, summary: str) -> None:
-        """Save a summary for a given paper and summary type.
+        """
+        Save a summary for a given paper and summary type.
+
+        This method stores the summary text for a specific paper identified by its unique
+        identifier and the type of summary. The summary is saved in the database.
 
         Args:
             paper_id (str): The unique identifier for the paper.
