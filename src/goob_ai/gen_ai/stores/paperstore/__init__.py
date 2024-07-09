@@ -89,7 +89,16 @@ class PaperStore:
         return self.db.get(f"{paper_id}-abstract")
 
     def save(self) -> None:
-        """Persist the current state of the database to disk."""
+        """
+        Persist the current state of the database to disk.
+
+        This method writes the in-memory state of the database to the file specified
+        during the initialization of the PaperStore instance. It ensures that all
+        changes made to the database are saved to disk.
+
+        Returns:
+            None
+        """
         self.db.dump()
 
     def add_mentioned_paper(self, paper_id: str, chat_id: str) -> None:
