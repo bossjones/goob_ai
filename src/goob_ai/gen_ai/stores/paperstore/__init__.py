@@ -92,13 +92,18 @@ class PaperStore:
         self.db.set(chat_id, papers)
 
     def get_papers(self, chat_id: str) -> str:
-        """Retrieve the list of mentioned papers for a given chat.
+        """
+        Retrieve the list of mentioned papers for a given chat.
+
+        This method fetches the list of paper IDs mentioned in a specific chat
+        and returns a formatted string containing each paper's ID and title.
+        If no papers are mentioned in the chat, it returns "NONE".
 
         Args:
             chat_id (str): The unique identifier for the chat.
 
         Returns:
-            str: A formatted string of mentioned papers with their titles.
+            str: A formatted string of mentioned papers with their titles, or "NONE" if no papers are mentioned.
         """
         if not self.db.exists(chat_id):
             return "NONE"
