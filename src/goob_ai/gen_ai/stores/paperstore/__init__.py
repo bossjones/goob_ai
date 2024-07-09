@@ -9,7 +9,7 @@ class PaperStore:
     def __init__(self, filepath: str) -> None:
         self.db = PickleDB(filepath, auto_dump=False, sig=False)
 
-    def save_summary(self, paper_id: str, summary_type: str, summary: str):
+    def save_summary(self, paper_id: str, summary_type: str, summary: str) -> None:
         self.db.set(f"{paper_id}-{summary_type}", summary)
 
     def get_summary(self, paper_id: str, summary_type: str) -> str | None:
