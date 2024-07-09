@@ -630,6 +630,8 @@ peewee==3.17.5
     # via yfinance
 pexpect==4.9.0
     # via ipython
+pickledb==0.9.2
+    # via goob-ai
 pillow==10.3.0
     # via goob-ai
     # via imageio
