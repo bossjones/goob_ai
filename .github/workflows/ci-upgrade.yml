@@ -90,6 +90,9 @@ jobs:
 
       - name: install tesseract
         run: |
+          wget -qO - 'https://proget.makedeb.org/debian-feeds/prebuilt-mpr.pub' | gpg --dearmor | sudo tee /usr/share/keyrings/prebuilt-mpr-archive-keyring.gpg 1> /dev/null
+          echo "deb [arch=all,$(dpkg --print-architecture) signed-by=/usr/share/keyrings/prebuilt-mpr-archive-keyring.gpg] https://proget.makedeb.org prebuilt-mpr $(lsb_release -cs)" | sudo tee /etc/apt/sources.list.d/prebuilt-mpr.list
+          sudo apt update
           sudo apt-get install -y tesseract-ocr tesseract-ocr-por just
 
       - name: Run tests and collect coverage
