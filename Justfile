@@ -126,3 +126,9 @@ sweep-init:
 
 download-models:
 	curl -L 'https://www.dropbox.com/s/im6ytahqgbpyjvw/ScreenNetV1.pth?dl=1' > src/goob_ai/data/ScreenNetV1.pth
+
+upgrade-dry-run:
+	rye lock --update-all --all-features
+
+sync-upgrade-all:
+	rye sync --update-all --all-features

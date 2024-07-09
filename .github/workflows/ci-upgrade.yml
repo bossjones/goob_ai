@@ -1,0 +1,115 @@
+# SOURCE: https://github.com/openai/openai-python/blob/aed1e43745cd6358b4bafd3a39b3dfeee5e31a03/.github/workflows/ci.yml
+name: CI-UPGRADE
+
+# SOURCE: https://github.com/tornadoweb/tornado/blob/f399f40fde0ae1b130646db783a6f79cc59231b2/.github/workflows/build.yml#L37
+on:
+  # https://docs.github.com/en/webhooks-and-events/webhooks/webhook-events-and-payloads#push
+  push:
+    branches:
+      # Run on release branches. This gives us a chance to detect rot in this
+      # configuration before pushing a tag (which we'd rather not have to undo).
+      - main
+      - feature/**
+      - '[0-9].*.x'  # e.g., 4.14.x
+      - '[0-9][0-9].*.x'  # e.g., 23.3.x
+    tags:
+      # The main purpose of this workflow is to build wheels for release tags.
+      # It runs automatically on tags matching this pattern and pushes to pypi.
+      - "v*"
+
+  # https://docs.github.com/en/webhooks-and-events/webhooks/webhook-events-and-payloads#pull_request
+  pull_request:
+
+  # https://docs.github.com/en/webhooks-and-events/webhooks/webhook-events-and-payloads#workflow_dispatch
+  workflow_dispatch:
+    # Allow this workflow to be run manually (pushing to testpypi instead of pypi)
+
+env:
+  python-version: '3.10'
+
+jobs:
+  test:
+    name: test
+    runs-on: ubuntu-22.04
+
+    if: github.repository == 'bossjones/goob_ai'
+    env:
+      OS: ubuntu-22.04
+      PYTHON: '3.10'
+    steps:
+
+      - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
+      - run: echo "🐧 This job is now running on a ${{ runner.os }} server hosted by GitHub!"
+      - run: echo "🔎 The name of your branch is ${{ github.ref_name }} and your repository is ${{ github.repository }}."
+
+      - name: Set up Git repository
+        uses: actions/checkout@v4
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Start Redis
+        id: redis-docker-compose-up
+        run: |
+          docker-compose up -d
+          docker ps -a
+        continue-on-error: true
+
+      - name: Start Chroma
+        id: chroma-docker-compose-up
+        run: |
+          git clone --depth 1 --branch feature-boss-chroma https://github.com/bossjones/chroma.git vendored_chroma
+          cd vendored_chroma
+          docker-compose up -d --build
+          docker ps -a
+        continue-on-error: true
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: get version python
+        shell: bash  # use bash to run date command
+        run: echo "Py${{ env.python-version }}"
+
+      - name: Hash + Timestamp
+        shell: bash  # use bash to run date command
+        run: 'echo "HASH=${{ runner.os }}-${{ runner.arch }}-Py${{ env.python-version }}-$(date -u "+%Y%m")" >> $GITHUB_ENV'
+
+
+      - name: "Set up Python ${{ env.python-version }}"
+        uses: actions/setup-python@v5
+        with:
+          python-version: "${{ env.python-version }}"
+
+      - name: Install Rye
+        run: |
+          curl -sSf https://rye.astral.sh/get | bash
+          echo "$HOME/.rye/shims" >> $GITHUB_PATH
+        env:
+          RYE_VERSION: '0.36.0'
+          RYE_INSTALL_OPTION: '--yes'
+
+      - name: install tesseract
+        run: |
+          sudo apt-get install -y tesseract-ocr tesseract-ocr-por
+
+      - name: Run tests and collect coverage
+        run: |
+          cp -f env.sample .env
+          rye config --set-bool behavior.use-uv=true
+          ./scripts/retry -t 4  -- rye sync --update-all --all-features
+
+          echo "rye run lint"
+          rye run lint
+
+          # rye run typecheck
+
+          echo "rye run python -c 'import goob_ai'"
+          rye run python -c 'import goob_ai'
+
+          echo "rye run test"
+          rye run test
+
+          sudo apt update
+          sudo apt-get install tree -y
+          tree
+          ls -lta
