@@ -67,7 +67,37 @@ def get_suffix(filename: str) -> str:
     ext = pathlib.Path(f"{filename}").suffix.lower()
     ext_without_period = f"{ext.replace('.','')}"
     LOGGER.debug(f"ext: {ext}, ext_without_period: {ext_without_period}")
-    return ext_without_period
+    return ext
+
+
+def is_pdf(filename: str) -> bool:
+    """_summary_
+
+    Args:
+        filename (str): _description_
+
+    Returns:
+        bool: _description_
+    """
+    suffix = get_suffix(filename)
+    res = suffix in file_functions.PDF_EXTENSIONS
+    LOGGER.debug(f"res: {res}")
+    return res
+
+
+def is_txt(filename: str) -> bool:
+    """_summary_
+
+    Args:
+        filename (str): _description_
+
+    Returns:
+        bool: _description_
+    """
+    suffix = get_suffix(filename)
+    res = suffix in file_functions.TXT_EXTENSIONS
+    LOGGER.debug(f"res: {res}")
+    return res
 
 
 def get_rag_loader(filename: str) -> TextLoader | PyMuPDFLoader | WebBaseLoader | None:
@@ -94,10 +124,10 @@ def get_rag_loader(filename: str) -> TextLoader | PyMuPDFLoader | WebBaseLoader 
             web_paths=(f"{filename}",),
             bs_kwargs=dict(parse_only=bs4.SoupStrainer(class_=("post-content", "post-title", "post-header"))),
         )
-    elif get_suffix(filename) in file_functions.TXT_EXTENSIONS:
+    elif is_txt(filename):
         LOGGER.debug("selected filetype txt, using TextLoader(filename)")
         return TextLoader(filename)
-    elif get_suffix(filename) in file_functions.PDF_EXTENSIONS:
+    elif is_pdf(filename):
         LOGGER.debug("selected filetype pdf, using PyMuPDFLoader(filename)")
         return PyMuPDFLoader(filename)
     else:
@@ -126,7 +156,7 @@ def get_rag_splitter(filename: str) -> CharacterTextSplitter | None:
             "selected filetype github.io url, usingRecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)"
         )
         return RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
-    elif get_suffix(filename) in file_functions.TXT_EXTENSIONS:
+    elif is_txt(filename):
         LOGGER.debug("selected filetype txt, using CharacterTextSplitter(chunk_size=1000, chunk_overlap=0)")
         return CharacterTextSplitter(chunk_size=1000, chunk_overlap=0)
     else:
@@ -153,10 +183,10 @@ def get_rag_embedding_function(filename: str) -> SentenceTransformerEmbeddings |
     if re.match(WEBBASE_LOADER_PATTERN, f"{filename}"):
         LOGGER.debug("selected filetype github.io url, using OpenAIEmbeddings()")
         return OpenAIEmbeddings()
-    elif get_suffix(filename) in file_functions.TXT_EXTENSIONS:
+    elif is_txt(filename):
         LOGGER.debug('selected filetype txt, using SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2")')
         return SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2")
-    elif get_suffix(filename) in file_functions.PDF_EXTENSIONS:
+    elif is_pdf(filename):
         LOGGER.debug("selected filetype pdf, using OpenAIEmbeddings()")
         return OpenAIEmbeddings()
     else:
@@ -501,7 +531,7 @@ class ChromaService:
         collection: chromadb.Collection = ChromaService.add_collection(collection_name)
 
         # load the document and split it into chunks
-        loader: TextLoader | PyMuPDFLoader | None = get_rag_loader(path_to_document)
+        loader: TextLoader | PyMuPDFLoader | WebBaseLoader | None = get_rag_loader(path_to_document)
         documents: List[Document] = loader.load()
 
         # If filetype is txt, split it into chunks

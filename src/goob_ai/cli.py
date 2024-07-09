@@ -410,7 +410,8 @@ def query_readthedocs() -> None:
         query = "How do I enable syntax highlighting with rich?"
         docs = db.similarity_search(query)
         rich.print("Answer: ")
-        rich.print(docs)
+        # rich.print(docs)
+        print(docs[0].page_content)
 
     except Exception as ex:
         print(f"{ex}")
