@@ -431,6 +431,8 @@ langchain-openai==0.1.8
     # via goob-ai
 langchain-text-splitters==0.2.1
     # via langchain
+langchainhub==0.1.20
+    # via goob-ai
 langserve==0.2.1
     # via goob-ai
 langsmith==0.1.75
@@ -601,6 +603,7 @@ packaging==23.2
     # via huggingface-hub
     # via ipykernel
     # via langchain-core
+    # via langchainhub
     # via marshmallow
     # via matplotlib
     # via onnxruntime
@@ -845,6 +848,7 @@ requests==2.32.3
     # via kubernetes
     # via langchain
     # via langchain-community
+    # via langchainhub
     # via langsmith
     # via posthog
     # via pyinspect
@@ -1061,6 +1065,8 @@ typer==0.12.3
     # via fastapi-cli
     # via goob-ai
     # via pypi-command-line
+types-requests==2.32.0.20240622
+    # via langchainhub
 typing-extensions==4.12.2
     # via aiodebug
     # via aiomonitor
@@ -1112,6 +1118,7 @@ urllib3==2.2.1
     # via requests
     # via requests-cache
     # via sentry-sdk
+    # via types-requests
 uvicorn==0.30.1
     # via chromadb
     # via fastapi

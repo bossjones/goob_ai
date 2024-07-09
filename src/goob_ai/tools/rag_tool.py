@@ -12,28 +12,19 @@ from uuid import UUID
 
 import langchain_chroma.vectorstores
 
-from langchain import LLMChain, PromptTemplate, hub
+from langchain import hub
 from langchain.base_language import BaseLanguageModel
-from langchain.callbacks import HumanApprovalCallbackHandler
-from langchain.callbacks.base import BaseCallbackHandler
 from langchain.callbacks.manager import AsyncCallbackManagerForToolRun, CallbackManagerForToolRun
-from langchain.chains import RetrievalQA
-from langchain.chains.qa_with_sources.retrieval import RetrievalQAWithSourcesChain
 from langchain.chains.retrieval_qa.base import RetrievalQA, VectorDBQA
-from langchain.chains.summarize import load_summarize_chain
-from langchain.chat_models.base import BaseChatModel
-from langchain.docstore.document import Document
 from langchain.pydantic_v1 import BaseModel, ConfigDict, Field
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.tools import BaseTool as LangChainBaseTool
 from langchain.tools.base import ToolException
-from langchain.vectorstores import Chroma
 from langchain_chroma import Chroma
 from langchain_community.vectorstores import Chroma as ChromaVectorStore
 from langchain_core.callbacks import AsyncCallbackManagerForToolRun, CallbackManagerForToolRun
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 from loguru import logger as LOGGER
-from pydantic import Field
 
 from goob_ai.clients.http_client import HttpClient
 from goob_ai.gen_ai.stores.paperstore import PaperStore
@@ -41,6 +32,14 @@ from goob_ai.llm_manager import LlmManager
 from goob_ai.services.chroma_service import CHROMA_PATH, DATA_PATH, ChromaService
 
 
+# from langchain.chains import RetrievalQA
+# from langchain.chains.retrieval_qa.base import RetrievalQA, VectorDBQA
+# from langchain.chains.summarize import load_summarize_chain
+# from langchain.chat_models.base import BaseChatModel
+# from langchain.docstore.document import Document
+# from langchain.callbacks import HumanApprovalCallbackHandler
+# from langchain.callbacks.base import BaseCallbackHandler
+# from langchain.chains.qa_with_sources.retrieval import RetrievalQAWithSourcesChain
 # https://github.com/Antony90/arxiv-discord/blob/9039612c5d346ab489e3c85e50b7f6f86a6348f4/ai/tools.py#L44
 
 
@@ -139,18 +138,22 @@ def register_tool_action(cls: BaseTool):
 
 
 class ReadTheDocsQASchema(BaseModel):
-    question: str = Field(
+    user_question: str = Field(
         description="A question to ask about a readthedocs pdf. Cannot be empty. Must be a question abount opencv, rich, or Pillow."
     )
     # paper_id: str = Field(description="Substring of the Name of the paper to query")
     # paper_id: str = Field(description="ID of paper to query")
 
 
-class ReadTheDocsQATool(BasePaperTool):
+class ReadTheDocsQATool(LangChainBaseTool):
     # Must be unique within a set of tools provided to an LLM or agent.
     name = "chroma_question_answering"
     # Describes what the tool does. Used as context by the LLM or agent.
-    description = "Ask a question about the contents of a ReadTheDocs pdf for python modules opencv, rich, and Pillow. Primary source of factual information for a pdf. Don't include pdf ID/URL in the question."
+    # description = "Ask a question about the contents of a ReadTheDocs pdf for python modules opencv, rich, and Pillow. Primary source of factual information for a pdf. Don't include pdf ID/URL in the question."
+
+    description = """You must use this tool for any questions or queries related to opencv, rich, and Pillow or substrings of it.
+    This will return documents that are related to the user's question. The documents may not be always relevant to the user's question.
+    If you use any of the documents returned to provide a helpful answer to user_question, please make sure to also return a valid URL of the document you used."""
     # Optional but recommended, can be used to provide more information (e.g., few-shot examples) or validation for expected parameters
     args_schema: Type[ReadTheDocsQASchema] = ReadTheDocsQASchema
     # Only relevant for agents. When True, after invoking the given tool, the agent will stop and return the result direcly to the user.
@@ -167,13 +170,20 @@ class ReadTheDocsQATool(BasePaperTool):
     # Uses LLM for QA retrieval chain prompting
     # Vectorstore for embeddings of currently loaded PDFs
 
-    def _run(self, question: str, run_manager: Optional[CallbackManagerForToolRun] = None) -> str:
+    def _run(self, user_question: str, run_manager: Optional[CallbackManagerForToolRun] = None) -> str:
         """Use the tool."""
         # self.load_paper(paper_id)
-        qa = self._make_qa_chain()
-        return qa.run(question)
+        try:
+            qa = self._make_qa_chain()
+            answer = qa.run(user_question)
+            LOGGER.debug(f"Answer: {answer}")
+        except Exception as e:
+            LOGGER.error(f"Error invoking flex checks http api: {e}")
+            raise ToolException("Error invoking flex checks http api!")
 
-    async def _arun(self, question: str, run_manager: Optional[AsyncCallbackManagerForToolRun] = None) -> str:
+        return answer
+
+    async def _arun(self, user_question: str, run_manager: Optional[AsyncCallbackManagerForToolRun] = None) -> str:
         """Use the tool asynchronously."""
         # If the calculation is cheap, you can just delegate to the sync implementation
         # as shown below.
@@ -183,7 +193,7 @@ class ReadTheDocsQATool(BasePaperTool):
         # await self.aload_paper(paper_id)
         qa = self._make_qa_chain()
         # await asyncio.sleep(0)  # placeholder for async code
-        return qa.run(question, run_manager=run_manager.get_sync())
+        return qa.run(user_question, run_manager=run_manager.get_sync())
 
     def _make_qa_chain(self):
         """Make a RetrievalQA chain which filters by this paper_id"""
