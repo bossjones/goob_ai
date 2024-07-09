@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from pickledb import PickleDB
+from pickledb import PickleDB  # pyright: ignore[reportMissingTypeStubs]
 
 
 class PaperStore:

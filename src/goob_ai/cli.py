@@ -371,6 +371,60 @@ def run_download_and_predict(
 
 
 @APP.command()
+def query_readthedocs() -> None:
+    """Smoketest for querying readthedocs pdfs against vectorstore."""
+    try:
+        import rich
+
+        from langchain_chroma import Chroma
+        from langchain_openai import OpenAIEmbeddings
+
+        from goob_ai.services.chroma_service import CHROMA_PATH, DATA_PATH, ChromaService
+        from goob_ai.utils import file_functions
+
+        client = ChromaService.client
+        test_collection_name = "readthedocs"
+
+        documents = []
+
+        d = file_functions.tree(DATA_PATH)
+        result = file_functions.filter_pdfs(d)
+
+        for filename in result:
+            LOGGER.info(f"Loading document: {filename}")
+            db = ChromaService.add_to_chroma(
+                path_to_document=f"{filename}",
+                collection_name=test_collection_name,
+                embedding_function=None,
+            )
+
+        embedding_function = OpenAIEmbeddings()
+
+        db = Chroma(
+            client=client,
+            collection_name=test_collection_name,
+            embedding_function=embedding_function,
+        )
+
+        # query it
+        query = "How do I enable syntax highlighting with rich?"
+        docs = db.similarity_search(query)
+        rich.print("Answer: ")
+        rich.print(docs)
+
+    except Exception as ex:
+        print(f"{ex}")
+        exc_type, exc_value, exc_traceback = sys.exc_info()
+        print(f"Error Class: {ex.__class__}")
+        output = f"[UNEXPECTED] {type(ex).__name__}: {ex}"
+        print(output)
+        print(f"exc_type: {exc_type}")
+        print(f"exc_value: {exc_value}")
+        traceback.print_tb(exc_traceback)
+        bpdb.pm()
+
+
+@APP.command()
 def run_predict_and_display(img_url: List[str] = None) -> None:
     """Manually run screencrop's download_and_predict service and get bounding boxes"""
 

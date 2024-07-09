@@ -54,6 +54,22 @@ Answer the question based on the above context: {question}
 WEBBASE_LOADER_PATTERN = r"^https?://[a-zA-Z0-9.-]+\.github\.io(/.*)?$"
 
 
+def get_suffix(filename: str) -> str:
+    """_summary_
+
+    Args:
+        filename (str): _description_
+
+    Returns:
+        str: _description_
+    """
+
+    ext = pathlib.Path(f"{filename}").suffix.lower()
+    ext_without_period = f"{ext.replace('.','')}"
+    LOGGER.debug(f"ext: {ext}, ext_without_period: {ext_without_period}")
+    return ext_without_period
+
+
 def get_rag_loader(filename: str) -> TextLoader | PyMuPDFLoader | WebBaseLoader | None:
     """
     Get the appropriate loader for the given filename.
@@ -78,14 +94,14 @@ def get_rag_loader(filename: str) -> TextLoader | PyMuPDFLoader | WebBaseLoader 
             web_paths=(f"{filename}",),
             bs_kwargs=dict(parse_only=bs4.SoupStrainer(class_=("post-content", "post-title", "post-header"))),
         )
-    elif pathlib.Path(f"{filename}").suffix.lower() in file_functions.TXT_EXTENSIONS:
+    elif get_suffix(filename) in file_functions.TXT_EXTENSIONS:
         LOGGER.debug("selected filetype txt, using TextLoader(filename)")
         return TextLoader(filename)
-    elif pathlib.Path(f"{filename}").suffix.lower() in file_functions.PDF_EXTENSIONS:
+    elif get_suffix(filename) in file_functions.PDF_EXTENSIONS:
         LOGGER.debug("selected filetype pdf, using PyMuPDFLoader(filename)")
         return PyMuPDFLoader(filename)
     else:
-        LOGGER.debug("selected filetype UNKNOWN, using None")
+        LOGGER.debug(f"selected filetype UNKNOWN, using None. uri: {filename}")
         return None
 
 
@@ -104,16 +120,17 @@ def get_rag_splitter(filename: str) -> CharacterTextSplitter | None:
         CharacterTextSplitter | None: The text splitter for the given file,
         or None if the file type is not supported.
     """
+
     if re.match(WEBBASE_LOADER_PATTERN, f"{filename}"):
         LOGGER.debug(
             "selected filetype github.io url, usingRecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)"
         )
         return RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
-    elif pathlib.Path(f"{filename}").suffix.lower() in file_functions.TXT_EXTENSIONS:
+    elif get_suffix(filename) in file_functions.TXT_EXTENSIONS:
         LOGGER.debug("selected filetype txt, using CharacterTextSplitter(chunk_size=1000, chunk_overlap=0)")
         return CharacterTextSplitter(chunk_size=1000, chunk_overlap=0)
     else:
-        LOGGER.debug("selected filetype UNKNOWN, using None")
+        LOGGER.debug(f"selected filetype UNKNOWN, using None. uri: {filename}")
         return None
 
 
@@ -136,14 +153,14 @@ def get_rag_embedding_function(filename: str) -> SentenceTransformerEmbeddings |
     if re.match(WEBBASE_LOADER_PATTERN, f"{filename}"):
         LOGGER.debug("selected filetype github.io url, using OpenAIEmbeddings()")
         return OpenAIEmbeddings()
-    elif pathlib.Path(f"{filename}").suffix.lower() in file_functions.TXT_EXTENSIONS:
+    elif get_suffix(filename) in file_functions.TXT_EXTENSIONS:
         LOGGER.debug('selected filetype txt, using SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2")')
         return SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2")
-    elif pathlib.Path(f"{filename}").suffix.lower() in file_functions.PDF_EXTENSIONS:
+    elif get_suffix(filename) in file_functions.PDF_EXTENSIONS:
         LOGGER.debug("selected filetype pdf, using OpenAIEmbeddings()")
         return OpenAIEmbeddings()
     else:
-        LOGGER.debug("selected filetype UNKNOWN, using None")
+        LOGGER.debug(f"selected filetype UNKNOWN, using None. uri: {filename}")
         return None
 
 
