@@ -94,6 +94,7 @@ jobs:
           echo "deb [arch=all,$(dpkg --print-architecture) signed-by=/usr/share/keyrings/prebuilt-mpr-archive-keyring.gpg] https://proget.makedeb.org prebuilt-mpr $(lsb_release -cs)" | sudo tee /etc/apt/sources.list.d/prebuilt-mpr.list
           sudo apt update
           sudo apt-get install -y tesseract-ocr tesseract-ocr-por just
+          curl -fsSL https://github.com/tamasfe/taplo/releases/latest/download/taplo-full-linux-x86_64.gz | gzip -d - | sudo install -m 755 /dev/stdin /usr/local/bin/taplo
 
       - name: Run tests and collect coverage
         run: |
@@ -116,11 +117,6 @@ jobs:
 
           echo "rye run test"
           rye run test
-
-          sudo apt update
-          sudo apt-get install tree -y
-          tree
-          ls -lta
 
           just fmt
           just lint
