@@ -7,8 +7,7 @@ class PaperStore:
     """Rudimentary persistent storage for paper titles, abstracts, and generated summaries."""
 
     def __init__(self, filepath: str) -> None:
-        """
-        Initialize the PaperStore with a given file path.
+        """Initialize the PaperStore with a given file path.
 
         Args:
             filepath (str): The path to the database file.
@@ -16,25 +15,71 @@ class PaperStore:
         self.db = PickleDB(filepath, auto_dump=False, sig=False)
 
     def save_summary(self, paper_id: str, summary_type: str, summary: str) -> None:
+        """Save a summary for a given paper and summary type.
+
+        Args:
+            paper_id (str): The unique identifier for the paper.
+            summary_type (str): The type of summary (e.g., 'short', 'detailed').
+            summary (str): The summary text.
+        """
         self.db.set(f"{paper_id}-{summary_type}", summary)
 
     def get_summary(self, paper_id: str, summary_type: str) -> str | None:
+        """Retrieve a summary for a given paper and summary type.
+
+        Args:
+            paper_id (str): The unique identifier for the paper.
+            summary_type (str): The type of summary (e.g., 'short', 'detailed').
+
+        Returns:
+            str | None: The summary text if it exists, otherwise None.
+        """
         return self.db.get(f"{paper_id}-{summary_type}")
 
     def save_title_abstract(self, paper_id: str, title: str, abstract: str) -> None:
+        """Save the title and abstract for a given paper.
+
+        Args:
+            paper_id (str): The unique identifier for the paper.
+            title (str): The title of the paper.
+            abstract (str): The abstract of the paper.
+        """
         self.db.set(f"{paper_id}-title", title)
         self.db.set(f"{paper_id}-abstract", abstract)
 
     def get_title(self, paper_id: str) -> str | None:
+        """Retrieve the title for a given paper.
+
+        Args:
+            paper_id (str): The unique identifier for the paper.
+
+        Returns:
+            str | None: The title if it exists, otherwise None.
+        """
         return self.db.get(f"{paper_id}-title")
 
     def get_abstract(self, paper_id: str) -> str | None:
+        """Retrieve the abstract for a given paper.
+
+        Args:
+            paper_id (str): The unique identifier for the paper.
+
+        Returns:
+            str | None: The abstract if it exists, otherwise None.
+        """
         return self.db.get(f"{paper_id}-abstract")
 
     def save(self) -> None:
+        """Persist the current state of the database to disk."""
         self.db.dump()
 
     def add_mentioned_paper(self, paper_id: str, chat_id: str) -> None:
+        """Add a mentioned paper to a chat's list of mentioned papers.
+
+        Args:
+            paper_id (str): The unique identifier for the paper.
+            chat_id (str): The unique identifier for the chat.
+        """
         if self.db.exists(chat_id):
             papers = self.db.get(chat_id)
         else:
@@ -43,6 +88,14 @@ class PaperStore:
         self.db.set(chat_id, papers)
 
     def get_papers(self, chat_id: str) -> str:
+        """Retrieve the list of mentioned papers for a given chat.
+
+        Args:
+            chat_id (str): The unique identifier for the chat.
+
+        Returns:
+            str: A formatted string of mentioned papers with their titles.
+        """
         if not self.db.exists(chat_id):
             return "NONE"
         papers = self.db.get(chat_id)
