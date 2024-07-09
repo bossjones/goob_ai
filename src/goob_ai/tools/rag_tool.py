@@ -22,6 +22,8 @@ from goob_ai.services.chroma_service import ChromaService
 
 
 # from langchain.chains.retrieval_qa.base import RetrievalQA
+
+# from langchain.chains.retrieval_qa.base import RetrievalQA
 # from langchain.base_language import BaseLanguageModel
 # import asyncio
 # import json
@@ -183,7 +185,7 @@ class ReadTheDocsQATool(BaseTool):
             LOGGER.debug(f"Answer: {answer}")
         except Exception as e:
             LOGGER.error(f"Error invoking flex checks http api: {e}")
-            raise ToolException("Error invoking flex checks http api!")
+            raise ToolException("Error invoking flex checks http api!") from e
 
         return answer
 
@@ -196,9 +198,7 @@ class ReadTheDocsQATool(BaseTool):
         # kick off the task in a thread to make sure it doesn't block other async code.
         # await self.aload_paper(paper_id)
         qa = self._make_qa_chain()
-        answer = qa.invoke({"input": user_question}, run_manager=run_manager.get_sync())
-        # await asyncio.sleep(0)  # placeholder for async code
-        return answer
+        return qa.invoke({"input": user_question}, run_manager=run_manager.get_sync())
 
     def _make_qa_chain(self):
         """Make a RetrievalQA chain which filters by this paper_id"""
@@ -223,6 +223,4 @@ class ReadTheDocsQATool(BaseTool):
         #     chain_type_kwargs={"prompt": self.hub_prompt},
         # )
         question_answer_chain = create_stuff_documents_chain(self.model, self.hub_prompt)
-        chain = create_retrieval_chain(retriever, question_answer_chain)
-
-        return chain
+        return create_retrieval_chain(retriever, question_answer_chain)
