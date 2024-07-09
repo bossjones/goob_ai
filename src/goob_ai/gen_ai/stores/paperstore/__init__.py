@@ -52,7 +52,12 @@ class PaperStore:
         return self.db.get(f"{paper_id}-{summary_type}")
 
     def save_title_abstract(self, paper_id: str, title: str, abstract: str) -> None:
-        """Save the title and abstract for a given paper.
+        """
+        Save the title and abstract for a given paper.
+
+        This method stores the title and abstract of a paper identified by its unique
+        identifier in the database. The title and abstract are saved as separate entries
+        in the database.
 
         Args:
             paper_id (str): The unique identifier for the paper.
