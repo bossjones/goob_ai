@@ -19,7 +19,7 @@ class PaperStore:
         self.db.set(f"{paper_id}-title", title)
         self.db.set(f"{paper_id}-abstract", abstract)
 
-    def get_title(self, paper_id: str):
+    def get_title(self, paper_id: str) -> str | None:
         return self.db.get(f"{paper_id}-title")
 
     def get_abstract(self, paper_id: str) -> str | None:
