@@ -59,7 +59,11 @@ class PaperStore:
         self.db.set(f"{paper_id}-abstract", abstract)
 
     def get_title(self, paper_id: str) -> str | None:
-        """Retrieve the title for a given paper.
+        """
+        Retrieve the title for a given paper.
+
+        This method fetches the title of a paper from the database using the paper's unique identifier.
+        If the title does not exist, it returns None.
 
         Args:
             paper_id (str): The unique identifier for the paper.
