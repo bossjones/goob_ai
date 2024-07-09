@@ -11,10 +11,8 @@ from typing import Any, Dict, Optional, Union
 import requests
 import tenacity
 
-
-# from pydantic import BaseModel
-from langchain.pydantic_v1 import BaseModel
 from loguru import logger as LOGGER
+from pydantic import BaseModel
 from requests import Response
 from tenacity import retry_if_exception_type
 
@@ -23,6 +21,7 @@ from goob_ai.utils import retry
 
 
 # from logging_utils import request_id_contextvar
+# from langchain.pydantic_v1 import BaseModel
 
 
 class HttpClient(BaseModel):

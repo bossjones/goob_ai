@@ -25,7 +25,7 @@ from langchain_core.callbacks import AsyncCallbackManagerForToolRun, CallbackMan
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 from loguru import logger as LOGGER
 
-from goob_ai.gen_ai.stores.paperstore import PaperStore
+# from goob_ai.gen_ai.stores.paperstore import PaperStore
 from goob_ai.llm_manager import LlmManager
 from goob_ai.services.chroma_service import ChromaService
 
@@ -54,7 +54,7 @@ class PaperBackend:
 
     chat_id: str  # can track mentioned papers for a chat, for better tool use and easier prompting
     vectorstore: Chroma  # for getting, inserting, filtering, document embeddings
-    paper_store: PaperStore  # paper metadata: title, abstract, generated summaries
+    # paper_store: PaperStore  # paper metadata: title, abstract, generated summaries
     llm: BaseLanguageModel  # for various Chains
 
 
