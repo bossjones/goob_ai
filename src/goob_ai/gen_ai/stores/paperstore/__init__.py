@@ -25,7 +25,7 @@ class PaperStore:
     def get_abstract(self, paper_id: str) -> str | None:
         return self.db.get(f"{paper_id}-abstract")
 
-    def save(self):
+    def save(self) -> None:
         self.db.dump()
 
     def add_mentioned_paper(self, paper_id: str, chat_id: str) -> None:
