@@ -28,7 +28,7 @@ class PaperStore:
     def save(self):
         self.db.dump()
 
-    def add_mentioned_paper(self, paper_id: str, chat_id: str):
+    def add_mentioned_paper(self, paper_id: str, chat_id: str) -> None:
         if self.db.exists(chat_id):
             papers = self.db.get(chat_id)
         else:
