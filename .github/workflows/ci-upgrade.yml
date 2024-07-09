@@ -90,13 +90,18 @@ jobs:
 
       - name: install tesseract
         run: |
-          sudo apt-get install -y tesseract-ocr tesseract-ocr-por
+          sudo apt-get install -y tesseract-ocr tesseract-ocr-por just
 
       - name: Run tests and collect coverage
         run: |
           cp -f env.sample .env
           rye config --set-bool behavior.use-uv=true
           ./scripts/retry -t 4  -- rye sync --update-all --all-features
+
+          git diff requirements.lock > requirements.lock.diff
+          git diff requirements-dev.lock > requirements-dev.lock.diff
+          cat requirements.lock
+          cat requirements-dev.lock
 
           echo "rye run lint"
           rye run lint
@@ -113,3 +118,20 @@ jobs:
           sudo apt-get install tree -y
           tree
           ls -lta
+
+          just fmt
+          just lint
+
+
+      - name: Upload Diff Of Rye Requirements
+        if: '!cancelled()'
+        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
+        with:
+          name: rye-requirements-diff-${{ env.HASH }}
+          path: |
+            requirements.lock
+            requirements.lock.diff
+            requirements-dev.lock.diff
+            requirements-dev.lock
+            pyproject.toml
+          retention-days: 1  # temporary, combined in aggregate below
