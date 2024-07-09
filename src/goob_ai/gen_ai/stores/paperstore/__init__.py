@@ -4,9 +4,15 @@ from pickledb import PickleDB
 
 
 class PaperStore:
-    """Rudimentary persistent storage for paper titles, abstracts and generated summaries."""
+    """Rudimentary persistent storage for paper titles, abstracts, and generated summaries."""
 
     def __init__(self, filepath: str) -> None:
+        """
+        Initialize the PaperStore with a given file path.
+
+        Args:
+            filepath (str): The path to the database file.
+        """
         self.db = PickleDB(filepath, auto_dump=False, sig=False)
 
     def save_summary(self, paper_id: str, summary_type: str, summary: str) -> None:
