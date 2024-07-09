@@ -3,13 +3,16 @@ from __future__ import annotations
 
 import logging
 
+from langchain.pydantic_v1 import BaseModel
 from langchain.schema.runnable import ConfigurableField, Runnable, RunnableBranch, RunnableLambda, RunnableMap
 from langchain_openai import ChatOpenAI
 from loguru import logger as LOGGER
 from openai import Client
-from pydantic import BaseModel
 
 from goob_ai.aio_settings import aiosettings
+
+
+# from pydantic import BaseModel
 
 
 class LlmManager(BaseModel):

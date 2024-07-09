@@ -16,7 +16,9 @@ from typing import Sequence as Seq
 import httpx
 import numpy as np
 
-from pydantic import BaseModel
+
+# from pydantic import BaseModel
+from langchain.pydantic_v1 import BaseModel
 from typing_extensions import Literal as Literal
 from typing_extensions import NewType
 from typing_extensions import Protocol as Protocol

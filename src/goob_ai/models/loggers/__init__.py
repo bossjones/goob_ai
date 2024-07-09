@@ -9,7 +9,8 @@ from __future__ import annotations
 
 from typing import Any, ForwardRef, List, Optional
 
-from pydantic import BaseModel
+# from pydantic import BaseModel
+from langchain.pydantic_v1 import BaseModel
 
 
 LoggerModel = ForwardRef("LoggerModel")
