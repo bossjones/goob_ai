@@ -10,8 +10,18 @@ from pathlib import Path
 from tempfile import gettempdir
 from typing import Any, Callable, Dict, List, Optional, Set, Union, cast
 
-from langchain.pydantic_v1 import BaseModel, Field
-from pydantic import SecretStr, field_serializer
+from pydantic import (
+    AliasChoices,
+    AmqpDsn,
+    BaseModel,
+    Field,
+    ImportString,
+    PostgresDsn,
+    RedisDsn,
+    SecretBytes,
+    SecretStr,
+    field_serializer,
+)
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from rich.console import Console
 from rich.table import Table
