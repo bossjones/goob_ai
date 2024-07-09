@@ -18,6 +18,7 @@ from langchain.callbacks.manager import AsyncCallbackManagerForToolRun, Callback
 from langchain.chains.retrieval_qa.base import RetrievalQA, VectorDBQA
 from langchain.pydantic_v1 import BaseModel, ConfigDict, Field
 from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain.tools import BaseTool
 from langchain.tools import BaseTool as LangChainBaseTool
 from langchain.tools.base import ToolException
 from langchain_chroma import Chroma
@@ -56,10 +57,10 @@ class PaperBackend:
     llm: BaseLanguageModel  # for various Chains
 
 
-class BaseTool(LangChainBaseTool):
-    """Lets tools define a user friendly action text to be displayed in progress updates"""
+# class BaseTool(LangChainBaseTool):
+#     """Lets tools define a user friendly action text to be displayed in progress updates"""
 
-    action_label: str
+#     action_label: str
 
 
 class BasePaperTool(BaseTool):
@@ -129,12 +130,12 @@ class BasePaperTool(BaseTool):
     #     return found
 
 
-TOOL_ACTIONS = {}
+# TOOL_ACTIONS = {}
 
 
-def register_tool_action(cls: BaseTool):
-    """A class decorator to track all tools, create a mapping which stores tool action labels"""
-    TOOL_ACTIONS[cls.name] = cls.action_label
+# def register_tool_action(cls: BaseTool):
+#     """A class decorator to track all tools, create a mapping which stores tool action labels"""
+#     TOOL_ACTIONS[cls.name] = cls.action_label
 
 
 class ReadTheDocsQASchema(BaseModel):
@@ -145,7 +146,7 @@ class ReadTheDocsQASchema(BaseModel):
     # paper_id: str = Field(description="ID of paper to query")
 
 
-class ReadTheDocsQATool(LangChainBaseTool):
+class ReadTheDocsQATool(BaseTool):
     # Must be unique within a set of tools provided to an LLM or agent.
     name = "chroma_question_answering"
     # Describes what the tool does. Used as context by the LLM or agent.
@@ -160,7 +161,7 @@ class ReadTheDocsQATool(LangChainBaseTool):
     return_direct: bool = False
 
     action_label = "Querying a paper"
-    hub_prompt = hub.pull("rlm/rag-prompt", api_url="https://api.hub.langchain.com")
+    hub_prompt = hub.pull("rlm/rag-prompt")
     db: langchain_chroma.vectorstores.Chroma = Chroma(
         client=ChromaService.client,
         collection_name="readthedocs",
