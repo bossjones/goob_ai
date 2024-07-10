@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import sys
+import traceback
+
 from typing import ClassVar, List, Optional, Type
 
 import langchain_chroma.vectorstores
@@ -252,9 +255,9 @@ class ReadTheDocsQATool(BaseChromaDBTool, BaseTool):
     args_schema: Type[ReadTheDocsQASchema] = ReadTheDocsQASchema
     # Only relevant for agents. When True, after invoking the given tool, the agent will stop and return the result direcly to the user.
     return_direct: bool = False
-    handle_tool_error: bool = True
+    handle_tool_error: bool = False
 
-    action_label: str = "Querying a paper"
+    # action_label: str = "Querying a paper"
     # hub_prompt = ClassVar[ChatPromptTemplate] = hub.pull("rlm/rag-prompt")
     # hub_prompt = ChatPromptTemplate = RAG_PROMPT
     # db: ClassVar[langchain_chroma.vectorstores.Chroma] = Chroma(
@@ -274,24 +277,36 @@ class ReadTheDocsQATool(BaseChromaDBTool, BaseTool):
     # Uses LLM for QA retrieval chain prompting
     # Vectorstore for embeddings of currently loaded PDFs
 
-    def _run(self, question: str, run_manager: Optional[CallbackManagerForToolRun] = None) -> str:
+    # def _run(self, question: str, run_manager: Optional[CallbackManagerForToolRun] = None) -> str:
+    def _run(self, question: str) -> str:
         """Use the tool."""
         # self.load_paper(paper_id)
-        import bpdb
+        # import bpdb
 
-        bpdb.set_trace()
+        # bpdb.set_trace()
         try:
             qa = self._make_qa_chain()
-            answer = qa.invoke({"input": question})
+            answer = qa.invoke(question)
+            # answer = qa.invoke({"input": question})
             # answer = qa.invoke({"question": question})
             # answer = qa.run(question)
             LOGGER.debug(f"Answer: {answer}")
         except Exception as e:
+            # print(f"{e}")
+            # exc_type, exc_value, exc_traceback = sys.exc_info()
+            # print(f"Error Class: {e.__class__}")
+            # output = f"[UNEXPECTED] {type(e).__name__}: {e}"
+            # print(output)
+            # print(f"exc_type: {exc_type}")
+            # print(f"exc_value: {exc_value}")
+            # traceback.print_tb(exc_traceback)
+            # bpdb.pm()
             LOGGER.error(f"Error invoking {self.name}: {e}")
             raise ToolException(f"Error invoking {self.name}!") from e
 
         return answer
 
+    # async def _arun(self, question: str, run_manager: Optional[AsyncCallbackManagerForToolRun] = None) -> str:
     async def _arun(self, question: str, run_manager: Optional[AsyncCallbackManagerForToolRun] = None) -> str:
         """Use the tool asynchronously."""
         # If the calculation is cheap, you can just delegate to the sync implementation
@@ -301,7 +316,7 @@ class ReadTheDocsQATool(BaseChromaDBTool, BaseTool):
         # kick off the task in a thread to make sure it doesn't block other async code.
         # await self.aload_paper(paper_id)
         qa = self._make_qa_chain()
-        return qa.invoke({"question": question}, run_manager=run_manager.get_sync())
+        return qa.invoke(question, run_manager=run_manager.get_sync())
 
     # def _setup(self):
     #     self.hub_prompt = RAG_PROMPT
@@ -332,7 +347,7 @@ class ReadTheDocsQATool(BaseChromaDBTool, BaseTool):
 
         # RAG chain
         chain = (
-            RunnableParallel({"context": retriever, "question": RunnablePassthrough()})
+            {"context": retriever | format_docs, "question": RunnablePassthrough()}
             | RAG_PROMPT
             | self.llm
             | StrOutputParser()
