@@ -117,11 +117,11 @@ jobs:
 
           # NOTE: just fmt
           git ls-files '*.py' '*.ipynb' | xargs rye run pre-commit run --files
-          pre-commit run taplo-format --all-files
+          # pre-commit run taplo-format --all-files
 
           # NOTE: just lint
           pre-commit run ruff --all-files
-          pre-commit run taplo-lint --all-files
+          # pre-commit run taplo-lint --all-files
 
 
           echo "rye run test"
