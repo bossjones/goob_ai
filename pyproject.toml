@@ -214,6 +214,7 @@ dev-dependencies = [
     "types-contextvars>=2.4.7.3",
     "pytest-aiohttp>=1.0.5",
     "pytest-skip-slow>=0.0.5",
+    "pytest-vcr>=1.0.2",
 ]
 
 [tool.rye.scripts]
@@ -1584,7 +1585,7 @@ venvPath = "."
 defineConstant = {DEBUG = true}
 stubPath = "./typings"
 # https://github.com/microsoft/pyright/blob/main/docs/configuration.md#reportGeneralTypeIssues
-reportUnnecessaryTypeIgnoreComment = "warning"
+reportUnnecessaryTypeIgnoreComment = "none"
 pythonVersion = "3.10"
 verboseOutput = true
 reportUnusedImport = "none"

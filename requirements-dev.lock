@@ -884,6 +884,7 @@ pytest==8.2.2
     # via pytest-rerunfailures
     # via pytest-skip-slow
     # via pytest-sugar
+    # via pytest-vcr
 pytest-aiohttp==1.0.5
 pytest-asyncio==0.23.7
     # via dpytest
@@ -894,6 +895,7 @@ pytest-mock==3.14.0
 pytest-rerunfailures==14.0
 pytest-skip-slow==0.0.5
 pytest-sugar==1.0.0
+pytest-vcr==1.0.2
 python-dateutil==2.9.0.post0
     # via botocore
     # via faker
@@ -940,6 +942,7 @@ pyyaml==6.0.1
     # via timm
     # via transformers
     # via uvicorn
+    # via vcrpy
     # via wandb
     # via watchdog
 pyzmq==26.0.3
@@ -1334,6 +1337,8 @@ validate-pyproject-schema-store==2024.7.1
     # via validate-pyproject
 validators==0.31.0
     # via goob-ai
+vcrpy==6.0.1
+    # via pytest-vcr
 virtualenv==20.26.3
     # via pre-commit
 wandb==0.17.4
@@ -1374,10 +1379,12 @@ wikipedia==1.4.0
 wrapt==1.16.0
     # via deprecated
     # via opentelemetry-instrumentation
+    # via vcrpy
 xxhash==3.4.1
     # via datasets
 yarl==1.9.4
     # via aiohttp
+    # via vcrpy
 yfinance==0.2.40
     # via goob-ai
 youtube-search==2.1.2
