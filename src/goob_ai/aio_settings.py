@@ -183,6 +183,7 @@ class AioSettings(BaseSettings):
     enable_redis: bool = False
 
     sentry_dsn: str = ""
+    enable_sentry: bool = False
 
     # Variables for ChromaDB
 
