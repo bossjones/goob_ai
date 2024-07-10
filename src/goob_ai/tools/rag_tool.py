@@ -8,7 +8,8 @@ from typing import ClassVar, List, Optional, Type
 import langchain_chroma.vectorstores
 
 from langchain import hub
-from langchain.callbacks.manager import AsyncCallbackManagerForToolRun, CallbackManagerForToolRun
+
+# from langchain.callbacks.manager import AsyncCallbackManagerForToolRun, CallbackManagerForToolRun
 from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain.chains.retrieval import create_retrieval_chain
 from langchain.pydantic_v1 import BaseModel, Field
@@ -16,7 +17,8 @@ from langchain.schema import Document
 from langchain.tools import BaseTool
 from langchain.tools.base import ToolException
 from langchain_chroma import Chroma
-from langchain_core.callbacks import AsyncCallbackManagerForToolRun, CallbackManagerForToolRun
+
+# from langchain_core.callbacks import AsyncCallbackManagerForToolRun, CallbackManagerForToolRun
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import Runnable, RunnableParallel, RunnablePassthrough, RunnableSerializable
@@ -307,7 +309,7 @@ class ReadTheDocsQATool(BaseChromaDBTool, BaseTool):
         return answer
 
     # async def _arun(self, question: str, run_manager: Optional[AsyncCallbackManagerForToolRun] = None) -> str:
-    async def _arun(self, question: str, run_manager: Optional[AsyncCallbackManagerForToolRun] = None) -> str:
+    async def _arun(self, question: str) -> str:
         """Use the tool asynchronously."""
         # If the calculation is cheap, you can just delegate to the sync implementation
         # as shown below.
@@ -316,7 +318,9 @@ class ReadTheDocsQATool(BaseChromaDBTool, BaseTool):
         # kick off the task in a thread to make sure it doesn't block other async code.
         # await self.aload_paper(paper_id)
         qa = self._make_qa_chain()
-        return qa.invoke(question, run_manager=run_manager.get_sync())
+        answer = qa.invoke(question)
+        # return qa.invoke(question, run_manager=run_manager.get_sync())
+        return answer
 
     # def _setup(self):
     #     self.hub_prompt = RAG_PROMPT
