@@ -110,6 +110,8 @@ jobs:
           echo "rye run python -c 'import goob_ai'"
           rye run python -c 'import goob_ai'
 
+          sed -i 's/set shell := \["zsh", "-cu"\]/set shell := \["bash", "-cu"\]/' Justfile
+
           just fmt
           just lint
 
