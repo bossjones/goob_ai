@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import enum
+import os
 import pathlib
 
 from pathlib import Path
@@ -27,6 +28,11 @@ from rich.console import Console
 from rich.table import Table
 from typing_extensions import Annotated, TypedDict
 from yarl import URL
+
+
+# Get rid of warning
+# USER_AGENT environment variable not set, consider setting it to identify your requests.
+os.environ["USER_AGENT"] = "goob-ai/0.0.1"
 
 
 TEMP_DIR = Path(gettempdir())
