@@ -1,5 +1,4 @@
 set shell := ["zsh", "-cu"]
-# LOCATION_PYTHON := `python -c "import sys;print(sys.executable)"`
 
 # just manual: https://github.com/casey/just/#readme
 
@@ -17,7 +16,6 @@ _default:
 		@just --list
 
 info:
-		# print "Python location: {{LOCATION_PYTHON}}"
 		print "OS: {{os()}}"
 
 # verify python is running under pyenv
