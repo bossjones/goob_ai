@@ -26,6 +26,7 @@ import asyncer
 import bpdb
 import discord
 import rich
+import sentry_sdk
 import typer
 
 from loguru import logger as LOGGER
@@ -50,10 +51,23 @@ from goob_ai.aio_settings import aiosettings, get_rich_console
 from goob_ai.asynctyper import AsyncTyper
 from goob_ai.bot_logger import get_logger, global_log_config
 from goob_ai.goob_bot import AsyncGoobBot
+from goob_ai.monitoring.sentry import sentry_init
 from goob_ai.services.chroma_service import ChromaService
 from goob_ai.services.screencrop_service import ImageService
 from goob_ai.utils import repo_typing
 from goob_ai.utils.file_functions import fix_path
+
+
+sentry_init(
+    dsn=aiosettings.sentry_dsn,
+    # Set traces_sample_rate to 1.0 to capture 100%
+    # of transactions for performance monitoring.
+    traces_sample_rate=1.0,
+    # Set profiles_sample_rate to 1.0 to profile 100%
+    # of sampled transactions.
+    # We recommend adjusting this value in production.
+    profiles_sample_rate=1.0,
+)
 
 
 global_log_config(
