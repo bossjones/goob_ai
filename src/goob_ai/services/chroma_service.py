@@ -1,5 +1,6 @@
 """goob_ai.services.chroma_service"""
 
+# pylint: disable=no-member
 # LINK: https://github.com/mlsmall/RAG-Application-with-LangChain
 # SOURCE: https://www.linkedin.com/pulse/building-retrieval-augmented-generation-rag-app-langchain-tiwari-stpfc/
 # NOTE: This might be the one, take inspiration from the others

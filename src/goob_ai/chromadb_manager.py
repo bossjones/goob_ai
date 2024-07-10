@@ -1,3 +1,4 @@
+# pylint: disable=no-member
 # SOURCE: https://github.com/bhuvan454/bareRAG/tree/master
 from __future__ import annotations
 

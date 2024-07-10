@@ -1,5 +1,6 @@
 """goob_ai.gen_ai.tools.vision_tool: This module contains the VisionTool class for the Goob AI application."""
 
+# pylint: disable=no-member
 # mypy: disable-error-code="return"
 # mypy: disable-error-code="str-byte-safe"
 # mypy: disable-error-code="misc"

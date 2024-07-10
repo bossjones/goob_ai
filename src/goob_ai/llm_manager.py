@@ -1,3 +1,4 @@
+# pylint: disable=no-member
 # sourcery skip: docstrings-for-classes
 from __future__ import annotations
 

@@ -1,5 +1,6 @@
 """goob_ai.cli"""
 
+# pylint: disable=no-member
 # pylint: disable=no-value-for-parameter
 # SOURCE: https://github.com/tiangolo/typer/issues/88#issuecomment-1732469681
 from __future__ import annotations
