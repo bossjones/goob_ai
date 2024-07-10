@@ -93,7 +93,7 @@ jobs:
           wget -qO - 'https://proget.makedeb.org/debian-feeds/prebuilt-mpr.pub' | gpg --dearmor | sudo tee /usr/share/keyrings/prebuilt-mpr-archive-keyring.gpg 1> /dev/null
           echo "deb [arch=all,$(dpkg --print-architecture) signed-by=/usr/share/keyrings/prebuilt-mpr-archive-keyring.gpg] https://proget.makedeb.org prebuilt-mpr $(lsb_release -cs)" | sudo tee /etc/apt/sources.list.d/prebuilt-mpr.list
           sudo apt update
-          sudo apt-get install -y tesseract-ocr tesseract-ocr-por just
+          sudo apt-get install -y tesseract-ocr tesseract-ocr-por just zsh
           curl -fsSL https://github.com/tamasfe/taplo/releases/latest/download/taplo-full-linux-x86_64.gz | gzip -d - | sudo install -m 755 /dev/stdin /usr/local/bin/taplo
 
       - name: Run tests and collect coverage
@@ -104,22 +104,19 @@ jobs:
 
           git diff requirements.lock > requirements.lock.diff
           git diff requirements-dev.lock > requirements-dev.lock.diff
-          cat requirements.lock
-          cat requirements-dev.lock
-
-          echo "rye run lint"
-          rye run lint
 
           # rye run typecheck
 
           echo "rye run python -c 'import goob_ai'"
           rye run python -c 'import goob_ai'
 
+          just fmt
+          just lint
+
           echo "rye run test"
           rye run test
 
-          just fmt
-          just lint
+
 
 
       - name: Upload Diff Of Rye Requirements
