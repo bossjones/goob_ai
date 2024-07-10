@@ -18,16 +18,20 @@ from langchain.chains.conversation.memory import ConversationBufferWindowMemory
 from langchain.globals import set_debug
 from langchain.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain.pydantic_v1 import BaseModel, Field
+from langchain_chroma import Chroma
 from langchain_community.chat_message_histories import RedisChatMessageHistory
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.tools import BaseTool
 from langchain_core.utils.function_calling import convert_to_openai_tool
+from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 from loguru import logger as LOGGER
 from pydantic_settings import SettingsConfigDict
 
+from goob_ai import llm_manager
 from goob_ai.aio_settings import AioSettings, aiosettings
 from goob_ai.gen_ai.tools.vision_tool import VisionTool
 from goob_ai.llm_manager import LlmManager
+from goob_ai.services.chroma_service import ChromaService
 from goob_ai.tools.rag_tool import ReadTheDocsQATool
 
 
@@ -105,7 +109,16 @@ class AiAgent:
         )
 
     def init_tools(self):
-        self.custom_tools: Union[list[BaseTool], list[Any]] | None = [VisionTool(), ReadTheDocsQATool()]
+        self.custom_tools: Union[list[BaseTool], list[Any]] | None = [VisionTool()]
+        db = Chroma(
+            client=ChromaService.client,
+            collection_name="readthedocs",
+            embedding_function=OpenAIEmbeddings(),
+        )
+        llm = llm_manager.LlmManager().llm
+        rtd_tool = ReadTheDocsQATool(db=db, llm=llm)
+        self.custom_tools.append(rtd_tool)
+
         # self.custom_tools: Union[list[BaseTool], list[Any]] | None = [VisionTool()]
         # ***************************************************
         # NOTE: CustomTool Error handling

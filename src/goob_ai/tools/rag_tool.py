@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Optional, Type
+from typing import ClassVar, List, Optional, Type
 
 import langchain_chroma.vectorstores
 
@@ -19,6 +19,10 @@ from loguru import logger as LOGGER
 
 from goob_ai.llm_manager import LlmManager
 from goob_ai.services.chroma_service import ChromaService
+
+
+RETRIEVAL_QA_CHAT_PROMPT: ChatPromptTemplate = hub.pull("langchain-ai/retrieval-qa-chat")
+RAG_PROMPT: ChatPromptTemplate = hub.pull("rlm/rag-prompt")
 
 
 # from langchain.chains.retrieval_qa.base import RetrievalQA
@@ -142,6 +146,34 @@ from goob_ai.services.chroma_service import ChromaService
 #     TOOL_ACTIONS[cls.name] = cls.action_label
 
 
+class BaseChromaDBTool(BaseModel):
+    """Base tool for interacting with Chroma."""
+
+    # db: SQLDatabase = Field(exclude=True)
+    db: langchain_chroma.vectorstores.Chroma = Field(exclude=True)
+
+    hub_prompt = ChatPromptTemplate = RAG_PROMPT
+    # db: langchain_chroma.vectorstores.Chroma = Field(
+    #     default_factory=lambda: Chroma(
+    #         client=ChromaService.client,
+    #         collection_name="readthedocs",
+    #         embedding_function=OpenAIEmbeddings(),
+    # )
+    llm: ChatOpenAI = Field(exclude=True)
+    # model: ClassVar[ChatOpenAI] | None = LlmManager().llm
+    # llm_chain: LLMChain = Field(
+    #     default_factory=lambda: LLMChain(
+    #         llm=OpenAI(temperature=0),
+    #         prompt=PromptTemplate(
+    #             template=QUERY_CHECKER, input_variables=["query", "dialect"]
+    #         ),
+    #     )
+    # )
+
+    class Config(BaseTool.Config):
+        pass
+
+
 class ReadTheDocsQASchema(BaseModel):
     user_question: str = Field(
         description="A question to ask about a readthedocs pdf. Cannot be empty. Must be a question abount opencv, rich, or Pillow."
@@ -150,28 +182,36 @@ class ReadTheDocsQASchema(BaseModel):
     # paper_id: str = Field(description="ID of paper to query")
 
 
-class ReadTheDocsQATool(BaseTool):
+class ReadTheDocsQATool(BaseChromaDBTool, BaseTool):
     # Must be unique within a set of tools provided to an LLM or agent.
-    name = "chroma_question_answering"
+    name: str = "chroma_question_answering"
     # Describes what the tool does. Used as context by the LLM or agent.
     # description = "Ask a question about the contents of a ReadTheDocs pdf for python modules opencv, rich, and Pillow. Primary source of factual information for a pdf. Don't include pdf ID/URL in the question."
 
-    description = """You must use this tool for any questions or queries related to opencv, rich, and Pillow or substrings of it.
-    This will return documents that are related to the user's question. The documents may not be always relevant to the user's question.
-    If you use any of the documents returned to provide a helpful answer to user_question, please make sure to also return a valid URL of the document you used."""
+    description: str = "You must use this tool for any questions or queries related to opencv, rich, and Pillow or substrings of it. This will return documents that are related to the user's question. The documents may not be always relevant to the user's question. If you use any of the documents returned to provide a helpful answer to user_question, please make sure to also return a valid URL of the document you used."
     # Optional but recommended, can be used to provide more information (e.g., few-shot examples) or validation for expected parameters
     args_schema: Type[ReadTheDocsQASchema] = ReadTheDocsQASchema
     # Only relevant for agents. When True, after invoking the given tool, the agent will stop and return the result direcly to the user.
     return_direct: bool = False
+    handle_tool_error: bool = True
 
-    action_label = "Querying a paper"
-    hub_prompt = hub.pull("rlm/rag-prompt")
-    db: langchain_chroma.vectorstores.Chroma = Chroma(
-        client=ChromaService.client,
-        collection_name="readthedocs",
-        embedding_function=OpenAIEmbeddings(),
-    )
-    model: ChatOpenAI | None = LlmManager().llm
+    action_label: str = "Querying a paper"
+    # hub_prompt = ClassVar[ChatPromptTemplate] = hub.pull("rlm/rag-prompt")
+    # hub_prompt = ChatPromptTemplate = RAG_PROMPT
+    # db: ClassVar[langchain_chroma.vectorstores.Chroma] = Chroma(
+    #     client=ChromaService.client,
+    #     collection_name="readthedocs",
+    #     embedding_function=OpenAIEmbeddings(),
+    # )
+    # model: ClassVar[ChatOpenAI] | None = LlmManager().llm
+    # llm_chain: LLMChain = Field(
+    #     default_factory=lambda: LLMChain(
+    #         llm=OpenAI(temperature=0),
+    #         prompt=PromptTemplate(
+    #             template=QUERY_CHECKER, input_variables=["query", "dialect"]
+    #         ),
+    #     )
+    # )
     # Uses LLM for QA retrieval chain prompting
     # Vectorstore for embeddings of currently loaded PDFs
 
@@ -200,6 +240,14 @@ class ReadTheDocsQATool(BaseTool):
         qa = self._make_qa_chain()
         return qa.invoke({"input": user_question}, run_manager=run_manager.get_sync())
 
+    # def _setup(self):
+    #     self.hub_prompt = RAG_PROMPT
+    #     self.db: langchain_chroma.vectorstores.Chroma = Chroma(
+    #         client=ChromaService.client,
+    #         collection_name="readthedocs",
+    #         embedding_function=OpenAIEmbeddings(),
+    #     )
+    #     self.model: ChatOpenAI | None = LlmManager().llm
     def _make_qa_chain(self):
         """Make a RetrievalQA chain which filters by this paper_id"""
         # filter = {"source": paper_id}
@@ -210,9 +258,11 @@ class ReadTheDocsQATool(BaseTool):
         # qa = RetrievalQA.from_chain_type(llm=self.llm(), chain_type="stuff", retriever=retriever)
         # Initialize the model with our deployment of Azure OpenAI
         # model = AzureChatOpenAI(azure_deployment=os.environ["AZURE_OPENAI_DEPLOYMENT"])
-        model = LlmManager().llm
+        # model = LlmManager().llm
 
         retriever = self.db.as_retriever()
+        combine_docs_chain = create_stuff_documents_chain(self.llm, RAG_PROMPT)
+        retrieval_chain = create_retrieval_chain(retriever, combine_docs_chain)
 
         # question_answer_chain = create_stuff_documents_chain(
         #     self.model,
@@ -222,5 +272,6 @@ class ReadTheDocsQATool(BaseTool):
         #     retriever=retriever,
         #     chain_type_kwargs={"prompt": self.hub_prompt},
         # )
-        question_answer_chain = create_stuff_documents_chain(self.model, self.hub_prompt)
-        return create_retrieval_chain(retriever, question_answer_chain)
+        # question_answer_chain = create_stuff_documents_chain(self.llm, self.hub_prompt)
+        # return create_retrieval_chain(retriever, question_answer_chain)
+        return retrieval_chain
