@@ -8,5 +8,7 @@ from goob_ai.aio_settings import aiosettings
 
 
 OPENAI_LLM = ChatOpenAI(
-    model=aiosettings.chat_model, temperature=aiosettings.llm_temperature, api_key=aiosettings.openai_api_key
+    model=aiosettings.chat_model,
+    temperature=aiosettings.llm_temperature,
+    api_key=aiosettings.openai_api_key.get_secret_value(),
 )

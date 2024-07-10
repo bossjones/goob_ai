@@ -260,7 +260,7 @@ class CustomOpenAIEmbeddings(OpenAIEmbeddings):
         openai_api_key (str): The API key for accessing OpenAI services.
     """
 
-    def __init__(self, openai_api_key: str = aiosettings.openai_api_key) -> None:
+    def __init__(self, openai_api_key: str = aiosettings.openai_api_key.get_secret_value()) -> None:
         """Initialize the CustomOpenAIEmbeddings class.
 
         Args:
@@ -378,7 +378,7 @@ def save_to_chroma(chunks: list[Document]) -> None:
     # if os.path.exists(CHROMA_PATH):
     #     shutil.rmtree(CHROMA_PATH)
 
-    embeddings = CustomOpenAIEmbeddings(openai_api_key=aiosettings.openai_api_key)
+    embeddings = CustomOpenAIEmbeddings(openai_api_key=aiosettings.openai_api_key.get_secret_value())
     LOGGER.info(embeddings)
     # Create a new DB from the documents.
     db = ChromaVectorStore.from_documents(chunks, embeddings, persist_directory=CHROMA_PATH)

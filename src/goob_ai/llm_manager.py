@@ -55,7 +55,7 @@ class VisionModel(BaseModel):
         #     max_tokens=900,
         #     temperature=aiosettings.llm_temperature,
         # )
-        self.vision_api = Client(api_key=aiosettings.openai_api_key)
+        self.vision_api = Client(api_key=aiosettings.openai_api_key.get_secret_value())
 
     # Pydantic doesn't seem to know the types to handle AzureOpenAI, so we need to tell it to allow arbitrary types
     class Config:

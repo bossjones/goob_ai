@@ -20,7 +20,6 @@ from typer import Typer
 
 import goob_ai
 
-from goob_ai import settings_validator
 from goob_ai.aio_settings import aiosettings, get_rich_console
 from goob_ai.bot_logger import get_logger
 

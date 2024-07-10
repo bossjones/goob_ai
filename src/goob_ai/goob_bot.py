@@ -1517,7 +1517,7 @@ class AsyncGoobBot(commands.Bot):
         Returns:
             None
         """
-        await super().start(aiosettings.discord_token, reconnect=True)
+        await super().start(aiosettings.discord_token.get_secret_value(), reconnect=True)
 
     async def my_background_task(self) -> None:
         """
