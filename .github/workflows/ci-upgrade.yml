@@ -111,6 +111,10 @@ jobs:
           echo "rye run python -c 'import goob_ai'"
           rye run python -c 'import goob_ai'
 
+          pip install pre-commit
+          pre-commit install
+          pre-commit autoupdate
+
           # NOTE: just fmt
           git ls-files '*.py' '*.ipynb' | xargs rye run pre-commit run --files
           pre-commit run taplo-format --all-files
