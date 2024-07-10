@@ -21,6 +21,7 @@ from goob_ai.utils import retry
 
 
 # from logging_utils import request_id_contextvar
+# from langchain.pydantic_v1 import BaseModel
 
 
 class HttpClient(BaseModel):

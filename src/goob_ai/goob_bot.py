@@ -1,5 +1,6 @@
 """goob_ai.goob_bot"""
 
+# pylint: disable=no-member
 # pylint: disable=possibly-used-before-assignment
 # pyright: reportImportCycles=false
 from __future__ import annotations
@@ -1517,7 +1518,7 @@ class AsyncGoobBot(commands.Bot):
         Returns:
             None
         """
-        await super().start(aiosettings.discord_token, reconnect=True)
+        await super().start(aiosettings.discord_token.get_secret_value(), reconnect=True)
 
     async def my_background_task(self) -> None:
         """

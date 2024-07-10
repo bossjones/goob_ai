@@ -1,3 +1,4 @@
+# pylint: disable=no-member
 # SOURCE: https://github.com/bhuvan454/bareRAG/tree/master
 from __future__ import annotations
 
@@ -70,7 +71,7 @@ def split_documents(documents: list[Document]):
 
 
 class CustomOpenAIEmbeddings(OpenAIEmbeddings):
-    def __init__(self, openai_api_key=aiosettings.openai_api_key):
+    def __init__(self, openai_api_key=aiosettings.openai_api_key.get_secret_value()):
         super().__init__(openai_api_key=openai_api_key)
 
     def _embed_documents(self, texts):
@@ -190,7 +191,7 @@ class ChromaDBManager:
 
     def get_collection(self, collection_name: str, embedding_function):
         return self.vector_db.get_collection(
-            collection_name, CustomOpenAIEmbeddings(openai_api_key=aiosettings.openai_api_key)
+            collection_name, CustomOpenAIEmbeddings(openai_api_key=aiosettings.openai_api_key.get_secret_value())
         )
 
     def initialize_database(self, pdf_path: str, collection_name: str, debug: bool = False):
@@ -203,7 +204,7 @@ class ChromaDBManager:
             print("Split Documents Data:", split_documents_data)
 
         self.collection = self.vector_db.add_collection(
-            collection_name, CustomOpenAIEmbeddings(openai_api_key=aiosettings.openai_api_key)
+            collection_name, CustomOpenAIEmbeddings(openai_api_key=aiosettings.openai_api_key.get_secret_value())
         )
         self.vector_db.add_chunks(split_documents_data)
 
@@ -211,7 +212,7 @@ class ChromaDBManager:
 
     def delete_collection(self, collection_name: str):
         self.collection = self.vector_db.get_collection(
-            collection_name, CustomOpenAIEmbeddings(openai_api_key=aiosettings.openai_api_key)
+            collection_name, CustomOpenAIEmbeddings(openai_api_key=aiosettings.openai_api_key.get_secret_value())
         )
         if self.collection:
             self.vector_db.chroma_client.delete_collection(collection_name)
@@ -221,7 +222,7 @@ class ChromaDBManager:
 
     def query_database(self, query_text: str, collection_name: str, debug: bool = False):
         collection = self.get_collection(
-            collection_name, CustomOpenAIEmbeddings(openai_api_key=aiosettings.openai_api_key)
+            collection_name, CustomOpenAIEmbeddings(openai_api_key=aiosettings.openai_api_key.get_secret_value())
         )
         query_context, prompt = query_database(collection, query_text)
 

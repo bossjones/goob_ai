@@ -1,15 +1,19 @@
+# pylint: disable=no-member
 # sourcery skip: docstrings-for-classes
 from __future__ import annotations
 
 import logging
 
+from langchain.pydantic_v1 import BaseModel
 from langchain.schema.runnable import ConfigurableField, Runnable, RunnableBranch, RunnableLambda, RunnableMap
 from langchain_openai import ChatOpenAI
 from loguru import logger as LOGGER
 from openai import Client
-from pydantic import BaseModel
 
 from goob_ai.aio_settings import aiosettings
+
+
+# from pydantic import BaseModel
 
 
 class LlmManager(BaseModel):
@@ -52,7 +56,7 @@ class VisionModel(BaseModel):
         #     max_tokens=900,
         #     temperature=aiosettings.llm_temperature,
         # )
-        self.vision_api = Client(api_key=aiosettings.openai_api_key)
+        self.vision_api = Client(api_key=aiosettings.openai_api_key.get_secret_value())
 
     # Pydantic doesn't seem to know the types to handle AzureOpenAI, so we need to tell it to allow arbitrary types
     class Config:

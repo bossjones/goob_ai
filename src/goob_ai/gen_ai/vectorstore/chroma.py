@@ -6,10 +6,10 @@ import glob
 from pathlib import Path
 
 from langchain.document_loaders import PyMuPDFLoader
+from langchain.pydantic_v1 import BaseModel, Field
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.embeddings.sentence_transformer import SentenceTransformerEmbeddings
 from langchain_community.vectorstores.chroma import Chroma
-from pydantic import BaseModel, Field
 
 
 industry_files = {

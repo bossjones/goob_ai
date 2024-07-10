@@ -1,5 +1,5 @@
 # SOURCE: https://github.com/openai/openai-python/blob/aed1e43745cd6358b4bafd3a39b3dfeee5e31a03/.github/workflows/ci.yml
-name: CI
+name: CI-UPGRADE
 
 # SOURCE: https://github.com/tornadoweb/tornado/blob/f399f40fde0ae1b130646db783a6f79cc59231b2/.github/workflows/build.yml#L37
 on:
@@ -31,22 +31,6 @@ jobs:
   test:
     name: test
     runs-on: ubuntu-22.04
-
-    # # Service containers to run with `runner-job`
-    # services:
-    #   # Label used to access the service container
-    #   redis:
-    #     # Docker Hub image
-    #     image: redis
-    #     # Set health checks to wait until redis has started
-    #     # options: >-
-    #     #   --health-cmd "redis-cli ping"
-    #     #   --health-interval 10s
-    #     #   --health-timeout 5s
-    #     #   --health-retries 5
-    #     ports:
-    #       # Maps port 7600 on service container to the host
-    #       - 7600:7600
 
     if: github.repository == 'bossjones/goob_ai'
     env:
@@ -101,57 +85,60 @@ jobs:
           curl -sSf https://rye.astral.sh/get | bash
           echo "$HOME/.rye/shims" >> $GITHUB_PATH
         env:
-          RYE_VERSION: '0.36.0'
+          RYE_VERSION: 'latest'
           RYE_INSTALL_OPTION: '--yes'
 
       - name: install tesseract
         run: |
+          # wget -qO - 'https://proget.makedeb.org/debian-feeds/prebuilt-mpr.pub' | gpg --dearmor | sudo tee /usr/share/keyrings/prebuilt-mpr-archive-keyring.gpg 1> /dev/null
+          # echo "deb [arch=all,$(dpkg --print-architecture) signed-by=/usr/share/keyrings/prebuilt-mpr-archive-keyring.gpg] https://proget.makedeb.org prebuilt-mpr $(lsb_release -cs)" | sudo tee /etc/apt/sources.list.d/prebuilt-mpr.list
+          sudo apt update
           sudo apt-get install -y tesseract-ocr tesseract-ocr-por
+          # sudo apt-get install -y tesseract-ocr tesseract-ocr-por just zsh
+          curl -fsSL https://github.com/tamasfe/taplo/releases/latest/download/taplo-full-linux-x86_64.gz | gzip -d - | sudo install -m 755 /dev/stdin /usr/local/bin/taplo
 
       - name: Run tests and collect coverage
         run: |
           cp -f env.sample .env
           rye config --set-bool behavior.use-uv=true
-          ./scripts/retry -t 4  -- rye sync --all-features
+          ./scripts/retry -t 4  -- rye sync --update-all --all-features
 
-          echo "rye run lint"
-          rye run lint
+          git diff requirements.lock > requirements.lock.diff
+          git diff requirements-dev.lock > requirements-dev.lock.diff
 
           # rye run typecheck
 
           echo "rye run python -c 'import goob_ai'"
           rye run python -c 'import goob_ai'
 
+          pip install pre-commit
+          pre-commit install
+          pre-commit autoupdate
+
+          # NOTE: just fmt
+          git ls-files '*.py' '*.ipynb' | xargs rye run pre-commit run --files
+          # pre-commit run taplo-format --all-files
+
+          # NOTE: just lint
+          pre-commit run ruff --all-files
+          # pre-commit run taplo-lint --all-files
+
+
           echo "rye run test"
           rye run test
 
-          sudo apt update
-          sudo apt-get install tree -y
-          tree
-          ls -lta
 
-      - name: Upload coverage reports to Codecov
-        uses: codecov/codecov-action@v4
-        with:
-          # token: ${{ secrets.CODECOV_TOKEN }}
-          flags: "${{ runner.os }},${{ runner.arch }},${{ env.python-version }}"
-          verbose: true
-          fail_ci_if_error: true
-          # directory: ./junit/
-          # files: ./test-results.xml,cov.xml
-          files: ./cov.xml
-          # flags: smart-tests
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
-      - name: Upload Test Results
+
+      - name: Upload Diff Of Rye Requirements
         if: '!cancelled()'
         uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
         with:
-          name: test-results-${{ env.HASH }}
+          name: rye-requirements-diff-${{ env.HASH }}
           path: |
-            .coverage
-            tools\durations\${{ runner.os }}.json
-            junit/test-results.xml
-            cov.xml
+            requirements.lock
+            requirements.lock.diff
+            requirements-dev.lock.diff
+            requirements-dev.lock
+            pyproject.toml
           retention-days: 1  # temporary, combined in aggregate below

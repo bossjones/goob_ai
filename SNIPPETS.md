@@ -130,6 +130,7 @@
 
 
 
+    # @discord.utils.cached_property # pyright: ignore[reportMissingTypeStubs]
     # @discord.utils.cached_property # pyright: ignore[reportAttributeAccessIssue]
     # def stats_webhook(self) -> discord.Webhook:
     #     wh_id, wh_token = self.aiosettings.stat_webhook

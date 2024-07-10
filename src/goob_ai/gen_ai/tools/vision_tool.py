@@ -1,7 +1,9 @@
 """goob_ai.gen_ai.tools.vision_tool: This module contains the VisionTool class for the Goob AI application."""
 
+# pylint: disable=no-member
 # mypy: disable-error-code="return"
 # mypy: disable-error-code="str-byte-safe"
+# mypy: disable-error-code="misc"
 from __future__ import annotations
 
 import base64
@@ -78,17 +80,16 @@ class VisionTool(BaseTool):
         try:
             # Initialize the Vision API client
             client: Client | None = VisionModel().vision_api
-            # client = Client(aiosettings.openai_api_key)
+            # client = Client(aiosettings.openai_api_key.get_secret_value())
             # API_BASE_URL: https://api.groq.com/openai/v1/
 
             # Initialize the discord settings
-            discord_token = aiosettings.discord_token
+            discord_token = aiosettings.discord_token.get_secret_value()
 
             # Function to download image from discord and convert to base64
             def fetch_image_from_discord(url: str) -> str | bytes | None:
-                # headers = {"Authorization": f"Bearer {discord_token}"}
                 headers = {
-                    "Authorization": f"Bot {discord_token}",
+                    "Authorization": f"Bot {discord_token.get_secret_value()}",
                     "Content-Type": "application/json",
                 }
                 # Check if the message content is a URL

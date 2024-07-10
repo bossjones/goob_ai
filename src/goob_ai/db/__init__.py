@@ -4,7 +4,8 @@ from __future__ import annotations
 
 from typing import Optional
 
-from pydantic import BaseModel
+# from pydantic import BaseModel
+from langchain.pydantic_v1 import BaseModel
 from redis.asyncio import ConnectionPool, Redis
 
 from goob_ai.aio_settings import aiosettings

@@ -58,7 +58,6 @@ class TestSettings:
             assert str(test_settings.langchain_hub_api_key) == "**********"
         assert str(test_settings.redis_url) == "redis://localhost:7600"
 
-    @pytest.mark.integration
     @pytest_asyncio.fixture
     async def test_integration_with_deleted_envs(self, monkeypatch: MonkeyPatch) -> None:
         # import bpdb

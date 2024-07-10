@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import enum
+import os
 import pathlib
 
 from pathlib import Path
@@ -27,6 +28,18 @@ from rich.console import Console
 from rich.table import Table
 from typing_extensions import Annotated, TypedDict
 from yarl import URL
+
+from goob_ai import __version__
+
+
+def goob_user_agent() -> str:
+    """Get a common user agent"""
+    return f"goob-ai/{__version__}"
+
+
+# Get rid of warning
+# USER_AGENT environment variable not set, consider setting it to identify your requests.
+os.environ["USER_AGENT"] = goob_user_agent()
 
 
 TEMP_DIR = Path(gettempdir())
@@ -168,6 +181,9 @@ class AioSettings(BaseSettings):
     redis_pass: Optional[SecretStr] = None
     redis_base: Optional[int] = None
     enable_redis: bool = False
+
+    sentry_dsn: str = ""
+    enable_sentry: bool = False
 
     # Variables for ChromaDB
 
