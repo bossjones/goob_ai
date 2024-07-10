@@ -9,11 +9,14 @@ from langchain.callbacks.manager import AsyncCallbackManagerForToolRun, Callback
 from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain.chains.retrieval import create_retrieval_chain
 from langchain.pydantic_v1 import BaseModel, Field
+from langchain.schema import Document
 from langchain.tools import BaseTool
 from langchain.tools.base import ToolException
 from langchain_chroma import Chroma
 from langchain_core.callbacks import AsyncCallbackManagerForToolRun, CallbackManagerForToolRun
+from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.runnables import Runnable, RunnableParallel, RunnablePassthrough, RunnableSerializable
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 from loguru import logger as LOGGER
 
@@ -23,6 +26,57 @@ from goob_ai.services.chroma_service import ChromaService
 
 RETRIEVAL_QA_CHAT_PROMPT: ChatPromptTemplate = hub.pull("langchain-ai/retrieval-qa-chat")
 RAG_PROMPT: ChatPromptTemplate = hub.pull("rlm/rag-prompt")
+
+
+def format_docs(docs: List[Document]):
+    return "\n\n".join(doc.page_content for doc in docs)
+
+
+#####################################################################
+# OUTPUT:
+#####################################################################
+# RETRIEVAL_QA_CHAT_PROMPT = {
+#     'name': None,
+#     'input_variables': ['context', 'input'],
+#     'optional_variables': ['chat_history'],
+#     'input_types': {
+#         'chat_history': typing.List[typing.Union[langchain_core.messages.ai.AIMessage, langchain_core.messages.human.HumanMessage, langchain_core.messages.chat.ChatMessage,
+# langchain_core.messages.system.SystemMessage, langchain_core.messages.function.FunctionMessage, langchain_core.messages.tool.ToolMessage]]
+#     },
+#     'output_parser': None,
+#     'partial_variables': {'chat_history': []},
+#     'metadata': {'lc_hub_owner': 'langchain-ai', 'lc_hub_repo': 'retrieval-qa-chat', 'lc_hub_commit_hash': 'b60afb6297176b022244feb83066e10ecadcda7b90423654c4a9d45e7a73cebc'},
+#     'tags': None,
+#     'messages': [
+#         SystemMessagePromptTemplate(prompt=PromptTemplate(input_variables=['context'], template='Answer any use questions based solely on the context below:\n\n<context>\n{context}\n</context>')),
+#         MessagesPlaceholder(variable_name='chat_history', optional=True),
+#         HumanMessagePromptTemplate(prompt=PromptTemplate(input_variables=['input'], template='{input}'))
+#     ],
+#     'validate_template': False
+# }
+
+# >>> rich.print(RAG_PROMPT.__dict__)
+# {
+#     'name': None,
+#     'input_variables': ['context', 'question'],
+#     'optional_variables': [],
+#     'input_types': {},
+#     'output_parser': None,
+#     'partial_variables': {},
+#     'metadata': {'lc_hub_owner': 'rlm', 'lc_hub_repo': 'rag-prompt', 'lc_hub_commit_hash': '50442af133e61576e74536c6556cefe1fac147cad032f4377b60c436e6cdcb6e'},
+#     'tags': None,
+#     'messages': [
+#         HumanMessagePromptTemplate(
+#             prompt=PromptTemplate(
+#                 input_variables=['context', 'question'],
+#                 template="You are an assistant for question-answering tasks. Use the following pieces of retrieved context to answer the question. If you don't know the answer, just say that you don't
+# know. Use three sentences maximum and keep the answer concise.\nQuestion: {question} \nContext: {context} \nAnswer:"
+#             )
+#         )
+#     ],
+#     'validate_template': False
+# }
+# >>>
 
 
 # from langchain.chains.retrieval_qa.base import RetrievalQA
@@ -146,6 +200,11 @@ RAG_PROMPT: ChatPromptTemplate = hub.pull("rlm/rag-prompt")
 #     TOOL_ACTIONS[cls.name] = cls.action_label
 
 
+# Add typing for input
+class Question(BaseModel):
+    __root__: str
+
+
 class BaseChromaDBTool(BaseModel):
     """Base tool for interacting with Chroma."""
 
@@ -175,7 +234,7 @@ class BaseChromaDBTool(BaseModel):
 
 
 class ReadTheDocsQASchema(BaseModel):
-    user_question: str = Field(
+    question: str = Field(
         description="A question to ask about a readthedocs pdf. Cannot be empty. Must be a question abount opencv, rich, or Pillow."
     )
     # paper_id: str = Field(description="Substring of the Name of the paper to query")
@@ -188,7 +247,7 @@ class ReadTheDocsQATool(BaseChromaDBTool, BaseTool):
     # Describes what the tool does. Used as context by the LLM or agent.
     # description = "Ask a question about the contents of a ReadTheDocs pdf for python modules opencv, rich, and Pillow. Primary source of factual information for a pdf. Don't include pdf ID/URL in the question."
 
-    description: str = "You must use this tool for any questions or queries related to opencv, rich, and Pillow or substrings of it. This will return documents that are related to the user's question. The documents may not be always relevant to the user's question. If you use any of the documents returned to provide a helpful answer to user_question, please make sure to also return a valid URL of the document you used."
+    description: str = "You must use this tool for any questions or queries related to opencv, rich, and Pillow or substrings of it. This will return documents that are related to the user's question. The documents may not be always relevant to the user's question. If you use any of the documents returned to provide a helpful answer to question, please make sure to also return a valid URL of the document you used."
     # Optional but recommended, can be used to provide more information (e.g., few-shot examples) or validation for expected parameters
     args_schema: Type[ReadTheDocsQASchema] = ReadTheDocsQASchema
     # Only relevant for agents. When True, after invoking the given tool, the agent will stop and return the result direcly to the user.
@@ -215,21 +274,25 @@ class ReadTheDocsQATool(BaseChromaDBTool, BaseTool):
     # Uses LLM for QA retrieval chain prompting
     # Vectorstore for embeddings of currently loaded PDFs
 
-    def _run(self, user_question: str, run_manager: Optional[CallbackManagerForToolRun] = None) -> str:
+    def _run(self, question: str, run_manager: Optional[CallbackManagerForToolRun] = None) -> str:
         """Use the tool."""
         # self.load_paper(paper_id)
+        import bpdb
+
+        bpdb.set_trace()
         try:
             qa = self._make_qa_chain()
-            answer = qa.invoke({"input": user_question})
-            # answer = qa.run(user_question)
+            answer = qa.invoke({"input": question})
+            # answer = qa.invoke({"question": question})
+            # answer = qa.run(question)
             LOGGER.debug(f"Answer: {answer}")
         except Exception as e:
-            LOGGER.error(f"Error invoking flex checks http api: {e}")
-            raise ToolException("Error invoking flex checks http api!") from e
+            LOGGER.error(f"Error invoking {self.name}: {e}")
+            raise ToolException(f"Error invoking {self.name}!") from e
 
         return answer
 
-    async def _arun(self, user_question: str, run_manager: Optional[AsyncCallbackManagerForToolRun] = None) -> str:
+    async def _arun(self, question: str, run_manager: Optional[AsyncCallbackManagerForToolRun] = None) -> str:
         """Use the tool asynchronously."""
         # If the calculation is cheap, you can just delegate to the sync implementation
         # as shown below.
@@ -238,7 +301,7 @@ class ReadTheDocsQATool(BaseChromaDBTool, BaseTool):
         # kick off the task in a thread to make sure it doesn't block other async code.
         # await self.aload_paper(paper_id)
         qa = self._make_qa_chain()
-        return qa.invoke({"input": user_question}, run_manager=run_manager.get_sync())
+        return qa.invoke({"question": question}, run_manager=run_manager.get_sync())
 
     # def _setup(self):
     #     self.hub_prompt = RAG_PROMPT
@@ -261,8 +324,42 @@ class ReadTheDocsQATool(BaseChromaDBTool, BaseTool):
         # model = LlmManager().llm
 
         retriever = self.db.as_retriever()
-        combine_docs_chain = create_stuff_documents_chain(self.llm, RAG_PROMPT)
-        retrieval_chain = create_retrieval_chain(retriever, combine_docs_chain)
+        # NOTE: This looks like the future but we're going to use the old school way
+        ####################################################################################
+        # combine_docs_chain = create_stuff_documents_chain(self.llm, RAG_PROMPT)
+        # retrieval_chain = create_retrieval_chain(retriever, combine_docs_chain)
+        ####################################################################################
+
+        # RAG chain
+        chain = (
+            RunnableParallel({"context": retriever, "question": RunnablePassthrough()})
+            | RAG_PROMPT
+            | self.llm
+            | StrOutputParser()
+        )
+
+        # >>> chain
+        # ReadTheDocsQATool(db=<langchain_chroma.vectorstores.Chroma object at 0x1713777f0>, llm=ChatOpenAI(client=<openai.resources.chat.completions.Completions object at 0x17154ab30>, async_client=<openai.reso
+        # urces.chat.completions.AsyncCompletions object at 0x171564250>, model_name='gpt-4o-2024-05-13', temperature=0.1, openai_api_key=SecretStr('**********'), openai_proxy='', streaming=True))
+        # >>> qa = rtd_tool._make_qa_chain()
+        # >>> qa
+        # {
+        #   context: VectorStoreRetriever(tags=['Chroma', 'OpenAIEmbeddings'], vectorstore=<langchain_chroma.vectorstores.Chroma object at 0x1713777f0>),
+        #   question: RunnablePassthrough()
+        # }
+        # | ChatPromptTemplate(input_variables=['context', 'question'], metadata={'lc_hub_owner': 'rlm', 'lc_hub_repo': 'rag-prompt', 'lc_hub_commit_hash': '50442af133e61576e74536c6556cefe1fac147cad032f4377b60c4
+        # 36e6cdcb6e'}, messages=[HumanMessagePromptTemplate(prompt=PromptTemplate(input_variables=['context', 'question'], template="You are an assistant for question-answering tasks. Use the following pieces o
+        # f retrieved context to answer the question. If you don't know the answer, just say that you don't know. Use three sentences maximum and keep the answer concise.\nQuestion: {question} \nContext: {contex
+        # t} \nAnswer:"))])
+        # | ChatOpenAI(client=<openai.resources.chat.completions.Completions object at 0x17154ab30>, async_client=<openai.resources.chat.completions.AsyncCompletions object at 0x171564250>, model_name='gpt-4o-20
+        # 24-05-13', temperature=0.1, openai_api_key=SecretStr('**********'), openai_proxy='', streaming=True)
+        # | StrOutputParser()
+        # >>> type(qa)
+        # <class 'langchain_core.runnables.base.RunnableSequence'>
+        # >>>
+
+        # import bpdb
+        # bpdb.set_trace()
 
         # question_answer_chain = create_stuff_documents_chain(
         #     self.model,
@@ -274,4 +371,4 @@ class ReadTheDocsQATool(BaseChromaDBTool, BaseTool):
         # )
         # question_answer_chain = create_stuff_documents_chain(self.llm, self.hub_prompt)
         # return create_retrieval_chain(retriever, question_answer_chain)
-        return retrieval_chain
+        return chain

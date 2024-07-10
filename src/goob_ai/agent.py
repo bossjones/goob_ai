@@ -110,10 +110,11 @@ class AiAgent:
 
     def init_tools(self):
         self.custom_tools: Union[list[BaseTool], list[Any]] | None = [VisionTool()]
+        embeddings = OpenAIEmbeddings()
         db = Chroma(
             client=ChromaService.client,
             collection_name="readthedocs",
-            embedding_function=OpenAIEmbeddings(),
+            embedding_function=embeddings,
         )
         llm = llm_manager.LlmManager().llm
         rtd_tool = ReadTheDocsQATool(db=db, llm=llm)
