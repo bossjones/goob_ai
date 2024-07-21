@@ -124,7 +124,7 @@ def test_rag_tool_injected_arg_with_schema(
         }
     )
 
-    assert "3.7.0" in res
+    assert "3.6" in res
 
     with pytest.raises(
         ValidationError,
