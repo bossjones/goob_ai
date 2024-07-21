@@ -114,18 +114,6 @@ def test_tool_injected_arg_with_schema(
     with pytest.raises(ValidationError, match=r".*2 validation errors for VisionToolInput.*") as excinfo:
         tool_.invoke({"x": 5})
 
-        errs = [i.message for i in caplog.records if i.levelno == logging.ERROR]
-        assert (
-            "An error occurred, method: POST, response status: 500, url: mock://test.com/v1/ask, Exception Type: <class 'requests.exceptions.HTTPError'>, Exception: <500 Server Error: Internal Server Error for url: mock://test.com/v1/ask>, response headers: {'x-request-id': 'my-fake-uuid-for-pytest'}, response body: b'Internal Server Error'"
-            in errs
-        )
-        assert (
-            "Error calling FlexUnifiedSupportTool.call(yo what's up with this 500 in unified_support_tool), payload: {'question': \"yo what's up with this 500 in unified_support_tool\"}"
-            in errs
-        )
-
-        assert "maximum recursion" in str(e.value)
-
     assert convert_to_openai_function(tool_) == {
         "name": "vision_api",
         "description": "This tool calls OpenAI's Vision API to get more information about an image given a URL to an image file.",
