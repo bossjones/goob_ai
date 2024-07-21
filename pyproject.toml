@@ -216,6 +216,7 @@ dev-dependencies = [
     "pytest-aiohttp>=1.0.5",
     "pytest-skip-slow>=0.0.5",
     "pytest-vcr>=1.0.2",
+    "pytest-clarity>=1.0.1",
 ]
 
 [tool.rye.scripts]
@@ -244,7 +245,7 @@ typecheck = {chain = [
 "sourcery:hub" = "sourcery hub"
 "ci:mypy" = "mypy  --config-file=pyproject.toml --html-report typingcov ."
 "open:mypy-coverage" = " open typingcov/index.html"
-unittests-debug = {cmd = "pytest --verbose --pdb --pdbcls bpdb:BPdb --showlocals --tb=short --cov-append --cov-report=term-missing --junitxml=junit/test-results.xml --cov-report=xml:cov.xml --cov-report=html:htmlcov --cov-report=annotate:cov_annotate --cov=."}
+unittests-debug = {cmd = "pytest -vv --diff-width=60 --diff-symbols --pdb --pdbcls bpdb:BPdb --showlocals --tb=short --cov-append --cov-report=term-missing --junitxml=junit/test-results.xml --cov-report=xml:cov.xml --cov-report=html:htmlcov --cov-report=annotate:cov_annotate --cov=."}
 unittests = {cmd = "pytest --verbose --showlocals --tb=short --cov-append --cov-report=term-missing --junitxml=junit/test-results.xml --cov-report=xml:cov.xml --cov-report=html:htmlcov --cov-report=annotate:cov_annotate --cov=."}
 test-simple = {cmd = "pytest -p no:warnings"}
 simple-test = {cmd = "pytest -p no:warnings"}
@@ -406,6 +407,7 @@ markers = [
     "skip_in_parallel: marks tests that should be run in serial only (deselect with '-m \"not skip_in_parallel\"')",
     "slow: marks tests as slow (run with '-m slow')",
     "toolonly: marks tests that run code that utilizes a Custom Langchain tool module in the tools directory (deselect with '-m \"not toolonly\"')",
+    "visiontoolonly: marks tests that run code that utilizes vision_tool.py (deselect with '-m \"not visiontoolonly\"')",
     "toolonly: marks tests that run code that utilizes llm tool classes  (deselect with '-m \"not toolonly\"')",
     "unittest: marks tests dealing with unittest (deselect with '-m \"not unittest\"')",
     "vectorstoronly: marks tests that run code that utilizes the flex_vector_store_tool module (deselect with '-m \"not vectorstoronly\"')",

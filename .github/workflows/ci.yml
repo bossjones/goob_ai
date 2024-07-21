@@ -52,6 +52,16 @@ jobs:
     env:
       OS: ubuntu-22.04
       PYTHON: '3.10'
+      LANGCHAIN_ENDPOINT: "https://api.smith.langchain.com"
+      LANGCHAIN_TRACING_V2: true
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      LANGCHAIN_API_KEY: ${{ secrets.LANGCHAIN_API_KEY }}
+      # Update with your API URL if using a hosted instance of Langsmith.
+      LANGCHAIN_HUB_API_URL: "https://api.hub.langchain.com"
+      LANGCHAIN_HUB_API_KEY: ${{ secrets.LANGCHAIN_API_KEY }}
+      LANGCHAIN_PROJECT: "goob-ci"
+      GOOB_AI_CONFIG_DISCORD_TOKEN: "foo"
+      GOOB_AI_CONFIG_OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
     steps:
 
       - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
@@ -108,7 +118,24 @@ jobs:
         run: |
           sudo apt-get install -y tesseract-ocr tesseract-ocr-por
 
+      # # http://127.0.0.1:19000/vision_api_fixture.PNG
+      # - name: start httpserver for vision_api testing
+      #   run: |
+      #     python -m http.server --bind localhost 19000 -d ./tests/fixtures &
+
+
       - name: Run tests and collect coverage
+        env:
+          LANGCHAIN_ENDPOINT: "https://api.smith.langchain.com"
+          LANGCHAIN_TRACING_V2: true
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          LANGCHAIN_API_KEY: ${{ secrets.LANGCHAIN_API_KEY }}
+          # Update with your API URL if using a hosted instance of Langsmith.
+          LANGCHAIN_HUB_API_URL: "https://api.hub.langchain.com"
+          LANGCHAIN_HUB_API_KEY: ${{ secrets.LANGCHAIN_API_KEY }}
+          LANGCHAIN_PROJECT: "goob-ci"
+          GOOB_AI_CONFIG_DISCORD_TOKEN: "foo"
+          GOOB_AI_CONFIG_OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: |
           cp -f env.sample .env
           rye config --set-bool behavior.use-uv=true

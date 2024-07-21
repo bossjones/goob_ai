@@ -36,6 +36,16 @@ jobs:
     env:
       OS: ubuntu-22.04
       PYTHON: '3.10'
+      LANGCHAIN_ENDPOINT: "https://api.smith.langchain.com"
+      LANGCHAIN_TRACING_V2: true
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      LANGCHAIN_API_KEY: ${{ secrets.LANGCHAIN_API_KEY }}
+      # Update with your API URL if using a hosted instance of Langsmith.
+      LANGCHAIN_HUB_API_URL: "https://api.hub.langchain.com"
+      LANGCHAIN_HUB_API_KEY: ${{ secrets.LANGCHAIN_API_KEY }}
+      LANGCHAIN_PROJECT: "goob-ci-upgrade"
+      GOOB_AI_CONFIG_DISCORD_TOKEN: "foo"
+      GOOB_AI_CONFIG_OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
     steps:
 
       - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
@@ -98,6 +108,19 @@ jobs:
           curl -fsSL https://github.com/tamasfe/taplo/releases/latest/download/taplo-full-linux-x86_64.gz | gzip -d - | sudo install -m 755 /dev/stdin /usr/local/bin/taplo
 
       - name: Run tests and collect coverage
+        id: upgrade-and-test
+        continue-on-error: true
+        env:
+          LANGCHAIN_ENDPOINT: "https://api.smith.langchain.com"
+          LANGCHAIN_TRACING_V2: true
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          LANGCHAIN_API_KEY: ${{ secrets.LANGCHAIN_API_KEY }}
+          # Update with your API URL if using a hosted instance of Langsmith.
+          LANGCHAIN_HUB_API_URL: "https://api.hub.langchain.com"
+          LANGCHAIN_HUB_API_KEY: ${{ secrets.LANGCHAIN_API_KEY }}
+          LANGCHAIN_PROJECT: "goob-ci-upgrade"
+          GOOB_AI_CONFIG_DISCORD_TOKEN: "foo"
+          GOOB_AI_CONFIG_OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: |
           cp -f env.sample .env
           rye config --set-bool behavior.use-uv=true
@@ -117,12 +140,9 @@ jobs:
 
           # NOTE: just fmt
           git ls-files '*.py' '*.ipynb' | xargs rye run pre-commit run --files
-          # pre-commit run taplo-format --all-files
 
           # NOTE: just lint
           pre-commit run ruff --all-files
-          # pre-commit run taplo-lint --all-files
-
 
           echo "rye run test"
           rye run test

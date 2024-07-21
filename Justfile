@@ -124,3 +124,17 @@ upgrade-dry-run:
 
 sync-upgrade-all:
 	rye sync --update-all --all-features
+
+http-server-background:
+	#!/bin/bash
+	# _PID=$(pgrep -f " -m http.server --bind localhost 19000 -d ./tests/fixtures")
+	pkill -f " -m http.server --bind localhost 19000 -d ./tests/fixtures"
+	python3 -m http.server --bind localhost 19000 -d ./tests/fixtures &
+	echo $! > PATH.PID
+
+http-server:
+	#!/bin/bash
+	# _PID=$(pgrep -f " -m http.server --bind localhost 19000 -d ./tests/fixtures")
+	pkill -f " -m http.server --bind localhost 19000 -d ./tests/fixtures"
+	python3 -m http.server --bind localhost 19000 -d ./tests/fixtures
+	echo $! > PATH.PID

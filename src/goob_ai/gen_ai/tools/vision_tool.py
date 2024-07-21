@@ -29,6 +29,13 @@ from goob_ai.clients.http_client import HttpClient
 from goob_ai.llm_manager import VisionModel
 
 
+DISCORD_URL_PATTERN = r"https?://media\.discordapp\.net/.*"
+
+
+def get_pattern() -> str:
+    return DISCORD_URL_PATTERN
+
+
 # SOURCE: https://github.com/BiscuitBobby/orchestrator/blob/11e9bc08ea80b2581a50383554f9669131ed13d3/Functions/discord_message.py#L46
 # def download_discord_images_via_api(url):
 #     url = 'https://discord.com/api/v9/users/@me/channels'
@@ -56,8 +63,8 @@ class VisionToolInput(BaseModel):
 
 
 class VisionTool(BaseTool):
-    name = "vision_api"
-    description = (
+    name: str = "vision_api"
+    description: str = (
         "This tool calls OpenAI's Vision API to get more information about an image given a URL to an image file."
     )
     args_schema: Type[BaseModel] = VisionToolInput
@@ -83,13 +90,13 @@ class VisionTool(BaseTool):
             # client = Client(aiosettings.openai_api_key.get_secret_value())
             # API_BASE_URL: https://api.groq.com/openai/v1/
 
-            # Initialize the discord settings
             discord_token = aiosettings.discord_token.get_secret_value()
 
             # Function to download image from discord and convert to base64
             def fetch_image_from_discord(url: str) -> str | bytes | None:
+                # Initialize the discord settings
                 headers = {
-                    "Authorization": f"Bot {discord_token.get_secret_value()}",
+                    "Authorization": f"Bot {discord_token}",
                     "Content-Type": "application/json",
                 }
                 # Check if the message content is a URL
@@ -107,7 +114,8 @@ class VisionTool(BaseTool):
                     raise ToolException(f"Failed to download image from discord. Status code: {response.status_code}")
 
             print("Breakpoint 2")
-            discord_url_pattern = r"https?://media\.discordapp\.net/.*"
+            discord_url_pattern = get_pattern()
+            LOGGER.debug(f"discord_url_pattern = {discord_url_pattern}")
             is_discord_url = re.match(discord_url_pattern, image_path) is not None
             if is_discord_url and discord_token:
                 LOGGER.info("Found an image in query!")
