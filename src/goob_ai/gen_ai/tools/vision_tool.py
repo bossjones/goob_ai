@@ -90,12 +90,13 @@ class VisionTool(BaseTool):
             # client = Client(aiosettings.openai_api_key.get_secret_value())
             # API_BASE_URL: https://api.groq.com/openai/v1/
 
+            discord_token = aiosettings.discord_token.get_secret_value()
+
             # Function to download image from discord and convert to base64
             def fetch_image_from_discord(url: str) -> str | bytes | None:
                 # Initialize the discord settings
-                discord_token = aiosettings.discord_token.get_secret_value()
                 headers = {
-                    "Authorization": f"Bot {discord_token.get_secret_value()}",
+                    "Authorization": f"Bot {discord_token}",
                     "Content-Type": "application/json",
                 }
                 # Check if the message content is a URL
