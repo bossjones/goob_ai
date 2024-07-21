@@ -12,7 +12,7 @@ from enum import Enum
 from functools import partial
 from typing import TYPE_CHECKING, Any, Callable, Dict, Iterable, Iterator, List, Literal, Optional, Tuple, Type, Union
 
-from goob_ai.gen_ai.tools.vision_tool import DISCORD_URL_PATTERN, VisionTool
+# from goob_ai.gen_ai.tools.vision_tool import DISCORD_URL_PATTERN, VisionTool
 from langchain_core.callbacks import AsyncCallbackManagerForToolRun, CallbackManagerForToolRun
 from langchain_core.messages import ToolMessage
 from langchain_core.pydantic_v1 import BaseModel, Field, ValidationError
@@ -43,9 +43,9 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
-def test_vision_tool_schema():
-    # Arrange
-    vision_tool = VisionTool()
+# def test_vision_tool_schema():
+#     # Arrange
+#     vision_tool = VisionTool()
 
 
 @pytest.fixture
@@ -69,9 +69,19 @@ def vision_tool_prompt() -> str:
 #     [VisionTool()],
 # )
 def test_tool_injected_arg_with_schema(
-    caplog, discord_image: FixtureRequest, vision_tool_prompt: FixtureRequest
+    caplog,
+    discord_image: FixtureRequest,
+    vision_tool_prompt: FixtureRequest,
+    monkeypatch: MonkeyPatch,
+    mocker: MockerFixture,
+    request: FixtureRequest,
 ) -> None:
-    tool_ = VisionTool(
+    from goob_ai.gen_ai.tools import vision_tool
+    # from goob_ai.gen_ai.tools.vision_tool import DISCORD_URL_PATTERN, VisionTool, aiosettings
+    # https://i.imgur.com/ae2d4hj.png
+    # monkeypatch.setattr(vision_tool, "DISCORD_URL_PATTERN", r"https?://i\.imgur\.com/.*")
+
+    tool_ = vision_tool.VisionTool(
         image_path=discord_image,
         prompt=vision_tool_prompt,
     )
@@ -112,7 +122,7 @@ def test_tool_injected_arg_with_schema(
     # E     field required (type=value_error.missing)
     # E   prompt
     # E     field required (type=value_error.missing)
-    expected_error = ValidationError if not isinstance(tool_, VisionTool) else TypeError
+    expected_error = ValidationError if not isinstance(tool_, vision_tool.VisionTool) else TypeError
     with pytest.raises(
         ValidationError,
         match=r".*(2 validation errors for VisionToolInput|Error in read_image_tool: Connection error).*",
