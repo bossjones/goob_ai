@@ -126,6 +126,8 @@ jobs:
           rye config --set-bool behavior.use-uv=true
           ./scripts/retry -t 4  -- rye sync --update-all --all-features
 
+          rye run goobctl chroma generate
+
           git diff requirements.lock > requirements.lock.diff
           git diff requirements-dev.lock > requirements-dev.lock.diff
 

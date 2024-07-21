@@ -12,7 +12,6 @@ from enum import Enum
 from functools import partial
 from typing import TYPE_CHECKING, Any, Callable, Dict, Iterable, Iterator, List, Literal, Optional, Tuple, Type, Union
 
-# from goob_ai.gen_ai.tools.vision_tool import DISCORD_URL_PATTERN, VisionTool
 from langchain_core.callbacks import AsyncCallbackManagerForToolRun, CallbackManagerForToolRun
 from langchain_core.messages import ToolMessage
 from langchain_core.pydantic_v1 import BaseModel, Field, ValidationError
@@ -77,7 +76,6 @@ def test_tool_injected_arg_with_schema(
     request: FixtureRequest,
 ) -> None:
     from goob_ai.gen_ai.tools import vision_tool
-    # from goob_ai.gen_ai.tools.vision_tool import DISCORD_URL_PATTERN, VisionTool, aiosettings
     # https://i.imgur.com/ae2d4hj.png
     # monkeypatch.setattr(vision_tool, "DISCORD_URL_PATTERN", r"https?://i\.imgur\.com/.*")
 
