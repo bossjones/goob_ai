@@ -12,7 +12,7 @@ from enum import Enum
 from functools import partial
 from typing import TYPE_CHECKING, Any, Callable, Dict, Iterable, Iterator, List, Literal, Optional, Tuple, Type, Union
 
-from goob_ai.gen_ai.tools.vision_tool import VisionTool
+from goob_ai.gen_ai.tools.vision_tool import DISCORD_URL_PATTERN, VisionTool
 from langchain_core.callbacks import AsyncCallbackManagerForToolRun, CallbackManagerForToolRun
 from langchain_core.messages import ToolMessage
 from langchain_core.pydantic_v1 import BaseModel, Field, ValidationError
@@ -50,7 +50,9 @@ def test_vision_tool_schema():
 
 @pytest.fixture
 def discord_image() -> str:
-    return "https://cdn.discordapp.com/attachments/1237526936201334804/1264394713868406845/20240720_1_screenshot_image_larger00009.PNG?ex=669db6d7&is=669c6557&hm=d1bfe1131eb4938949ca4645de73ee51a36aca7d2ef8cbb83f3b3c7bb33eab57&"
+    return "https://i.imgur.com/ae2d4hj.png"
+    # return "http://127.0.0.1:19000/vision_api_fixture.PNG"
+    # return "https://cdn.discordapp.com/attachments/1237526936201334804/1264394713868406845/20240720_1_screenshot_image_larger00009.PNG?ex=669db6d7&is=669c6557&hm=d1bfe1131eb4938949ca4645de73ee51a36aca7d2ef8cbb83f3b3c7bb33eab57&"
 
 
 @pytest.fixture

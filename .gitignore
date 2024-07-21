@@ -364,3 +364,4 @@ temp/
 rtdocs
 notebooks/chroma_db
 notebooks/chroma
+PATH.PID
