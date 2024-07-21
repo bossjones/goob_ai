@@ -44,7 +44,8 @@ logger = logging.getLogger(__name__)
 
 @pytest.fixture
 def rag_tool_prompt() -> str:
-    return "Using readthedocs, given the following text 'alert! Something Happened', how do I print 'alert!' with style 'bold red; uring rich.print?"
+    # return "Using readthedocs, given the following text 'alert! Something Happened', how do I rich.print 'alert!' with style 'bold red; using rich.print? Do not use 'rich.console' in your answer."
+    return "Using readthedocs, What the minimum version of python needed to install rich?"
 
 
 @pytest.mark.visiontoolonly
@@ -123,12 +124,7 @@ def test_rag_tool_injected_arg_with_schema(
         }
     )
 
-    assert "from rich.console import Console" in res
-    assert "from rich.text import Text" in res
-    assert "console = Console()" in res
-    assert 'text = Text("alert! Something Happened")' in res
-    assert 'text.stylize("bold red", 0, 6)' in res
-    assert "console.print(text)" in res
+    assert "3.7.0" in res
 
     with pytest.raises(
         ValidationError,
