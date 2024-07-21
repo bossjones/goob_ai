@@ -66,7 +66,9 @@ def vision_tool_prompt() -> str:
 #     "tool_",
 #     [VisionTool()],
 # )
-def test_tool_injected_arg_with_schema(discord_image: FixtureRequest, vision_tool_prompt: FixtureRequest) -> None:
+def test_tool_injected_arg_with_schema(
+    caplog, discord_image: FixtureRequest, vision_tool_prompt: FixtureRequest
+) -> None:
     tool_ = VisionTool(
         image_path=discord_image,
         prompt=vision_tool_prompt,
@@ -101,9 +103,28 @@ def test_tool_injected_arg_with_schema(discord_image: FixtureRequest, vision_too
     assert "@HowFarCanWeFall" in res
     assert "Too fine. Blocked" in res
 
+    # validation_error = ValidationError(model='VisionToolInput', errors=[{'loc': ('image_path',), 'msg': 'field required', 'type': 'value_error.missing'}, {'loc': ('prompt',), 'msg': 'field required', 'type': 'value_error.missing'}])
+
+    # E   pydantic.v1.error_wrappers.ValidationError: 2 validation errors for VisionToolInput
+    # E   image_path
+    # E     field required (type=value_error.missing)
+    # E   prompt
+    # E     field required (type=value_error.missing)
     expected_error = ValidationError if not isinstance(tool_, VisionTool) else TypeError
-    with pytest.raises(expected_error):
+    with pytest.raises(ValidationError, match=r".*2 validation errors for VisionToolInput.*") as excinfo:
         tool_.invoke({"x": 5})
+
+        errs = [i.message for i in caplog.records if i.levelno == logging.ERROR]
+        assert (
+            "An error occurred, method: POST, response status: 500, url: mock://test.com/v1/ask, Exception Type: <class 'requests.exceptions.HTTPError'>, Exception: <500 Server Error: Internal Server Error for url: mock://test.com/v1/ask>, response headers: {'x-request-id': 'my-fake-uuid-for-pytest'}, response body: b'Internal Server Error'"
+            in errs
+        )
+        assert (
+            "Error calling FlexUnifiedSupportTool.call(yo what's up with this 500 in unified_support_tool), payload: {'question': \"yo what's up with this 500 in unified_support_tool\"}"
+            in errs
+        )
+
+        assert "maximum recursion" in str(e.value)
 
     assert convert_to_openai_function(tool_) == {
         "name": "vision_api",
