@@ -141,6 +141,8 @@ jobs:
           rye config --set-bool behavior.use-uv=true
           ./scripts/retry -t 4  -- rye sync --all-features
 
+          rye run goobctl chroma generate
+
           echo "rye run lint"
           rye run lint
 

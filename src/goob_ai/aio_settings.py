@@ -197,7 +197,7 @@ class AioSettings(BaseSettings):
     # openai_api_version: str
     # azure_deployment: str
     # azure_openai_endpoint: str
-    llm_temperature: float = 0.1
+    llm_temperature: float = 0.0
     # vision_model: str = "gpt-4-turbo"
     vision_model: str = "gpt-4-vision-preview"
     chat_model: str = "gpt-4o-2024-05-13"
