@@ -56,8 +56,8 @@ class VisionToolInput(BaseModel):
 
 
 class VisionTool(BaseTool):
-    name = "vision_api"
-    description = (
+    name: str = "vision_api"
+    description: str = (
         "This tool calls OpenAI's Vision API to get more information about an image given a URL to an image file."
     )
     args_schema: Type[BaseModel] = VisionToolInput
