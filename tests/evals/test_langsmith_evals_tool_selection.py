@@ -1,6 +1,10 @@
 """Eval tests for Tool Selection Evaluation. See more: https://docs.smith.langchain.com/old/cookbook/testing-examples/tool-selection"""
 
-# pylint: disable=E1121
+# pylint: disable=too-many-function-args
+# mypy: disable-error-code="arg-type, var-annotated, list-item, no-redef, truthy-bool, return-value"
+# pyright: reportPrivateImportUsage=false
+# pyright: reportGeneralTypeIssues=false
+# pyright: reportAttributeAccessIssue=false
 # mypy: disable-error-code="arg-type, var-annotated, list-item, no-redef"
 from __future__ import annotations
 
