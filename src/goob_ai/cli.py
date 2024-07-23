@@ -58,6 +58,8 @@ from goob_ai.utils import repo_typing
 from goob_ai.utils.file_functions import fix_path
 
 
+LOGGER.disable("sentry_sdk")
+
 # # Use the following to enable the debugger
 # from IPython.terminal.debugger import TerminalPdb  # noqa
 # sys.excepthook = TerminalPdb(

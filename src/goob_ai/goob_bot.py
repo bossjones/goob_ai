@@ -1312,6 +1312,8 @@ class AsyncGoobBot(commands.Bot):
         return True
 
     async def handle_message_from_channel(self, message: Union[discord.Message, discord.Thread]) -> bool:
+        LOGGER.debug(f"message -> {message}")
+        rich.inspect(message, all=True)
         # ctx: Context = await self.get_context(message)  # type: ignore
         if isinstance(message, discord.Thread):
             user_id = message.starter_message.author.id
@@ -1367,8 +1369,11 @@ class AsyncGoobBot(commands.Bot):
 
         responses = text_splitter.split_text(agent_response_text)
 
+        # import bpdb; bpdb.set_trace()
+
+        # send responses to thread
         for rsp in responses:
-            await channel.send(rsp)  # pyright: ignore[reportAttributeAccessIssue]
+            await message.send(rsp)  # pyright: ignore[reportAttributeAccessIssue]
 
         # await orig_msg.edit(content=agent_response_text)
         LOGGER.info(f"session_id: {session_id} Agent response: {json.dumps(agent_response_text)}")
@@ -1511,11 +1516,12 @@ class AsyncGoobBot(commands.Bot):
             try:
                 # ignore messages not in a thread
                 channel: Union[discord.VoiceChannel, discord.TextChannel, discord.Thread, discord.DMChannel] = (
-                    message.channel
+                    message.channel  # pyright: ignore[reportAttributeAccessIssue]
                 )  # pyright: ignore[reportAttributeAccessIssue]
 
                 # if no thread defined, create it
                 if not isinstance(channel, discord.Thread):
+                    LOGGER.error(f"if no thread defined, create it")
                     embed = discord.Embed(
                         description=f"<@{ctx.message.author.id}> wants to chat! 🤖💬",  # pyright: ignore[reportAttributeAccessIssue]
                         color=discord.Color.green(),
@@ -1530,6 +1536,9 @@ class AsyncGoobBot(commands.Bot):
                     #     embed.color = discord.Color.yellow()
                     #     embed.title = "⚠️ This prompt was flagged by moderation."
                     ctx_message: discord.Message = ctx.message  # pyright: ignore[reportAttributeAccessIssue]
+
+                    LOGGER.debug(f"ctx_message = {ctx_message}")
+                    rich.inspect(ctx_message, all=True)
                     # thread_res: discord.Thread = await ctx_message.create_thread(embed=embed) # pyright: ignore[reportAttributeAccessIssue]
 
                     # import bpdb; bpdb.set_trace()
@@ -1548,9 +1557,9 @@ class AsyncGoobBot(commands.Bot):
                     THREAD_DATA[thread.id] = GoobThreadConfig(
                         model=aiosettings.chat_model, max_tokens=max_tokens, temperature=aiosettings.llm_temperature
                     )
-                    # response = await int.original_response()
-                    # return
+                # if it is a thread, just set channel equal to thread
                 elif isinstance(channel, discord.Thread):  # type: ignore
+                    LOGGER.error(f"channel is a thread")
                     thread: discord.Thread = (
                         channel  # mypy: disable-error-code="no-redef" # type: ignore  # type: ignore
                     )

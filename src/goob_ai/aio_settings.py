@@ -215,6 +215,9 @@ class AioSettings(BaseSettings):
     pinecone_env: str = Field(env="PINECONE_ENV", description="pinecone env", default="")
     pinecone_index: str = Field(env="PINECONE_INDEX", description="pinecone index", default="")
 
+    anthropic_api_key: SecretStr = Field(env="ANTHROPIC_API_KEY", description="claude api key", default="")
+    groq_api_key: SecretStr = Field(env="GROQ_API_KEY", description="groq api key", default="")
+
     langchain_endpoint: str = Field(env="LANGCHAIN_ENDPOINT", description="langchain endpoint", default="")
     langchain_tracing_v2: bool = Field(
         env="LANGCHAIN_TRACING_V2", description="langchain tracing version", default=False

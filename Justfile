@@ -142,3 +142,27 @@ http-server:
 	pkill -f " -m http.server --bind localhost 19000 -d ./tests/fixtures"
 	python3 -m http.server --bind localhost 19000 -d ./tests/fixtures
 	echo $! > PATH.PID
+
+# Bump the version by major
+major-version-bump:
+	rye version
+	rye version --bump major
+
+# Bump the version by minor
+minor-version-bump:
+	rye version
+	rye version --bump minor
+
+# Bump the version by patch
+patch-version-bump:
+	rye version
+	rye version --bump patch
+
+# Bump the version by major
+version-bump-major: major-version-bump
+
+# Bump the version by minor
+version-bump-minor: minor-version-bump
+
+# Bump the version by patch
+version-bump-patch: patch-version-bump

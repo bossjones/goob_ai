@@ -17,6 +17,13 @@ from openai import Client
 from goob_ai.aio_settings import aiosettings
 
 
+# NOTE: FIXME: Set these model settings https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json
+# NOTE: FIXME: Set these model settings https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json
+# NOTE: FIXME: Set these model settings https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json
+# NOTE: FIXME: Set these model settings https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json
+# NOTE: FIXME: Set these model settings https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json
+
+
 class LlmManager(BaseModel):
     llm: ChatOpenAI | None = None
 

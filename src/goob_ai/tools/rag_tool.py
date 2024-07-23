@@ -34,8 +34,6 @@ from goob_ai.llm_manager import LlmManager
 from goob_ai.services.chroma_service import ChromaService
 
 
-# from langchain_core.callbacks import AsyncCallbackManagerForToolRun, CallbackManagerForToolRun
-# from langchain.callbacks.manager import AsyncCallbackManagerForToolRun, CallbackManagerForToolRun
 RETRIEVAL_QA_CHAT_PROMPT: ChatPromptTemplate = hub.pull("langchain-ai/retrieval-qa-chat")
 RAG_PROMPT: ChatPromptTemplate = hub.pull("rlm/rag-prompt")
 
