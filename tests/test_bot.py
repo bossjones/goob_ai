@@ -7,8 +7,6 @@ from __future__ import annotations
 import asyncio
 import os
 
-
-# from unittest.mock import patch, AsyncMock
 from io import BytesIO
 from typing import TYPE_CHECKING
 
@@ -27,6 +25,7 @@ import pytest
 
 if TYPE_CHECKING:
     from _pytest.fixtures import FixtureRequest
+    from _pytest.logging import LogCaptureFixture
     from _pytest.monkeypatch import MonkeyPatch
 
     from pytest_mock.plugin import MockerFixture

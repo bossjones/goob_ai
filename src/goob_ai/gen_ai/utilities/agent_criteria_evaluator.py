@@ -25,8 +25,8 @@ class Evaluator:
             EvaluatorType.SCORE_STRING, criteria=EVAL_CRITERIA, llm=LlmManager().llm
         )
 
-    def evaluate_prediction(self, input_question, prediction):
-        return self.evaluator.evaluate_strings(
+    def evaluate_prediction(self, input_question, prediction) -> dict:
+        return self.evaluator.evaluate_strings(  # type: ignore
             prediction=prediction,
             input=input_question,
-        )
+        )  # pyright: ignore[reportAttributeAccessIssue]

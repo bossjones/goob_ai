@@ -3,6 +3,8 @@
 # pylint: disable=no-member
 # pylint: disable=possibly-used-before-assignment
 # pyright: reportImportCycles=false
+# mypy: disable-error-code="index"
+# mypy: disable-error-code="no-redef"
 from __future__ import annotations
 
 import asyncio
@@ -41,6 +43,7 @@ from typing import (
 )
 
 import aiohttp
+import bpdb
 import discord
 import rich
 
@@ -58,9 +61,22 @@ import goob_ai
 from goob_ai import db, helpers, shell, utils
 from goob_ai.agent import AiAgent
 from goob_ai.aio_settings import aiosettings
+from goob_ai.base import GoobMessage, GoobThreadConfig
 from goob_ai.bot_logger import REQUEST_ID_CONTEXTVAR, generate_tree, get_lm_from_tree, get_logger
+from goob_ai.clients.discord_client.utils import (
+    close_thread,
+    discord_message_to_message,
+    is_last_message_stale,
+    split_into_shorter_messages,
+)
 from goob_ai.common.dataclasses import SurfaceInfo, SurfaceType
-from goob_ai.constants import CHANNEL_ID, INPUT_CLASSIFICATION_NOT_A_QUESTION, INPUT_CLASSIFICATION_NOT_FOR_ME
+from goob_ai.constants import (
+    ACTIVATE_THREAD_PREFX,
+    CHANNEL_ID,
+    INPUT_CLASSIFICATION_NOT_A_QUESTION,
+    INPUT_CLASSIFICATION_NOT_FOR_ME,
+    MAX_THREAD_MESSAGES,
+)
 from goob_ai.factories import guild_factory
 from goob_ai.gen_ai.utilities.agent_criteria_evaluator import Evaluator
 from goob_ai.user_input_enrichment import UserInputEnrichment
@@ -84,6 +100,7 @@ INVITE_LINK = "https://discordapp.com/api/oauth2/authorize?client_id={}&scope=bo
 HOME_PATH = os.environ.get("HOME")
 
 COMMAND_RUNNER = {"dl_thumb": shell.run_coroutine_subprocess}
+THREAD_DATA = defaultdict()
 
 
 def unlink_orig_file(a_filepath: str) -> str:
@@ -243,7 +260,7 @@ async def handle_save_attachment_locally(attm_data_dict: Dict[str, Any], dir_roo
 
 
 # SOURCE: https://github.com/CrosswaveOmega/NikkiBot/blob/75c7ecd307f50390cfc798d39098fdb78535650c/cogs/AiCog.py#L237
-async def download_image(url: str) -> BytesIO:
+async def download_image(url: str) -> BytesIO:  # type: ignore
     """
     Download an image from a given URL asynchronously.
 
@@ -277,7 +294,7 @@ async def file_to_data_uri(file: discord.File) -> str:
     Returns:
         str: A data URI representing the file content.
     """
-    with BytesIO(file.fp.read()) as f:
+    with BytesIO(file.fp.read()) as f:  # pyright: ignore[reportAttributeAccessIssue]
         file_bytes = f.read()
     base64_encoded = base64.b64encode(file_bytes).decode("ascii")
     return f"data:image;base64,{base64_encoded}"
@@ -712,7 +729,7 @@ class AsyncGoobBot(commands.Bot):
             for index in reversed(to_remove):
                 del dates[index]
 
-    async def before_identify_hook(self, shard_id: int, *, initial: bool) -> None:
+    async def before_identify_hook(self, shard_id: int, *, initial: bool) -> None:  # type: ignore
         """
         Perform actions before identifying the shard.
 
@@ -954,7 +971,7 @@ class AsyncGoobBot(commands.Bot):
             None
         """
 
-        if len(message.attachments) <= 0:
+        if len(message.attachments) <= 0:  # pyright: ignore[reportAttributeAccessIssue]
             return
         await message.channel.send("Processing attachments... (this may take a minute)", delete_after=30.0)  # pyright: ignore[reportAttributeAccessIssue]
 
@@ -1002,7 +1019,7 @@ class AsyncGoobBot(commands.Bot):
 
         # Check if the message content is a URL
 
-        message_content = message.content  # pyright: ignore[reportAttributeAccessIssue]
+        message_content: str = message.content  # pyright: ignore[reportAttributeAccessIssue]
         url_pattern = re.compile(r"http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+")
         if "https://tenor.com/view/" in message_content:
             # Extract the Tenor GIF URL from the message content
@@ -1140,7 +1157,9 @@ class AsyncGoobBot(commands.Bot):
             LOGGER.debug(f"{type(self).__name__} -> file_to_upload_list = {file_to_upload_list}")
             rich.print(file_to_upload_list)
 
-    def prepare_agent_input(self, message: discord.Message, user_real_name: str, surface_info: Dict) -> Dict[str, Any]:
+    def prepare_agent_input(
+        self, message: Union[discord.Message, discord.Thread], user_real_name: str, surface_info: Dict
+    ) -> Dict[str, Any]:
         """Prepare the agent input from the incoming Discord message.
 
         This function constructs the input dictionary to be sent to the agent based on the
@@ -1155,20 +1174,26 @@ class AsyncGoobBot(commands.Bot):
         Returns:
             Dict[str, Any]: The input dictionary to be sent to the agent.
         """
-        agent_input = {"user name": user_real_name, "message": message.content}  # pyright: ignore[reportAttributeAccessIssue]
+        # ctx: Context = await self.get_context(message)  # type: ignore
+        if isinstance(message, discord.Thread):
+            agent_input = {"user name": user_real_name, "message": message.starter_message.content}  # pyright: ignore[reportAttributeAccessIssue]
+            attachments: List[discord.Attachment] = message.starter_message.attachments  # pyright: ignore[reportAttributeAccessIssue]
+        elif isinstance(message, discord.Message):
+            agent_input = {"user name": user_real_name, "message": message.content}  # pyright: ignore[reportAttributeAccessIssue]
+            attachments: List[discord.Attachment] = message.attachments  # pyright: ignore[reportAttributeAccessIssue]
 
-        if len(message.attachments) > 0:  # pyright: ignore[reportAttributeAccessIssue]
-            for attachment in message.attachments:  # pyright: ignore[reportAttributeAccessIssue]
+        if len(attachments) > 0:  # pyright: ignore[reportAttributeAccessIssue]
+            for attachment in attachments:  # pyright: ignore[reportAttributeAccessIssue]
                 print(f"attachment -> {attachment}")  # pyright: ignore[reportAttributeAccessIssue]
                 agent_input["file_name"] = attachment.filename  # pyright: ignore[reportAttributeAccessIssue]
-                if attachment.content_type.startswith("image/"):
+                if attachment.content_type.startswith("image/"):  # pyright: ignore[reportAttributeAccessIssue]
                     agent_input["image_url"] = attachment.url  # pyright: ignore[reportAttributeAccessIssue]
 
         agent_input["surface_info"] = surface_info
 
         return agent_input
 
-    def get_session_id(self, message: discord.Message) -> str:
+    def get_session_id(self, message: Union[discord.Message, discord.Thread]) -> str:
         """Generate a session ID for the given message.
 
         This function generates a session ID based on the message context.
@@ -1184,10 +1209,18 @@ class AsyncGoobBot(commands.Bot):
             - If the message is a direct message (DM), the session ID is based on the user ID.
             - If the message is from a guild (server) channel, the session ID is based on the channel ID.
         """
-        is_dm: bool = str(message.channel.type) == "private"  # pyright: ignore[reportAttributeAccessIssue]
-        user_id: int = message.author.id  # pyright: ignore[reportAttributeAccessIssue]
 
-        return f"discord_{user_id}" if is_dm else f"discord_{message.channel.id}"
+        # ctx: Context = await self.get_context(message)  # type: ignore
+        if isinstance(message, discord.Thread):
+            is_dm: bool = str(message.starter_message.channel.type) == "private"  # pyright: ignore[reportAttributeAccessIssue]
+            user_id: int = message.starter_message.author.id  # pyright: ignore[reportAttributeAccessIssue]
+            channel_id = message.starter_message.channel.name  # pyright: ignore[reportAttributeAccessIssue]
+        elif isinstance(message, discord.Message):
+            is_dm: bool = str(message.channel.type) == "private"  # pyright: ignore[reportAttributeAccessIssue]
+            user_id: int = message.author.id  # pyright: ignore[reportAttributeAccessIssue]
+            channel_id = message.channel.name  # pyright: ignore[reportAttributeAccessIssue]
+
+        return f"discord_{user_id}" if is_dm else f"discord_{channel_id}"  # pyright: ignore[reportAttributeAccessIssue]
 
         # TODO: ENABLE THIS AND THREAD HANDLING
         # channel_id = message.channel.id
@@ -1220,7 +1253,9 @@ class AsyncGoobBot(commands.Bot):
         Example:
             >>> await bot.handle_dm_from_user(message)
         """
-        ctx = await self.get_context(message)
+        ctx: Context = await self.get_context(message)
+        user_id = ctx.message.author.id  # pyright: ignore[reportAttributeAccessIssue]
+        # import bpdb; bpdb.set_trace()
         # Process DMs
         LOGGER.info("Processing direct message")
 
@@ -1266,6 +1301,74 @@ class AsyncGoobBot(commands.Bot):
 
         for rsp in responses:
             await message.channel.send(rsp)  # pyright: ignore[reportAttributeAccessIssue]
+
+        # await orig_msg.edit(content=agent_response_text)
+        LOGGER.info(f"session_id: {session_id} Agent response: {json.dumps(agent_response_text)}")
+
+        # Evaluate the response against the question
+        eval_result = Evaluator().evaluate_prediction(agent_input, agent_response_text)
+        # Log the evaluation result
+        LOGGER.info(f"session_id: {session_id} Evaluation Result: {eval_result}")
+        return True
+
+    async def handle_message_from_channel(self, message: Union[discord.Message, discord.Thread]) -> bool:
+        # ctx: Context = await self.get_context(message)  # type: ignore
+        if isinstance(message, discord.Thread):
+            user_id = message.starter_message.author.id
+            user_name = message.starter_message.author.name
+            channel_id = message.starter_message.channel.name  # pyright: ignore[reportAttributeAccessIssue]
+            channel = message.starter_message.channel  # pyright: ignore[reportAttributeAccessIssue]
+        elif isinstance(message, discord.Message):
+            user_id = message.author.id  # pyright: ignore[reportAttributeAccessIssue]
+            user_name = message.author.name  # pyright: ignore[reportAttributeAccessIssue]
+            channel_id = message.channel.name  # pyright: ignore[reportAttributeAccessIssue]
+            channel = message.channel  # pyright: ignore[reportAttributeAccessIssue]
+
+        # import bpdb; bpdb.set_trace()
+        # Process DMs
+        LOGGER.info("Processing channel message")
+
+        # For direct messages, prepare the surface info
+        surface_info = SurfaceInfo(surface=SurfaceType.DISCORD, type="channel", source=f"{channel_id}")  # pyright: ignore[reportAttributeAccessIssue]
+
+        # Convert surface_info to dictionary using the utility function
+        surface_info_dict = surface_info.__dict__
+
+        agent_input = self.prepare_agent_input(message, user_name, surface_info_dict)
+        session_id = self.get_session_id(message)  # type: ignore
+        LOGGER.info(f"session_id: {session_id} Agent input: {json.dumps(agent_input)}")
+
+        # temp_message = (
+        #     "Processing your request, please wait... (this could take up to 1min, depending on the response size)"
+        # )
+        # # thread_ts is None for direct messages, so we use the ts of the original message
+        # orig_msg = await ctx.send(
+        #     # embed=discord.Embed(description=temp_message),
+        #     content=temp_message,
+        #     delete_after=30.0,
+        # )
+        # response = client.chat_postMessage(channel=channel_id, thread_ts=thread_ts, text=temp_message)
+        # response_ts = response["ts"]
+        # For direct messages, remember chat based on the user:
+
+        agent_response_text = self.ai_agent.process_user_task(session_id, str(agent_input))
+
+        # Update the slack response with the agent response
+        # client.chat_update(channel=channel_id, ts=response_ts, text=agent_response_text)
+
+        # Sometimes the response can be over 2000 characters, so we need to split it
+        # into multiple messages, and send them one at a time
+        text_splitter = RecursiveCharacterTextSplitter(
+            separators=["\n", ".", "?", "!"],
+            chunk_size=1000,
+            chunk_overlap=0,
+            length_function=len,
+        )
+
+        responses = text_splitter.split_text(agent_response_text)
+
+        for rsp in responses:
+            await channel.send(rsp)  # pyright: ignore[reportAttributeAccessIssue]
 
         # await orig_msg.edit(content=agent_response_text)
         LOGGER.info(f"session_id: {session_id} Agent response: {json.dumps(agent_response_text)}")
@@ -1396,9 +1499,93 @@ class AsyncGoobBot(commands.Bot):
         # else:
         #     self._auto_spam_count.pop(author_id, None)
 
+        # import bpdb; bpdb.set_trace()
         # its a dm
         if str(message.channel.type) == "private":  # pyright: ignore[reportAttributeAccessIssue]
             await self.handle_dm_from_user(message)
+
+        # text channel and GPT channel id
+        elif str(message.channel.type) == "text" and message.channel.id == 1240294186201124929:  # pyright: ignore[reportAttributeAccessIssue]
+            max_tokens = 512
+            # let's do all validation and creation of threads here instead.
+            try:
+                # ignore messages not in a thread
+                channel: Union[discord.VoiceChannel, discord.TextChannel, discord.Thread, discord.DMChannel] = (
+                    message.channel
+                )  # pyright: ignore[reportAttributeAccessIssue]
+
+                # if no thread defined, create it
+                if not isinstance(channel, discord.Thread):
+                    embed = discord.Embed(
+                        description=f"<@{ctx.message.author.id}> wants to chat! 🤖💬",  # pyright: ignore[reportAttributeAccessIssue]
+                        color=discord.Color.green(),
+                    )
+                    embed.add_field(name="model", value=aiosettings.chat_model)
+                    embed.add_field(name="temperature", value=aiosettings.llm_temperature, inline=True)
+                    embed.add_field(name="max_tokens", value=max_tokens, inline=True)
+                    embed.add_field(name=ctx.message.author.name, value=message)  # pyright: ignore[reportAttributeAccessIssue]
+
+                    # if len(flagged_str) > 0:
+                    #     # message was flagged
+                    #     embed.color = discord.Color.yellow()
+                    #     embed.title = "⚠️ This prompt was flagged by moderation."
+                    ctx_message: discord.Message = ctx.message  # pyright: ignore[reportAttributeAccessIssue]
+                    # thread_res: discord.Thread = await ctx_message.create_thread(embed=embed) # pyright: ignore[reportAttributeAccessIssue]
+
+                    # import bpdb; bpdb.set_trace()
+                    # create the thread
+                    thread: discord.Thread = await ctx_message.create_thread(
+                        name=f"{ACTIVATE_THREAD_PREFX} {ctx.message.author.name[:20]} - {message.content[:30]}",  # pyright: ignore[reportAttributeAccessIssue]
+                        # Specifies the slowmode rate limit for user in this channel, in seconds. The maximum value possible is ``21600``. By default no slowmode rate limit if this is ``None``.
+                        slowmode_delay=1,
+                        # The reason for creating a new thread. Shows up on the audit log.
+                        reason="gpt-bot",
+                        # The duration in minutes before a thread is automatically hidden from the channel list.
+                        # If not provided, the channel's default auto archive duration is used.
+                        # Must be one of ``60``, ``1440``, ``4320``, or ``10080``, if provided.
+                        auto_archive_duration=60,
+                    )
+                    THREAD_DATA[thread.id] = GoobThreadConfig(
+                        model=aiosettings.chat_model, max_tokens=max_tokens, temperature=aiosettings.llm_temperature
+                    )
+                    # response = await int.original_response()
+                    # return
+                elif isinstance(channel, discord.Thread):  # type: ignore
+                    thread: discord.Thread = (
+                        channel  # mypy: disable-error-code="no-redef" # type: ignore  # type: ignore
+                    )
+
+                # # ignore threads not created by the bot
+                # if thread.owner_id != ctx.message.author.id: # pyright: ignore[reportAttributeAccessIssue]
+                #     return # mypy: disable-error-code="arg-type, var-annotated, list-item, no-redef, truthy-bool, return-value"
+
+                # ignore threads that are archived locked or title is not what we want
+                if (
+                    thread.archived  # pyright: ignore[reportAttributeAccessIssue]
+                    or thread.locked  # pyright: ignore[reportAttributeAccessIssue]
+                    or not thread.name.startswith(ACTIVATE_THREAD_PREFX)  # pyright: ignore[reportAttributeAccessIssue]
+                ):
+                    # ignore this thread
+                    return
+
+                if thread.message_count > MAX_THREAD_MESSAGES:  # pyright: ignore[reportAttributeAccessIssue]
+                    # too many messages, no longer going to reply
+                    await close_thread(thread=thread)
+                    return
+                else:
+                    # add info to thread
+                    await self.handle_message_from_channel(thread)
+
+            except Exception as ex:
+                print(f"{ex}")
+                exc_type, exc_value, exc_traceback = sys.exc_info()
+                print(f"Error Class: {ex.__class__}")
+                output = f"[UNEXPECTED] {type(ex).__name__}: {ex}"
+                print(output)
+                print(f"exc_type: {exc_type}")
+                print(f"exc_value: {exc_value}")
+                traceback.print_tb(exc_traceback)
+                bpdb.pm()
 
         await self.invoke(ctx)
 
@@ -1481,6 +1668,12 @@ class AsyncGoobBot(commands.Bot):
         # TODO: This is where all the AI logic is going to go
         LOGGER.info(f"Thread message to process - {message.author}: {message.content[:50]}")  # pyright: ignore[reportAttributeAccessIssue]
         if message.author.bot:
+            LOGGER.info(f"Skipping message from bot itself, message.author.bot = {message.author.bot}")
+            return
+
+        # skip messages that start w/ cerebro's prefix
+        if message.content.startswith("%"):  # pyright: ignore[reportAttributeAccessIssue]
+            LOGGER.info("Skipping message that starts with %")
             return
 
         # Handle attachments first
@@ -1504,7 +1697,7 @@ class AsyncGoobBot(commands.Bot):
         await super().close()
         await self.session.close()
 
-    async def start(self) -> None:
+    async def start(self) -> None:  # type: ignore
         """
         Start the bot and connect to Discord.
 
@@ -1537,24 +1730,24 @@ class AsyncGoobBot(commands.Bot):
             None
         """
         await self.wait_until_ready()
-        """
-        Wait until the bot is ready before starting the monitoring loop.
-        """
+        # """
+        # Wait until the bot is ready before starting the monitoring loop.
+        # """
         counter = 0
-        """
-        Initialize a counter to keep track of the number of monitoring iterations.
-        """
+        # """
+        # Initialize a counter to keep track of the number of monitoring iterations.
+        # """
         # TEMPCHANGE: # channel = self.get_channel(DISCORD_GENERAL_CHANNEL)  # channel ID goes here
         channel = self.get_channel(aiosettings.discord_general_channel)  # channel ID goes here
         while not self.is_closed():
-            """
-            Continuously monitor the worker tasks until the bot is closed.
-            """
+            # """
+            # Continuously monitor the worker tasks until the bot is closed.
+            # """
             counter += 1
-            """
-            Increment the counter for each monitoring iteration.
-            """
-            await channel.send(counter)  # pyright: ignore[reportAttributeAccessIssue]
+            # """
+            # Increment the counter for each monitoring iteration.
+            # """
+            await channel.send(counter)  # pyright: ignore[reportAttributeAccessIssue]  # type: ignore
             await asyncio.sleep(60)  # task runs every 60 seconds
 
     async def on_worker_monitor(self) -> None:
@@ -1610,6 +1803,6 @@ async def send_long_message(channel: Any, message: discord.Message, max_length: 
         None
     """
 
-    chunks = [message[i : i + max_length] for i in range(0, len(message), max_length)]
+    chunks = [message[i : i + max_length] for i in range(0, len(message), max_length)]  # type: ignore
     for chunk in chunks:
         await channel.send(chunk)

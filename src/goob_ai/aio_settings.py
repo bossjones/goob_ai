@@ -231,6 +231,12 @@ class AioSettings(BaseSettings):
     langchain_project: str = Field(env="LANGCHAIN_PROJECT", description="langsmith project name", default="")
     debug_aider: bool = Field(env="DEBUG_AIDER", description="debug tests stuff written by aider", default=False)
 
+    local_test_debug: bool = Field(env="LOCAL_TEST_DEBUG", description="enable local debug testing", default=False)
+    local_test_enable_evals: bool = Field(
+        env="LOCAL_TEST_ENABLE_EVALS", description="enable local debug testing with evals", default=False
+    )
+    python_debug: bool = Field(env="PYTHON_DEBUG", description="enable bpdb on cli", default=False)
+
     @property
     def redis_url(self) -> URL:
         """

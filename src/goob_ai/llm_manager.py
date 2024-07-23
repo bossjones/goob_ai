@@ -4,16 +4,17 @@ from __future__ import annotations
 
 import logging
 
+import openai
+
 from langchain.pydantic_v1 import BaseModel
 from langchain.schema.runnable import ConfigurableField, Runnable, RunnableBranch, RunnableLambda, RunnableMap
 from langchain_openai import ChatOpenAI
+from langsmith import traceable
+from langsmith.wrappers import wrap_openai
 from loguru import logger as LOGGER
 from openai import Client
 
 from goob_ai.aio_settings import aiosettings
-
-
-# from pydantic import BaseModel
 
 
 class LlmManager(BaseModel):
@@ -23,6 +24,7 @@ class LlmManager(BaseModel):
         super().__init__()
         # SOURCE: https://github.com/langchain-ai/weblangchain/blob/main/main.py
         self.llm = ChatOpenAI(
+            name="ChatOpenAI",
             model=aiosettings.chat_model,
             streaming=True,
             temperature=aiosettings.llm_temperature,
@@ -56,7 +58,7 @@ class VisionModel(BaseModel):
         #     max_tokens=900,
         #     temperature=aiosettings.llm_temperature,
         # )
-        self.vision_api = Client(api_key=aiosettings.openai_api_key.get_secret_value())
+        self.vision_api = wrap_openai(Client(api_key=aiosettings.openai_api_key.get_secret_value()))
 
     # Pydantic doesn't seem to know the types to handle AzureOpenAI, so we need to tell it to allow arbitrary types
     class Config:

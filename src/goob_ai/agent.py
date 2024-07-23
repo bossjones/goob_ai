@@ -8,6 +8,8 @@ import logging
 
 from typing import TYPE_CHECKING, Any, List, Union
 
+import openai
+
 from boto3.session import Session as boto3_Session
 from langchain.agents import AgentExecutor
 from langchain.agents.agent import BaseMultiActionAgent, BaseSingleActionAgent
@@ -18,13 +20,17 @@ from langchain.chains.conversation.memory import ConversationBufferWindowMemory
 from langchain.globals import set_debug
 from langchain.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain.pydantic_v1 import BaseModel, Field
+from langchain.schema.runnable import ConfigurableField, Runnable, RunnableBranch, RunnableLambda, RunnableMap
 from langchain_chroma import Chroma
 from langchain_community.chat_message_histories import RedisChatMessageHistory
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.tools import BaseTool
 from langchain_core.utils.function_calling import convert_to_openai_tool
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
+from langsmith import traceable
+from langsmith.wrappers import wrap_openai
 from loguru import logger as LOGGER
+from openai import Client
 from pydantic_settings import SettingsConfigDict
 
 from goob_ai import llm_manager
@@ -73,6 +79,7 @@ class AiAgent:
         self.agent_purpose = "help our developers build better software faster"
         self.agent_personality = "You have a geeky and clever sense of humor"
 
+    @traceable
     def get_prompt(self) -> ChatPromptTemplate:
         # write a docstring using pep257 conventions
         """
@@ -147,6 +154,7 @@ class AiAgent:
 
     #     retriever = vectorstore.as_retriever(search_kwargs=kwargs.get('search_kwargs', {"k": 5}))
 
+    @traceable
     def init_agent_executor(self) -> None:
         """
         initalize agent executor.
@@ -170,6 +178,7 @@ class AiAgent:
         )  # pyright: ignore[reportAttributeAccessIssue]
 
     # def setup_agent_executor(self, session_id: str, user_task: str):
+    @traceable
     def setup_agent_executor(self, session_id: str, user_task: str) -> AgentExecutor:
         LOGGER.debug(f"session_id = {session_id}")
         LOGGER.debug(f"user_task = {user_task}")
@@ -193,6 +202,7 @@ class AiAgent:
             memory=memory,
         )
 
+    @traceable
     def process_user_task(self, session_id: str, user_task: str) -> str:
         """
         Summary:
@@ -222,6 +232,7 @@ class AiAgent:
             LOGGER.exception(f"Error in process_user_task: {e}")
             return "An error occurred while processing the task."
 
+    @traceable
     async def process_user_task_streaming(self, session_id: str, user_task: str):
         try:
             agent_executor = self.setup_agent_executor(session_id, user_task)
@@ -254,6 +265,7 @@ class AiAgent:
             LOGGER.exception(f"Error in process_user_task_streaming: {e}")
             yield "An error occurred while processing the task."
 
+    @traceable
     def summarize(self, user_input: str) -> str:
         """
         Process the user input and summarize it using a LLM. This method is used for the summarization API.

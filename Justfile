@@ -31,6 +31,10 @@ local-open-coverage:
 
 open-coverage: local-open-coverage
 
+local-unittest:
+	bash scripts/unittest-local
+	./scripts/open-browser.py file://${PWD}/htmlcov/index.html
+
 rye-get-pythons:
 	rye fetch 3.8.19
 	rye fetch 3.9.19
