@@ -292,7 +292,8 @@ class AiAgent:
 
             # Put this in a chain
             chain = prompt | llm | StrOutputParser()
-            return chain.invoke({"user_input": user_input})
+            chain_custom_name = chain.with_config({"run_name": "summarize"})
+            return chain_custom_name.invoke({"user_input": user_input})
 
         except Exception as e:
             LOGGER.exception(f"Error during summarization of user task: {e}")

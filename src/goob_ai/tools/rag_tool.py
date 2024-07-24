@@ -301,7 +301,8 @@ class ReadTheDocsQATool(BaseChromaDBTool, BaseTool):
         # bpdb.set_trace()
         try:
             qa = self._make_qa_chain()
-            answer = qa.invoke(question)
+            qa_chain_custom_name = qa.with_config({"run_name": "ReadTheDocsQATool"})
+            answer = qa_chain_custom_name.invoke(question)
             # answer = qa.invoke({"input": question})
             # answer = qa.invoke({"question": question})
             # answer = qa.run(question)
@@ -331,7 +332,9 @@ class ReadTheDocsQATool(BaseChromaDBTool, BaseTool):
         # kick off the task in a thread to make sure it doesn't block other async code.
         # await self.aload_paper(paper_id)
         qa = self._make_qa_chain()
-        answer = qa.invoke(question)
+        qa_chain_custom_name = qa.with_config({"run_name": "AsyncReadTheDocsQATool"})
+        answer = qa_chain_custom_name.invoke(question)
+        # answer = qa.invoke(question)
         # return qa.invoke(question, run_manager=run_manager.get_sync())
         return answer
 
