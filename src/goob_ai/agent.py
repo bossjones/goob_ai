@@ -23,6 +23,7 @@ from langchain.pydantic_v1 import BaseModel, Field
 from langchain.schema.runnable import ConfigurableField, Runnable, RunnableBranch, RunnableLambda, RunnableMap
 from langchain_chroma import Chroma
 from langchain_community.chat_message_histories import RedisChatMessageHistory
+from langchain_core.callbacks import StdOutCallbackHandler
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.tools import BaseTool
 from langchain_core.utils.function_calling import convert_to_openai_tool
@@ -198,7 +199,7 @@ class AiAgent:
             agent=self.agent,
             tools=self.all_tools,
             verbose=True,
-            callbacks=[self.logging_handler],
+            callbacks=[self.logging_handler, StdOutCallbackHandler()],
             memory=memory,
         )
 

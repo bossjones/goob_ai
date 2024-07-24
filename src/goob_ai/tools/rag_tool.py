@@ -6,7 +6,7 @@ import logging
 import sys
 import traceback
 
-from typing import ClassVar, List, Optional, Type
+from typing import Any, ClassVar, List, Optional, Type
 
 import langchain_chroma.vectorstores
 import openai
@@ -345,7 +345,7 @@ class ReadTheDocsQATool(BaseChromaDBTool, BaseTool):
     #     self.model: ChatOpenAI | None = LlmManager().llm
 
     @traceable
-    def _make_qa_chain(self):
+    def _make_qa_chain(self) -> RunnableSerializable[Any, str]:
         """Make a RetrievalQA chain which filters by this paper_id"""
         # filter = {"source": paper_id}
 
