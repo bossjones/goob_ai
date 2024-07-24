@@ -299,6 +299,14 @@ ci = {chain = [
     "lint",
     "test",
 ]}
+ci-with-evals = {chain = [
+    "coverage-pytest-debug",
+    "coverage-pytest-evals-debug",
+    "coverage-combine",
+    "coverage-show",
+    "coverage-html",
+    "coverage-open",
+]}
 
 
 # Private tasks used for chaining (https://github.com/charbonnierg/pytest-broadcaster/blob/e98456b2f6db7f99a034795f162ac0013a8001d7/pyproject.toml#L157C1-L158C15)
