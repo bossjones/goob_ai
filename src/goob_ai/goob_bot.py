@@ -973,7 +973,7 @@ class AsyncGoobBot(commands.Bot):
 
         if len(message.attachments) <= 0:  # pyright: ignore[reportAttributeAccessIssue]
             return
-        await message.channel.send("Processing attachments... (this may take a minute)", delete_after=30.0)  # pyright: ignore[reportAttributeAccessIssue]
+        # await message.channel.send("Processing attachments... (this may take a minute)", delete_after=30.0)  # pyright: ignore[reportAttributeAccessIssue]
 
         root_temp_dir = f"temp/{str(uuid.uuid4())}"
         uploaded_file_paths = []
@@ -1222,18 +1222,6 @@ class AsyncGoobBot(commands.Bot):
 
         return f"discord_{user_id}" if is_dm else f"discord_{channel_id}"  # pyright: ignore[reportAttributeAccessIssue]
 
-        # TODO: ENABLE THIS AND THREAD HANDLING
-        # channel_id = message.channel.id
-
-        # thread_ts = msg.get("thread_ts")
-        # if thread_ts is None:
-        #     thread_ts = msg.get("ts")
-        # if thread_ts is None and "message" in msg:
-        #     thread_ts = msg.get("message").get("thread_ts", None)
-        #     if thread_ts is None:
-        #         thread_ts = msg.get("message").get("ts", None)
-        # return f"slack_{channel_id}_{thread_ts}"
-
     async def handle_dm_from_user(self, message: discord.Message) -> bool:
         """
         Handle a direct message (DM) from a user.
@@ -1340,23 +1328,7 @@ class AsyncGoobBot(commands.Bot):
         session_id = self.get_session_id(message)  # type: ignore
         LOGGER.info(f"session_id: {session_id} Agent input: {json.dumps(agent_input)}")
 
-        # temp_message = (
-        #     "Processing your request, please wait... (this could take up to 1min, depending on the response size)"
-        # )
-        # # thread_ts is None for direct messages, so we use the ts of the original message
-        # orig_msg = await ctx.send(
-        #     # embed=discord.Embed(description=temp_message),
-        #     content=temp_message,
-        #     delete_after=30.0,
-        # )
-        # response = client.chat_postMessage(channel=channel_id, thread_ts=thread_ts, text=temp_message)
-        # response_ts = response["ts"]
-        # For direct messages, remember chat based on the user:
-
         agent_response_text = self.ai_agent.process_user_task(session_id, str(agent_input))
-
-        # Update the slack response with the agent response
-        # client.chat_update(channel=channel_id, ts=response_ts, text=agent_response_text)
 
         # Sometimes the response can be over 2000 characters, so we need to split it
         # into multiple messages, and send them one at a time
@@ -1368,8 +1340,6 @@ class AsyncGoobBot(commands.Bot):
         )
 
         responses = text_splitter.split_text(agent_response_text)
-
-        # import bpdb; bpdb.set_trace()
 
         # send responses to thread
         for rsp in responses:
@@ -1422,7 +1392,7 @@ class AsyncGoobBot(commands.Bot):
 
         LOGGER.info(f"ctx = {ctx}")
 
-        # TODO: reenable this if you just want to verify that discord is getting messages
+        # NOTE: reenable this if you just want to verify that discord is getting messages
         # if ctx.command is None:
         #     return
 
@@ -1482,29 +1452,6 @@ class AsyncGoobBot(commands.Bot):
         # obj.voice_client = None
         # >>>
 
-        # if ctx.author.id in self.blacklist:
-        #     return
-
-        # if ctx.guild is not None and ctx.guild.id in self.blacklist:
-        #     return
-
-        # bucket = self.spam_control.get_bucket(message)
-        # current = message.created_at.timestamp()
-        # retry_after = bucket and bucket.update_rate_limit(current)
-        # author_id = message.author.id
-        # if retry_after and author_id != self.owner_id:
-        #     self._auto_spam_count[author_id] += 1
-        #     if self._auto_spam_count[author_id] >= 5:
-        #         # await self.add_to_blacklist(author_id)
-        #         del self._auto_spam_count[author_id]
-        #         await self.log_spammer(ctx, message, retry_after, autoblock=True)
-        #     else:
-        #         await self.log_spammer(ctx, message, retry_after)
-        #     return
-        # else:
-        #     self._auto_spam_count.pop(author_id, None)
-
-        # import bpdb; bpdb.set_trace()
         # its a dm
         if str(message.channel.type) == "private":  # pyright: ignore[reportAttributeAccessIssue]
             await self.handle_dm_from_user(message)
@@ -1531,17 +1478,11 @@ class AsyncGoobBot(commands.Bot):
                     embed.add_field(name="max_tokens", value=max_tokens, inline=True)
                     embed.add_field(name=ctx.message.author.name, value=message)  # pyright: ignore[reportAttributeAccessIssue]
 
-                    # if len(flagged_str) > 0:
-                    #     # message was flagged
-                    #     embed.color = discord.Color.yellow()
-                    #     embed.title = "⚠️ This prompt was flagged by moderation."
                     ctx_message: discord.Message = ctx.message  # pyright: ignore[reportAttributeAccessIssue]
 
                     LOGGER.debug(f"ctx_message = {ctx_message}")
                     rich.inspect(ctx_message, all=True)
-                    # thread_res: discord.Thread = await ctx_message.create_thread(embed=embed) # pyright: ignore[reportAttributeAccessIssue]
 
-                    # import bpdb; bpdb.set_trace()
                     # create the thread
                     thread: discord.Thread = await ctx_message.create_thread(
                         name=f"{ACTIVATE_THREAD_PREFX} {ctx.message.author.name[:20]} - {message.content[:30]}",  # pyright: ignore[reportAttributeAccessIssue]
@@ -1563,10 +1504,6 @@ class AsyncGoobBot(commands.Bot):
                     thread: discord.Thread = (
                         channel  # mypy: disable-error-code="no-redef" # type: ignore  # type: ignore
                     )
-
-                # # ignore threads not created by the bot
-                # if thread.owner_id != ctx.message.author.id: # pyright: ignore[reportAttributeAccessIssue]
-                #     return # mypy: disable-error-code="arg-type, var-annotated, list-item, no-redef, truthy-bool, return-value"
 
                 # ignore threads that are archived locked or title is not what we want
                 if (
@@ -1594,7 +1531,8 @@ class AsyncGoobBot(commands.Bot):
                 print(f"exc_type: {exc_type}")
                 print(f"exc_value: {exc_value}")
                 traceback.print_tb(exc_traceback)
-                bpdb.pm()
+                if aiosettings.dev_mode:
+                    bpdb.pm()
 
         await self.invoke(ctx)
 

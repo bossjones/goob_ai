@@ -192,6 +192,7 @@ class AioSettings(BaseSettings):
     chroma_port: str = "8010"
     enable_chroma: bool = True
 
+    dev_mode: bool = Field(env="DEV_MODE", description="enable dev mode", default=False)
     # azure_openai_api_key: str
     # openai_api_type: str
     # openai_api_version: str
