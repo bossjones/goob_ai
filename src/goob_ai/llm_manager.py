@@ -23,6 +23,133 @@ from goob_ai.aio_settings import aiosettings
 # NOTE: FIXME: Set these model settings https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json
 # NOTE: FIXME: Set these model settings https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json
 
+# def get_supported_openai_params(self):
+#     return [
+#         "stream",
+#         "temperature",
+#         "top_p",
+#         "max_tokens",
+#         "tools",
+#         "tool_choice",
+#         "seed",
+#         "response_format",
+#     ]
+
+
+MODELS_MAP = {
+    "gpt-4o": {
+        "params": {
+            "temperature": 0.0,
+            # This optional parameter helps to set the maximum number of tokens to generate in the chat completion.
+            "max_tokens": 4096,
+            # "max_input_tokens": 128000,
+            # "max_output_tokens": 4096,
+        },
+    },
+    "gpt-4-turbo": {
+        "params": {
+            "max_tokens": 4096,
+            # "max_input_tokens": 128000,
+            # "max_output_tokens": 4096,
+            # "temperature": 0.0,
+        },
+    },
+    "gpt-4": {
+        "params": {
+            "temperature": 0,
+            "max_tokens": 4096,
+            # "max_input_tokens": 8192,
+            # "max_output_tokens": 4096,
+        },
+    },
+    "gpt-3.5-turbo": {
+        "params": {
+            "temperature": 0,
+        },
+    },
+    "gemma-7b-it": {
+        "params": {
+            "temperature": 0,
+        },
+    },
+    "gemma2-9b-it": {
+        "params": {
+            "temperature": 0,
+        },
+    },
+    "llama3-70b-8192": {
+        "params": {
+            "temperature": 0,
+        },
+    },
+    "llama3-8b-8192": {
+        "params": {
+            "temperature": 0,
+        },
+    },
+    "mixtral-8x7b-32768": {
+        "params": {
+            "temperature": 0,
+        },
+    },
+    "claude-3-haiku-20240307": {
+        "params": {
+            # "temperature": 0,
+            "max_tokens": 4096,
+            # "max_input_tokens": 200000,
+            # "max_output_tokens": 4096,
+        },
+    },
+    "claude-3-opus-20240229": {
+        "params": {
+            # "temperature": 0,
+            "max_tokens": 4096,
+            # "max_input_tokens": 200000,
+            # "max_output_tokens": 4096,
+        },
+    },
+    "claude-3-sonnet-20240229": {
+        "params": {
+            # "temperature": 0,
+            "max_tokens": 4096,
+            # "max_input_tokens": 200000,
+            # "max_output_tokens": 4096,
+        },
+    },
+    "claude-3-5-sonnet-20240620": {
+        "params": {
+            # "temperature": 0,
+            "max_tokens": 4096,
+            # "max_input_tokens": 200000,
+            # "max_output_tokens": 4096,
+        },
+    },
+    "anthropic.claude-3-5-sonnet-20240620-v1:0": {
+        "params": {
+            # "temperature": 0,
+            "max_tokens": 4096,
+            # "max_input_tokens": 200000,
+            # "max_output_tokens": 4096,
+        },
+    },
+    "anthropic.claude-3-haiku-20240307-v1:0": {
+        "params": {
+            # "temperature": 0,
+            "max_tokens": 4096,
+            # "max_input_tokens": 200000,
+            # "max_output_tokens": 4096,
+        },
+    },
+    "anthropic.claude-3-opus-20240229-v1:0": {
+        "params": {
+            # "temperature": 0,
+            "max_tokens": 4096,
+            # "max_input_tokens": 200000,
+            # "max_output_tokens": 4096,
+        },
+    },
+}
+
 
 class LlmManager(BaseModel):
     llm: ChatOpenAI | None = None

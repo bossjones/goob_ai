@@ -145,3 +145,4 @@ source: https://www.youtube.com/watch?v=AeASAsPp9LE
 - https://medium.com/langchain-0-2-insights/langchain-0-2-insights-building-a-versatile-cli-assistant-with-langchain-and-langgraph-bc81a4570ba2
 - https://github.com/BellaBe/multi-agents-base-cli
 - https://console.groq.com/docs/quickstart
+- https://cookbook.openai.com/examples/tag_caption_images_with_gpt4v
