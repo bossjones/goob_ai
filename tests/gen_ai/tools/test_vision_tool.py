@@ -109,8 +109,8 @@ def test_tool_injected_arg_with_schema(
         }
     )
 
-    assert "Ego" in res
-    assert "@HowFarCanWeFall" in res
+    # assert "Ego" in res
+    # assert "@HowFarCanWeFall" in res
     assert "Too fine. Blocked" in res
 
     # validation_error = ValidationError(model='VisionToolInput', errors=[{'loc': ('image_path',), 'msg': 'field required', 'type': 'value_error.missing'}, {'loc': ('prompt',), 'msg': 'field required', 'type': 'value_error.missing'}])

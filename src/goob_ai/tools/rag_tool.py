@@ -2,18 +2,21 @@
 
 from __future__ import annotations
 
+import logging
 import sys
 import traceback
 
-from typing import ClassVar, List, Optional, Type
+from typing import Any, ClassVar, List, Optional, Type
 
 import langchain_chroma.vectorstores
+import openai
 
 from langchain import hub
 from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain.chains.retrieval import create_retrieval_chain
 from langchain.pydantic_v1 import BaseModel, Field
 from langchain.schema import Document
+from langchain.schema.runnable import ConfigurableField, Runnable, RunnableBranch, RunnableLambda, RunnableMap
 from langchain.tools import BaseTool
 from langchain.tools.base import ToolException
 from langchain_chroma import Chroma
@@ -21,14 +24,16 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import Runnable, RunnableParallel, RunnablePassthrough, RunnableSerializable
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
+from langsmith import traceable
+from langsmith.wrappers import wrap_openai
 from loguru import logger as LOGGER
+from openai import Client
 
+from goob_ai.aio_settings import aiosettings
 from goob_ai.llm_manager import LlmManager
 from goob_ai.services.chroma_service import ChromaService
 
 
-# from langchain_core.callbacks import AsyncCallbackManagerForToolRun, CallbackManagerForToolRun
-# from langchain.callbacks.manager import AsyncCallbackManagerForToolRun, CallbackManagerForToolRun
 RETRIEVAL_QA_CHAT_PROMPT: ChatPromptTemplate = hub.pull("langchain-ai/retrieval-qa-chat")
 RAG_PROMPT: ChatPromptTemplate = hub.pull("rlm/rag-prompt")
 
@@ -338,7 +343,9 @@ class ReadTheDocsQATool(BaseChromaDBTool, BaseTool):
     #         embedding_function=OpenAIEmbeddings(),
     #     )
     #     self.model: ChatOpenAI | None = LlmManager().llm
-    def _make_qa_chain(self):
+
+    @traceable
+    def _make_qa_chain(self) -> RunnableSerializable[Any, str]:
         """Make a RetrievalQA chain which filters by this paper_id"""
         # filter = {"source": paper_id}
 

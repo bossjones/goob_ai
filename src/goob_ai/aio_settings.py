@@ -192,6 +192,7 @@ class AioSettings(BaseSettings):
     chroma_port: str = "8010"
     enable_chroma: bool = True
 
+    dev_mode: bool = Field(env="DEV_MODE", description="enable dev mode", default=False)
     # azure_openai_api_key: str
     # openai_api_type: str
     # openai_api_version: str
@@ -199,8 +200,10 @@ class AioSettings(BaseSettings):
     # azure_openai_endpoint: str
     llm_temperature: float = 0.0
     # vision_model: str = "gpt-4-turbo"
-    vision_model: str = "gpt-4-vision-preview"
-    chat_model: str = "gpt-4o-2024-05-13"
+    vision_model: str = "gpt-4o"
+    chat_model: str = "gpt-4o"
+    # DISABLED: # vision_model: str = "gpt-4-vision-preview"
+    # DISABLED: # chat_model: str = "gpt-4o-2024-05-13"
     # chat_model: str = "gpt-3.5-turbo-0125"
     # chat_model: str = "gpt-3.5-turbo-16k" # note another option
     chat_history_buffer: int = 10
@@ -214,6 +217,9 @@ class AioSettings(BaseSettings):
     pinecone_api_key: SecretStr = Field(env="PINECONE_API_KEY", description="pinecone api key", default="")
     pinecone_env: str = Field(env="PINECONE_ENV", description="pinecone env", default="")
     pinecone_index: str = Field(env="PINECONE_INDEX", description="pinecone index", default="")
+
+    anthropic_api_key: SecretStr = Field(env="ANTHROPIC_API_KEY", description="claude api key", default="")
+    groq_api_key: SecretStr = Field(env="GROQ_API_KEY", description="groq api key", default="")
 
     langchain_endpoint: str = Field(env="LANGCHAIN_ENDPOINT", description="langchain endpoint", default="")
     langchain_tracing_v2: bool = Field(
@@ -230,6 +236,12 @@ class AioSettings(BaseSettings):
     )
     langchain_project: str = Field(env="LANGCHAIN_PROJECT", description="langsmith project name", default="")
     debug_aider: bool = Field(env="DEBUG_AIDER", description="debug tests stuff written by aider", default=False)
+
+    local_test_debug: bool = Field(env="LOCAL_TEST_DEBUG", description="enable local debug testing", default=False)
+    local_test_enable_evals: bool = Field(
+        env="LOCAL_TEST_ENABLE_EVALS", description="enable local debug testing with evals", default=False
+    )
+    python_debug: bool = Field(env="PYTHON_DEBUG", description="enable bpdb on cli", default=False)
 
     @property
     def redis_url(self) -> URL:

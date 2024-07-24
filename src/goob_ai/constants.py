@@ -24,8 +24,7 @@ MAX_FILE_UPLOAD_IMAGES_IMGUR = 20000000
 MAX_FILE_UPLOAD_VIDEO_IMGUR = 200000000
 MAX_RUNTIME_VIDEO_IMGUR = 20  # seconds
 
-# CURRENT_USER = "professorex.university@gmail.com"  # reactionmemestv@gmail.com # iamhoeslikememes@gmail.com
-CURRENT_USER = "n/a"  # reactionmemestv@gmail.com # iamhoeslikememes@gmail.com
+CURRENT_USER = "n/a"
 # Add constants for input classification schema
 INPUT_CLASSIFICATION_NOT_A_QUESTION = "Not a question"
 INPUT_CLASSIFICATION_NOT_FOR_ME = "Not for me"
@@ -76,3 +75,11 @@ Tensor: Aight, you down for some Among Us or what? 🤪🚀 I promise I won't sc
 {BOTNAME}:"""
 
 CHANNEL_ID = "1240294186201124929"
+
+
+# via gpt-discord-bot
+SECONDS_DELAY_RECEIVING_MSG = 3  # give a delay for the bot to respond so it can catch multiple messages
+MAX_THREAD_MESSAGES = 200
+ACTIVATE_THREAD_PREFX = "💬✅"
+INACTIVATE_THREAD_PREFIX = "💬❌"
+MAX_CHARS_PER_REPLY_MSG = 1500  # discord has a 2k limit, we just break message into 1.5k

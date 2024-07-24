@@ -138,3 +138,11 @@ example prompt:
 `sing pytest, write tests for test_timer.py that cover every function in timer.py. mock if necessary but only use pytest-mock, do not use unittest.mock.`
 
 source: https://www.youtube.com/watch?v=AeASAsPp9LE
+
+
+# july 2024
+
+- https://medium.com/langchain-0-2-insights/langchain-0-2-insights-building-a-versatile-cli-assistant-with-langchain-and-langgraph-bc81a4570ba2
+- https://github.com/BellaBe/multi-agents-base-cli
+- https://console.groq.com/docs/quickstart
+- https://cookbook.openai.com/examples/tag_caption_images_with_gpt4v

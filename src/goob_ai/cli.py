@@ -58,6 +58,61 @@ from goob_ai.utils import repo_typing
 from goob_ai.utils.file_functions import fix_path
 
 
+# # Use the following to enable the debugger
+# from IPython.terminal.debugger import TerminalPdb  # noqa
+# sys.excepthook = TerminalPdb(
+#     call_pdb=True, ostream=sys.__stdout__
+# )
+# # sys.excepthook = TerminalPdb(
+# #     color_scheme="Linux", call_pdb=True, ostream=sys.__stdout__
+# # )
+
+# if dev mode is enabled, set bpdb as the default debugger
+if aiosettings.dev_mode:
+
+    def info(type, value, tb):
+        LOGGER.info(f"type: {type}")
+        LOGGER.info(f"reveal_type(type): {reveal_type(type)}")  # pylint: disable=undefined-variable
+
+        LOGGER.info(f"value: {value}")
+        LOGGER.info(f"reveal_type(value): {reveal_type(value)}")  # pylint: disable=undefined-variable
+
+        LOGGER.info(f"tb: {tb}")
+        LOGGER.info(f"reveal_type(type): {reveal_type(tb)}")  # pylint: disable=undefined-variable
+
+        if hasattr(sys, "ps1") or not sys.stderr.isatty() or not sys.stdin.isatty():
+            # stdin or stderr is redirected, just do the normal thing
+            original_hook(type, value, tb)
+        else:
+            # a terminal is attached and stderr is not redirected, debug
+            import traceback
+
+            traceback.print_exception(type, value, tb)
+            # environment variable PYTHON_DEBUG can select debugging type
+            debug_style = os.environ.get("PYTHON_DEBUG", "bpdb")
+            print(debug_style)
+            if debug_style in ["pdb", "bpdb"]:
+                print("[NOTE] automatic debugging from %s" % __file__, file=sys.stderr)
+            if debug_style == "bpdb":
+                import bpdb
+
+                bpdb.pm()
+            elif debug_style == "pdb":
+                import pdb
+
+                pdb.pm()
+            else:
+                raise Exception('cannot interpret environment variable PYTHON_DEBUG: "%s"' % debug_style)
+
+    # automatically debug unless stdout/stderr redirected via stack overflow
+    # ! note that python3 has more rigid scopes so you might not see everything you want
+    original_hook = sys.excepthook
+    # setting PYTHON_DEBUG to NO suppresses any debugging
+    if sys.excepthook == sys.__excepthook__ and not os.environ.get("PYTHON_DEBUG", "pdb") in ["NO", "no"]:
+        # if someone already patched excepthook, let them win
+        sys.excepthook = info
+
+
 if aiosettings.enable_sentry:
     sentry_init(
         # Set traces_sample_rate to 1.0 to capture 100%
@@ -210,7 +265,8 @@ async def run_bot():
         print(f"exc_type: {exc_type}")
         print(f"exc_value: {exc_value}")
         traceback.print_tb(exc_traceback)
-        bpdb.pm()
+        if aiosettings.dev_mode:
+            bpdb.pm()
     async with AsyncGoobBot() as bot:
         # bot.typerCtx = ctx
         # bot.typerCtx = ctx
@@ -360,7 +416,8 @@ def run_screencrop() -> None:
         print(f"exc_type: {exc_type}")
         print(f"exc_value: {exc_value}")
         traceback.print_tb(exc_traceback)
-        bpdb.pm()
+        if aiosettings.dev_mode:
+            bpdb.pm()
 
 
 @APP.command()
@@ -382,7 +439,8 @@ def run_download_and_predict(
         print(f"exc_type: {exc_type}")
         print(f"exc_value: {exc_value}")
         traceback.print_tb(exc_traceback)
-        bpdb.pm()
+        if aiosettings.dev_mode:
+            bpdb.pm()
 
 
 @APP.command()
@@ -437,7 +495,8 @@ def query_readthedocs() -> None:
         print(f"exc_type: {exc_type}")
         print(f"exc_value: {exc_value}")
         traceback.print_tb(exc_traceback)
-        bpdb.pm()
+        if aiosettings.dev_mode:
+            bpdb.pm()
 
 
 @APP.command()
@@ -445,7 +504,7 @@ def run_predict_and_display(img_url: List[str] = None) -> None:
     """Manually run screencrop's download_and_predict service and get bounding boxes"""
 
     if img_url is None:
-        img_url = [
+        img_url = [  # type: ignore
             # "/Users/malcolm/dev/bossjones/goob_ai/tests/fixtures/screenshot_image_larger.JPEG",
             # "/Users/malcolm/dev/bossjones/goob_ai/tests/fixtures/screenshot_image_larger2.PNG",
             # "/Users/malcolm/dev/bossjones/goob_ai/tests/fixtures/screenshot_image_larger3.PNG",
@@ -476,7 +535,8 @@ def run_predict_and_display(img_url: List[str] = None) -> None:
         print(f"exc_type: {exc_type}")
         print(f"exc_value: {exc_value}")
         traceback.print_tb(exc_traceback)
-        bpdb.pm()
+        if aiosettings.dev_mode:
+            bpdb.pm()
 
 
 # THIS SHOULD BE THE FINAL ONE THAT PRODUCES THE PROPER CROP
@@ -497,7 +557,8 @@ def run_final() -> None:
         print(f"exc_type: {exc_type}")
         print(f"exc_value: {exc_value}")
         traceback.print_tb(exc_traceback)
-        bpdb.pm()
+        if aiosettings.dev_mode:
+            bpdb.pm()
 
 
 # THIS SHOULD BE THE FINAL ONE THAT PRODUCES THE PROPER CROP
@@ -521,7 +582,8 @@ def chroma(choices: ChromaChoices) -> None:
         print(f"exc_type: {exc_type}")
         print(f"exc_value: {exc_value}")
         traceback.print_tb(exc_traceback)
-        bpdb.pm()
+        if aiosettings.dev_mode:
+            bpdb.pm()
 
 
 @APP.command()

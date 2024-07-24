@@ -264,6 +264,8 @@ def global_log_config(log_level: Union[str, int] = logging.DEBUG, json: bool = F
     )
     # logger.configure(patcher=set_log_extras)
 
+    # logger.disable("sentry_sdk")
+
     # SOURCE: https://github.com/Delgan/loguru/blob/7273a5eba32b08063d1426f8f022e4734d87afbe/docs/resources/recipes.rst#L721
     # TODO: Do this
     # You can also use ~loguru._logger.Logger.patch() for this, so the serialization function will be called only once in case you want to use it in multiple sinks:
