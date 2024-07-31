@@ -1,4 +1,5 @@
-This is the first full release of `goob_ai`. Please consult the [documentation](https://goob_ai.readthedocs.io/) for more information on installation, setup, and usage.
+This is the first full release of `goob_ai`. Please consult the [documentation](https://goob_ai.readthedocs.io/) for
+more information on installation, setup, and usage.
 
 *Changes from v0.1.0:*
 

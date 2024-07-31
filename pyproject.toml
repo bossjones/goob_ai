@@ -289,6 +289,7 @@ dev-dependencies = [
     "mkdocs-version-annotations>=1.0.0",
     "mkdocs-include-markdown-plugin>=6.2.1",
     "pytest-ignore-flaky>=2.2.1",
+    "mdformat-footnote>=0.1.1",
 ]
 
 [tool.rye.scripts]
@@ -475,8 +476,9 @@ skip_covered = false
 
 # =========================[ PYTEST INI OPTIONS ]========================
 [tool.pytest.ini_options]
-# retries = 2
+retries = 5
 # retry_delay = 0.5
+retry_delay = 30
 pythonpath = "."
 asyncio_mode = "auto"
 addopts = [

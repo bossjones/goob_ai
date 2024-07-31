@@ -2,7 +2,8 @@
 
 ## StudyTime
 
-see: [chat_llm.py](https://github.com/f-andrei/StudyTime/blob/b8e1319569ceaeaf0239944eaecc9dd2392b4880/app/chatbot/chat_llm.py)
+see:
+[chat_llm.py](https://github.com/f-andrei/StudyTime/blob/b8e1319569ceaeaf0239944eaecc9dd2392b4880/app/chatbot/chat_llm.py)
 
 ```python
 prefix = """Goal: Facilitate users with their tasks and notes efficiently while maintaining data security and accuracy.
