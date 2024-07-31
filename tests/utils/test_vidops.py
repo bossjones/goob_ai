@@ -1,3 +1,10 @@
+# mypy: disable-error-code="attr-defined"
+# mypy: disable-error-code="index"
+# mypy: disable-error-code="union-attr"
+# mypy: disable-error-code="call-arg"
+# mypy: disable-error-code="arg-type"
+# pylint: disable=no-member
+
 from __future__ import annotations
 
 import asyncio

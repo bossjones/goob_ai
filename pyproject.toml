@@ -133,6 +133,8 @@ dependencies = [
     "sentry-sdk>=2.9.0",
     "langgraph>=0.1.10",
     "langchain-groq>=0.1.6",
+    "notebook>=7.2.1",
+    "nbconvert>=7.16.4",
 ]
 
 readme = "README.md"
@@ -628,6 +630,7 @@ disable_error_code = [
     "var-annotated",
     # "consider-using-with",
     "union-attr",
+    "return",
 ]
 
 # Causes mypy to treat arguments with a None default value as having an implicit Optional type.
