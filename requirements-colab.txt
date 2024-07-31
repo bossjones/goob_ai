@@ -535,7 +535,7 @@ markdown==3.6
     # via tensorboard
 markdown-it-py==3.0.0
     # via rich
-markdown2==2.4.13
+markdown2==2.5.0
     # via md2pdf
 markupsafe==2.1.5
     # via jinja2
