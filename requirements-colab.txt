@@ -495,7 +495,7 @@ langchain-core==0.2.23
     # via langserve
 langchain-google-genai==1.0.7
     # via goob-ai
-langchain-groq==0.1.6
+langchain-groq==0.1.9
     # via goob-ai
 langchain-openai==0.1.14
     # via goob-ai
