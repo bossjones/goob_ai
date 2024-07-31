@@ -51,8 +51,11 @@ tree_list ->
 
 # Compare cerebro model to goob-ai
 
-What is model ensembling?
-Model ensembling combines the predictions from multiple models together. Traditionally this is done by running each model on some inputs separately and then combining the predictions. However, if you’re running models with the same architecture, then it may be possible to combine them together using torch.vmap. vmap is a function transform that maps functions across dimensions of the input tensors. One of its use cases is eliminating for-loops and speeding them up through vectorization.
+What is model ensembling? Model ensembling combines the predictions from multiple models together. Traditionally this is
+done by running each model on some inputs separately and then combining the predictions. However, if you’re running
+models with the same architecture, then it may be possible to combine them together using torch.vmap. vmap is a function
+transform that maps functions across dimensions of the input tensors. One of its use cases is eliminating for-loops and
+speeding them up through vectorization.
 
 Let’s demonstrate how to do this using an ensemble of simple MLPs.
 
@@ -1624,4 +1627,5 @@ goto <http://localhost:3000/collections/test_chroma_service_e2e_add_to_chroma_ur
 
 # Langsmith
 
-- custom tool(chroma_question_answering): <https://smith.langchain.com/o/631f824f-4072-5bc6-b1f6-924eb5dfd83f/projects/p/9c97a8d8-3b8b-4b42-85be-6a17c4aab36d?timeModel=%7B%22duration%22%3A%227d%22%7D&runtab=0&peek=7c25a24d-9240-4736-a109-02013fa8aa90>
+- custom tool(chroma_question_answering):
+  <https://smith.langchain.com/o/631f824f-4072-5bc6-b1f6-924eb5dfd83f/projects/p/9c97a8d8-3b8b-4b42-85be-6a17c4aab36d?timeModel=%7B%22duration%22%3A%227d%22%7D&runtab=0&peek=7c25a24d-9240-4736-a109-02013fa8aa90>

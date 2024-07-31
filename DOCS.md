@@ -4,10 +4,10 @@
 
 ## Test source
 
-|            |                                               |
-| ---------: | --------------------------------------------- |
+|            |                                                 |
+| ---------: | ----------------------------------------------- |
 | Repository | <https://github.com/squidfunk/mkdocs-material/> |
-| Commit     | de428d16611512f321732c0f7fe5fcc2bd4cbff1      |
+|     Commit | de428d16611512f321732c0f7fe5fcc2bd4cbff1        |
 
 - use Original
   - .browserslistrc

@@ -1,4 +1,3 @@
-
 ```
 # # SOURCE: https://github.com/aronweiler/assistant/blob/a8abd34c6973c21bc248f4782f1428a810daf899/src/discord/rag_bot.py#L90
     # async def load_files(self, uploaded_file_paths, root_temp_dir, message: discord.Message):

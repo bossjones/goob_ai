@@ -23,7 +23,6 @@ system-info:
 	@echo "CPU architecture: {{ arch() }}"
 	@echo "Operating system type: {{ os_family() }}"
 	@echo "Operating system: {{ os() }}"
-	@echo "Home directory: {{ home_directory() }}"
 
 # verify python is running under pyenv
 which-python:
@@ -77,7 +76,7 @@ check-taplo-installed:
 fmt-python:
 	git ls-files '*.py' '*.ipynb' | xargs rye run pre-commit run --files
 
-fmt-md:
+fmt-markdown-pre-commit:
 	git ls-files '*.md' | xargs rye run pre-commit run --files
 
 # format pyproject.toml using taplo
@@ -87,7 +86,7 @@ fmt-toml:
 # SOURCE: https://github.com/PovertyAction/ipa-data-tech-handbook/blob/ed81492f3917ee8c87f5d8a60a92599a324f2ded/Justfile
 # Format all markdown and config files
 fmt-markdown:
-    rye run mdformat .
+    git ls-files '*.md' | xargs rye run mdformat
 
 # Format a single markdown file, "f"
 fmt-md f:
@@ -95,7 +94,7 @@ fmt-md f:
 
 
 # format all code using pre-commit config
-fmt: fmt-python fmt-toml fmt-markdown fmt-md
+fmt: fmt-python fmt-toml fmt-markdown fmt-markdown fmt-markdown-pre-commit
 
 # lint python files using ruff
 lint-python:

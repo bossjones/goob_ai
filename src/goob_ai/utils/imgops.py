@@ -9,9 +9,11 @@
 from __future__ import annotations
 
 import asyncio
+import base64
 import concurrent.futures
 import functools
 import gc
+import io
 import logging
 import math
 import os
@@ -22,8 +24,11 @@ import tempfile
 import time
 import traceback
 import typing
+import uuid
 
 from enum import IntEnum
+from io import BytesIO
+from pathlib import Path
 from typing import Any, Dict, List, NewType, Optional, Tuple
 
 import cv2
@@ -93,6 +98,37 @@ def setup_model() -> torch.nn.Module:
 ###########################################################################3
 ###########################################################################3
 ###########################################################################3
+
+
+def resize_base64_image(base64_string, size=(128, 128)):
+    """
+    Resize an image encoded as a Base64 string.
+
+    :param base64_string: A Base64 encoded string of the image to be resized.
+    :param size: A tuple representing the new size (width, height) for the image.
+    :return: A Base64 encoded string of the resized image.
+    """
+    img_data = base64.b64decode(base64_string)
+    img = Image.open(io.BytesIO(img_data))
+    resized_img = img.resize(size, Image.LANCZOS)
+    buffered = io.BytesIO()
+    resized_img.save(buffered, format=img.format)
+    return base64.b64encode(buffered.getvalue()).decod
+
+
+def convert_to_base64(pil_image):
+    """
+    Convert PIL images to Base64 encoded strings
+
+    :param pil_image: PIL image
+    :return: Re-sized Base64 string
+    """
+
+    buffered = BytesIO()
+    pil_image.save(buffered, format="JPEG")  # You can change the format if needed
+    img_str = base64.b64encode(buffered.getvalue()).decode("utf-8")
+    # img_str = resize_base64_image(img_str, size=(831,623))
+    return img_str
 
 
 def handle_autocrop(
