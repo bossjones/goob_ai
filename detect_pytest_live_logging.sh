@@ -9,7 +9,7 @@ if [ -z "$1" ]; then
 fi
 
 set -e
-if grep -q '^log_cli = true$' "${1}"; then
+if grep -q "^log_cli = true$" "${1}"; then
   exit 3
 else
   exit 0

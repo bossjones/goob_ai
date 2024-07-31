@@ -85,8 +85,12 @@ lint-python:
 lint-toml: check-taplo-installed
 	pre-commit run taplo-lint --all-files
 
+# lint pyproject.toml and detect log_cli = true
+lint-check-log-cli:
+	pre-commit run detect-pytest-live-log --all-files
+
 # Lint all files in the current directory (and any subdirectories).
-lint: lint-python lint-toml
+lint: lint-python lint-toml lint-check-log-cli
 
 # SOURCE: https://github.com/RobertCraigie/prisma-client-py/blob/da53c4280756f1a9bddc3407aa3b5f296aa8cc10/Makefile#L77
 clean:
