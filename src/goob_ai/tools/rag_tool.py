@@ -15,14 +15,21 @@ from langchain import hub
 from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain.chains.retrieval import create_retrieval_chain
 from langchain.pydantic_v1 import BaseModel, Field
-from langchain.schema import Document
-from langchain.schema.runnable import ConfigurableField, Runnable, RunnableBranch, RunnableLambda, RunnableMap
-from langchain.tools import BaseTool
-from langchain.tools.base import ToolException
 from langchain_chroma import Chroma
+from langchain_core.documents import Document
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
-from langchain_core.runnables import Runnable, RunnableParallel, RunnablePassthrough, RunnableSerializable
+from langchain_core.runnables import (
+    ConfigurableField,
+    Runnable,
+    RunnableBranch,
+    RunnableLambda,
+    RunnableMap,
+    RunnableParallel,
+    RunnablePassthrough,
+    RunnableSerializable,
+)
+from langchain_core.tools import BaseTool, ToolException
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 from langsmith import traceable
 from langsmith.wrappers import wrap_openai

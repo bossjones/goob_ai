@@ -7,7 +7,7 @@ import logging
 import openai
 
 from langchain.pydantic_v1 import BaseModel
-from langchain.schema.runnable import ConfigurableField, Runnable, RunnableBranch, RunnableLambda, RunnableMap
+from langchain_core.runnables import ConfigurableField, Runnable, RunnableBranch, RunnableLambda, RunnableMap
 from langchain_openai import ChatOpenAI, OpenAI
 from langsmith import traceable
 from langsmith.wrappers import wrap_openai

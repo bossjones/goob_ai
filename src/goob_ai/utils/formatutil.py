@@ -13,7 +13,7 @@ from typing import Any, List
 
 import aiohttp
 
-from langchain.text_splitter import CharacterTextSplitter
+from langchain_text_splitters import CharacterTextSplitter
 from PyPDF2 import PdfReader
 
 

@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 import logging
 
-from langchain.prompts import ChatPromptTemplate
+from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import RunnablePassthrough
 from loguru import logger as LOGGER
 

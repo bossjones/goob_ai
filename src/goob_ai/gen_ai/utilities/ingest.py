@@ -11,8 +11,9 @@ import aiohttp
 import pinecone
 
 from bs4 import BeautifulSoup
-from langchain.embeddings.openai import OpenAIEmbeddings
-from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain_community.document_loaders import ReadTheDocsLoader
+from langchain_community.embeddings import OpenAIEmbeddings
+from langchain_text_splitters import RecursiveCharacterTextSplitter
 from loguru import logger as LOGGER
 from pinecone import Pinecone
 
@@ -74,8 +75,6 @@ async def ingest(bot: AsyncGoobBot, url: str, namespace: str):
                     await asyncio.gather(*tasks)
                 else:
                     LOGGER.error(f"Failed to download: {base_url}")
-
-        from langchain.document_loaders.readthedocs import ReadTheDocsLoader
 
         class MyReadThedbLoader(ReadTheDocsLoader):
             """My custom ReadThedbLoader."""
