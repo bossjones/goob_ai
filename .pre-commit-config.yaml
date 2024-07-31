@@ -216,3 +216,10 @@ repos:
         args: [-c, .markdownlint.yaml, --fix]
         # exclude: ^marimo/_tutorials/.*\.md
         exclude: (CONTRIBUTING.md|DEBUG.md|REFERENCES.md|README.md|cursor_share_your_rules_for_ai.md)
+
+  - repo: https://github.com/twisted/towncrier
+    rev: 23.11.0  # run 'pre-commit autoupdate' to update
+    hooks:
+      - id: towncrier-update
+        files: $changelog\.d/
+        args: ['--keep']

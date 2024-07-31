@@ -22,6 +22,17 @@ MD029: false
 # no-trailing-punctuation
 MD026: false
 
+# SOURCE: https://github.com/PovertyAction/ipa-data-tech-handbook/blob/ed81492f3917ee8c87f5d8a60a92599a324f2ded/.markdownlint.yaml
+# MD007/unordered-list-indent
+MD007:
+  indent: 2
+
+# MD024/no-duplicate-heading
+MD024:
+  # Allow when nested under different parents e.g. CHANGELOG.md
+  siblings_only: true
+
+MD038: false
 
 # # ------------------------------------------------------------------------
 # # Example markdownlint configuration with all properties set to their default value

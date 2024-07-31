@@ -1,0 +1,28 @@
+# SOURCE: https://github.com/astral-sh/rye/blob/4b34ca16ac06794640c86a82ccd8ccd7b124a0ad/.github/workflows/docs.yml
+# name: Publish docs via GitHub Pages
+# on:
+#   push:
+#     paths:
+#       - 'docs/**'
+#       - 'CHANGELOG.md'
+#       - 'mkdocs.yml'
+#       - 'scripts/install.sh'
+#     branches:
+#       - main
+#   workflow_dispatch:
+
+# jobs:
+#   build:
+#     if: github.repository == 'astral-sh/rye'
+#     name: Deploy docs
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Checkout main
+#         uses: actions/checkout@v2
+#       - uses: Swatinem/rust-cache@v2
+#       - name: Deploy docs
+#         uses: mhausenblas/mkdocs-deploy-gh-pages@master
+#         env:
+#           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#           CONFIG_FILE: mkdocs.yml
+#           REQUIREMENTS: ./requirements.lock

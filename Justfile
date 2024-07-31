@@ -18,6 +18,13 @@ _default:
 info:
 		print "OS: {{os()}}"
 
+# Display system information
+system-info:
+	@echo "CPU architecture: {{ arch() }}"
+	@echo "Operating system type: {{ os_family() }}"
+	@echo "Operating system: {{ os() }}"
+	@echo "Home directory: {{ home_directory() }}"
+
 # verify python is running under pyenv
 which-python:
 		python -c "import sys;print(sys.executable)"
@@ -70,15 +77,25 @@ check-taplo-installed:
 fmt-python:
 	git ls-files '*.py' '*.ipynb' | xargs rye run pre-commit run --files
 
-fmt-markdown:
+fmt-md:
 	git ls-files '*.md' | xargs rye run pre-commit run --files
 
 # format pyproject.toml using taplo
 fmt-toml:
 	pre-commit run taplo-format --all-files
 
+# SOURCE: https://github.com/PovertyAction/ipa-data-tech-handbook/blob/ed81492f3917ee8c87f5d8a60a92599a324f2ded/Justfile
+# Format all markdown and config files
+fmt-markdown:
+    rye run mdformat .
+
+# Format a single markdown file, "f"
+fmt-md f:
+    rye run mdformat {{ f }}
+
+
 # format all code using pre-commit config
-fmt: fmt-python fmt-toml fmt-markdown
+fmt: fmt-python fmt-toml fmt-markdown fmt-md
 
 # lint python files using ruff
 lint-python:
@@ -92,8 +109,12 @@ lint-toml: check-taplo-installed
 lint-check-log-cli:
 	pre-commit run detect-pytest-live-log --all-files
 
+# Check format of all markdown files
+lint-check-markdown:
+    rye run mdformat --check .
+
 # Lint all files in the current directory (and any subdirectories).
-lint: lint-python lint-toml lint-check-log-cli
+lint: lint-python lint-toml lint-check-log-cli lint-check-markdown
 
 # SOURCE: https://github.com/RobertCraigie/prisma-client-py/blob/da53c4280756f1a9bddc3407aa3b5f296aa8cc10/Makefile#L77
 clean:
@@ -183,3 +204,6 @@ docs_build:
 
 docs_deploy:
 	rye run mkdocs gh-deploy --clean
+
+changelog:
+	rye run towncrier build --version main --draft
