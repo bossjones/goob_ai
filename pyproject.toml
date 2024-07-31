@@ -293,6 +293,7 @@ dev-dependencies = [
 
 [tool.rye.scripts]
 serve-docs = "mkdocs serve"
+pylint-to-ruff = "pylint-to-ruff"
 http = {cmd = ["python", "-mhttp.server", "8008"]}
 whoami = {cmd = "whoami"}
 mypy-missing = {cmd = "mypy --install-types"}

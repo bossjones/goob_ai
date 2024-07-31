@@ -149,3 +149,6 @@ source: <https://www.youtube.com/watch?v=AeASAsPp9LE>
 - <https://console.groq.com/docs/quickstart>
 - <https://cookbook.openai.com/examples/tag_caption_images_with_gpt4v>
 - https://github.com/commitizen-tools/commitizen-action
+- https://github.com/humblFINANCE/humblAPI/blob/master/pyproject.toml
+- https://github.com/humblFINANCE/humblAPI/blob/master/pyproject.toml
+- https://github.com/humblFINANCE/humblAPI/blob/master/pyproject.toml
