@@ -16,7 +16,7 @@ def run_pyright() -> None:
     Find all missing typestubs, generate them,
     then run pyright
     """
-    modulesMissingStubs: Set[str] = set()
+    modulesMissingStubs: set[str] = set()
 
     for line in os.popen(PYRIGHT_CMD).readlines():
         match = re.match(MISSING_TYPESTUB_PATTERN, line)

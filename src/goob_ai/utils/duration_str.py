@@ -138,14 +138,14 @@ def _to_str_small(nanoseconds: Optional[float], extended: bool = False) -> str:
 
     if milliseconds := int(nanoseconds / _millisecond_size):
         nanoseconds -= _millisecond_size * milliseconds
-        result_str += "{:g}ms".format(milliseconds)
+        result_str += f"{milliseconds:g}ms"
 
     if microseconds := int(nanoseconds / _microsecond_size):
         nanoseconds -= _microsecond_size * microseconds
-        result_str += "{:g}us".format(microseconds)
+        result_str += f"{microseconds:g}us"
 
     if nanoseconds:
-        result_str += "{:g}ns".format(nanoseconds)
+        result_str += f"{nanoseconds:g}ns"
 
     return result_str
 
@@ -156,26 +156,26 @@ def _to_str_large(nanoseconds: float, extended: bool = False) -> str:
     if extended:
         if years := int(nanoseconds / _year_size):
             nanoseconds -= _year_size * years
-            result_str += "{:g}y".format(years)
+            result_str += f"{years:g}y"
 
         if months := int(nanoseconds / _month_size):
             nanoseconds -= _month_size * months
-            result_str += "{:g}mm".format(months)
+            result_str += f"{months:g}mm"
 
         if days := int(nanoseconds / _day_size):
             nanoseconds -= _day_size * days
-            result_str += "{:g}d".format(days)
+            result_str += f"{days:g}d"
 
     if hours := int(nanoseconds / _hour_size):
         nanoseconds -= _hour_size * hours
-        result_str += "{:g}h".format(hours)
+        result_str += f"{hours:g}h"
 
     if minutes := int(nanoseconds / _minute_size):
         nanoseconds -= _minute_size * minutes
-        result_str += "{:g}m".format(minutes)
+        result_str += f"{minutes:g}m"
 
     if seconds := nanoseconds / float(_second_size):
         nanoseconds -= _second_size * seconds
-        result_str += "{:g}s".format(seconds)
+        result_str += f"{seconds:g}s"
 
     return result_str

@@ -1,0 +1,126 @@
+site_name: GoobAI Documentation
+
+theme:
+  name: material
+  features:
+    - content.code.copy
+    - content.code.select
+    - navigation.footer
+  palette:
+    # Palette toggle for dark mode
+    - scheme: slate
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+    # Palette toggle for light mode
+    - scheme: default
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+
+site_url: https://goob_ai.readthedocs.io
+repo_url: https://github.com/bossjones/goob_ai
+site_author: bossjones
+site_description: POC langchain rag discord chatbot. Heavily inspired by DiscordLangAgent
+repo_name: bossjones/goob_ai
+
+
+markdown_extensions:
+  - admonition
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+
+
+plugins:
+  - mermaid2
+  - search
+  # SOURCE: mkdocs-with-pdf
+  - with-pdf:
+    #cover_title:
+    cover_subtitle: GoobAI
+    # cover_logo: assets/images/banner.png
+    back_cover: true
+    toc_level: 2
+    excludes_children:
+      - 'releases/changelog/:upgrading'
+    # convert_iframe:
+    #   - src: https://streamable.com/e/zmtb00
+    #     img: https://cdn-cf-east.streamable.com/image/zmtb00-screenshot75403.jpg
+    two_columns_level: 3
+    render_js: true
+    #headless_chrome_path: google-chrome
+    output_path: ../document.pdf
+    #debug_html: true
+    #verbose: true
+    #show_anchors: true
+    #enabled_if_env: ENABLE_PDF_EXPORT
+
+nav:
+  - Home: index.md
+  # - Images: images.md
+  - Versioning: versioning.md
+  # - Hardware: hardware.md
+  # - Firmware: firmware.md
+  # - Python Interface: controller.md
+  # - GUI: gui.md
+  - Changelog: changelog.md
+  - Developer Guide: dev.md
+  - Acknowledgement: acknowledgement.md
+
+# plugins:
+#     - with-pdf:
+#         #author: WHO
+#         #copyright: ANY TEXT
+#         #
+#         #cover: false
+#         #back_cover: true
+#         #cover_title: TITLE TEXT
+#         #cover_subtitle: SUBTITLE TEXT
+#         #custom_template_path: TEMPLATES PATH
+#         #
+#         #toc_title: TOC TITLE TEXT
+#         #heading_shift: false
+#         #toc_level: 3
+#         #ordered_chapter_level: 2
+#         #excludes_children:
+#         #    - 'release-notes/:upgrading'
+#         #    - 'release-notes/:changelog'
+#         #
+#         #exclude_pages:
+#         #    - 'bugs/'
+#         #    - 'appendix/contribute/'
+#         #convert_iframe:
+#         #    - src: IFRAME SRC
+#         #      img: POSTER IMAGE URL
+#         #      text: ALTERNATE TEXT
+#         #    - src: ...
+#         #two_columns_level: 3
+#         #
+#         #render_js: true
+#         #headless_chrome_path: headless-chromium
+#         #
+#         #output_path: any-place/document.pdf
+#         #enabled_if_env: ENABLE_PDF_EXPORT
+#         #
+#         #debug_html: true
+#         #show_anchors: true
+#         #verbose: true
+
+# SOURCE: https://github.com/vinta/awesome-python/blob/master/mkdocs.yml
+extra:
+  social:
+    - type: github
+      link: https://github.com/bossjones
+    - type: twitter
+      link: https://twitter.com/bossjones
+    - type: linkedin
+      link: https://www.linkedin.com/in/bossjones

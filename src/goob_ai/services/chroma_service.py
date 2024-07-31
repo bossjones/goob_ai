@@ -12,8 +12,9 @@ import pathlib
 import re
 import shutil
 
+from collections.abc import Sequence
 from dataclasses import dataclass
-from typing import Any, List, Optional, Sequence
+from typing import Any, List, Optional
 
 import bs4
 import chromadb
@@ -311,7 +312,7 @@ def generate_data_store() -> None:
     save_to_chroma(chunks)
 
 
-def load_documents() -> List[Document]:
+def load_documents() -> list[Document]:
     """Load documents from the specified data path.
 
     This function loads documents from the specified data path and returns them
@@ -340,7 +341,7 @@ def load_documents() -> List[Document]:
     return documents
 
 
-def split_text(documents: List[Document]) -> List[Document]:
+def split_text(documents: list[Document]) -> list[Document]:
     """Split documents into smaller chunks.
 
     This function takes a list of documents and splits each document into smaller chunks
@@ -359,7 +360,7 @@ def split_text(documents: List[Document]) -> List[Document]:
         length_function=len,
         add_start_index=True,
     )
-    chunks: List[Document] = text_splitter.split_documents(documents)
+    chunks: list[Document] = text_splitter.split_documents(documents)
     LOGGER.info(f"Split {len(documents)} documents into {len(chunks)} chunks.")
     return chunks
 
@@ -489,7 +490,7 @@ class ChromaService:
         generate_data_store()
 
     @staticmethod
-    def load_documents() -> List[Document]:
+    def load_documents() -> list[Document]:
         """
         Load documents from the specified data path.
 
@@ -499,7 +500,7 @@ class ChromaService:
         return load_documents()
 
     @staticmethod
-    def split_text(documents: List[Document]) -> List[Document]:
+    def split_text(documents: list[Document]) -> list[Document]:
         """
         Split documents into smaller chunks.
 
@@ -533,14 +534,14 @@ class ChromaService:
 
         # load the document and split it into chunks
         loader: TextLoader | PyMuPDFLoader | WebBaseLoader | None = get_rag_loader(path_to_document)
-        documents: List[Document] = loader.load()
+        documents: list[Document] = loader.load()
 
         # If filetype is txt, split it into chunks
         text_splitter = get_rag_splitter(path_to_document)
         if text_splitter:
-            docs: List[Document] = text_splitter.split_documents(documents)
+            docs: list[Document] = text_splitter.split_documents(documents)
         else:
-            docs: List[Document] = documents  # type: ignore
+            docs: list[Document] = documents  # type: ignore
 
         if embedding_function:
             embedding_function = embedding_function

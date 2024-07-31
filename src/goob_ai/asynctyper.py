@@ -6,8 +6,10 @@ import asyncio
 import inspect
 import logging
 
+from collections.abc import Awaitable, Iterable, Sequence
 from functools import partial, wraps
-from typing import Any, Awaitable, Callable, Dict, Iterable, List, Optional, Pattern, Sequence, Set, Tuple, Type, Union
+from re import Pattern
+from typing import Any, Callable, Dict, List, Optional, Set, Tuple, Type, Union
 
 import anyio
 import asyncer

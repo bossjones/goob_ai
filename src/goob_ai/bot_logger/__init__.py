@@ -89,7 +89,7 @@ def set_log_extras(record):
 
 
 # SOURCE: https://github.com/joint-online-judge/fastapi-rest-framework/blob/b0e93f0c0085597fcea4bb79606b653422f16700/fastapi_rest_framework/logging.py#L43
-def format_record(record: Dict[str, Any]) -> str:
+def format_record(record: dict[str, Any]) -> str:
     """
     Custom format for loguru loggers.
     Uses pformat for log any data like request/response body during debug.
@@ -180,7 +180,7 @@ def get_logger(
     return logger
 
 
-def request_id_filter(record: Dict[str, Any]):
+def request_id_filter(record: dict[str, Any]):
     """
     Inject the request id from the context var to the log record. The logging
     config format is defined in logger_config.yaml and has request_id as a field.

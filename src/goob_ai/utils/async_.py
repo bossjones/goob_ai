@@ -12,9 +12,10 @@ import time
 
 from asyncio import Semaphore, coroutines, ensure_future, gather, get_running_loop
 from asyncio.events import AbstractEventLoop
+from collections.abc import Awaitable, Coroutine
 from concurrent.futures import ThreadPoolExecutor
 from traceback import extract_stack
-from typing import Any, Awaitable, Callable, Coroutine, TypeVar
+from typing import Any, Callable, TypeVar
 
 from codetiming import Timer
 from loguru import logger as LOGGER

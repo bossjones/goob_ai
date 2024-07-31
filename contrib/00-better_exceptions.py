@@ -1,4 +1,3 @@
-from __future__ import print_function
 import better_exceptions, sys, types
 from IPython import get_ipython
 ip = get_ipython()

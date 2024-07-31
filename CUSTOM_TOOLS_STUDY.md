@@ -2,7 +2,7 @@
 
 ## StudyTime
 
-https://github.com/f-andrei/StudyTime/blob/b8e1319569ceaeaf0239944eaecc9dd2392b4880/app/chatbot/custom_tools.py#L7
+<https://github.com/f-andrei/StudyTime/blob/b8e1319569ceaeaf0239944eaecc9dd2392b4880/app/chatbot/custom_tools.py#L7>
 
 ```python
 from langchain.memory import ConversationBufferMemory

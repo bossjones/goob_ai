@@ -9,9 +9,11 @@ from __future__ import annotations
 
 import pathlib
 
+from collections.abc import Coroutine, Mapping
+from collections.abc import Sequence as Seq
 from types import TracebackType
-from typing import Any, Callable, Coroutine, Dict, List, Mapping, NewType, Tuple, Type, TypedDict, TypeVar, Union
-from typing import Sequence as Seq
+from typing import Any, Callable, Dict, List, NewType, Tuple, Type, TypedDict, TypeVar, Union
+from typing import runtime_checkable as runtime_checkable
 
 import httpx
 import numpy as np
@@ -25,7 +27,6 @@ from typing_extensions import Protocol as Protocol
 from typing_extensions import TypedDict as TypedDict
 from typing_extensions import TypeGuard as TypeGuard
 from typing_extensions import get_args as get_args
-from typing_extensions import runtime_checkable as runtime_checkable
 
 
 T = TypeVar("T")
@@ -44,11 +45,11 @@ CoroType = Callable[..., Coroutine[Any, Any, object]]
 
 @runtime_checkable
 class InheritsGeneric(Protocol):
-    __orig_bases__: Tuple["_GenericAlias"]
+    __orig_bases__: tuple[_GenericAlias]
 
 
 class _GenericAlias(Protocol):
-    __origin__: Type[object]
+    __origin__: type[object]
 
 
 # NOTE: we don't support some options as their type hints are not publicly exposed
@@ -113,7 +114,7 @@ PREFERRED_IMAGE_EXTENSIONS = {"jpeg": "jpg"}
 # SOURCE: https://stackoverflow.com/questions/51291722/define-a-jsonable-type-using-mypy-pep-526
 # SOURCE: https://github.com/python/typing/issues/182
 # currently not supported by mypy
-JSONType = Union[str, int, float, bool, None, Dict[str, Any], List[Any]]
+JSONType = Union[str, int, float, bool, None, dict[str, Any], list[Any]]
 
 ##########################################################
 # alternative #2 json type hinting
@@ -129,22 +130,22 @@ JSON_v = Union[str, int, float, bool, None]
 # the JSON is 5 dicts/lists, like: {'a': {'b': {'c': {'d': {'e': 'f'}}}}}.
 
 JSON_5 = JSON_v
-JSON_4 = Union[JSON_v, List[JSON_5], Mapping[str, JSON_5]]
-JSON_3 = Union[JSON_v, List[JSON_4], Mapping[str, JSON_4]]
-JSON_2 = Union[JSON_v, List[JSON_3], Mapping[str, JSON_3]]
-JSON_1 = Union[JSON_v, List[JSON_2], Mapping[str, JSON_2]]
-JSON = Union[JSON_v, List[JSON_1], Mapping[str, JSON_1]]
+JSON_4 = Union[JSON_v, list[JSON_5], Mapping[str, JSON_5]]
+JSON_3 = Union[JSON_v, list[JSON_4], Mapping[str, JSON_4]]
+JSON_2 = Union[JSON_v, list[JSON_3], Mapping[str, JSON_3]]
+JSON_1 = Union[JSON_v, list[JSON_2], Mapping[str, JSON_2]]
+JSON = Union[JSON_v, list[JSON_1], Mapping[str, JSON_1]]
 
 # To allow deeper nesting, you can of course expand the JSON definition above,
 # or you can keep typechecking for the first levels but skip typechecking
 # at the deepest levels by using UnsafeJSON:
 
-UnsafeJSON_5 = Union[JSON_v, List[Any], Mapping[str, Any]]
-UnsafeJSON_4 = Union[JSON_v, List[UnsafeJSON_5], Mapping[str, UnsafeJSON_5]]
-UnsafeJSON_3 = Union[JSON_v, List[UnsafeJSON_4], Mapping[str, UnsafeJSON_4]]
-UnsafeJSON_2 = Union[JSON_v, List[UnsafeJSON_3], Mapping[str, UnsafeJSON_3]]
-UnsafeJSON_1 = Union[JSON_v, List[UnsafeJSON_2], Mapping[str, UnsafeJSON_2]]
-UnsafeJSON = Union[JSON_v, List[UnsafeJSON_1], Mapping[str, UnsafeJSON_1]]
+UnsafeJSON_5 = Union[JSON_v, list[Any], Mapping[str, Any]]
+UnsafeJSON_4 = Union[JSON_v, list[UnsafeJSON_5], Mapping[str, UnsafeJSON_5]]
+UnsafeJSON_3 = Union[JSON_v, list[UnsafeJSON_4], Mapping[str, UnsafeJSON_4]]
+UnsafeJSON_2 = Union[JSON_v, list[UnsafeJSON_3], Mapping[str, UnsafeJSON_3]]
+UnsafeJSON_1 = Union[JSON_v, list[UnsafeJSON_2], Mapping[str, UnsafeJSON_2]]
+UnsafeJSON = Union[JSON_v, list[UnsafeJSON_1], Mapping[str, UnsafeJSON_1]]
 ##########################################################
 
 Pathlib = Union[str, pathlib.Path]  # typed from memory, may be wrong.
@@ -161,16 +162,16 @@ ArrayLike = np.ndarray
 
 # layer data may be: (data,) (data, meta), or (data, meta, layer_type)
 # using "Any" for the data type until ArrayLike is more mature.
-FullLayerData = Tuple[Any, Dict, str]
-LayerData = Union[Tuple[Any], Tuple[Any, Dict], FullLayerData]
+FullLayerData = tuple[Any, dict, str]
+LayerData = Union[tuple[Any], tuple[Any, dict], FullLayerData]
 
-PathLike = Union[str, List[str]]
-ReaderFunction = Callable[[PathLike], List[LayerData]]
-WriterFunction = Callable[[str, List[FullLayerData]], List[str]]
+PathLike = Union[str, list[str]]
+ReaderFunction = Callable[[PathLike], list[LayerData]]
+WriterFunction = Callable[[str, list[FullLayerData]], list[str]]
 
 ExcInfo = Union[
-    Tuple[Type[BaseException], BaseException, TracebackType],
-    Tuple[None, None, None],
+    tuple[type[BaseException], BaseException, TracebackType],
+    tuple[None, None, None],
 ]
 
 # # Types for GUI HookSpecs

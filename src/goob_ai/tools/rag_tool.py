@@ -38,7 +38,7 @@ RETRIEVAL_QA_CHAT_PROMPT: ChatPromptTemplate = hub.pull("langchain-ai/retrieval-
 RAG_PROMPT: ChatPromptTemplate = hub.pull("rlm/rag-prompt")
 
 
-def format_docs(docs: List[Document]):
+def format_docs(docs: list[Document]):
     """_summary_
 
     Args:
@@ -229,23 +229,8 @@ class BaseChromaDBTool(BaseModel):
     # db: SQLDatabase = Field(exclude=True)
     db: langchain_chroma.vectorstores.Chroma = Field(exclude=True)
 
-    hub_prompt = ChatPromptTemplate = RAG_PROMPT
-    # db: langchain_chroma.vectorstores.Chroma = Field(
-    #     default_factory=lambda: Chroma(
-    #         client=ChromaService.client,
-    #         collection_name="readthedocs",
-    #         embedding_function=OpenAIEmbeddings(),
-    # )
+    hub_prompt: ChatPromptTemplate = RAG_PROMPT
     llm: ChatOpenAI = Field(exclude=True)
-    # model: ClassVar[ChatOpenAI] | None = LlmManager().llm
-    # llm_chain: LLMChain = Field(
-    #     default_factory=lambda: LLMChain(
-    #         llm=OpenAI(temperature=0),
-    #         prompt=PromptTemplate(
-    #             template=QUERY_CHECKER, input_variables=["query", "dialect"]
-    #         ),
-    #     )
-    # )
 
     class Config(BaseTool.Config):
         pass
@@ -267,7 +252,7 @@ class ReadTheDocsQATool(BaseChromaDBTool, BaseTool):
 
     description: str = "You must use this tool for any questions or queries related to opencv, rich, and Pillow or substrings of it. This will return documents that are related to the user's question. The documents may not be always relevant to the user's question. If you use any of the documents returned to provide a helpful answer to question, please make sure to also return a valid URL of the document you used."
     # Optional but recommended, can be used to provide more information (e.g., few-shot examples) or validation for expected parameters
-    args_schema: Type[ReadTheDocsQASchema] = ReadTheDocsQASchema
+    args_schema: type[ReadTheDocsQASchema] = ReadTheDocsQASchema
     # Only relevant for agents. When True, after invoking the given tool, the agent will stop and return the result direcly to the user.
     return_direct: bool = False
     handle_tool_error: bool = False
@@ -293,7 +278,7 @@ class ReadTheDocsQATool(BaseChromaDBTool, BaseTool):
     # Vectorstore for embeddings of currently loaded PDFs
 
     # def _run(self, question: str, run_manager: Optional[CallbackManagerForToolRun] = None) -> str:
-    def _run(self, question: str) -> str:
+    def _run(self, question: str, **kwargs) -> str:
         """Use the tool."""
         # self.load_paper(paper_id)
         # import bpdb
@@ -301,7 +286,8 @@ class ReadTheDocsQATool(BaseChromaDBTool, BaseTool):
         # bpdb.set_trace()
         try:
             qa = self._make_qa_chain()
-            answer = qa.invoke(question)
+            qa_chain_custom_name = qa.with_config({"run_name": "ReadTheDocsQATool"})
+            answer = qa_chain_custom_name.invoke(question)
             # answer = qa.invoke({"input": question})
             # answer = qa.invoke({"question": question})
             # answer = qa.run(question)
@@ -322,7 +308,7 @@ class ReadTheDocsQATool(BaseChromaDBTool, BaseTool):
         return answer
 
     # async def _arun(self, question: str, run_manager: Optional[AsyncCallbackManagerForToolRun] = None) -> str:
-    async def _arun(self, question: str) -> str:
+    async def _arun(self, question: str, **kwargs) -> str:
         """Use the tool asynchronously."""
         # If the calculation is cheap, you can just delegate to the sync implementation
         # as shown below.
@@ -331,7 +317,9 @@ class ReadTheDocsQATool(BaseChromaDBTool, BaseTool):
         # kick off the task in a thread to make sure it doesn't block other async code.
         # await self.aload_paper(paper_id)
         qa = self._make_qa_chain()
-        answer = qa.invoke(question)
+        qa_chain_custom_name = qa.with_config({"run_name": "AsyncReadTheDocsQATool"})
+        answer = await qa_chain_custom_name.ainvoke(question)
+        # answer = qa.invoke(question)
         # return qa.invoke(question, run_manager=run_manager.get_sync())
         return answer
 

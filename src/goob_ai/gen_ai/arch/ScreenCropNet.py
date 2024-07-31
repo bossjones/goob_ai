@@ -45,7 +45,7 @@ def unfreeze_last_layer(model, last_layer_name="classifier"):
 
 class ObjLocModel(nn.Module):
     def __init__(self, num_classes=4):
-        super(ObjLocModel, self).__init__()
+        super().__init__()
         # self.backbone = timm.create_model("efficientnet_b0", pretrained=True, num_classes=4)
         # self.backbone = timm.create_model("efficientnet_b0", pretrained=True, num_classes=4)
         # num_classes=4

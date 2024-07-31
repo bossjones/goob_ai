@@ -373,7 +373,6 @@ image, bboxes = predict_from_file(images_filepath, model, device)
 
 ```
 
-
 # test goob model
 
 ```python

@@ -251,7 +251,7 @@ def the_string_numerizer(num: int, thestring: str, comma: bool = False, force: b
     """
 
     if num > 0 or force:
-        retstr = "{:.2f} {}".format(num, thestring)
+        retstr = f"{num:.2f} {thestring}"
         if num > 1 and have_s:
             retstr += "s"
         if comma:
@@ -302,8 +302,8 @@ def seconds_to_time_stamp(seconds_init: int | float):
     hours_r = (minutes_r - minutes) // 60
     hours = hours_r % 24
     if hours > 1:
-        return_string += "{:02d}:".format(hours)
-    return_string += "{:02d}:{:02d}".format(minutes, seconds)
+        return_string += f"{hours:02d}:"
+    return_string += f"{minutes:02d}:{seconds:02d}"
     return return_string
 
 
@@ -319,7 +319,7 @@ async def get_server_icon_color(guild: discord.Guild) -> str | int:
     icon_color = icon_image.getpixel((0, 0))
 
     # Convert the color to hex format
-    hex_color = "{:02x}{:02x}{:02x}".format(icon_color[0], icon_color[1], icon_color[2])
+    hex_color = f"{icon_color[0]:02x}{icon_color[1]:02x}{icon_color[2]:02x}"
     return int(hex_color, 16)
 
 
@@ -356,10 +356,10 @@ def extract_timestamp(timestamp: str):
 
 def human_format(num):
     """Format a large number"""
-    num = float("{:.3g}".format(num))
+    num = float(f"{num:.3g}")
     magnitude = 0
     while abs(num) >= 1000:
         magnitude += 1
         num /= 1000.0
     suffixes = ["", "K", "M", "B", "T", "Q", "Qi"]
-    return "{}{}".format("{:f}".format(num).rstrip("0").rstrip("."), suffixes[magnitude])
+    return "{}{}".format(f"{num:f}".rstrip("0").rstrip("."), suffixes[magnitude])

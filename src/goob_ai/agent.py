@@ -204,7 +204,7 @@ class AiAgent:
         )
 
     @traceable
-    def process_user_task(self, session_id: str, user_task: str) -> Dict[str, Any]:
+    def process_user_task(self, session_id: str, user_task: str) -> dict[str, Any]:
         """
         Summary:
         Process a user task by invoking an agent executor and returning the output.
@@ -292,7 +292,8 @@ class AiAgent:
 
             # Put this in a chain
             chain = prompt | llm | StrOutputParser()
-            return chain.invoke({"user_input": user_input})
+            chain_custom_name = chain.with_config({"run_name": "summarize"})
+            return chain_custom_name.invoke({"user_input": user_input})
 
         except Exception as e:
             LOGGER.exception(f"Error during summarization of user task: {e}")

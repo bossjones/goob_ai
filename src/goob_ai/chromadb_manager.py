@@ -93,7 +93,7 @@ class query_rag:
         return f"Response: {response}\n\nSources: {sources}"
 
 
-def load_pdf(file_path: str) -> Dict[str, Any]:
+def load_pdf(file_path: str) -> dict[str, Any]:
     """
     Load the pdf file and return the text content
     """

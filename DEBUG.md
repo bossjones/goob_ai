@@ -49,7 +49,6 @@ tree_list ->
 
 ```
 
-
 # Compare cerebro model to goob-ai
 
 What is model ensembling?
@@ -1489,7 +1488,6 @@ conv': 'conv_stem', 'classifier': 'classifier', 'architecture': 'efficientnet_b0
 
 ```
 
-
 #### dump dir
 
 ```
@@ -1609,7 +1607,6 @@ state', 'share_memory', 'state_dict', 'to', 'to_empty', 'train', 'training', 'ty
 >>>
 ```
 
-
 # Chroma + docker-compose
 
 run the following:
@@ -1623,10 +1620,8 @@ docker ps -a
 
 enter: `http://host.docker.internal:8010` for your connection string in browser.
 
-goto http://localhost:3000/collections/test_chroma_service_e2e_add_to_chroma_url
-
-
+goto <http://localhost:3000/collections/test_chroma_service_e2e_add_to_chroma_url>
 
 # Langsmith
 
-- custom tool(chroma_question_answering): https://smith.langchain.com/o/631f824f-4072-5bc6-b1f6-924eb5dfd83f/projects/p/9c97a8d8-3b8b-4b42-85be-6a17c4aab36d?timeModel=%7B%22duration%22%3A%227d%22%7D&runtab=0&peek=7c25a24d-9240-4736-a109-02013fa8aa90
+- custom tool(chroma_question_answering): <https://smith.langchain.com/o/631f824f-4072-5bc6-b1f6-924eb5dfd83f/projects/p/9c97a8d8-3b8b-4b42-85be-6a17c4aab36d?timeModel=%7B%22duration%22%3A%227d%22%7D&runtab=0&peek=7c25a24d-9240-4736-a109-02013fa8aa90>

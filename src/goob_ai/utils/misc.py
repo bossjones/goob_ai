@@ -22,7 +22,7 @@ from enum import Enum, EnumMeta
 from os import PathLike, fspath, path
 from os import path as os_path
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Callable, List, Optional, Sequence, Type, TypeVar, Union
+from typing import TYPE_CHECKING, Any, Callable, List, Optional, Type, TypeVar, Union
 
 import numpy as np
 
@@ -37,7 +37,7 @@ ROOT_DIR = path.dirname(path.dirname(__file__))
 import importlib.metadata
 
 
-def parse_version(v: str) -> "packaging.version._BaseVersion":
+def parse_version(v: str) -> packaging.version._BaseVersion:
     """Parse a version string and return a packaging.version.Version obj."""
     import packaging.version
 
@@ -319,7 +319,7 @@ class CallSignature(inspect.Signature):
 callsignature = CallSignature.from_callable
 
 
-def all_subclasses(cls: Type) -> set:
+def all_subclasses(cls: type) -> set:
     """Recursively find all subclasses of class ``cls``.
 
     Parameters
@@ -383,7 +383,7 @@ def yesno(question, force: bool = False):
 # Yield successive n-sized
 # chunks from l.
 # SOURCE: https://www.geeksforgeeks.org/break-list-chunks-size-n-python/
-def divide_chunks(l: List[str], n: int = 10):
+def divide_chunks(l: list[str], n: int = 10):
     # looping till length l
     for i in range(0, len(l), n):
         yield l[i : i + n]

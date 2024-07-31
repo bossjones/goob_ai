@@ -7,10 +7,11 @@ import os.path
 import sys
 import textwrap
 
+from collections.abc import Iterable, Iterator
 from datetime import datetime
 from enum import Enum
 from functools import partial
-from typing import TYPE_CHECKING, Any, Callable, Dict, Iterable, Iterator, List, Literal, Optional, Tuple, Type, Union
+from typing import TYPE_CHECKING, Annotated, Any, Callable, Dict, List, Literal, Optional, Tuple, Type, Union
 
 from langchain_core.callbacks import AsyncCallbackManagerForToolRun, CallbackManagerForToolRun
 from langchain_core.messages import ToolMessage
@@ -28,7 +29,7 @@ from langchain_core.tools import (
 from langchain_core.utils.function_calling import convert_to_openai_function
 from loguru import logger as LOGGER
 from requests_mock.mocker import Mocker as RequestsMocker
-from typing_extensions import Annotated, TypedDict
+from typing_extensions import TypedDict
 
 import pytest
 

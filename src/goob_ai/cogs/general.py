@@ -6,7 +6,8 @@ from __future__ import annotations
 import platform
 import random
 
-from typing import TYPE_CHECKING, Any, Callable, Generic, Iterable, List, Optional, Protocol, TypeVar, Union
+from collections.abc import Iterable
+from typing import TYPE_CHECKING, Any, Callable, Generic, List, Optional, Protocol, TypeVar, Union
 
 import aiohttp
 import discord
@@ -45,7 +46,7 @@ class General(commands.Cog, name="general"):
         embed = discord.Embed(title="Help", description="List of available commands:", color=0x9C84EF)
         for i in self.bot.cogs:
             cog = self.bot.get_cog(i.lower())
-            commands: List[Command] = cog.get_commands()
+            commands: list[Command] = cog.get_commands()
             data = []
             for command in commands:
                 description = command.description.partition("\n")[0]  # pyright: ignore[reportAttributeAccessIssue]

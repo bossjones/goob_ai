@@ -187,18 +187,15 @@ pdm add pyinvoke
 pdm install -Gtest -d
 ```
 
-
 # use venv
 
 ```bash
 eval $(pdm venv activate)
 ```
 
-
 ## pyright
 
-https://github.com/microsoft/pyright/blob/main/docs/configuration.md
-
+<https://github.com/microsoft/pyright/blob/main/docs/configuration.md>
 
 ## Old cli command
 

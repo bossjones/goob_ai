@@ -8,14 +8,15 @@ import openai
 
 from langchain.pydantic_v1 import BaseModel
 from langchain.schema.runnable import ConfigurableField, Runnable, RunnableBranch, RunnableLambda, RunnableMap
-from langchain_openai import ChatOpenAI
+from langchain_openai import ChatOpenAI, OpenAI
 from langsmith import traceable
 from langsmith.wrappers import wrap_openai
 from loguru import logger as LOGGER
-from openai import Client
 
 from goob_ai.aio_settings import aiosettings
 
+
+# from openai import Client
 
 # NOTE: FIXME: Set these model settings https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json
 # NOTE: FIXME: Set these model settings https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json
@@ -183,16 +184,17 @@ class LlmManager(BaseModel):
 
 
 class VisionModel(BaseModel):
-    vision_api: ChatOpenAI | Client | None = None
+    vision_api: ChatOpenAI | None = None
 
     def __init__(self):
         super().__init__()
-        # self.vision_api = ChatOpenAI(
-        #     model=aiosettings.vision_model,
-        #     max_tokens=900,
-        #     temperature=aiosettings.llm_temperature,
-        # )
-        self.vision_api = wrap_openai(Client(api_key=aiosettings.openai_api_key.get_secret_value()))
+        self.vision_api = ChatOpenAI(
+            model=aiosettings.vision_model,
+            max_retries=5,
+            max_tokens=900,
+            temperature=0.0,
+        )
+        # self.vision_api = wrap_openai(Client(api_key=aiosettings.openai_api_key.get_secret_value()))
 
     # Pydantic doesn't seem to know the types to handle AzureOpenAI, so we need to tell it to allow arbitrary types
     class Config:

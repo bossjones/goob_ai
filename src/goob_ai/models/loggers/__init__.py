@@ -26,7 +26,7 @@ class LoggerModel(BaseModel):
     level: Optional[int]
     # children: Optional[List["LoggerModel"]] = None
     # fixes: https://github.com/samuelcolvin/pydantic/issues/545
-    children: Optional[List[Any]] = None
+    children: Optional[list[Any]] = None
     # children: ListLoggerModel = None
 
 

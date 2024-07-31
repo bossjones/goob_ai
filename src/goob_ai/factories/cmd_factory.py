@@ -20,7 +20,7 @@ class CmdSerializer(SerializerFactory):
     uri: Optional[str]
 
     @staticmethod
-    def create(d: Dict) -> CmdSerializer:
+    def create(d: dict) -> CmdSerializer:
         return CmdSerializer(name=d["name"])
 
 
@@ -39,6 +39,6 @@ if __name__ == "__main__":
     test_cmd_metadata = CmdSerializer(*cmd_args, **cmd_kargs)
 
     print(test_cmd_metadata)
-    print((test_cmd_metadata.name))
-    print((test_cmd_metadata.cmd))
-    print((test_cmd_metadata.uri))
+    print(test_cmd_metadata.name)
+    print(test_cmd_metadata.cmd)
+    print(test_cmd_metadata.uri)

@@ -29,7 +29,7 @@ IMAGE_EXTENSIONS = [".png", ".jpeg", ".jpg", ".gif", ".PNG", ".JPEG", ".JPG", ".
 TORCH_MODEL_EXTENSIONS = [".pth", ".PTH"]
 
 
-def filter_pth(working_dir: List[str]) -> List[str]:
+def filter_pth(working_dir: list[str]) -> list[str]:
     return [
         f
         for f in working_dir
@@ -37,55 +37,55 @@ def filter_pth(working_dir: List[str]) -> List[str]:
     ]
 
 
-def filter_json(working_dir: List[str]) -> List[str]:
+def filter_json(working_dir: list[str]) -> list[str]:
     return [
         f for f in working_dir if (pathlib.Path(f"{f}").is_file()) and pathlib.Path(f"{f}").suffix in JSON_EXTENSIONS
     ]
 
 
-def filter_videos(working_dir: List[str]) -> List[str]:
+def filter_videos(working_dir: list[str]) -> list[str]:
     return [
         f for f in working_dir if (pathlib.Path(f"{f}").is_file()) and pathlib.Path(f"{f}").suffix in VIDEO_EXTENSIONS
     ]
 
 
-def filter_audio(working_dir: List[str]) -> List[str]:
+def filter_audio(working_dir: list[str]) -> list[str]:
     return [
         f for f in working_dir if (pathlib.Path(f"{f}").is_file()) and pathlib.Path(f"{f}").suffix in AUDIO_EXTENSIONS
     ]
 
 
-def filter_gif(working_dir: List[str]) -> List[str]:
+def filter_gif(working_dir: list[str]) -> list[str]:
     return [
         f for f in working_dir if (pathlib.Path(f"{f}").is_file()) and pathlib.Path(f"{f}").suffix in GIF_EXTENSIONS
     ]
 
 
-def filter_mkv(working_dir: List[str]) -> List[str]:
+def filter_mkv(working_dir: list[str]) -> list[str]:
     return [
         f for f in working_dir if (pathlib.Path(f"{f}").is_file()) and pathlib.Path(f"{f}").suffix in MKV_EXTENSIONS
     ]
 
 
-def filter_m3u8(working_dir: List[str]) -> List[str]:
+def filter_m3u8(working_dir: list[str]) -> list[str]:
     return [
         f for f in working_dir if (pathlib.Path(f"{f}").is_file()) and pathlib.Path(f"{f}").suffix in M3U8_EXTENSIONS
     ]
 
 
-def filter_webm(working_dir: List[str]) -> List[str]:
+def filter_webm(working_dir: list[str]) -> list[str]:
     return [
         f for f in working_dir if (pathlib.Path(f"{f}").is_file()) and pathlib.Path(f"{f}").suffix in WEBM_EXTENSIONS
     ]
 
 
-def filter_images(working_dir: List[str]) -> List[str]:
+def filter_images(working_dir: list[str]) -> list[str]:
     return [
         f for f in working_dir if (pathlib.Path(f"{f}").is_file()) and pathlib.Path(f"{f}").suffix in IMAGE_EXTENSIONS
     ]
 
 
-def filter_media(working_dir: List[str]) -> List[str]:
+def filter_media(working_dir: list[str]) -> list[str]:
     imgs = filter_images(working_dir)
     videos = filter_videos(working_dir)
     return imgs + videos
@@ -106,7 +106,7 @@ def get_dataframe_from_csv(filename: str, return_parent_folder_name: bool = Fals
     return (df, f"{src.parent.stem}") if return_parent_folder_name else df
 
 
-def sort_dataframe(df: pd.core.frame.DataFrame, columns: list = None, ascending: Tuple = ()) -> pd.core.frame.DataFrame:
+def sort_dataframe(df: pd.core.frame.DataFrame, columns: list = None, ascending: tuple = ()) -> pd.core.frame.DataFrame:
     """Return dataframe sorted via columns
 
     Args:
@@ -123,7 +123,7 @@ def sort_dataframe(df: pd.core.frame.DataFrame, columns: list = None, ascending:
     return df
 
 
-def glob_file_by_extension(working_dir: List[str], extension: str = "*.mp4") -> List[str]:
+def glob_file_by_extension(working_dir: list[str], extension: str = "*.mp4") -> list[str]:
     print(f"Searching dir -> {working_dir}/{extension}")
     return glob.glob(f"{working_dir}/{extension}")
 
@@ -134,7 +134,7 @@ def print_and_append(dir_listing: list, tree_str: str, silent: bool = False) -> 
     dir_listing.append(tree_str)
 
 
-def tree(directory: Union[pathlib.PosixPath, pathlib.Path], silent: bool = False) -> List[pathlib.PosixPath]:
+def tree(directory: Union[pathlib.PosixPath, pathlib.Path], silent: bool = False) -> list[pathlib.PosixPath]:
     """"""
     # from ffmpeg_tools import fileobject
 
@@ -152,16 +152,16 @@ def tree(directory: Union[pathlib.PosixPath, pathlib.Path], silent: bool = False
 # SOURCE: https://python.hotexamples.com/site/file?hash=0xda3708e60cd1ddb3012abd7dba205f48214aee7366f452e93807887c6a04db42&fullName=spring_cleaning.py&project=pambot/SpringCleaning
 def format_size(a_file: str):
     if a_file > 1024**3:
-        return "{:.0f} GB".format(a_file / float(2**30))
+        return f"{a_file / float(2**30):.0f} GB"
     elif a_file > 1024**2:
-        return "{:.0f} MB".format(a_file / float(2**20))
+        return f"{a_file / float(2**20):.0f} MB"
     elif a_file > 1024:
-        return "{:.0f} KB".format(a_file / float(2**10))
+        return f"{a_file / float(2**10):.0f} KB"
     else:
-        return "{:.0f} B".format(a_file)
+        return f"{a_file:.0f} B"
 
 
-def read_file(filename: str, mode="r") -> List[str]:
+def read_file(filename: str, mode="r") -> list[str]:
     contents_list = []
     with open(filename, mode, encoding="utf8") as f:
         contents_list = f.readlines()
@@ -170,7 +170,7 @@ def read_file(filename: str, mode="r") -> List[str]:
     return contents_list
 
 
-def write_file(filename: str, mode="w", contents_list=None) -> List[str]:
+def write_file(filename: str, mode="w", contents_list=None) -> list[str]:
     if contents_list is None:
         contents_list = []
     with open(filename, mode) as f:

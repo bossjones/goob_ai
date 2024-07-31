@@ -41,7 +41,7 @@ from goob_ai.utils.imgops import (
 
 
 def display_image_grid(
-    images_filepaths: List[str] | List[PathLike],
+    images_filepaths: list[str] | list[PathLike],
     cols=5,
     model: torch.nn.Module | None = None,
     device: torch.device = DEVICE,
@@ -75,12 +75,12 @@ def display_image_grid(
         # get fullsize bboxes
         xmin_fullsize, ymin_fullsize, xmax_fullsize, ymax_fullsize = bboxes[0]
 
-        pt1_fullsize: Tuple[int, int] = (int(xmin_fullsize), int(ymin_fullsize))
-        pt2_fullsize: Tuple[int, int] = (int(xmax_fullsize), int(ymax_fullsize))
+        pt1_fullsize: tuple[int, int] = (int(xmin_fullsize), int(ymin_fullsize))
+        pt2_fullsize: tuple[int, int] = (int(xmax_fullsize), int(ymax_fullsize))
 
-        starting_point_fullsize: Tuple[int, int] = pt1_fullsize
-        end_point_fullsize: Tuple[int, int] = pt2_fullsize
-        color: Tuple[Literal[255] | Literal[0], Literal[0]] = OPENCV_RED
+        starting_point_fullsize: tuple[int, int] = pt1_fullsize
+        end_point_fullsize: tuple[int, int] = pt2_fullsize
+        color: tuple[Literal[255] | Literal[0], Literal[0]] = OPENCV_RED
         thickness: int = 2
 
         out_img = cv2.rectangle(
@@ -105,7 +105,7 @@ def plot_image_with_predicted_label(
     img: Image = None,
     target_image_pred_label: torch.Tensor = None,
     target_image_pred_probs: torch.Tensor = None,
-    class_names: List[str] = None,
+    class_names: list[str] = None,
     fname: str = "plot.png",
 ):
     plt.figure()
@@ -121,11 +121,11 @@ def plot_image_with_predicted_label(
 def pred_and_plot_image(
     model: torch.nn.Module,
     image_path: str | PathLike,
-    class_names: List[str],
-    image_size: Tuple[int, int] = (224, 224),
+    class_names: list[str],
+    image_size: tuple[int, int] = (224, 224),
     transform: torchvision.transforms = None,
     device: torch.device = DEVICE,
-    y_preds: List[torch.Tensor] = None,
+    y_preds: list[torch.Tensor] = None,
     y_pred_tensor: torch.Tensor = None,
 ):
     if y_preds is None:
@@ -198,7 +198,7 @@ class ImageService:
         model: torch.nn.Module | None = None,
         device: torch.device = DEVICE,
         resize: bool = False,
-    ) -> List[Dict]:
+    ) -> list[dict]:
         """
         Summary:
         Handle bounding box predictions for images.
@@ -221,7 +221,7 @@ class ImageService:
     def download_and_predict(
         url: str,
         data_path: pathlib.PosixPath,
-        class_names: List[str],
+        class_names: list[str],
         model: torch.nn.Module | None = None,
         device: torch.device = None,
     ):
@@ -271,7 +271,7 @@ class ImageService:
     # @async_.to_async
     @staticmethod
     def handle_predict_and_display(
-        path_to_image_from_cli: List[str] | List[PathLike],
+        path_to_image_from_cli: list[str] | list[PathLike],
         model: torch.nn.Module | None = None,
         device: torch.device = DEVICE,
     ):
@@ -285,7 +285,7 @@ class ImageService:
     # @async_.to_async
     @staticmethod
     def handle_final(
-        path_to_image_from_cli: List[str] | List[PathLike],
+        path_to_image_from_cli: list[str] | list[PathLike],
         model: torch.nn.Module | None = None,
         device: torch.device = DEVICE,
     ):

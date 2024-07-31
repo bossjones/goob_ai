@@ -12,6 +12,6 @@ FINAL_ADDRESS = f"{URL}"
 print(f"FINAL_ADDRESS: {FINAL_ADDRESS}")
 
 # MacOS
-CHROME_PATH = "open -a /Applications/Google\ Chrome.app %s"  # pylint: disable=anomalous-backslash-in-string
+CHROME_PATH = r"open -a /Applications/Google\ Chrome.app %s"  # pylint: disable=anomalous-backslash-in-string
 
 webbrowser.get(CHROME_PATH).open(FINAL_ADDRESS)

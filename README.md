@@ -2,14 +2,13 @@
 
 POC langchain rag discord chatbot. Heavily inspired by DiscordLangAgent
 
-
 # Description
 
 This is a Discord chatbot built with LangChain. It uses the Agent features in LangChain to create flexible conversation chains based on user input. The bot can interact with different language models and tools, and supports multiple API endpoints. It's designed with customization in mind, allowing for the addition and modification of features as needed.
 
 ## Testing
 
-Attempting to test using https://dpytest.readthedocs.io/en/latest/
+Attempting to test using <https://dpytest.readthedocs.io/en/latest/>
 
 ## Features
 

@@ -131,7 +131,7 @@ def image_crop(img: Image.Image, size: tuple[int, int], crop_type: str = "middle
     return img
 
 
-def thread_loop(fn: Callable[[Any], Any], input_array: List[Any], n_workers: int = N_WORKERS) -> List[Any]:
+def thread_loop(fn: Callable[[Any], Any], input_array: list[Any], n_workers: int = N_WORKERS) -> list[Any]:
     return_data = []
 
     with ThreadPoolExecutor(n_workers) as executor:
@@ -803,7 +803,7 @@ def from_path(input_data: Union[str, Path]) -> ImageWrapper:
 #     return LivePlotter(*args, **kwargs)
 
 
-def download(image_urls: Union[str, List[str]]) -> ImageWrapper:
+def download(image_urls: Union[str, list[str]]) -> ImageWrapper:
     """
     Download images from the given URLs.
 

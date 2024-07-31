@@ -40,7 +40,7 @@ def get_env(ctx, loc="local", verbose=0):
         ctx.config["run"]["env"][k] = v
 
     for key in env:
-        print("{0}={1}".format(key, env[key]))
+        print(f"{key}={env[key]}")
 
 
 @task(incrementable=["verbose"])

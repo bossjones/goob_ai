@@ -1,0 +1,55 @@
+# # FIXME: Enable this
+# # SOURCE: https://github.com/galactic-forensics/DigOutBox/blob/fda70db4abc3effd5dca2fa330f9d55e776dcbf4/docs/index.md
+# name: Release creation
+
+# permissions:
+#   pull-requests: write
+#   contents: write
+
+# on:
+#   push:
+#     # Sequence of patterns matched against refs/tags
+#     tags:
+#     - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
+
+# env:
+#   PYTHON_VERSION: "3.10"
+
+# jobs:
+#   build-linux:
+#     name: goobai Release
+#     runs-on: ubuntu-22.04
+#     steps:
+#       - name: Checkout code
+#         uses: actions/checkout@v4
+#       - name: Install the latest version of rye
+#         uses: eifinger/setup-rye@v4
+#         with:
+#           enable-cache: true
+#           # working-directory: rpsl_lexer/
+#       - name: Sync Rye
+#         run: |
+#           rye pin ${{ env.PYTHON_VERSION }}
+#           rye config --set-bool behavior.use-uv=true
+#           ./scripts/retry -t 4  -- rye sync --all-features
+#       - name: Build the controller
+#         run: |
+#           # cd controller
+#           rye build --sdist
+#           # cd ..
+#           mv dist/controller*.tar.gz dist/controller-source.tar.gz  # rename the source tarball
+#       # - name: Package firmware into a tarball
+#       #   run: |
+#       #     cd firmware
+#       #     tar -czf firmware.tar.gz *
+#       #     mv firmware.tar.gz ../dist
+#       #     cd ..
+#       - name: Release
+#         uses: softprops/action-gh-release@v1
+#         with:
+#           files: |
+#             ${{ github.workspace }}/dist/controller-source.tar.gz
+#             # ${{ github.workspace }}/dist/firmware.tar.gz
+#           tag_name: ${{ github.ref_name }}
+#           name: GoobAI ${{ github.ref_name }}
+#           body_path: ${{ github.workspace }}/release_text.md

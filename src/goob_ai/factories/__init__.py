@@ -16,7 +16,7 @@ coerce_to = "coerce_to"
 
 @dataclass
 class SerializerFactory:
-    def as_dict(self) -> Dict:
+    def as_dict(self) -> dict:
         d = dataclasses.asdict(self)
         for f in dataclasses.fields(self):
             if read_only in f.metadata.keys():

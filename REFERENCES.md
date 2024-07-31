@@ -1,25 +1,28 @@
 # Working examples
 
 ## Chat Bots
-- https://github.com/langchain-ai/weblangchain/blob/main/main.py
-- https://python.langchain.com/docs/use_cases/chatbots/
-- https://python.langchain.com/docs/use_cases/question_answering/
-- https://github.com/Kav-K/GPTDiscord/tree/0e16004b6bc74812e186137c331f7b9e63882750/cogs
-- https://github.com/CrosswaveOmega/NikkiBot/blob/7092ae6da21c86c7686549edd5c45335255b73ec/cogs/AiCog.py
+
+- <https://github.com/langchain-ai/weblangchain/blob/main/main.py>
+- <https://python.langchain.com/docs/use_cases/chatbots/>
+- <https://python.langchain.com/docs/use_cases/question_answering/>
+- <https://github.com/Kav-K/GPTDiscord/tree/0e16004b6bc74812e186137c331f7b9e63882750/cogs>
+- <https://github.com/CrosswaveOmega/NikkiBot/blob/7092ae6da21c86c7686549edd5c45335255b73ec/cogs/AiCog.py>
 
 ## Vision API GPT 4
-- https://medium.com/@bpothier/generating-structured-data-from-an-image-with-gpt-vision-and-langchain-34aaf3dcb215
 
+- <https://medium.com/@bpothier/generating-structured-data-from-an-image-with-gpt-vision-and-langchain-34aaf3dcb215>
 
 ## Example of Discord.bot + fastapi
-- https://github.com/Haste171/langchain-chatbot/blob/main/app.py
+
+- <https://github.com/Haste171/langchain-chatbot/blob/main/app.py>
 
 ## vectorstores
-- https://github.com/wmawhinney1990/DiscordBot/blob/master/aibot/items/aidoc.py
+
+- <https://github.com/wmawhinney1990/DiscordBot/blob/master/aibot/items/aidoc.py>
 
 ## send message if too long discord
-- https://github.com/namastexlabs/namastex_insights/blob/5cb75699ac48c7c2715c20ad58ff4a9c3d3a0ddd/experimental/bot.py#L117-L129
 
+- <https://github.com/namastexlabs/namastex_insights/blob/5cb75699ac48c7c2715c20ad58ff4a9c3d3a0ddd/experimental/bot.py#L117-L129>
 
 ## Auto use aider to write pytests
 
@@ -137,12 +140,15 @@ example prompt:
 
 `sing pytest, write tests for test_timer.py that cover every function in timer.py. mock if necessary but only use pytest-mock, do not use unittest.mock.`
 
-source: https://www.youtube.com/watch?v=AeASAsPp9LE
-
+source: <https://www.youtube.com/watch?v=AeASAsPp9LE>
 
 # july 2024
 
-- https://medium.com/langchain-0-2-insights/langchain-0-2-insights-building-a-versatile-cli-assistant-with-langchain-and-langgraph-bc81a4570ba2
-- https://github.com/BellaBe/multi-agents-base-cli
-- https://console.groq.com/docs/quickstart
-- https://cookbook.openai.com/examples/tag_caption_images_with_gpt4v
+- <https://medium.com/langchain-0-2-insights/langchain-0-2-insights-building-a-versatile-cli-assistant-with-langchain-and-langgraph-bc81a4570ba2>
+- <https://github.com/BellaBe/multi-agents-base-cli>
+- <https://console.groq.com/docs/quickstart>
+- <https://cookbook.openai.com/examples/tag_caption_images_with_gpt4v>
+- https://github.com/commitizen-tools/commitizen-action
+- https://github.com/humblFINANCE/humblAPI/blob/master/pyproject.toml
+- https://github.com/humblFINANCE/humblAPI/blob/master/pyproject.toml
+- https://github.com/humblFINANCE/humblAPI/blob/master/pyproject.toml

@@ -44,7 +44,7 @@ def get_env(ctx, loc="local", verbose=0):
         ctx.config["run"]["env"][k] = v
 
     for key in env:
-        print("{0}={1}".format(key, env[key]))
+        print(f"{key}={env[key]}")
 
 
 @task(incrementable=["verbose"])
@@ -130,24 +130,24 @@ def autogen(ctx, loc="local", verbose=0, clean=False, dry_run=True, comment=""):
         # if it exists, nuke it
         if os.path.isfile(dbfile):
             if verbose >= 1:
-                _msg = "[autogen] deleting file '{dbfile}'".format(dbfile=dbfile)
+                _msg = f"[autogen] deleting file '{dbfile}'"
                 click.secho(_msg, fg=COLOR_SUCCESS)
 
             if not dry_run:
-                ctx.run("rm -fv {dbfile}".format(dbfile=dbfile))
+                ctx.run(f"rm -fv {dbfile}")
             else:
-                _msg = "[autogen] (dry-run) would run rm -fv {dbfile}".format(dbfile=dbfile)
+                _msg = f"[autogen] (dry-run) would run rm -fv {dbfile}"
                 click.secho(_msg, fg=COLOR_CAUTION)
 
         if versions := glob.glob("goob_ai/migrations/versions/*.py"):
             for i in versions:
                 if verbose >= 1:
-                    _msg = "[autogen] git deleting file '{i}'".format(i=i)
+                    _msg = f"[autogen] git deleting file '{i}'"
                     click.secho(_msg, fg=COLOR_SUCCESS)
                 if not dry_run:
-                    ctx.run("git rm --force {i}".format(i=i))
+                    ctx.run(f"git rm --force {i}")
                 else:
-                    _msg = "[autogen] (dry-run) would run git rm -v {i}".format(i=i)
+                    _msg = f"[autogen] (dry-run) would run git rm -v {i}"
                     click.secho(_msg, fg=COLOR_CAUTION)
 
     if verbose >= 2:
@@ -169,9 +169,9 @@ grep "," goob_ai/api/crud/__init__.py | grep -v "^#" | tr ',' '\n' | xargs
 """
         res = ctx.run(_crud_models_cmd)
         # _cmd = "alembic revision --autogenerate -m 'Initial: {comment}'".format(comment=comment)
-        _cmd = r"alembic revision --autogenerate -m 'Initial: {comment}'".format(comment=res.stdout.rstrip())
+        _cmd = fr"alembic revision --autogenerate -m 'Initial: {res.stdout.rstrip()}'"
     else:
-        _cmd = "alembic revision --autogenerate -m 'Initial: {comment}'".format(comment=comment)
+        _cmd = f"alembic revision --autogenerate -m 'Initial: {comment}'"
 
     if verbose >= 1:
         msg = f"{_cmd}"
@@ -180,7 +180,7 @@ grep "," goob_ai/api/crud/__init__.py | grep -v "^#" | tr ',' '\n' | xargs
     if not dry_run:
         ctx.run(_cmd)
     else:
-        _msg = "[autogen] (dry-run) would run -> {_cmd}".format(_cmd=_cmd)
+        _msg = f"[autogen] (dry-run) would run -> {_cmd}"
         click.secho(_msg, fg=COLOR_CAUTION)
 
 
@@ -243,24 +243,24 @@ def alembic(ctx, loc="local", verbose=0, clean=False, dry_run=True, comment="", 
         # if it exists, nuke it
         if os.path.isfile(dbfile):
             if verbose >= 1:
-                _msg = "[alembic] deleting file '{dbfile}'".format(dbfile=dbfile)
+                _msg = f"[alembic] deleting file '{dbfile}'"
                 click.secho(_msg, fg=COLOR_SUCCESS)
 
             if not dry_run:
-                ctx.run("rm -fv {dbfile}".format(dbfile=dbfile))
+                ctx.run(f"rm -fv {dbfile}")
             else:
-                _msg = "[alembic] (dry-run) would run rm -fv {dbfile}".format(dbfile=dbfile)
+                _msg = f"[alembic] (dry-run) would run rm -fv {dbfile}"
                 click.secho(_msg, fg=COLOR_CAUTION)
 
         if versions := glob.glob("goob_ai/migrations/versions/*.py"):
             for i in versions:
                 if verbose >= 1:
-                    _msg = "[alembic] git deleting file '{i}'".format(i=i)
+                    _msg = f"[alembic] git deleting file '{i}'"
                     click.secho(_msg, fg=COLOR_SUCCESS)
                 if not dry_run:
-                    ctx.run("git rm --force {i}".format(i=i))
+                    ctx.run(f"git rm --force {i}")
                 else:
-                    _msg = "[alembic] (dry-run) would run git rm -v {i}".format(i=i)
+                    _msg = f"[alembic] (dry-run) would run git rm -v {i}"
                     click.secho(_msg, fg=COLOR_CAUTION)
 
     if verbose >= 2:
@@ -281,7 +281,7 @@ def alembic(ctx, loc="local", verbose=0, clean=False, dry_run=True, comment="", 
             _crud_models_cmd = r"""grep "," goob_ai/api/crud/__init__.py | grep -v "^#" | tr ',' '\n' | xargs
 """
             res = ctx.run(_crud_models_cmd)
-            _cmd = r"alembic revision --autogenerate -m 'Initial: {comment}'".format(comment=res.stdout.rstrip())
+            _cmd = fr"alembic revision --autogenerate -m 'Initial: {res.stdout.rstrip()}'"
         elif run == "show":
             _cmd = "alembic show"
         elif run == "history":
@@ -313,5 +313,5 @@ CMD: {}
     if not dry_run:
         ctx.run(_cmd)
     else:
-        _msg = "[autogen] (dry-run) would run -> {_cmd}".format(_cmd=_cmd)
+        _msg = f"[autogen] (dry-run) would run -> {_cmd}"
         click.secho(_msg, fg=COLOR_CAUTION)
