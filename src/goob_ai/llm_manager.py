@@ -8,8 +8,6 @@ import openai
 
 from langchain.pydantic_v1 import BaseModel
 from langchain.schema.runnable import ConfigurableField, Runnable, RunnableBranch, RunnableLambda, RunnableMap
-
-# from openai import Client
 from langchain_openai import ChatOpenAI, OpenAI
 from langsmith import traceable
 from langsmith.wrappers import wrap_openai
@@ -17,6 +15,8 @@ from loguru import logger as LOGGER
 
 from goob_ai.aio_settings import aiosettings
 
+
+# from openai import Client
 
 # NOTE: FIXME: Set these model settings https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json
 # NOTE: FIXME: Set these model settings https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json
