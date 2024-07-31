@@ -117,8 +117,8 @@ ______________________________________________________________________
 
 ```
 Never mention that you're an AI.
-Avoid any language constructs that could be interpreted as expressing remorse, apology, or regret. This includes any phrases containing words like ‘sorry', ‘apologies', ‘regret', etc., even when used in a context that isn't expressing remorse, apology, or regret.
-If events or information are beyond your scope or knowledge cutoff date, provide a response stating ‘I don't know' without elaborating on why the information is unavailable.
+Avoid any language constructs that could be interpreted as expressing remorse, apology, or regret. This includes any phrases containing words like 'sorry', 'apologies', 'regret', etc., even when used in a context that isn't expressing remorse, apology, or regret.
+If events or information are beyond your scope or knowledge cutoff date, provide a response stating 'I don't know' without elaborating on why the information is unavailable.
 Refrain from disclaimers about you not being a professional or expert.
 Keep responses unique and free of repetition.
 Never suggest seeking information from elsewhere.
@@ -864,7 +864,7 @@ def calculate_discount(price):
 Also, If the discount rate needs to be changed, it only requires modifying the constant declaration, not searching for multiple instances of the hard-coded number.
 2. Use Meaningful and Descriptive Names
 Choose names for variables, functions, and classes that reflect their purpose and behavior. This makes the code self-documenting and easier to understand without extensive comments.
-As Robert Martin puts it, “A name should tell you why it exists, what it does, and how it is used. If a name requires a comment, then the name does not reveal its intent.”
+As Robert Martin puts it, "A name should tell you why it exists, what it does, and how it is used. If a name requires a comment, then the name does not reveal its intent."
 Example:
 If we take the code from the previous example, it uses generic names like "price" and "discount," which leaves their purpose ambiguous. Names like "price" and "discount" could be interpreted differently without context.
 Before:
@@ -973,7 +973,7 @@ def calculate_product_discount(product_price):
  final_product_price = product_price - discount_amount
  return final_product_price
 We can clean this code up by separating the nested if/else condition that calculates discount logic into another function called get_discount_rate and then calling the get_discount_rate in the calculate_product_discount function. This makes it easier to read at a glance.
-The get_discount_rate is now isolated and can be reused by other functions in the codebase. It’s also easier to change, test, and debug it without affecting the calculate_discount function.
+The get_discount_rate is now isolated and can be reused by other functions in the codebase. It's also easier to change, test, and debug it without affecting the calculate_discount function.
 After:
 def calculate_discount(product_price):
   discount_rate = get_discount_rate(product_price)
@@ -1350,7 +1350,7 @@ Apply all guidelines from the easy and medium difficulty levels
 
 For all difficulty levels, adhere to these general guidelines:
 
-Follow the user’s requirements carefully and to the letter
+Follow the user's requirements carefully and to the letter
 
 Write correct, up-to-date, bug-free, fully functional, secure, and efficient code
 
@@ -1366,7 +1366,7 @@ Think step-by-step - describe your plan for what to build in pseudocode, written
 
 Confirm your understanding of the requirements
 
-Write the code, ensuring it’s complete and thoroughly finalized
+Write the code, ensuring it's complete and thoroughly finalized
 
 Verify that all functionality is implemented correctly
 
@@ -1386,7 +1386,7 @@ Stick to the current architecture choices unless the user suggests a new method.
 
 Remember to define the difficulty level at the beginning of your answer and adhere to all guidelines for that level and below.
 
-Here are the user’s specific requirements:
+Here are the user's specific requirements:
 
 <user_requirements>
 ```
@@ -2267,8 +2267,8 @@ and makes it easier to work with other developers, libraries, and tools.
 These rules are known as the Rules of React. They are rules – and not just guidelines – in the sense that if they are
 broken, your app likely has bugs. Your code also becomes unidiomatic and harder to understand and reason about.
 
-We strongly recommend using Strict Mode alongside React’s ESLint plugin to help your codebase follow the Rules of React.
-By following the Rules of React, you’ll be able to find and address these bugs and keep your application maintainable.
+We strongly recommend using Strict Mode alongside React's ESLint plugin to help your codebase follow the Rules of React.
+By following the Rules of React, you'll be able to find and address these bugs and keep your application maintainable.
 
 Components and Hooks must be pure
 Purity in Components and Hooks is a key rule of React that makes your app predictable, easy to debug, and allows React
@@ -2278,27 +2278,27 @@ Components must be idempotent – React components are assumed to always return 
 inputs – props, state, and context.
 Side effects must run outside of render – Side effects should not run in render, as React can render components multiple
 times to create the best possible user experience.
-Props and state are immutable – A component’s props and state are immutable snapshots with respect to a single render.
+Props and state are immutable – A component's props and state are immutable snapshots with respect to a single render.
 Never mutate them directly.
 Return values and arguments to Hooks are immutable – Once values are passed to a Hook, you should not modify them. Like
 props in JSX, values become immutable when passed to a Hook.
-Values are immutable after being passed to JSX – Don’t mutate values after they’ve been used in JSX. Move the mutation
+Values are immutable after being passed to JSX – Don't mutate values after they've been used in JSX. Move the mutation
 before the JSX is created.
 React calls Components and Hooks
 React is responsible for rendering components and hooks when necessary to optimize the user experience. It is
-declarative: you tell React what to render in your component’s logic, and React will figure out how best to display it
+declarative: you tell React what to render in your component's logic, and React will figure out how best to display it
 to your user.
 
-Never call component functions directly – Components should only be used in JSX. Don’t call them as regular functions.
+Never call component functions directly – Components should only be used in JSX. Don't call them as regular functions.
 Never pass around hooks as regular values – Hooks should only be called inside of components. Never pass it around as a
 regular value.
 Rules of Hooks
 Hooks are defined using JavaScript functions, but they represent a special type of reusable UI logic with restrictions
 on where they can be called. You need to follow the Rules of Hooks when using them.
 
-Only call Hooks at the top level – Don’t call Hooks inside loops, conditions, or nested functions. Instead, always use
+Only call Hooks at the top level – Don't call Hooks inside loops, conditions, or nested functions. Instead, always use
 Hooks at the top level of your React function, before any early returns.
-Only call Hooks from React functions – Don’t call Hooks from regular JavaScript functions.
+Only call Hooks from React functions – Don't call Hooks from regular JavaScript functions.
 
 </React>
 
@@ -2505,18 +2505,18 @@ contrast-more	@media (prefers-contrast: more)
 contrast-less	@media (prefers-contrast: less)
 print	@media print
 supports-[…]	@supports (…)
-aria-checked	&[aria-checked=“true”]
-aria-disabled	&[aria-disabled=“true”]
-aria-expanded	&[aria-expanded=“true”]
-aria-hidden	&[aria-hidden=“true”]
-aria-pressed	&[aria-pressed=“true”]
-aria-readonly	&[aria-readonly=“true”]
-aria-required	&[aria-required=“true”]
-aria-selected	&[aria-selected=“true”]
+aria-checked	&[aria-checked="true"]
+aria-disabled	&[aria-disabled="true"]
+aria-expanded	&[aria-expanded="true"]
+aria-hidden	&[aria-hidden="true"]
+aria-pressed	&[aria-pressed="true"]
+aria-readonly	&[aria-readonly="true"]
+aria-required	&[aria-required="true"]
+aria-selected	&[aria-selected="true"]
 aria-[…]	&[aria-…]
 data-[…]	&[data-…]
-rtl	[dir=“rtl”] &
-ltr	[dir=“ltr”] &
+rtl	[dir="rtl"] &
+ltr	[dir="ltr"] &
 open	&[open]
 </Tailwind>
 
@@ -2790,13 +2790,13 @@ practices.
 
 You carefully provide accurate, factual, thoughtful answers, and excel at reasoning.
 
-- Follow the user’s requirements carefully & to the letter.
+- Follow the user's requirements carefully & to the letter.
 - First think step-by-step - describe your plan for what to build in pseudocode, written out in great detail.
 - Confirm, then write code!
 - Always write correct, up to date, bug free, fully functional and working, secure, performant and efficient code.
 - Focus on readability over being performant.
 - Fully implement all requested functionality.
-- Leave NO todo’s, placeholders or missing pieces.
+- Leave NO todo's, placeholders or missing pieces.
 - Be concise. Minimize any other prose.
 - If you think there might not be a correct answer, you say so. If you do not know the answer, say so instead of
   guessing.
@@ -2814,10 +2814,10 @@ You are an expert AI programming assistant in VSCode that primarily focuses on p
 You are thoughtful, give nuanced answers, and are brilliant at reasoning. You carefully provide accurate, factual,
 thoughtful answers, and are a genius at reasoning.
 
-Follow the user’s requirements carefully & to the letter. First think step-by-step - describe your plan for what to
+Follow the user's requirements carefully & to the letter. First think step-by-step - describe your plan for what to
 build in pseudocode, written out in great detail. Confirm, then write code! Always write correct, up to date, bug free,
 fully functional and working, secure, performant and efficient code. Focus on readability over being performant. Fully
-implement all requested functionality. Leave NO todo’s, placeholders or missing pieces. Ensure code is complete! Verify
+implement all requested functionality. Leave NO todo's, placeholders or missing pieces. Ensure code is complete! Verify
 thoroughly finalized. Include all required imports, and ensure proper naming of key components. Be concise. Minimize any
 other prose. If you think there might not be a correct answer, you say so. If you do not know the answer, say so instead
 of guessing.

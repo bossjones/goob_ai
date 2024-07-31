@@ -1366,254 +1366,254 @@ extension-pkg-whitelist = "pydantic"
 # consider-using-namedtuple-or-dataclass - too opinionated
 # consider-using-assignment-expr - decision to use := better left to devs
 disable = [
-    "possibly-used-before-assignment",
-    "raw-checker-failed",
-    "bad-inline-option",
-    "file-ignored",
-    "suppressed-message",
-    "deprecated-pragma",
-    "use-implicit-booleaness-not-comparison-to-string",
-    "use-implicit-booleaness-not-comparison-to-zero",
-    "fixme",
-    "line-too-long",                                    # formatting done by Black
-    "missing-class-docstring",
-    "missing-function-docstring",
-    "missing-module-docstring",
-    "too-few-public-methods",
-    "raise-missing-from",
-    "abstract-method",
-    "consider-using-assignment-expr",
-    "consider-using-f-string",
-    "consider-using-namedtuple-or-dataclass",
-    "cyclic-import",
-    "duplicate-code",
-    "format",
-    "inconsistent-return-statements",
-    "locally-disabled",
-    "not-context-manager",
-    "too-few-public-methods",
-    "too-many-ancestors",
-    "too-many-arguments",
-    "too-many-boolean-expressions",
-    "too-many-instance-attributes",
-    "too-many-lines",
-    "too-many-locals",
-    "too-many-public-methods",
-    "wrong-import-order",
+    "possibly-used-before-assignment",                  # Warns about variables potentially used before assignment
+    "raw-checker-failed",                               # Internal pylint error
+    "bad-inline-option",                                # Invalid inline pylint option
+    "file-ignored",                                     # Entire file was ignored due to configuration
+    "suppressed-message",                               # Message was suppressed via inline comment
+    "deprecated-pragma",                                # Use of deprecated pragma
+    "use-implicit-booleaness-not-comparison-to-string", # Suggests using implicit boolean check instead of comparing to empty string
+    "use-implicit-booleaness-not-comparison-to-zero",   # Suggests using implicit boolean check instead of comparing to zero
+    "fixme",                                            # Warns about FIXME, TODO and XXX comments
+    "line-too-long",                                    # Line exceeds maximum allowed length
+    "missing-class-docstring",                          # Class has no docstring
+    "missing-function-docstring",                       # Function or method has no docstring
+    "missing-module-docstring",                         # Module has no docstring
+    "too-few-public-methods",                           # Class has too few public methods
+    "raise-missing-from",                               # Exception raised without 'from' clause
+    "abstract-method",                                  # Abstract method is not overridden
+    "consider-using-assignment-expr",                   # Suggests using assignment expression (:=)
+    "consider-using-f-string",                          # Suggests using f-strings for string formatting
+    "consider-using-namedtuple-or-dataclass",           # Suggests using namedtuple or dataclass
+    "cyclic-import",                                    # Detects cyclic imports between modules
+    "duplicate-code",                                   # Detects duplicated code
+    "format",                                           # Related to code formatting issues
+    "inconsistent-return-statements",                   # Function has inconsistent return statements
+    "locally-disabled",                                 # Warns about locally disabled pylint messages
+    "not-context-manager",                              # Suggests using 'with' statement for context managers
+    "too-few-public-methods",                           # Class has too few public methods (duplicate)
+    "too-many-ancestors",                               # Class has too many parent classes
+    "too-many-arguments",                               # Function or method has too many arguments
+    "too-many-boolean-expressions",                     # Boolean expression is too complex
+    "too-many-instance-attributes",                     # Class has too many instance attributes
+    "too-many-lines",                                   # Module has too many lines
+    "too-many-locals",                                  # Function or method has too many local variables
+    "too-many-public-methods",                          # Class has too many public methods
+    "wrong-import-order",                               # Imports are in the wrong order
     # Handled by ruff
     # Ref: <https://github.com/astral-sh/ruff/issues/970>
-    "await-outside-async",    # PLE1142
-    "bad-str-strip-call",     # PLE1310
-    "bad-string-format-type", # PLE1307
-    "bidirectional-unicode",  # PLE2502
-    "continue-in-finally",    # PLE0116
-    "duplicate-bases",        # PLE0241
-    "format-needs-mapping",   # F502
-    "function-redefined",     # F811
+    "await-outside-async",    # PLE1142  # Warns about 'await' used outside an async function
+    "bad-str-strip-call",     # PLE1310  # Detects suspicious arguments in str.strip() calls
+    "bad-string-format-type", # PLE1307  # Warns about invalid format string types
+    "bidirectional-unicode",  # PLE2502  # Detects potentially dangerous bidirectional Unicode characters
+    "continue-in-finally",    # PLE0116  # Warns about 'continue' in 'finally' block which may swallow exceptions
+    "duplicate-bases",        # PLE0241  # Detects duplicate base classes in class definitions
+    "format-needs-mapping",   # F502     # Warns when a format string needs a mapping (dict) but receives something else
+    "function-redefined",     # F811     # Detects when a function is redefined
     # Needed because ruff does not understand type of __all__ generated by a function
     # "invalid-all-format", # PLE0605
-    "anomalous-backslash-in-string",      # W605
-    "assert-on-string-literal",           # PLW0129
-    "assert-on-tuple",                    # F631
-    "bad-format-string",                  # W1302, F
-    "bad-format-string-key",              # W1300, F
-    "bare-except",                        # E722
-    "binary-op-exception",                # PLW0711
-    "cell-var-from-loop",                 # B023
-    "invalid-all-object",                 # PLE0604
-    "invalid-character-backspace",        # PLE2510
-    "invalid-character-esc",              # PLE2513
-    "invalid-character-nul",              # PLE2514
-    "invalid-character-sub",              # PLE2512
-    "invalid-character-zero-width-space", # PLE2515
-    "logging-too-few-args",               # PLE1206
-    "logging-too-many-args",              # PLE1205
-    "missing-format-string-key",          # F524
-    "mixed-format-string",                # F506
-    "no-method-argument",                 # N805
-    "no-self-argument",                   # N805
-    "nonexistent-operator",               # B002
-    "nonlocal-without-binding",           # PLE0117
-    "not-in-loop",                        # F701, F702
-    "notimplemented-raised",              # F901
-    "return-in-init",                     # PLE0101
-    "return-outside-function",            # F706
-    "syntax-error",                       # E999
-    "too-few-format-args",                # F524
-    "too-many-format-args",               # F522
-    "too-many-star-expressions",          # F622
-    "truncated-format-string",            # F501
-    "undefined-all-variable",             # F822
-    "undefined-variable",                 # F821
-    "used-prior-global-declaration",      # PLE0118
-    "yield-inside-async-function",        # PLE1700
-    "yield-outside-function",             # F704
+    "anomalous-backslash-in-string",      # W605     # Detects anomalous backslash in string
+    "assert-on-string-literal",           # PLW0129  # Warns about assert statements on string literals
+    "assert-on-tuple",                    # F631     # Warns about assert statements on tuples
+    "bad-format-string",                  # W1302, F # Detects invalid format strings
+    "bad-format-string-key",              # W1300, F # Warns about invalid keys in format strings
+    "bare-except",                        # E722     # Warns about bare except clauses
+    "binary-op-exception",                # PLW0711  # Warns about binary operators used with exceptions
+    "cell-var-from-loop",                 # B023     # Detects cell variables from loop variables
+    "invalid-all-object",                 # PLE0604  # Warns about invalid objects in __all__
+    "invalid-character-backspace",        # PLE2510  # Detects invalid backspace characters
+    "invalid-character-esc",              # PLE2513  # Detects invalid escape characters
+    "invalid-character-nul",              # PLE2514  # Detects invalid null characters
+    "invalid-character-sub",              # PLE2512  # Detects invalid substitute characters
+    "invalid-character-zero-width-space", # PLE2515  # Detects invalid zero-width space characters
+    "logging-too-few-args",               # PLE1206  # Warns about too few arguments in logging calls
+    "logging-too-many-args",              # PLE1205  # Warns about too many arguments in logging calls
+    "missing-format-string-key",          # F524     # Detects missing keys in format strings
+    "mixed-format-string",                # F506     # Warns about mixed old and new style format strings
+    "no-method-argument",                 # N805     # Warns when a method has no 'self' parameter
+    "no-self-argument",                   # N805     # Warns when a method has no 'self' parameter (duplicate)
+    "nonexistent-operator",               # B002     # Warns about nonexistent operators
+    "nonlocal-without-binding",           # PLE0117  # Warns about nonlocal variables without binding
+    "not-in-loop",                        # F701, F702 # Warns about break/continue statements outside loops
+    "notimplemented-raised",              # F901     # Warns when NotImplemented is raised instead of NotImplementedError
+    "return-in-init",                     # PLE0101  # Warns about return statements in __init__ methods
+    "return-outside-function",            # F706     # Warns about return statements outside functions
+    "syntax-error",                       # E999     # Detects syntax errors
+    "too-few-format-args",                # F524     # Warns about too few arguments for format string
+    "too-many-format-args",               # F522     # Warns about too many arguments for format string
+    "too-many-star-expressions",          # F622     # Warns about too many starred expressions in assignment
+    "truncated-format-string",            # F501     # Detects truncated format strings
+    "undefined-all-variable",             # F822     # Warns about undefined variables in __all__
+    "undefined-variable",                 # F821     # Warns about undefined variables
+    "used-prior-global-declaration",      # PLE0118  # Warns when a variable is used before its global declaration
+    "yield-inside-async-function",        # PLE1700  # Warns about yield statements inside async functions
+    "yield-outside-function",             # F704     # Warns about yield statements outside functions
     # "dangerous-default-value", # B006, ruff catches new occurrences, needs more work
-    "duplicate-except",                     # B014
-    "duplicate-key",                        # F601
-    "duplicate-string-formatting-argument", # F
-    "duplicate-value",                      # F
-    "eval-used",                            # S307
-    "exec-used",                            # S102
-    "expression-not-assigned",              # B018
-    "f-string-without-interpolation",       # F541
-    "forgotten-debug-statement",            # T100
-    "format-string-without-interpolation",  # F
+    "duplicate-except",                     # B014     # Warns about duplicate except clauses
+    "duplicate-key",                        # F601     # Warns about duplicate keys in dictionaries
+    "duplicate-string-formatting-argument", # F        # Warns about duplicate keys in format strings
+    "duplicate-value",                      # F        # Warns about duplicate values in sets
+    "eval-used",                            # S307     # Warns about the use of eval()
+    "exec-used",                            # S102     # Warns about the use of exec()
+    "expression-not-assigned",              # B018     # Warns about expressions that are not assigned
+    "f-string-without-interpolation",       # F541     # Warns about f-strings without any interpolation
+    "forgotten-debug-statement",            # T100     # Warns about forgotten debug statements
+    "format-string-without-interpolation",  # F        # Warns about format strings without any interpolation
     # "global-statement", # PLW0603, ruff catches new occurrences, needs more work
-    "global-variable-not-assigned",  # PLW0602
-    "implicit-str-concat",           # ISC001
-    "import-self",                   # PLW0406
-    "inconsistent-quotes",           # Q000
-    "invalid-envvar-default",        # PLW1508
-    "keyword-arg-before-vararg",     # B026
-    "logging-format-interpolation",  # G
-    "logging-fstring-interpolation", # G
-    "logging-not-lazy",              # G
-    "misplaced-future",              # F404
-    "named-expr-without-context",    # PLW0131
-    "nested-min-max",                # PLW3301
-    "pointless-statement",           # B018
-    "raise-missing-from",            # B904
+    "global-variable-not-assigned",  # PLW0602  # Warns about global variables that are not assigned
+    "implicit-str-concat",           # ISC001   # Warns about implicit string concatenation
+    "import-self",                   # PLW0406  # Warns when a module imports itself
+    "inconsistent-quotes",           # Q000     # Warns about inconsistent use of quotes
+    "invalid-envvar-default",        # PLW1508  # Warns about invalid default values for environment variables
+    "keyword-arg-before-vararg",     # B026     # Warns about keyword arguments appearing before variable arguments
+    "logging-format-interpolation",  # G        # Warns about using % formatting in logging functions
+    "logging-fstring-interpolation", # G        # Warns about using f-strings in logging functions
+    "logging-not-lazy",              # G        # Warns about non-lazy logging calls
+    "misplaced-future",              # F404     # Warns about misplaced __future__ imports
+    "named-expr-without-context",    # PLW0131  # Warns about named expressions (walrus operator) without proper context
+    "nested-min-max",                # PLW3301  # Warns about nested min/max calls that can be flattened
+    "pointless-statement",           # B018     # Warns about pointless statements
+    "raise-missing-from",            # B904     # Warns about raise statements missing 'from' clause
     # "redefined-builtin", # A001, ruff is way more stricter, needs work
-    "bad-classmethod-argument",          # N804
-    "comparison-of-constants",           # PLR0133
-    "comparison-with-itself",            # PLR0124
-    "consider-alternative-union-syntax", # UP007
-    "consider-iterating-dictionary",     # SIM118
-    "consider-merging-isinstance",       # PLR1701
-    "consider-using-alias",              # UP006
-    "consider-using-dict-comprehension", # C402
-    "consider-using-generator",          # C417
-    "consider-using-get",                # SIM401
-    "consider-using-set-comprehension",  # C401
-    "consider-using-sys-exit",           # PLR1722
-    "consider-using-ternary",            # SIM108
-    "empty-docstring",                   # D419
-    "invalid-name",                      # N815
-    "line-too-long",                     # E501, disabled globally
-    "literal-comparison",                # F632
-    "missing-class-docstring",           # D101
-    "missing-final-newline",             # W292
-    "missing-function-docstring",        # D103
-    "missing-module-docstring",          # D100
-    "multiple-imports",                  #E401
-    "no-else-break",                     # RET508
-    "no-else-continue",                  # RET507
-    "no-else-raise",                     # RET506
-    "no-else-return",                    # RET505
-    "property-with-parameters",          # PLR0206
-    "singleton-comparison",              # E711, E712
-    "subprocess-run-check",              # PLW1510
-    "super-with-arguments",              # UP008
-    "superfluous-parens",                # UP034
-    "too-many-branches",                 # PLR0912
-    "too-many-return-statements",        # PLR0911
-    "too-many-statements",               # PLR0915
-    "trailing-comma-tuple",              # COM818
-    "try-except-raise",                  # TRY302
-    "ungrouped-imports",                 # I001
-    "unidiomatic-typecheck",             # E721
-    "unnecessary-comprehension",         # C416
-    "unnecessary-direct-lambda-call",    # PLC3002
-    "unnecessary-lambda-assignment",     # PLC3001
-    "unnecessary-pass",                  # PIE790
-    "unneeded-not",                      # SIM208
-    "unused-argument",                   # ARG001, we don't use it
-    "unused-format-string-argument",     #F507
-    "unused-format-string-key",          # F504
-    "unused-import",                     # F401
-    "unused-variable",                   # F841
-    "use-a-generator",                   # C417
-    "use-dict-literal",                  # C406
-    "use-list-literal",                  # C405
-    "useless-else-on-loop",              # PLW0120
-    "useless-import-alias",              # PLC0414
-    "useless-object-inheritance",        # UP004
-    "useless-return",                    # PLR1711
-    "wildcard-import",                   # F403
-    "wrong-import-order",                # I001
-    "wrong-import-position",             # E402
+    "bad-classmethod-argument",          # N804     # Warns about incorrect first argument name in classmethods
+    "comparison-of-constants",           # PLR0133  # Warns about comparisons between constants
+    "comparison-with-itself",            # PLR0124  # Warns about comparisons of a value with itself
+    "consider-alternative-union-syntax", # UP007    # Suggests using alternative union syntax (Python 3.10+)
+    "consider-iterating-dictionary",     # SIM118   # Suggests iterating over dictionary items directly
+    "consider-merging-isinstance",       # PLR1701  # Suggests merging multiple isinstance checks
+    "consider-using-alias",              # UP006    # Suggests using type aliases (Python 3.7+)
+    "consider-using-dict-comprehension", # C402     # Suggests using dict comprehension instead of dict()
+    "consider-using-generator",          # C417     # Suggests using a generator expression instead of a list comprehension
+    "consider-using-get",                # SIM401   # Suggests using dict.get() instead of checking for key existence
+    "consider-using-set-comprehension",  # C401     # Suggests using set comprehension instead of set()
+    "consider-using-sys-exit",           # PLR1722  # Suggests using sys.exit() instead of exit()
+    "consider-using-ternary",            # SIM108   # Suggests using ternary operator instead of if-else
+    "empty-docstring",                   # D419     # Warns about empty docstrings
+    "invalid-name",                      # N815     # Warns about invalid names (variables, functions, classes, etc.)
+    "line-too-long",                     # E501     # Warns about lines that are too long (disabled globally)
+    "literal-comparison",                # F632     # Warns about comparisons to literals using is/is not
+    "missing-class-docstring",           # D101     # Warns about missing docstrings in classes
+    "missing-final-newline",             # W292     # Warns about missing final newline in files
+    "missing-function-docstring",        # D103     # Warns about missing docstrings in functions
+    "missing-module-docstring",          # D100     # Warns about missing docstrings in modules
+    "multiple-imports",                  # E401     # Warns about multiple imports on one line
+    "no-else-break",                     # RET508   # Suggests removing unnecessary else after break
+    "no-else-continue",                  # RET507   # Suggests removing unnecessary else after continue
+    "no-else-raise",                     # RET506   # Suggests removing unnecessary else after raise
+    "no-else-return",                    # RET505   # Suggests removing unnecessary else after return
+    "property-with-parameters",          # PLR0206  # Warns about properties with parameters
+    "singleton-comparison",              # E711, E712 # Warns about comparison to True, False, or None
+    "subprocess-run-check",              # PLW1510  # Suggests using check=True with subprocess.run()
+    "super-with-arguments",              # UP008    # Suggests using super() without arguments (Python 3+)
+    "superfluous-parens",                # UP034    # Warns about unnecessary parentheses
+    "too-many-branches",                 # PLR0912  # Warns about too many branches in a function
+    "too-many-return-statements",        # PLR0911  # Warns about too many return statements in a function
+    "too-many-statements",               # PLR0915  # Warns about too many statements in a function
+    "trailing-comma-tuple",              # COM818   # Warns about trailing commas in single-item tuples
+    "try-except-raise",                  # TRY302   # Suggests simplifying try-except-raise blocks
+    "ungrouped-imports",                 # I001     # Warns about ungrouped imports
+    "unidiomatic-typecheck",             # E721     # Warns about unidiomatic type checking
+    "unnecessary-comprehension",         # C416     # Warns about unnecessary list comprehensions
+    "unnecessary-direct-lambda-call",    # PLC3002  # Warns about unnecessary direct lambda calls
+    "unnecessary-lambda-assignment",     # PLC3001  # Warns about unnecessary lambda assignments
+    "unnecessary-pass",                  # PIE790   # Warns about unnecessary pass statements
+    "unneeded-not",                      # SIM208   # Suggests simplifying unnecessary not operators
+    "unused-argument",                   # ARG001   # Warns about unused function arguments
+    "unused-format-string-argument",     # F507     # Warns about unused format string arguments
+    "unused-format-string-key",          # F504     # Warns about unused format string keys
+    "unused-import",                     # F401     # Warns about unused imports
+    "unused-variable",                   # F841     # Warns about unused variables
+    "use-a-generator",                   # C417     # Suggests using a generator instead of a list comprehension
+    "use-dict-literal",                  # C406     # Suggests using dict literal instead of dict()
+    "use-list-literal",                  # C405     # Suggests using list literal instead of list()
+    "useless-else-on-loop",              # PLW0120  # Warns about useless else clauses on loops
+    "useless-import-alias",              # PLC0414  # Warns about useless import aliases
+    "useless-object-inheritance",        # UP004    # Warns about useless object inheritance in Python 3
+    "useless-return",                    # PLR1711  # Warns about useless return statements
+    "wildcard-import",                   # F403     # Warns about wildcard imports
+    "wrong-import-order",                # I001     # Warns about incorrect import order
+    "wrong-import-position",             # E402     # Warns about imports not at the top of the file
     # "no-self-use", # PLR6301  # Optional plugin, not enabled
     # Handled by mypy
     # Ref: <https://github.com/antonagestam/pylint-mypy-overlap>
-    "abstract-class-instantiated",
-    "arguments-differ",
-    "assigning-non-slot",
-    "assignment-from-no-return",
-    "assignment-from-none",
-    "bad-exception-cause",
-    "bad-format-character",
-    "bad-reversed-sequence",
-    "bad-super-call",
-    "bad-thread-instantiation",
-    "catching-non-exception",
-    "comparison-with-callable",
-    "deprecated-class",
-    "dict-iter-missing-items",
-    "format-combined-specification",
-    "global-variable-undefined",
-    "import-error",
-    "inconsistent-mro",
-    "inherit-non-class",
-    "init-is-generator",
-    "invalid-class-object",
-    "invalid-enum-extension",
-    "invalid-envvar-value",
-    "invalid-format-returned",
-    "invalid-hash-returned",
-    "invalid-metaclass",
-    "invalid-overridden-method",
-    "invalid-repr-returned",
-    "invalid-sequence-index",
-    "invalid-slice-index",
-    "invalid-slots",
-    "invalid-slots-object",
-    "invalid-star-assignment-target",
-    "invalid-str-returned",
-    "invalid-unary-operand-type",
-    "invalid-unicode-codec",
-    "isinstance-second-argument-not-valid-type",
-    "method-hidden",
-    "misplaced-format-function",
-    "missing-format-argument-key",
-    "missing-format-attribute",
-    "missing-kwoa",
+    "abstract-class-instantiated",               # Warns about instantiation of abstract classes
+    "arguments-differ",                          # Warns when overridden method arguments differ from superclass
+    "assigning-non-slot",                        # Warns about assigning to attributes not defined in __slots__
+    "assignment-from-no-return",                 # Warns about assigning result of a function that doesn't return
+    "assignment-from-none",                      # Warns about assigning None to variables
+    "bad-exception-cause",                       # Warns about incorrect exception causes
+    "bad-format-character",                      # Warns about bad characters in format strings
+    "bad-reversed-sequence",                     # Warns about reversing non-sequence objects
+    "bad-super-call",                            # Warns about incorrect super() calls
+    "bad-thread-instantiation",                  # Warns about incorrect threading.Thread subclass instantiation
+    "catching-non-exception",                    # Warns about catching non-exception objects
+    "comparison-with-callable",                  # Warns about comparisons between callable and non-callable
+    "deprecated-class",                          # Warns about usage of deprecated classes
+    "dict-iter-missing-items",                   # Warns about dict.iter*() methods missing .items()
+    "format-combined-specification",             # Warns about combined format string specifications
+    "global-variable-undefined",                 # Warns about undefined global variables
+    "import-error",                              # Warns about imports that cannot be resolved
+    "inconsistent-mro",                          # Warns about inconsistent method resolution order
+    "inherit-non-class",                         # Warns about inheriting from non-class objects
+    "init-is-generator",                         # Warns about __init__ methods declared as generators
+    "invalid-class-object",                      # Warns about invalid objects in class statements
+    "invalid-enum-extension",                    # Warns about invalid enum extensions
+    "invalid-envvar-value",                      # Warns about invalid environment variable values
+    "invalid-format-returned",                   # Warns about invalid values returned by __format__
+    "invalid-hash-returned",                     # Warns about invalid values returned by __hash__
+    "invalid-metaclass",                         # Warns about invalid metaclasses
+    "invalid-overridden-method",                 # Warns about invalid method overrides
+    "invalid-repr-returned",                     # Warns about invalid values returned by __repr__
+    "invalid-sequence-index",                    # Warns about invalid sequence indices
+    "invalid-slice-index",                       # Warns about invalid slice indices
+    "invalid-slots",                             # Used when an invalid __slots__ is found in class. Only a string, an iterable or a sequence is permitted.
+    "invalid-slots-object",                      # Warns about invalid __slots__ objects
+    "invalid-star-assignment-target",            # Warns about invalid targets in star assignments
+    "invalid-str-returned",                      # Warns when __str__ doesn't return a string
+    "invalid-unary-operand-type",                # Warns about invalid types for unary operators
+    "invalid-unicode-codec",                     # Warns about invalid Unicode codec operations
+    "isinstance-second-argument-not-valid-type", # Warns when isinstance() second argument is not a type
+    "method-hidden",                             # Warns about methods hidden by instance attributes
+    "misplaced-format-function",                 # Warns about misplaced string format method calls
+    "missing-format-argument-key",               # Warns about missing keys in format string arguments
+    "missing-format-attribute",                  # Warns about missing attributes in format strings
+    "missing-kwoa",                              # Warns about missing keyword-only arguments
     # "no-member",
-    "no-value-for-parameter",
-    "non-iterator-returned",
-    "non-str-assignment-to-dunder-name",
-    "nonlocal-and-global",
-    "not-a-mapping",
-    "not-an-iterable",
-    "not-async-context-manager",
-    "not-callable",
-    "not-context-manager",
-    "overridden-final-method",
-    "raising-bad-type",
-    "raising-non-exception",
-    "redundant-keyword-arg",
-    "relative-beyond-top-level",
-    "self-cls-assignment",
-    "signature-differs",
-    "star-needs-assignment-target",
-    "subclassed-final-class",
-    "super-without-brackets",
-    "too-many-function-args",
-    "typevar-double-variance",
-    "typevar-name-mismatch",
-    "unbalanced-dict-unpacking",
-    "unbalanced-tuple-unpacking",
-    "unexpected-keyword-arg",
-    "unhashable-member",
-    "unpacking-non-sequence",
-    "unsubscriptable-object",
-    "unsupported-assignment-operation",
-    "unsupported-binary-operation",
-    "unsupported-delete-operation",
-    "unsupported-membership-test",
-    "used-before-assignment",
-    "using-final-decorator-in-unsupported-version",
-    "wrong-exception-operation",
+    "no-value-for-parameter",                       # Warns when a function call is missing a required parameter
+    "non-iterator-returned",                        # Warns when a __iter__ method doesn't return an iterator
+    "non-str-assignment-to-dunder-name",            # Warns when assigning non-string to __name__
+    "nonlocal-and-global",                          # Warns when a variable is declared both nonlocal and global
+    "not-a-mapping",                                # Warns when a non-mapping is used where a mapping is expected
+    "not-an-iterable",                              # Warns when a non-iterable is used where an iterable is expected
+    "not-async-context-manager",                    # Warns when an async context manager is expected but not used
+    "not-callable",                                 # Warns when trying to call a non-callable object
+    "not-context-manager",                          # Warns when a context manager is expected but not used
+    "overridden-final-method",                      # Warns when a final method is overridden
+    "raising-bad-type",                             # Warns when raising a non-exception type
+    "raising-non-exception",                        # Warns when raising a non-exception object
+    "redundant-keyword-arg",                        # Warns about redundant keyword arguments
+    "relative-beyond-top-level",                    # Warns about relative imports beyond top-level package
+    "self-cls-assignment",                          # Warns about assigning to self or cls in methods
+    "signature-differs",                            # Warns when an overriding method's signature differs
+    "star-needs-assignment-target",                 # Warns when * is used without an assignment target
+    "subclassed-final-class",                       # Warns when a final class is subclassed
+    "super-without-brackets",                       # Warns about using super without parentheses (Python 2 style)
+    "too-many-function-args",                       # Warns when a function is called with too many arguments
+    "typevar-double-variance",                      # Warns about TypeVar with conflicting variance
+    "typevar-name-mismatch",                        # Warns when a TypeVar name doesn't match its parameter
+    "unbalanced-dict-unpacking",                    # Warns about unbalanced dict unpacking in assignments
+    "unbalanced-tuple-unpacking",                   # Warns about unbalanced tuple unpacking in assignments
+    "unexpected-keyword-arg",                       # Warns about unexpected keyword arguments in function calls
+    "unhashable-member",                            # Warns when trying to hash an unhashable object
+    "unpacking-non-sequence",                       # Warns when trying to unpack a non-sequence
+    "unsubscriptable-object",                       # Warns when trying to subscript a non-subscriptable object
+    "unsupported-assignment-operation",             # Warns about unsupported assignment operations
+    "unsupported-binary-operation",                 # Warns about unsupported binary operations
+    "unsupported-delete-operation",                 # Warns about unsupported delete operations
+    "unsupported-membership-test",                  # Warns about unsupported membership test operations
+    "used-before-assignment",                       # Warns when a variable is used before it's assigned
+    "using-final-decorator-in-unsupported-version", # Warns about using @final decorator in unsupported Python versions
+    "wrong-exception-operation",                    # Warns about wrong operations on exception objects
 ]
 enable = [
     # "useless-suppression",          # temporarily every now and then to clean them up
@@ -1936,7 +1936,6 @@ strip-whitespaces = true
 # (default: True)
 split-summary-body = false
 numpydoc-section-hyphen-length = false
-
 
 [tool.mdformat]
 # docs: https://mdformat.readthedocs.io/en/stable/users/configuration_file.html

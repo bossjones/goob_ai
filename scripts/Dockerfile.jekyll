@@ -1,3 +1,4 @@
+# hadolint global ignore=DL3006,DL3008,DL3009,DL3014,DL3015,DL3059
 # Use the official Jekyll image from Docker Hub
 FROM bretfisher/jekyll-serve
 
@@ -16,5 +17,3 @@ ENTRYPOINT [ "docker-entrypoint.sh" ]
 
 # bundle exec jekyll serve --force_polling -H 0.0.0.0 -P 4000
 CMD [ "bundle", "exec", "jekyll", "serve", "--force_polling", "-H", "0.0.0.0", "-P", "4000" ]
-
-

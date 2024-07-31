@@ -150,7 +150,7 @@ def start_memory_tracing(modules_to_trace: Optional[Union[str, Iterable[str]]] =
     """
     Setup line-by-line tracing to record rss mem (RAM) at each line of a module or sub-module. See `./benchmark.py` for
     usage examples. Current memory consumption is returned using psutil and in particular is the RSS memory "Resident
-    Set Size” (the non-swapped physical memory the process is using). See
+    Set Size" (the non-swapped physical memory the process is using). See
     https://psutil.readthedocs.io/en/latest/#psutil.Process.memory_info
 
     Args:

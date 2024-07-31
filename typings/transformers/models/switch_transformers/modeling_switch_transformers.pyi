@@ -330,7 +330,7 @@ class SwitchTransformersForConditionalGeneration(SwitchTransformersPreTrainedMod
         ...     "summarize: studies have shown that owning a dog is good for you", return_tensors="pt"
         ... ).input_ids  # Batch size 1
         >>> outputs = model.generate(input_ids)
-        >>> # . To, let’s say you have a dog. To summarize:
+        >>> # . To, let's say you have a dog. To summarize:
         >>> # Since the model has been trained on MLM, this will output gibberish
         ```"""
         ...

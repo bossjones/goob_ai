@@ -161,7 +161,7 @@ class Idefics2Processor(ProcessorMixin):
         messages = [{
             "role": "user",
             "content": [
-                {"type": "text", "text": "What’s in this image?"},
+                {"type": "text", "text": "What's in this image?"},
                 {"type": "image"},
                 {"type": "image"},
                 ],

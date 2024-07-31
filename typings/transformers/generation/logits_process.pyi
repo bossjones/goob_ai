@@ -577,12 +577,12 @@ class NoRepeatNGramLogitsProcessor(LogitsProcessor):
 
     >>> output = model.generate(**inputs)
     >>> print(tokenizer.decode(output[0], skip_special_tokens=True))
-    Today I’m not sure if I’m going to be able to do it.
+    Today I'm not sure if I'm going to be able to do it.
 
-    >>> # Now let's add ngram size using `no_repeat_ngram_size`. This stops the repetitions ("I’m") in the output.
+    >>> # Now let's add ngram size using `no_repeat_ngram_size`. This stops the repetitions ("I'm") in the output.
     >>> output = model.generate(**inputs, no_repeat_ngram_size=2)
     >>> print(tokenizer.decode(output[0], skip_special_tokens=True))
-    Today I’m not sure if I can get a better understanding of the nature of this issue
+    Today I'm not sure if I can get a better understanding of the nature of this issue
     ```
     """
     def __init__(self, ngram_size: int) -> None:

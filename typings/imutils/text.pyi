@@ -10,7 +10,7 @@ def put_text(img, text, org, font_face, font_scale, color, thickness=..., line_t
     :param org: Bottom-left corner of the first line of the text string in the image.
     :param font_face: Font type. One of FONT_HERSHEY_SIMPLEX, FONT_HERSHEY_PLAIN, FONT_HERSHEY_DUPLEX,
                           FONT_HERSHEY_COMPLEX, FONT_HERSHEY_TRIPLEX, FONT_HERSHEY_COMPLEX_SMALL,
-                          FONT_HERSHEY_SCRIPT_SIMPLEX, or FONT_HERSHEY_SCRIPT_COMPLEX, where each of the font ID’s
+                          FONT_HERSHEY_SCRIPT_SIMPLEX, or FONT_HERSHEY_SCRIPT_COMPLEX, where each of the font ID's
                           can be combined with FONT_ITALIC to get the slanted letters.
     :param font_scale: Font scale factor that is multiplied by the font-specific base size.
     :param color: Text color.
@@ -29,7 +29,7 @@ def put_centered_text(img, text, font_face, font_scale, color, thickness=..., li
     :param text: Text string to be drawn.
     :param font_face: Font type. One of FONT_HERSHEY_SIMPLEX, FONT_HERSHEY_PLAIN, FONT_HERSHEY_DUPLEX,
                           FONT_HERSHEY_COMPLEX, FONT_HERSHEY_TRIPLEX, FONT_HERSHEY_COMPLEX_SMALL,
-                          FONT_HERSHEY_SCRIPT_SIMPLEX, or FONT_HERSHEY_SCRIPT_COMPLEX, where each of the font ID’s
+                          FONT_HERSHEY_SCRIPT_SIMPLEX, or FONT_HERSHEY_SCRIPT_COMPLEX, where each of the font ID's
                           can be combined with FONT_ITALIC to get the slanted letters.
     :param font_scale: Font scale factor that is multiplied by the font-specific base size.
     :param color: Text color.
