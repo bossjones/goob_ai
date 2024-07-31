@@ -306,6 +306,7 @@ typecheck = {chain = [
 "sourcery:diff" = "sourcery review --config .sourcery.yaml --diff 'git diff main' --verbose ."
 "sourcery:fix" = "sourcery review --config .sourcery.yaml --fix ."
 "sourcery:hub" = "sourcery hub"
+"docs:changelog" = "towncrier build --version main --draft"
 "ci:mypy" = "mypy  --config-file=pyproject.toml --html-report typingcov ."
 "open:mypy-coverage" = " open typingcov/index.html"
 unittests-debug = {cmd = "pytest -vv --diff-width=60 --diff-symbols --pdb --pdbcls bpdb:BPdb --showlocals --tb=short --cov-append --cov-report=term-missing --junitxml=junit/test-results.xml --cov-report=xml:cov.xml --cov-report=html:htmlcov --cov-report=annotate:cov_annotate --cov=."}
@@ -1771,27 +1772,27 @@ reportAttributeAccessIssue = "error"
 # ]
 
 [tool.towncrier]
-package = "goob_ai"
-package_dir = "src"
-# filename = "doc/en/changelog.rst"
-# directory = "changelog/"
-# title_format = "pytest {version} ({project_date})"
-# template = "changelog/_template.rst"
+# DISABLED: # package = "goob_ai"
+# DISABLED: # package_dir = "src"
+# DISABLED: # # filename = "doc/en/changelog.rst"
+# DISABLED: # # directory = "changelog/"
+# DISABLED: # # title_format = "pytest {version} ({project_date})"
+# DISABLED: # # template = "changelog/_template.rst"
+# DISABLED: #
+# DISABLED: # # NOTE: The types are declared because:
+# DISABLED: # # NOTE: - there is no mechanism to override just the value of
+# DISABLED: # # NOTE:   `tool.towncrier.type.misc.showcontent`;
+# DISABLED: # # NOTE: - and, we want to declare extra non-default types for
+# DISABLED: # # NOTE:   clarity and flexibility.
+# DISABLED: # # For writing into the correct file
+# DISABLED: # filename = "NEWS.rst"
+# DISABLED: # # For finding the news fragments
+# DISABLED: # directory = "news/"
 
-# NOTE: The types are declared because:
-# NOTE: - there is no mechanism to override just the value of
-# NOTE:   `tool.towncrier.type.misc.showcontent`;
-# NOTE: - and, we want to declare extra non-default types for
-# NOTE:   clarity and flexibility.
-# For writing into the correct file
-filename = "NEWS.rst"
-# For finding the news fragments
-directory = "news/"
 
-
-# For rendering properly for this project
-issue_format = "`#{issue} <https://github.com/pypa/pip/issues/{issue}>`_"
-template = "tools/news/template.rst"
+# DISABLED: # # For rendering properly for this project
+# DISABLED: # issue_format = "`#{issue} <https://github.com/pypa/pip/issues/{issue}>`_"
+# DISABLED: # template = "tools/news/template.rst"
 
 # Grouping of entries, within our changelog
 # type = [
@@ -1803,6 +1804,17 @@ template = "tools/news/template.rst"
 #   { name = "Process",                   directory = "process", showcontent = true },
 #   { name = "Trivial Changes",           directory = "trivial", showcontent = false },
 # ]
+name = "goob_ai"
+directory = "changelog.d"
+filename = "CHANGELOG.md"
+start_string = "<!-- towncrier release notes start -->\n"
+template = "changelog.d/towncrier_template.md.jinja"
+title_format = ""
+issue_format = "[#{issue}](https://github.com/bossjones/goob_ai/issues/{issue})"
+underlines = ["", "", ""]
+
+[[tool.towncrier.section]]
+path = ""
 
 [[tool.towncrier.type]]
 # When something public gets removed in a breaking way. Could be
@@ -1868,6 +1880,10 @@ directory = "misc"
 name = "Miscellaneous internal changes"
 showcontent = true
 
+[[tool.towncrier.type]]
+directory = "change"
+name = "Changes"
+showcontent = true
 
 [tool.pydocstringformatter]
 write = false
