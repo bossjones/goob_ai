@@ -259,7 +259,7 @@ fsspec==2024.5.0
     # via huggingface-hub
 gallery-dl==1.27.1
     # via goob-ai
-geojson==2.5.0
+geojson==3.1.0
     # via pyowm
 gitdb==4.0.11
     # via gitpython
