@@ -125,9 +125,10 @@ jobs:
           RYE_VERSION: '0.37.0'
           RYE_INSTALL_OPTION: '--yes'
 
-      - name: install tesseract
+      - name: install tesseract and ffmpeg
         run: |
           sudo apt-get install -y tesseract-ocr tesseract-ocr-por
+          sudo apt install ffmpeg -y
 
       # # http://127.0.0.1:19000/vision_api_fixture.PNG
       # - name: start httpserver for vision_api testing
