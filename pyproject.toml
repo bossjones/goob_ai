@@ -1805,6 +1805,8 @@ reportAttributeAccessIssue = "error"
 #   { name = "Trivial Changes",           directory = "trivial", showcontent = false },
 # ]
 name = "goob_ai"
+package = "goob_ai"
+package_dir = "src"
 directory = "changelog.d"
 filename = "CHANGELOG.md"
 start_string = "<!-- towncrier release notes start -->\n"
