@@ -244,3 +244,10 @@ repos:
         language: system
         types: ["dockerfile"]
         entry: hadolint
+
+  - repo: https://github.com/sirosen/texthooks
+    rev: 0.6.6
+    hooks:
+      # - id: alphabetize-codeowners
+      - id: fix-smartquotes
+      # - id: fix-ligatures
