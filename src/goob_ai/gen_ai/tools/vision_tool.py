@@ -10,10 +10,12 @@ import base64
 import logging
 import re
 import sys
+import traceback
 import uuid
 
 from typing import ClassVar, Dict, Optional, Type
 
+import aiohttp
 import openai
 import requests
 
@@ -88,77 +90,194 @@ class VisionTool(BaseTool):
 
         LOGGER.info(f"image_path = {image_path}")
         LOGGER.info(f"prompt = {prompt}")
-        try:
-            # Initialize the Vision API client
-            client: Client | None = VisionModel().vision_api
-            # client = Client(aiosettings.openai_api_key.get_secret_value())
-            # API_BASE_URL: https://api.groq.com/openai/v1/
+        # try:
+        # Initialize the Vision API client
+        client: Client | None = VisionModel().vision_api.client
+        # client = Client(aiosettings.openai_api_key.get_secret_value())
+        # API_BASE_URL: https://api.groq.com/openai/v1/
 
-            discord_token = aiosettings.discord_token.get_secret_value()
+        discord_token = aiosettings.discord_token.get_secret_value()
 
-            @traceable
-            # Function to download image from discord and convert to base64
-            def fetch_image_from_discord(url: str) -> str | bytes | None:
-                # Initialize the discord settings
-                headers = {
-                    "Authorization": f"Bot {discord_token}",
-                    "Content-Type": "application/json",
-                }
-                # Check if the message content is a URL
-                url_pattern = re.compile(
-                    r"http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+"
-                )
+        @traceable
+        # Function to download image from discord and convert to base64
+        def fetch_image_from_discord(url: str) -> str | bytes | None:
+            # Initialize the discord settings
+            headers = {
+                "Authorization": f"Bot {discord_token}",
+                "Content-Type": "application/json",
+            }
+            # Check if the message content is a URL
+            url_pattern = re.compile(r"http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+")
 
-                try:
-                    # response: requests.Response = requests.get(url)
-                    response: requests.Response = requests.get(url, headers=headers)
-                    if response.status_code == 200:
-                        return base64.b64encode(response.content).decode("utf-8")
-                except Exception as e:
-                    LOGGER.error(f"Error invoking flex checks http api: {e}")
-                    raise ToolException(f"Failed to download image from discord. Status code: {response.status_code}")
+            # response: requests.Response = requests.get(url)
+            response: requests.Response = requests.get(url, headers=headers)
+            if response.status_code == 200:
+                return base64.b64encode(response.content).decode("utf-8")
 
-            print("Breakpoint 2")
-            discord_url_pattern = get_pattern()
-            LOGGER.debug(f"discord_url_pattern = {discord_url_pattern}")
-            is_discord_url = re.match(discord_url_pattern, image_path) is not None
-            if is_discord_url and discord_token:
-                LOGGER.info("Found an image in query!")
-                image_base64 = fetch_image_from_discord(image_path)
-                image_data_url = f"data:image/jpeg;base64,{image_base64}"
-                content_block = {"type": "image_url", "image_url": {"url": image_data_url}}
-            else:
-                content_block = {"type": "image_url", "image_url": {"url": image_path}}
+            try:
+                print("Breakpoint 2")
+                discord_url_pattern = get_pattern()
+                LOGGER.debug(f"discord_url_pattern = {discord_url_pattern}")
+                is_discord_url = re.match(discord_url_pattern, image_path) is not None
+                if is_discord_url and discord_token:
+                    LOGGER.info("Found an image in query!")
+                    image_base64 = fetch_image_from_discord(image_path)
+                    image_data_url = f"data:image/jpeg;base64,{image_base64}"
+                    content_block = {"type": "image_url", "image_url": {"url": image_data_url}}
+                else:
+                    content_block = {"type": "image_url", "image_url": {"url": image_path}}
+            except Exception as e:
+                exc_type, exc_value, exc_traceback = sys.exc_info()
+                err_msg = f"Failed to download image from discord. Status code: {response.status_code}. Error invoking regular VisionTool(image_path='{image_path}', prompt='{prompt}'): exc_type={type(e).__name__},exc_value='{exc_value}': {e}"
+                LOGGER.error(err_msg)
+                LOGGER.error(f"exc_type={exc_type},exc_value={exc_value}")
+                LOGGER.error(f"Args: image_path={image_path}, prompt={prompt}")
+                traceback.print_tb(exc_traceback)
+
+                raise ToolException(err_msg) from e
 
             # import bpdb
             # bpdb.set_trace()
             # Call the Vision API
-            response = client.chat.completions.create(
-                # model="gpt-4-vision-preview",
-                model=aiosettings.vision_model,
-                messages=[
-                    {
-                        "role": "user",
-                        "content": [{"type": "text", "text": prompt}, content_block],
-                    }
-                ],
-                max_tokens=900,
-            )  # pyright: ignore[reportAttributeAccessIssue]
+            try:
+                # response = client.chat.completions.create(
+                #     # model="gpt-4-vision-preview",
+                #     model=aiosettings.vision_model,
+                #     messages=[
+                #         {
+                #             "role": "user",
+                #             "content": [{"type": "text", "text": prompt}, content_block],
+                #         }
+                #     ],
+                #     max_tokens=900,
+                # )  # pyright: ignore[reportAttributeAccessIssue]
 
-            return response.choices[0].message.content
-        except Exception as e:
-            exc_type, exc_value, _ = sys.exc_info()
-            err_msg = f"Error in read_image_tool: {e}"
-            LOGGER.error(err_msg)
-            raise ToolException(err_msg) from e
+                # # Call the Vision API
+                response = client.create(
+                    model=aiosettings.vision_model,
+                    messages=[
+                        {
+                            "role": "user",
+                            "content": [{"type": "text", "text": prompt}, content_block],
+                        }
+                    ],
+                    max_tokens=900,
+                )  # pyright: ignore[reportAttributeAccessIssue]
+
+                return response.choices[0].message.content
+
+            except Exception as e:
+                exc_type, exc_value, exc_traceback = sys.exc_info()
+                err_msg = f"Error invoking regular VisionTool(image_path='{image_path}', prompt='{prompt}'): exc_type={type(e).__name__},exc_value='{exc_value}': {e}"
+                LOGGER.error(err_msg)
+                LOGGER.error(f"exc_type={exc_type},exc_value={exc_value}")
+                LOGGER.error(f"Args: image_path={image_path}, prompt={prompt}")
+                traceback.print_tb(exc_traceback)
 
     async def _arun(
         self,
         image_path: str,
         prompt: str,
         run_manager: Optional[AsyncCallbackManagerForToolRun] | None = None,
+        **kwargs,
     ) -> str:
-        """Use the tool asynchronously."""
-        raise NotImplementedError("vision_tool does not support async")
+        # """Use the tool asynchronously."""
+        # raise NotImplementedError("vision_tool does not support async")
+        """
+        Use this tool asynchronously to get more information about an image given a URL to an image file. Use for all urls for image files including discord urls.
 
-    # async def get_image()
+        Args:
+            image_path: The URL to the image file
+            prompt: The prompt to use for the API call
+
+        Returns: The response from the Vision API
+        """
+
+        LOGGER.info(f"image_path = {image_path}")
+        LOGGER.info(f"prompt = {prompt}")
+        # try:
+        # Initialize the Vision API client
+        client: Client | None = VisionModel().vision_api
+        # client = Client(aiosettings.openai_api_key.get_secret_value())
+        # API_BASE_URL: https://api.groq.com/openai/v1/
+
+        discord_token = aiosettings.discord_token.get_secret_value()
+
+        @traceable
+        # Function to download image from Slack and convert to base64
+        async def fetch_image_from_discord(url: str) -> str:
+            # headers = {"Authorization": f"Bearer {discord_token}"}
+            # Initialize the discord settings
+            headers = {
+                "Authorization": f"Bot {discord_token}",
+                "Content-Type": "application/json",
+            }
+            # Check if the message content is a URL
+            url_pattern = re.compile(r"http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+")
+
+            async with aiohttp.ClientSession() as session:
+                async with session.get(url) as response:
+                    # response = requests.get(url, headers=headers)
+                    if response.status == 200:
+                        content: bytes = await response.read()
+                        return base64.b64encode(content).decode("utf-8")
+                    # else:
+                    #     raise Exception(f"Failed to download image from Slack. Status code: {response.status_code}")
+
+            # try downloading image and converting into base64
+            try:
+                print("Breakpoint 2")
+                discord_url_pattern = get_pattern()
+                LOGGER.debug(f"discord_url_pattern = {discord_url_pattern}")
+                is_discord_url = re.match(discord_url_pattern, image_path) is not None
+                if is_discord_url and discord_token:
+                    LOGGER.info("Found an image in query!")
+                    image_base64 = fetch_image_from_discord(image_path)
+                    image_data_url = f"data:image/jpeg;base64,{image_base64}"
+                    content_block = {"type": "image_url", "image_url": {"url": image_data_url}}
+                else:
+                    content_block = {"type": "image_url", "image_url": {"url": image_path}}
+
+            except Exception as e:
+                exc_type, exc_value, exc_traceback = sys.exc_info()
+                err_msg = f"Failed to download image from discord. Status code: {response.status_code}. Error invoking Async VisionTool(image_path='{image_path}', prompt='{prompt}'): exc_type={type(e).__name__},exc_value='{exc_value}': {e}"
+                LOGGER.error(err_msg)
+                LOGGER.error(f"exc_type={exc_type},exc_value={exc_value}")
+                LOGGER.error(f"Args: image_path={image_path}, prompt={prompt}")
+                traceback.print_tb(exc_traceback)
+                raise ToolException(err_msg) from e
+
+            try:
+                # # Call the Vision API
+                response = client.create(
+                    model=aiosettings.vision_model,
+                    messages=[
+                        {
+                            "role": "user",
+                            "content": [{"type": "text", "text": prompt}, content_block],
+                        }
+                    ],
+                    max_tokens=900,
+                )  # pyright: ignore[reportAttributeAccessIssue]
+
+                return response.choices[0].message.content
+
+            except Exception as e:
+                exc_type, exc_value, exc_traceback = sys.exc_info()
+                err_msg = f"Error invoking Async VisionTool(image_path='{image_path}', prompt='{prompt}'): exc_type={type(e).__name__},exc_value='{exc_value}': {e}"
+                LOGGER.error(err_msg)
+                LOGGER.error(f"exc_type={exc_type},exc_value={exc_value}")
+                LOGGER.error(f"Args: image_path={image_path}, prompt={prompt}")
+                traceback.print_tb(exc_traceback)
+                raise ToolException(err_msg) from e
+
+    # async def _arun(
+    #     self,
+    #     image_path: str,
+    #     prompt: str,
+    #     run_manager: Optional[AsyncCallbackManagerForToolRun] | None = None,
+    # ) -> str:
+    #     """Use the tool asynchronously."""
+    #     raise NotImplementedError("vision_tool does not support async")
+
+    # # async def get_image()

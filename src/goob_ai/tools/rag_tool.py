@@ -278,7 +278,7 @@ class ReadTheDocsQATool(BaseChromaDBTool, BaseTool):
     # Vectorstore for embeddings of currently loaded PDFs
 
     # def _run(self, question: str, run_manager: Optional[CallbackManagerForToolRun] = None) -> str:
-    def _run(self, question: str) -> str:
+    def _run(self, question: str, **kwargs) -> str:
         """Use the tool."""
         # self.load_paper(paper_id)
         # import bpdb
@@ -308,7 +308,7 @@ class ReadTheDocsQATool(BaseChromaDBTool, BaseTool):
         return answer
 
     # async def _arun(self, question: str, run_manager: Optional[AsyncCallbackManagerForToolRun] = None) -> str:
-    async def _arun(self, question: str) -> str:
+    async def _arun(self, question: str, **kwargs) -> str:
         """Use the tool asynchronously."""
         # If the calculation is cheap, you can just delegate to the sync implementation
         # as shown below.
@@ -318,7 +318,7 @@ class ReadTheDocsQATool(BaseChromaDBTool, BaseTool):
         # await self.aload_paper(paper_id)
         qa = self._make_qa_chain()
         qa_chain_custom_name = qa.with_config({"run_name": "AsyncReadTheDocsQATool"})
-        answer = qa_chain_custom_name.invoke(question)
+        answer = await qa_chain_custom_name.ainvoke(question)
         # answer = qa.invoke(question)
         # return qa.invoke(question, run_manager=run_manager.get_sync())
         return answer

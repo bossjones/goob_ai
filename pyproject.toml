@@ -433,20 +433,21 @@ log_file_level = "DEBUG"
 # allows you to conditionally call only a subset of pytest baased on the marker provided
 markers = [
     "configonly: marks tests that run code that utilizes the config module (deselect with '-m \"not configonly\"')",
-    "fast: marks tests as fast (run with '-m fast')",
-    "imgops: marks tests as imgops (run with '-m imgops')",
-    "httpclientonly: marks tests that run code that utilizes the http_client module (deselect with '-m \"not httpclientonly\"')",
-    "integration: marks tests dealing with integration testing (deselect with '-m \"not integration\"')",
     "e2e: marks tests dealing with e2e testing (deselect with '-m \"not e2e\"')",
+    "evals: marks tests as evals (run with '-m evals')",
+    "fast: marks tests as fast (run with '-m fast')",
+    "httpclientonly: marks tests that run code that utilizes the http_client module (deselect with '-m \"not httpclientonly\"')",
+    "imgops: marks tests as imgops (run with '-m imgops')",
+    "integration: marks tests dealing with integration testing (deselect with '-m \"not integration\"')",
     "onboardingonly: marks tests that run code that utilizes the new_dev_onboarding_tool module (deselect with '-m \"not onboardingonly\"')",
     "retryonly: marks tests that run code that utilizes the retry module (deselect with '-m \"not retryonly\"')",
     "skip_in_parallel: marks tests that should be run in serial only (deselect with '-m \"not skip_in_parallel\"')",
     "slow: marks tests as slow (run with '-m slow')",
     "toolonly: marks tests that run code that utilizes a Custom Langchain tool module in the tools directory (deselect with '-m \"not toolonly\"')",
-    "visiontoolonly: marks tests that run code that utilizes vision_tool.py (deselect with '-m \"not visiontoolonly\"')",
     "toolonly: marks tests that run code that utilizes llm tool classes  (deselect with '-m \"not toolonly\"')",
     "unittest: marks tests dealing with unittest (deselect with '-m \"not unittest\"')",
     "vectorstoronly: marks tests that run code that utilizes the flex_vector_store_tool module (deselect with '-m \"not vectorstoronly\"')",
+    "visiontoolonly: marks tests that run code that utilizes vision_tool.py (deselect with '-m \"not visiontoolonly\"')",
     "webpagetoolonly: marks tests that run code that utilizes the fetch_webpage_tool module (deselect with '-m \"not webpagetoolonly\"')",
 ]
 # filterwarnings = [
