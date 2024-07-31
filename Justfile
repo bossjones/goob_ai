@@ -12,9 +12,11 @@ CURRENT_DIR := "$(pwd)"
 base64_cmd := if "{{os()}}" == "macos" { "base64 -w 0 -i cert.pem -o ca.pem" } else { "base64 -w 0 -i cert.pem > ca.pem" }
 grep_cmd := if "{{os()}}" =~ "macos" { "ggrep" } else { "grep" }
 
+# List all available just commands
 _default:
 		@just --list
 
+# Print the current operating system
 info:
 		print "OS: {{os()}}"
 
@@ -32,33 +34,42 @@ which-python:
 autoreload-code:
 	rye run watchmedo auto-restart --pattern "*.py" --recursive --signal SIGTERM rye run goobctl go
 
+# Open the HTML coverage report in the default
 local-open-coverage:
 	./scripts/open-browser.py file://${PWD}/htmlcov/index.html
 
+# Open the HTML coverage report in the default
 open-coverage: local-open-coverage
 
+# Run unit tests and open the coverage report
 local-unittest:
 	bash scripts/unittest-local
 	./scripts/open-browser.py file://${PWD}/htmlcov/index.html
 
+# Fetch multiple Python versions using rye
 rye-get-pythons:
-	rye fetch 3.8.19
-	rye fetch 3.9.19
-	rye fetch 3.10.14
-	rye fetch 3.11.4
-	rye fetch 3.12.3
+    rye fetch 3.8.19
+    rye fetch 3.9.19
+    rye fetch 3.10.14
+    rye fetch 3.11.4
+    rye fetch 3.12.3
 
+# Add all dependencies using a custom script
 rye-add-all:
-	./contrib/rye-add-all.sh
+    ./contrib/rye-add-all.sh
 
+# Run all pre-commit hooks on all files
 pre-commit-run-all:
-	pre-commit run --all-files
+    pre-commit run --all-files
 
+# Install pre-commit hooks
 pre-commit-install:
-	pre-commit install
+    pre-commit install
 
+# Display the dependency tree of the project
 pipdep-tree:
-	pipdeptree --python .venv/bin/python3
+    pipdeptree --python .venv/bin/python3
+
 
 # install rye tools globally
 rye-tool-install:
@@ -210,3 +221,9 @@ changelog:
 gco:
 	gco main
 	git pull --rebase
+
+langchain-migrate-diff:
+	langchain-cli migrate --include-ipynb --diff src
+
+langchain-migrate:
+	langchain-cli migrate --include-ipynb src

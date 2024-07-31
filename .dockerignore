@@ -365,3 +365,4 @@ rtdocs
 notebooks/chroma_db
 notebooks/chroma
 PATH.PID
+log.txt

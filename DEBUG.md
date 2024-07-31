@@ -52,12 +52,12 @@ tree_list ->
 # Compare cerebro model to goob-ai
 
 What is model ensembling? Model ensembling combines the predictions from multiple models together. Traditionally this is
-done by running each model on some inputs separately and then combining the predictions. However, if you’re running
+done by running each model on some inputs separately and then combining the predictions. However, if you're running
 models with the same architecture, then it may be possible to combine them together using torch.vmap. vmap is a function
 transform that maps functions across dimensions of the input tensors. One of its use cases is eliminating for-loops and
 speeding them up through vectorization.
 
-Let’s demonstrate how to do this using an ensemble of simple MLPs.
+Let's demonstrate how to do this using an ensemble of simple MLPs.
 
 extending a model is called finetuning.
 
@@ -68,7 +68,7 @@ It's actually called transfer learning.
 what is backbone?
 
 ```
-Generally a backbone refers to some “base model” of the overall architecture, which can be changed for another one.
+Generally a backbone refers to some "base model" of the overall architecture, which can be changed for another one.
 E.g. some detection models use a resnet as the default backbone, which you could swap for e.g. a VGG model or your custom one.
 ```
 
