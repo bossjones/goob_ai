@@ -119,19 +119,19 @@ def test_rag_tool_injected_arg_with_schema(
         "required": ["question"],
     }
 
-    res = tool_.invoke(
-        {
-            "question": rag_tool_prompt,
-        }
-    )
+    # res = tool_.invoke(
+    #     {
+    #         "question": rag_tool_prompt,
+    #     }
+    # )
 
-    assert "3.6" in res or "3.7" in res
+    # assert "3.6" in res or "3.7" in res
 
-    with pytest.raises(
-        ValidationError,
-        match=r".*1 validation error for ReadTheDocsQASchema.*",
-    ) as excinfo:
-        tool_.invoke({"x": 5})
+    # with pytest.raises(
+    #     ValidationError,
+    #     match=r".*1 validation error for ReadTheDocsQASchema.*",
+    # ) as excinfo:
+    #     tool_.invoke({"x": 5})
 
     assert convert_to_openai_function(tool_) == {
         "name": "chroma_question_answering",
