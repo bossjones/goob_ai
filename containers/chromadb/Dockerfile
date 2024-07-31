@@ -1,3 +1,6 @@
+# hadolint ignore=DL3008
+# hadolint ignore=DL3009
+# hadolint global ignore=DL3006,DL3008,DL3009,DL3014,DL3015,DL3059
 FROM python:3.11-slim-bookworm AS builder
 ARG REBUILD_HNSWLIB
 RUN apt-get update --fix-missing && apt-get install -y --fix-missing \

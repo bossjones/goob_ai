@@ -15,14 +15,21 @@ from langchain import hub
 from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain.chains.retrieval import create_retrieval_chain
 from langchain.pydantic_v1 import BaseModel, Field
-from langchain.schema import Document
-from langchain.schema.runnable import ConfigurableField, Runnable, RunnableBranch, RunnableLambda, RunnableMap
-from langchain.tools import BaseTool
-from langchain.tools.base import ToolException
 from langchain_chroma import Chroma
+from langchain_core.documents import Document
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
-from langchain_core.runnables import Runnable, RunnableParallel, RunnablePassthrough, RunnableSerializable
+from langchain_core.runnables import (
+    ConfigurableField,
+    Runnable,
+    RunnableBranch,
+    RunnableLambda,
+    RunnableMap,
+    RunnableParallel,
+    RunnablePassthrough,
+    RunnableSerializable,
+)
+from langchain_core.tools import BaseTool, ToolException
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 from langsmith import traceable
 from langsmith.wrappers import wrap_openai
@@ -227,16 +234,31 @@ class BaseChromaDBTool(BaseModel):
     """Base tool for interacting with Chroma."""
 
     # db: SQLDatabase = Field(exclude=True)
-    db: langchain_chroma.vectorstores.Chroma = Field(exclude=True)
+    db: langchain_chroma.vectorstores.Chroma = Field(
+        exclude=True,
+        title="db",
+        description="vector store client for getting, inserting, filtering, document embeddings.",
+    )
 
     hub_prompt: ChatPromptTemplate = RAG_PROMPT
-    llm: ChatOpenAI = Field(exclude=True)
+    # hub_prompt: ChatPromptTemplate = Field(
+    #     ..., exclude=True, title="hub_prompt", description="rlm/rag-prompt to use in invokations of the custom tool."
+    # )
+    # # llm: ChatOpenAI = Field(exclude=True)
+    llm: ChatOpenAI = Field(exclude=True, title="llm", description="Large Language model to use for embedding.")
 
     class Config(BaseTool.Config):
         pass
 
 
 class ReadTheDocsQASchema(BaseModel):
+    """
+    You must use this tool for any questions or queries related to opencv, rich, and Pillow or substrings of it. This will return documents that are related to the user's question. The documents may not be always relevant to the user's question. If you use any of the documents returned to provide a helpful answer to question, please make sure to also return a valid URL of the document you used.
+
+    Args:
+        question: A question to ask about a readthedocs pdf. Cannot be empty. Must be a question abount opencv, rich, or Pillow.
+    """
+
     question: str = Field(
         description="A question to ask about a readthedocs pdf. Cannot be empty. Must be a question abount opencv, rich, or Pillow."
     )
@@ -251,65 +273,42 @@ class ReadTheDocsQATool(BaseChromaDBTool, BaseTool):
     # description = "Ask a question about the contents of a ReadTheDocs pdf for python modules opencv, rich, and Pillow. Primary source of factual information for a pdf. Don't include pdf ID/URL in the question."
 
     description: str = "You must use this tool for any questions or queries related to opencv, rich, and Pillow or substrings of it. This will return documents that are related to the user's question. The documents may not be always relevant to the user's question. If you use any of the documents returned to provide a helpful answer to question, please make sure to also return a valid URL of the document you used."
+
     # Optional but recommended, can be used to provide more information (e.g., few-shot examples) or validation for expected parameters
     args_schema: type[ReadTheDocsQASchema] = ReadTheDocsQASchema
+
     # Only relevant for agents. When True, after invoking the given tool, the agent will stop and return the result direcly to the user.
     return_direct: bool = False
+
     handle_tool_error: bool = False
 
-    # action_label: str = "Querying a paper"
-    # hub_prompt = ClassVar[ChatPromptTemplate] = hub.pull("rlm/rag-prompt")
-    # hub_prompt = ChatPromptTemplate = RAG_PROMPT
-    # db: ClassVar[langchain_chroma.vectorstores.Chroma] = Chroma(
-    #     client=ChromaService.client,
-    #     collection_name="readthedocs",
-    #     embedding_function=OpenAIEmbeddings(),
-    # )
-    # model: ClassVar[ChatOpenAI] | None = LlmManager().llm
-    # llm_chain: LLMChain = Field(
-    #     default_factory=lambda: LLMChain(
-    #         llm=OpenAI(temperature=0),
-    #         prompt=PromptTemplate(
-    #             template=QUERY_CHECKER, input_variables=["query", "dialect"]
-    #         ),
-    #     )
-    # )
-    # Uses LLM for QA retrieval chain prompting
-    # Vectorstore for embeddings of currently loaded PDFs
-
-    # def _run(self, question: str, run_manager: Optional[CallbackManagerForToolRun] = None) -> str:
     def _run(self, question: str, **kwargs) -> str:
-        """Use the tool."""
-        # self.load_paper(paper_id)
-        # import bpdb
+        """
+        You must use this tool for any questions or queries related to opencv, rich, and Pillow or substrings of it. This will return documents that are related to the user's question. The documents may not be always relevant to the user's question. If you use any of the documents returned to provide a helpful answer to question, please make sure to also return a valid URL of the document you used.
 
-        # bpdb.set_trace()
+        Args:
+            question: A question to ask about a readthedocs pdf. Cannot be empty. Must be a question abount opencv, rich, or Pillow.
+        """
+
         try:
             qa = self._make_qa_chain()
             qa_chain_custom_name = qa.with_config({"run_name": "ReadTheDocsQATool"})
             answer = qa_chain_custom_name.invoke(question)
-            # answer = qa.invoke({"input": question})
-            # answer = qa.invoke({"question": question})
-            # answer = qa.run(question)
             LOGGER.debug(f"Answer: {answer}")
         except Exception as e:
-            # print(f"{e}")
-            # exc_type, exc_value, exc_traceback = sys.exc_info()
-            # print(f"Error Class: {e.__class__}")
-            # output = f"[UNEXPECTED] {type(e).__name__}: {e}"
-            # print(output)
-            # print(f"exc_type: {exc_type}")
-            # print(f"exc_value: {exc_value}")
-            # traceback.print_tb(exc_traceback)
-            # bpdb.pm()
             LOGGER.error(f"Error invoking {self.name}: {e}")
             raise ToolException(f"Error invoking {self.name}!") from e
 
         return answer
 
-    # async def _arun(self, question: str, run_manager: Optional[AsyncCallbackManagerForToolRun] = None) -> str:
     async def _arun(self, question: str, **kwargs) -> str:
-        """Use the tool asynchronously."""
+        """
+        You must use this asynchronous tool for any questions or queries related to opencv, rich, and Pillow or substrings of it. This will return documents that are related to the user's question. The documents may not be always relevant to the user's question. If you use any of the documents returned to provide a helpful answer to question, please make sure to also return a valid URL of the document you used.
+
+        Args:
+            question: A question to ask about a readthedocs pdf. Cannot be empty. Must be a question abount opencv, rich, or Pillow.
+        """
+
         # If the calculation is cheap, you can just delegate to the sync implementation
         # as shown below.
         # If the sync calculation is expensive, you should delete the entire _arun method.
@@ -319,33 +318,15 @@ class ReadTheDocsQATool(BaseChromaDBTool, BaseTool):
         qa = self._make_qa_chain()
         qa_chain_custom_name = qa.with_config({"run_name": "AsyncReadTheDocsQATool"})
         answer = await qa_chain_custom_name.ainvoke(question)
-        # answer = qa.invoke(question)
-        # return qa.invoke(question, run_manager=run_manager.get_sync())
-        return answer
 
-    # def _setup(self):
-    #     self.hub_prompt = RAG_PROMPT
-    #     self.db: langchain_chroma.vectorstores.Chroma = Chroma(
-    #         client=ChromaService.client,
-    #         collection_name="readthedocs",
-    #         embedding_function=OpenAIEmbeddings(),
-    #     )
-    #     self.model: ChatOpenAI | None = LlmManager().llm
+        return answer
 
     @traceable
     def _make_qa_chain(self) -> RunnableSerializable[Any, str]:
         """Make a RetrievalQA chain which filters by this paper_id"""
-        # filter = {"source": paper_id}
-
-        # retriever = self.vectorstore().as_retriever(search_kwargs={"filter": filter})
-        # # TODO: generate multiple queries from different perspectives to pull a richer set of Documents
-
-        # qa = RetrievalQA.from_chain_type(llm=self.llm(), chain_type="stuff", retriever=retriever)
-        # Initialize the model with our deployment of Azure OpenAI
-        # model = AzureChatOpenAI(azure_deployment=os.environ["AZURE_OPENAI_DEPLOYMENT"])
-        # model = LlmManager().llm
 
         retriever = self.db.as_retriever()
+
         # NOTE: This looks like the future but we're going to use the old school way
         ####################################################################################
         # combine_docs_chain = create_stuff_documents_chain(self.llm, RAG_PROMPT)

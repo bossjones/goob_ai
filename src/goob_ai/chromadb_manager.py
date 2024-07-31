@@ -11,11 +11,11 @@ from typing import Any, Dict, List
 
 import chromadb
 
-from langchain.prompts import ChatPromptTemplate
-from langchain.schema.document import Document
 from langchain_community.document_loaders import PyMuPDFLoader
-from langchain_community.embeddings import OpenAIEmbeddings
 from langchain_community.llms.ollama import Ollama
+from langchain_core.documents import Document
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_openai import OpenAIEmbeddings
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from loguru import logger as LOGGER
 from tqdm import tqdm

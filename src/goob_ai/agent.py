@@ -18,13 +18,13 @@ from langchain.agents.output_parsers.openai_tools import OpenAIToolsAgentOutputP
 from langchain.callbacks.tracers import LoggingCallbackHandler
 from langchain.chains.conversation.memory import ConversationBufferWindowMemory
 from langchain.globals import set_debug
-from langchain.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain.pydantic_v1 import BaseModel, Field
-from langchain.schema.runnable import ConfigurableField, Runnable, RunnableBranch, RunnableLambda, RunnableMap
 from langchain_chroma import Chroma
 from langchain_community.chat_message_histories import RedisChatMessageHistory
 from langchain_core.callbacks import StdOutCallbackHandler
 from langchain_core.output_parsers import StrOutputParser
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
+from langchain_core.runnables import ConfigurableField, Runnable, RunnableBranch, RunnableLambda, RunnableMap
 from langchain_core.tools import BaseTool
 from langchain_core.utils.function_calling import convert_to_openai_tool
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings

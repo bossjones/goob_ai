@@ -35,7 +35,7 @@ import rich
 
 from codetiming import Timer
 from discord.ext import commands
-from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain_text_splitters import RecursiveCharacterTextSplitter
 from logging_tree import printout
 from loguru import logger as LOGGER
 from PIL import Image

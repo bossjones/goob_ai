@@ -282,7 +282,7 @@ class CpmAntForCausalLM(CpmAntPreTrainedModel):
         >>> outputs = model.generate(**input_ids)
         >>> output_texts = tokenizer.batch_decode(outputs)
         >>> print(output_texts)
-        ['今天天气不错，阳光明媚，我和妈妈一起去超市买东西。\n在超市里，我看到了一个很好玩的玩具，它的名字叫“机器人”。它有一个圆圆的脑袋，两只圆圆的眼睛，还有一个圆圆的']
+        ['今天天气不错，阳光明媚，我和妈妈一起去超市买东西。\n在超市里，我看到了一个很好玩的玩具，它的名字叫"机器人"。它有一个圆圆的脑袋，两只圆圆的眼睛，还有一个圆圆的']
         ```
         """
         ...

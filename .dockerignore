@@ -366,3 +366,5 @@ notebooks/chroma_db
 notebooks/chroma
 PATH.PID
 log.txt
+25MB_song.mp4
+tests/fixtures/25MB_song.mp3

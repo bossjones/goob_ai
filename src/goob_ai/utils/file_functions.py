@@ -5,16 +5,26 @@
 
 from __future__ import annotations
 
+import asyncio
+import concurrent.futures
+import functools
 import glob
 import json
 import logging
 import os
+import os.path
 import pathlib
 import string
 import sys
+import tempfile
+import time
+import traceback
+import typing
 
+from enum import IntEnum
 from os import PathLike
-from typing import TYPE_CHECKING, List, Optional, Tuple, Union
+from timeit import default_timer as timer
+from typing import TYPE_CHECKING, Any, Dict, List, NewType, Optional, Tuple, Union
 
 import aiofiles
 import pandas as pd
@@ -840,11 +850,6 @@ def fix_path(path: str) -> str | list[str]:
     Returns:
         str | list[str]: Fixed path string or list of fixed path strings.
     """
-    """Automatically convert path to fully qualifies file uri.
-
-    Args:
-        path (_type_): _description_
-    """
 
     def __fix_path(path):
         if not isinstance(path, str):
@@ -868,6 +873,71 @@ def fix_path(path: str) -> str | list[str]:
         return [__fix_path(p) for p in path]
     else:
         return path
+
+
+def unlink_orig_file(a_filepath: str):
+    """_summary_
+
+    Args:
+        a_filepath (str): _description_
+
+    Returns:
+        _type_: _description_
+    """
+
+    LOGGER.debug(f"deleting ... {a_filepath}")
+    rich.print(f"deleting ... {a_filepath}")
+    os.unlink(f"{a_filepath}")
+    return a_filepath
+
+
+def get_files_to_upload(tmpdirname: str) -> list[str]:
+    """Get directory and iterate over files to upload
+
+    Args:
+        tmpdirname (str): _description_
+
+    Returns:
+        _type_: _description_
+    """
+    tree_list = tree(pathlib.Path(f"{tmpdirname}"))
+    rich.print(tree_list)
+
+    file_to_upload_list = [f"{p}" for p in tree_list]
+    LOGGER.debug(f"get_files_to_upload -> file_to_upload_list = {file_to_upload_list}")
+    rich.print(file_to_upload_list)
+
+    file_to_upload = filter_media(file_to_upload_list)
+
+    LOGGER.debug(f"get_files_to_upload -> file_to_upload = {file_to_upload}")
+
+    rich.print(file_to_upload)
+    return file_to_upload
+
+
+def run_tree(tmpdirname: str):
+    """run_tree
+
+    Args:
+        tmpdirname (str): _description_
+
+    Returns:
+        _type_: _description_
+    """
+
+    # Now that we are finished processing, we can upload the files to discord
+
+    tree_list = tree(pathlib.Path(f"{tmpdirname}"))
+    rich.print("tree_list ->")
+    rich.print(tree_list)
+
+    file_to_upload_list = [f"{p}" for p in tree_list]
+    LOGGER.debug(f"compress_video-> file_to_upload_list = {file_to_upload_list}")
+    rich.print(file_to_upload_list)
+
+    file_to_upload = filter_media(file_to_upload_list)
+
+    return file_to_upload
 
 
 # smoke tests

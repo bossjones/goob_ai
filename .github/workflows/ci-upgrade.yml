@@ -107,6 +107,12 @@ jobs:
           # sudo apt-get install -y tesseract-ocr tesseract-ocr-por just zsh
           curl -fsSL https://github.com/tamasfe/taplo/releases/latest/download/taplo-full-linux-x86_64.gz | gzip -d - | sudo install -m 755 /dev/stdin /usr/local/bin/taplo
 
+
+      - name: install tesseract and ffmpeg
+        run: |
+          sudo apt-get install -y tesseract-ocr tesseract-ocr-por
+          sudo apt install ffmpeg -y
+
       - name: Run tests and collect coverage
         id: upgrade-and-test
         continue-on-error: true

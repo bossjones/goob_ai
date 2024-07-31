@@ -366,7 +366,7 @@ class TrainingArguments:
                       gradient
                         computation.
                     - `"backward_post"` : This prefetches the next set of parameters after the current set of
-                      parameter’s
+                      parameter's
                         gradient computation.
                 - forward_prefetch (`bool`, *optional*, defaults to `False`)
                     FSDP's forward prefetch mode (useful only when `fsdp` field is passed).
@@ -905,7 +905,7 @@ class TrainingArguments:
     
     def to_sanitized_dict(self) -> Dict[str, Any]:
         """
-        Sanitized serialization to use with TensorBoard’s hparams
+        Sanitized serialization to use with TensorBoard's hparams
         """
         ...
     

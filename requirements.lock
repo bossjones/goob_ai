@@ -56,16 +56,25 @@ anyio==4.4.0
     # via asyncer
     # via groq
     # via httpx
+    # via jupyter-server
     # via openai
     # via sse-starlette
     # via starlette
     # via watchfiles
 appnope==0.1.4
     # via ipykernel
+argon2-cffi==23.1.0
+    # via jupyter-server
+argon2-cffi-bindings==21.2.0
+    # via argon2-cffi
+arrow==1.3.0
+    # via isoduration
 asgiref==3.8.1
     # via opentelemetry-instrumentation-asgi
 asttokens==2.4.1
     # via stack-data
+async-lru==2.0.4
+    # via jupyterlab
 async-timeout==4.0.3
     # via aiohttp
     # via langchain
@@ -85,6 +94,7 @@ autopep8==2.3.1
     # via nbqa
 babel==2.15.0
     # via goob-ai
+    # via jupyterlab-server
 backoff==2.2.1
     # via posthog
 backports-strenum==1.3.1
@@ -96,10 +106,13 @@ beautifulsoup4==4.12.3
     # via bs4
     # via goob-ai
     # via google
+    # via nbconvert
     # via wikipedia
     # via yfinance
 better-exceptions==0.3.3
     # via goob-ai
+bleach==6.1.0
+    # via nbconvert
 blinker==1.8.2
     # via streamlit
 boto3==1.34.141
@@ -132,6 +145,7 @@ certifi==2024.7.4
     # via requests
     # via sentry-sdk
 cffi==1.16.0
+    # via argon2-cffi-bindings
     # via pycares
     # via weasyprint
 chardet==5.2.0
@@ -188,6 +202,7 @@ decorator==5.1.1
     # via ipython
 defusedxml==0.7.1
     # via langchain-anthropic
+    # via nbconvert
 deprecated==1.2.14
     # via opentelemetry-api
     # via opentelemetry-exporter-otlp-proto-grpc
@@ -238,6 +253,8 @@ fastapi==0.111.0
     # via sse-starlette
 fastapi-cli==0.0.4
     # via fastapi
+fastjsonschema==2.20.0
+    # via nbformat
 filelock==3.15.4
     # via datasets
     # via huggingface-hub
@@ -249,6 +266,8 @@ fonttools==4.53.1
     # via goob-ai
     # via matplotlib
     # via weasyprint
+fqdn==1.5.1
+    # via jsonschema
 frozendict==2.4.4
     # via yfinance
 frozenlist==1.4.1
@@ -334,6 +353,7 @@ httpx==0.27.0
     # via fastapi
     # via goob-ai
     # via groq
+    # via jupyterlab
     # via langserve
     # via openai
 huggingface-hub==0.23.4
@@ -353,6 +373,7 @@ idna==3.7
     # via anyio
     # via email-validator
     # via httpx
+    # via jsonschema
     # via requests
     # via yarl
 imageio==2.34.2
@@ -368,12 +389,15 @@ invoke==2.2.0
     # via goob-ai
 ipykernel==6.29.5
     # via goob-ai
+    # via jupyterlab
 ipython==8.26.0
     # via ipykernel
     # via ipywidgets
     # via nbqa
 ipywidgets==8.1.3
     # via goob-ai
+isoduration==20.11.0
+    # via jsonschema
 janus==1.0.0
     # via aiomonitor
 jedi==0.19.1
@@ -382,6 +406,10 @@ jinja2==3.1.4
     # via aiomonitor
     # via altair
     # via fastapi
+    # via jupyter-server
+    # via jupyterlab
+    # via jupyterlab-server
+    # via nbconvert
     # via pydeck
     # via torch
 jiter==0.5.0
@@ -391,22 +419,54 @@ jmespath==1.0.1
     # via botocore
 joblib==1.4.2
     # via scikit-learn
+json5==0.9.25
+    # via jupyterlab-server
 jsonpatch==1.33
     # via langchain-core
 jsonpickle==3.2.2
     # via gutter
 jsonpointer==3.0.0
     # via jsonpatch
-jsonschema==4.23.0
+    # via jsonschema
+jsonschema==4.22.0
     # via altair
+    # via jupyter-events
+    # via jupyterlab-server
+    # via nbformat
     # via pyproject-toml
 jsonschema-specifications==2023.12.1
     # via jsonschema
 jupyter-client==8.6.2
     # via ipykernel
+    # via jupyter-server
+    # via nbclient
 jupyter-core==5.7.2
     # via ipykernel
     # via jupyter-client
+    # via jupyter-server
+    # via jupyterlab
+    # via nbclient
+    # via nbconvert
+    # via nbformat
+jupyter-events==0.10.0
+    # via jupyter-server
+jupyter-lsp==2.2.5
+    # via jupyterlab
+jupyter-server==2.14.2
+    # via jupyter-lsp
+    # via jupyterlab
+    # via jupyterlab-server
+    # via notebook
+    # via notebook-shim
+jupyter-server-terminals==0.5.3
+    # via jupyter-server
+jupyterlab==4.2.4
+    # via notebook
+jupyterlab-pygments==0.3.0
+    # via nbconvert
+jupyterlab-server==2.27.3
+    # via jupyterlab
+    # via notebook
 jupyterlab-widgets==3.0.11
     # via ipywidgets
 kiwisolver==1.4.5
@@ -480,6 +540,7 @@ markdown2==2.4.13
     # via md2pdf
 markupsafe==2.1.5
     # via jinja2
+    # via nbconvert
     # via werkzeug
 marshmallow==3.21.3
     # via dataclasses-json
@@ -498,6 +559,8 @@ mdurl==0.1.2
     # via markdown-it-py
 memory-profiler==0.61.0
     # via goob-ai
+mistune==3.0.2
+    # via nbconvert
 mmh3==4.1.0
     # via chromadb
 monotonic==1.6
@@ -518,12 +581,26 @@ mutagen==1.47.0
     # via goob-ai
 mypy-extensions==1.0.0
     # via typing-inspect
+nbclient==0.10.0
+    # via nbconvert
+nbconvert==7.16.4
+    # via goob-ai
+    # via jupyter-server
+nbformat==5.10.4
+    # via jupyter-server
+    # via nbclient
+    # via nbconvert
 nbqa==1.8.5
     # via goob-ai
 nest-asyncio==1.6.0
     # via ipykernel
 networkx==3.3
     # via torch
+notebook==7.2.1
+    # via goob-ai
+notebook-shim==0.2.4
+    # via jupyterlab
+    # via notebook
 numpy==1.26.4
     # via altair
     # via chroma-hnswlib
@@ -607,6 +684,7 @@ orjson==3.10.6
     # via langsmith
 overrides==7.7.0
     # via chromadb
+    # via jupyter-server
 packaging==24.1
     # via altair
     # via build
@@ -614,10 +692,14 @@ packaging==24.1
     # via datasets
     # via huggingface-hub
     # via ipykernel
+    # via jupyter-server
+    # via jupyterlab
+    # via jupyterlab-server
     # via langchain-core
     # via langchainhub
     # via marshmallow
     # via matplotlib
+    # via nbconvert
     # via onnxruntime
     # via pypi-command-line
     # via streamlit
@@ -631,6 +713,8 @@ pandas==2.2.2
     # via simpletransformers
     # via streamlit
     # via yfinance
+pandocfilters==1.5.1
+    # via nbconvert
 parso==0.8.4
     # via jedi
 partd==1.4.2
@@ -672,6 +756,7 @@ prettytable==3.10.0
     # via goob-ai
 prometheus-client==0.20.0
     # via goob-ai
+    # via jupyter-server
 prompt-toolkit==3.0.47
     # via aiomonitor
     # via ipython
@@ -702,6 +787,7 @@ psutil==6.0.0
     # via wandb
 ptyprocess==0.7.0
     # via pexpect
+    # via terminado
 pure-eval==0.2.2
     # via stack-data
 pyarrow==16.1.0
@@ -748,6 +834,7 @@ pydyf==0.10.0
 pygments==2.18.0
     # via goob-ai
     # via ipython
+    # via nbconvert
     # via rich
 pyinspect==0.1.0
     # via goob-ai
@@ -786,6 +873,7 @@ pysocks==1.7.1
 pytablewriter==1.2.0
     # via goob-ai
 python-dateutil==2.9.0.post0
+    # via arrow
     # via botocore
     # via faker
     # via jupyter-client
@@ -802,6 +890,7 @@ python-dotenv==1.0.1
     # via uvicorn
 python-json-logger==2.0.7
     # via goob-ai
+    # via jupyter-events
 python-levenshtein==0.25.1
     # via goob-ai
 python-multipart==0.0.9
@@ -818,6 +907,7 @@ pyyaml==6.0.1
     # via dask
     # via datasets
     # via huggingface-hub
+    # via jupyter-events
     # via kubernetes
     # via langchain
     # via langchain-community
@@ -832,6 +922,7 @@ pyyaml==6.0.1
 pyzmq==26.0.3
     # via ipykernel
     # via jupyter-client
+    # via jupyter-server
 quantile-python==1.1
     # via aioprometheus
 questionary==1.10.0
@@ -847,6 +938,7 @@ redis==5.0.7
 referencing==0.35.1
     # via jsonschema
     # via jsonschema-specifications
+    # via jupyter-events
 regex==2024.5.15
     # via simpletransformers
     # via tiktoken
@@ -858,6 +950,7 @@ requests==2.32.3
     # via goob-ai
     # via google-api-core
     # via huggingface-hub
+    # via jupyterlab-server
     # via kubernetes
     # via langchain
     # via langchain-community
@@ -883,6 +976,12 @@ requests-cache==1.2.1
 requests-oauthlib==2.0.0
     # via google-auth-oauthlib
     # via kubernetes
+rfc3339-validator==0.1.4
+    # via jsonschema
+    # via jupyter-events
+rfc3986-validator==0.1.1
+    # via jsonschema
+    # via jupyter-events
 rich==13.7.1
     # via bump-pydantic
     # via pyinspect
@@ -915,6 +1014,8 @@ scipy==1.14.0
     # via scikit-learn
     # via sentence-transformers
     # via simpletransformers
+send2trash==1.8.3
+    # via jupyter-server
 sentence-transformers==3.0.1
     # via goob-ai
 sentencepiece==0.2.0
@@ -928,6 +1029,7 @@ seqeval==1.2.2
 setproctitle==1.3.3
     # via wandb
 setuptools==70.2.0
+    # via jupyterlab
     # via opentelemetry-instrumentation
     # via pyproject-toml
     # via pytablewriter
@@ -942,12 +1044,14 @@ simpletransformers==0.70.1
     # via goob-ai
 six==1.16.0
     # via asttokens
+    # via bleach
     # via docker-pycreds
     # via html5lib
     # via kubernetes
     # via posthog
     # via python-dateutil
     # via rapidocr-onnxruntime
+    # via rfc3339-validator
     # via tensorboard
     # via url-normalize
 smmap==5.0.1
@@ -999,6 +1103,9 @@ tensorboard-data-server==0.7.2
     # via tensorboard
 tensorboardx==2.6.2.2
     # via simpletransformers
+terminado==0.18.1
+    # via jupyter-server
+    # via jupyter-server-terminals
 terminaltables==3.1.10
     # via aiomonitor
 text-unidecode==1.3
@@ -1013,6 +1120,7 @@ timm==1.0.7
     # via goob-ai
 tinycss2==1.3.0
     # via cssselect2
+    # via nbconvert
     # via weasyprint
 tokenize-rt==5.2.0
     # via nbqa
@@ -1027,6 +1135,7 @@ toml==0.10.2
 tomli==2.0.1
     # via autopep8
     # via build
+    # via jupyterlab
     # via nbqa
 toolz==0.12.1
     # via altair
@@ -1043,7 +1152,11 @@ torchvision==0.15.2
 tornado==6.4.1
     # via ipykernel
     # via jupyter-client
+    # via jupyter-server
+    # via jupyterlab
+    # via notebook
     # via streamlit
+    # via terminado
 tqdm==4.66.4
     # via chromadb
     # via datasets
@@ -1065,7 +1178,13 @@ traitlets==5.14.3
     # via ipywidgets
     # via jupyter-client
     # via jupyter-core
+    # via jupyter-events
+    # via jupyter-server
+    # via jupyterlab
     # via matplotlib-inline
+    # via nbclient
+    # via nbconvert
+    # via nbformat
 transformers==4.42.3
     # via goob-ai
     # via sentence-transformers
@@ -1080,6 +1199,8 @@ typer==0.12.3
     # via fastapi-cli
     # via goob-ai
     # via pypi-command-line
+types-python-dateutil==2.9.0.20240316
+    # via arrow
 types-requests==2.32.0.20240622
     # via langchainhub
 typing-extensions==4.12.2
@@ -1090,6 +1211,7 @@ typing-extensions==4.12.2
     # via anthropic
     # via anyio
     # via asgiref
+    # via async-lru
     # via bump-pydantic
     # via cattrs
     # via chromadb
@@ -1120,6 +1242,8 @@ tzdata==2024.1
 ujson==5.10.0
     # via fastapi
     # via pypi-command-line
+uri-template==1.3.0
+    # via jsonschema
 uritemplate==4.1.1
     # via goob-ai
     # via google-api-python-client
@@ -1157,11 +1281,14 @@ weasyprint==62.3
     # via md2pdf
 webcolors==1.13
     # via goob-ai
+    # via jsonschema
 webencodings==0.5.1
+    # via bleach
     # via cssselect2
     # via html5lib
     # via tinycss2
 websocket-client==1.8.0
+    # via jupyter-server
     # via kubernetes
 websockets==12.0
     # via goob-ai
