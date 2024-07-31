@@ -1311,7 +1311,7 @@ xxhash==3.4.1
     # via datasets
 yarl==1.9.4
     # via aiohttp
-yfinance==0.2.40
+yfinance==0.2.41
     # via goob-ai
 youtube-search==2.1.2
     # via goob-ai
