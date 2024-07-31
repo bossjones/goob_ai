@@ -288,6 +288,7 @@ dev-dependencies = [
     "mkdocs-simple-hooks>=0.1.5",
     "mkdocs-version-annotations>=1.0.0",
     "mkdocs-include-markdown-plugin>=6.2.1",
+    "pytest-ignore-flaky>=2.2.1",
 ]
 
 [tool.rye.scripts]

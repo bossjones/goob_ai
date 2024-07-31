@@ -101,21 +101,21 @@ jobs:
         shell: bash  # use bash to run date command
         run: 'echo "HASH=${{ runner.os }}-${{ runner.arch }}-Py${{ env.python-version }}-$(date -u "+%Y%m")" >> $GITHUB_ENV'
 
-      # SOURCE: https://github.com/wakabame/study_pytorch/blob/327bee3de2c283e1592d806d9b909e8b4af6b9fe/.github/workflows/apply_lint_and_test.yaml#L24
-      - name: Load cached venv
-        id: cached-rye-dependencies
-        uses: actions/cache@v3
-        with:
-          path: .venv
-          key: venv-${{ runner.name }}-${{ runner.os }}-${{ hashFiles('.github/dependabot/requirements-dev.txt') }}
+      # # SOURCE: https://github.com/wakabame/study_pytorch/blob/327bee3de2c283e1592d806d9b909e8b4af6b9fe/.github/workflows/apply_lint_and_test.yaml#L24
+      # - name: Load cached venv
+      #   id: cached-rye-dependencies
+      #   uses: actions/cache@v3
+      #   with:
+      #     path: .venv
+      #     key: venv-${{ runner.name }}-${{ runner.os }}-${{ hashFiles('.github/dependabot/requirements-dev.txt') }}
 
       - name: "Set up Python ${{ env.python-version }}"
-        if: steps.cached-rye-dependencies.outputs.cache-hit != 'true'
+        # if: steps.cached-rye-dependencies.outputs.cache-hit != 'true'
         uses: actions/setup-python@v5
         with:
           python-version: "${{ env.python-version }}"
-          cache: "pip"
-          cache-dependency-path: .github/dependabot/requirements-dev.txt
+          # cache: "pip"
+          # cache-dependency-path: .github/dependabot/requirements-dev.txt
 
       - name: Install Rye
         run: |
@@ -136,7 +136,7 @@ jobs:
 
 
       - name: Install dependencies
-        if: steps.cached-rye-dependencies.outputs.cache-hit != 'true'
+        # if: steps.cached-rye-dependencies.outputs.cache-hit != 'true'
         env:
           LANGCHAIN_ENDPOINT: "https://api.smith.langchain.com"
           LANGCHAIN_TRACING_V2: true

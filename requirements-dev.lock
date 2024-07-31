@@ -985,6 +985,7 @@ pytest==8.2.2
     # via pytest-clarity
     # via pytest-cov
     # via pytest-httpx
+    # via pytest-ignore-flaky
     # via pytest-mock
     # via pytest-rerunfailures
     # via pytest-retry
@@ -998,6 +999,7 @@ pytest-asyncio==0.23.7
 pytest-clarity==1.0.1
 pytest-cov==5.0.0
 pytest-httpx==0.30.0
+pytest-ignore-flaky==2.2.1
 pytest-mock==3.14.0
 pytest-rerunfailures==14.0
 pytest-retry==1.6.3
