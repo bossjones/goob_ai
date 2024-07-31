@@ -6,19 +6,37 @@
 # mypy: disable-error-code="misc"
 from __future__ import annotations
 
+import asyncio
 import base64
+import concurrent.futures
+import functools
 import logging
+import os
+import os.path
+import pathlib
 import re
 import sys
+import tempfile
+import time
 import traceback
+import typing
 import uuid
 
-from typing import ClassVar, Dict, Optional, Type
+from enum import IntEnum
+from timeit import default_timer as timer
+from typing import Any, ClassVar, Dict, List, NewType, Optional, Type
 
 import aiohttp
+import discord
 import openai
 import requests
+import rich
+import uritools
 
+from codetiming import Timer
+from discord.ext import commands
+from discord.message import Message
+from discord.user import User
 
 # from goob_ai.llm_manager import DownloadModel
 from langchain.callbacks.manager import AsyncCallbackManagerForToolRun, CallbackManagerForToolRun
@@ -35,22 +53,28 @@ from loguru import logger as LOGGER
 from openai import Client
 from pydantic import BaseModel
 
+from goob_ai import db, helpers, shell, utils
 from goob_ai.aio_settings import aiosettings
 from goob_ai.clients.http_client import HttpClient
-
-
-DISCORD_URL_PATTERN = r"https?://media\.discordapp\.net/.*"
-
-
-def get_pattern() -> str:
-    return DISCORD_URL_PATTERN
+from goob_ai.constants import (
+    FIFTY_THOUSAND,
+    FIVE_HUNDRED_THOUSAND,
+    MAX_BYTES_UPLOAD_DISCORD,
+    ONE_HUNDRED_THOUSAND,
+    ONE_MILLION,
+    TEN_THOUSAND,
+    THIRTY_THOUSAND,
+    TWENTY_THOUSAND,
+)
+from goob_ai.utils import vidops
+from goob_ai.utils.file_functions import VIDEO_EXTENSIONS, get_files_to_upload, unlink_orig_file
 
 
 # Note that the docstrings here are crucial, as they will be passed along
 # to the model along with the class name.
 class DownloadToolInput(BaseModelV1):
     """
-    Use this tool to download images and video from twitter using glallery-dl. Use whenever the url comes from domain x.com or twitter.com or some subset of those DNS names.
+    Use this tool to download images and video from twitter using gallery-dl. Use whenever the url comes from domain x.com or twitter.com or some subset of those DNS names.
 
     Args:
         url: url to read
@@ -63,79 +87,109 @@ class DownloadToolInput(BaseModelV1):
 
 class DownloadTool(BaseTool):
     name: str = "download_api"
-    description: str = (
-        "This tool calls OpenAI's Download API to get more information about an image given a URL to an image file."
-    )
+    description: str = "Use this tool to download images and video from twitter using gallery-dl. Use whenever the url comes from domain x.com or twitter.com or some subset of those DNS names."
     args_schema: type[BaseModel] = DownloadToolInput
     return_direct: bool = False
     handle_tool_error: bool = True
     verbose: bool = True
 
-    def _run(self, image_path: str, prompt: str, **kwargs) -> str | bytes:
+    def _run(self, url: str, **kwargs) -> str | bytes:
         """
-        Use this tool to get more information about an image given a URL to an image file. Use for all urls for image files including discord urls.
+        Use this tool to download images and video from twitter using glallery-dl. Use whenever the url comes from domain x.com or twitter.com or some subset of those DNS names.
 
         Args:
-            image_path: The URL to the image file
-            prompt: The prompt to use for the API call
-
-        Returns: The response from the Download API
+            url: url to read
         """
 
-        LOGGER.info(f"image_path = {image_path}")
-        LOGGER.info(f"prompt = {prompt}")
+        LOGGER.info(f"url = {url}")
+
         try:
-            # Initialize the Download API client
-            # client: Client | None = DownloadModel().download_api.client
-            client: openai.resources.completions.Completions = DownloadModel().download_api.client
-            # client = Client(aiosettings.openai_api_key.get_secret_value())
-            # API_BASE_URL: https://api.groq.com/openai/v1/
+            dl_uri = uritools.urisplit(url)
 
-            discord_token = aiosettings.discord_token.get_secret_value()
+            with tempfile.TemporaryDirectory() as tmpdirname:
+                print("created temporary directory", tmpdirname)
+                with Timer(text="\nTotal elapsed time: {:.1f}"):
+                    gallery_dl_cmd = [
+                        "gallery-dl",
+                        "--no-mtime",
+                        "-v",
+                        "--write-info-json",
+                        "--write-metadata",
+                        f"{dl_uri.geturi()}",
+                    ]
 
-            @traceable
-            # Function to download image from discord and convert to base64
-            def fetch_image_from_discord(url: str) -> str | bytes | None:
-                # Initialize the discord settings
-                headers = {
-                    "Authorization": f"Bot {discord_token}",
-                    "Content-Type": "application/json",
-                }
-                # Check if the message content is a URL
-                url_pattern = re.compile(
-                    r"http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+"
-                )
+                    ret = shell.pquery(gallery_dl_cmd, cwd=f"{tmpdirname}")
 
-                # response: requests.Response = requests.get(url)
-                response: requests.Response = requests.get(url, headers=headers)
-                if response.status_code == 200:
-                    return base64.b64encode(response.content).decode("utf-8")
+                    LOGGER.debug(f"Success, downloaded {dl_uri.geturi()}")
+                    # refactor this into a function
+                    file_to_upload = get_files_to_upload(tmpdirname)
+                    LOGGER.debug(f"BEFORE: {type(self).__name__} -> file_to_upload = {file_to_upload}")
 
-            # print("Breakpoint 2")
-            discord_url_pattern = get_pattern()
-            LOGGER.debug(f"discord_url_pattern = {discord_url_pattern}")
-            is_discord_url = re.match(discord_url_pattern, image_path) is not None
-            if is_discord_url and discord_token:
-                LOGGER.info("Found an image in query!")
-                image_base64 = fetch_image_from_discord(image_path)
-                image_data_url = f"data:image/jpeg;base64,{image_base64}"
-                content_block = {"type": "image_url", "image_url": {"url": image_data_url}}
-            else:
-                content_block = {"type": "image_url", "image_url": {"url": image_path}}
+                    needs_compression = False
+                    # if it is a video, we should compress it
+                    for meme in file_to_upload:
+                        res = vidops.compress_video(f"{tmpdirname}", f"{meme}", self.bot, ctx)
 
-            # # Call the Download API
-            response = client.create(
-                model=aiosettings.Download_model,
-                messages=[
-                    {
-                        "role": "user",
-                        "content": [{"type": "text", "text": prompt}, content_block],
-                    }
-                ],
-                max_tokens=900,
-            )  # pyright: ignore[reportAttributeAccessIssue]
+                        # if it compressed at least one video, return true
+                        if res:
+                            # since something was compressed, we want to rerun get_files_to_upload
+                            needs_compression = True
+                        LOGGER.debug(f"AFTER COMPRESSION: {file_to_upload} -> file_to_upload = {file_to_upload}")
 
-            return response.choices[0].message.content
+                    # If something was compressed, regenerate file_to_upload var.
+                    if needs_compression:
+                        # NOTE: It's possible this list changed due to compression, verify it.
+                        # refactor this into a function
+                        file_to_upload = get_files_to_upload(tmpdirname)
+
+                    LOGGER.debug(f"AFTER: {type(self).__name__} -> file_to_upload = {file_to_upload}")
+
+                    for meme in file_to_upload:
+                        # if it is a video, compress it
+                        if pathlib.Path(meme).stat().st_size > constants.MAX_BYTES_UPLOAD_DISCORD:
+                            await ctx.send(
+                                embed=discord.Embed(
+                                    description=f"File is over 8MB... Uploading to dropbox -> {meme}...."
+                                )
+                            )
+
+                            to_upload_list = [meme]
+                            await aiodbx.dropbox_upload(to_upload_list)
+
+                            await ctx.send(
+                                embed=discord.Embed(description=f"File successfully uploaded to dropbox! -> {meme}....")
+                            )
+                        else:
+                            await ctx.send(
+                                embed=discord.Embed(description=f"Uploading to discord -> {file_to_upload}....")
+                            )
+
+                            my_files = []
+
+                            for f in file_to_upload:
+                                rich.print(f)
+                                my_files.append(discord.File(f"{f}"))
+
+                            LOGGER.debug(f"{type(self).__name__} -> my_files = {my_files}")
+                            rich.print(my_files)
+
+                            try:
+                                msg: Message
+                                msg = await ctx.send(files=my_files)
+                                await ctx.send(
+                                    embed=discord.Embed(description=f"File successfully uploaded -> {my_files}....")
+                                )
+                            except Exception as ex:
+                                await ctx.send(embed=discord.Embed(description="Could not upload story to discord...."))
+                                print(ex)
+                                exc_type, exc_value, exc_traceback = sys.exc_info()
+                                LOGGER.error(f"Error Class: {str(ex.__class__)}")
+                                output = f"[UNEXPECTED] {type(ex).__name__}: {ex}"
+                                LOGGER.warning(output)
+                                await ctx.send(embed=discord.Embed(description=output))
+                                LOGGER.error(f"exc_type: {exc_type}")
+                                LOGGER.error(f"exc_value: {exc_value}")
+                                traceback.print_tb(exc_traceback)
 
         except Exception as e:
             exc_type, exc_value, exc_traceback = sys.exc_info()
@@ -148,13 +202,10 @@ class DownloadTool(BaseTool):
 
     async def _arun(
         self,
-        image_path: str,
-        prompt: str,
+        url: str,
         run_manager: Optional[AsyncCallbackManagerForToolRun] | None = None,
         **kwargs,
     ) -> str:
-        # """Use the tool asynchronously."""
-        # raise NotImplementedError("Download_tool does not support async")
         """
         Use this tool asynchronously to get more information about an image given a URL to an image file. Use for all urls for image files including discord urls.
 
@@ -164,74 +215,104 @@ class DownloadTool(BaseTool):
 
         Returns: The response from the Download API
         """
+        """
+        Use this tool to download images and video from twitter using glallery-dl. Use whenever the url comes from domain x.com or twitter.com or some subset of those DNS names.
 
-        LOGGER.info(f"image_path = {image_path}")
-        LOGGER.info(f"prompt = {prompt}")
+        Args:
+            url: url to read
+        """
+
+        LOGGER.info(f"url = {url}")
+
         try:
-            # Initialize the Download API client
-            # client: Client | None = DownloadModel().download_api
-            # Initialize the Download API client
-            # client: openai.AsyncAzureOpenAI = DownloadModel().download_api.async_client
-            client: openai.resources.completions.AsyncCompletions = DownloadModel().download_api.async_client
-            # client = Client(aiosettings.openai_api_key.get_secret_value())
-            # API_BASE_URL: https://api.groq.com/openai/v1/
+            dl_uri = uritools.urisplit(url)
 
-            discord_token = aiosettings.discord_token.get_secret_value()
+            with tempfile.TemporaryDirectory() as tmpdirname:
+                print("created temporary directory", tmpdirname)
+                with Timer(text="\nTotal elapsed time: {:.1f}"):
+                    gallery_dl_cmd = [
+                        "gallery-dl",
+                        "--no-mtime",
+                        "-v",
+                        "--write-info-json",
+                        "--write-metadata",
+                        f"{dl_uri.geturi()}",
+                    ]
 
-            @traceable
-            # Function to download image from Slack and convert to base64
-            async def fetch_image_from_discord(url: str) -> str:
-                # headers = {"Authorization": f"Bearer {discord_token}"}
-                # Initialize the discord settings
-                headers = {
-                    "Authorization": f"Bot {discord_token}",
-                    "Content-Type": "application/json",
-                }
-                # Check if the message content is a URL
-                url_pattern = re.compile(
-                    r"http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+"
-                )
+                    ret = await shell._aio_run_process_and_communicate(gallery_dl_cmd, cwd=f"{tmpdirname}")
 
-                async with aiohttp.ClientSession() as session:
-                    async with session.get(url) as response:
-                        # response = requests.get(url, headers=headers)
-                        if response.status == 200:
-                            content: bytes = await response.read()
-                            return base64.b64encode(content).decode("utf-8")
-                        # else:
-                        #     raise Exception(f"Failed to download image from Slack. Status code: {response.status_code}")
+                    LOGGER.debug(f"Success, downloaded {dl_uri.geturi()}")
+                    # refactor this into a function
+                    file_to_upload = file_functions.get_files_to_upload(tmpdirname)
+                    LOGGER.debug(f"BEFORE: {type(self).__name__} -> file_to_upload = {file_to_upload}")
 
-            print("Breakpoint 2")
-            discord_url_pattern = get_pattern()
-            LOGGER.debug(f"discord_url_pattern = {discord_url_pattern}")
-            is_discord_url = re.match(discord_url_pattern, image_path) is not None
-            if is_discord_url and discord_token:
-                LOGGER.info("Found an image in query!")
-                image_base64 = fetch_image_from_discord(image_path)
-                image_data_url = f"data:image/jpeg;base64,{image_base64}"
-                content_block = {"type": "image_url", "image_url": {"url": image_data_url}}
-            else:
-                content_block = {"type": "image_url", "image_url": {"url": image_path}}
+                    needs_compression = False
+                    # if it is a video, we should compress it
+                    for meme in file_to_upload:
+                        res = await aio_compress_video(f"{tmpdirname}", f"{meme}", self.bot, ctx)
 
-            # # Call the Download API
-            response = client.create(
-                model=aiosettings.Download_model,
-                messages=[
-                    {
-                        "role": "user",
-                        "content": [{"type": "text", "text": prompt}, content_block],
-                    }
-                ],
-                max_tokens=900,
-            )  # pyright: ignore[reportAttributeAccessIssue]
+                        # if it compressed at least one video, return true
+                        if res:
+                            # since something was compressed, we want to rerun get_files_to_upload
+                            needs_compression = True
+                        LOGGER.debug(f"AFTER COMPRESSION: {file_to_upload} -> file_to_upload = {file_to_upload}")
 
-            return response.choices[0].message.content
+                    # If something was compressed, regenerate file_to_upload var.
+                    if needs_compression:
+                        # NOTE: It's possible this list changed due to compression, verify it.
+                        # refactor this into a function
+                        file_to_upload = get_files_to_upload(tmpdirname)
+
+                    LOGGER.debug(f"AFTER: {type(self).__name__} -> file_to_upload = {file_to_upload}")
+
+                    for meme in file_to_upload:
+                        # if it is a video, compress it
+                        if pathlib.Path(meme).stat().st_size > MAX_BYTES_UPLOAD_DISCORD:
+                            # await ctx.send(
+                            #     embed=discord.Embed(description=f"File is over 8MB... Uploading to dropbox -> {meme}....")
+                            # )
+
+                            to_upload_list = [meme]
+                            # await aiodbx.dropbox_upload(to_upload_list)
+
+                            # await ctx.send(
+                            #     embed=discord.Embed(description=f"File successfully uploaded to dropbox! -> {meme}....")
+                            # )
+                        else:
+                            # await ctx.send(embed=discord.Embed(description=f"Uploading to discord -> {file_to_upload}...."))
+
+                            my_files = []
+
+                            for f in file_to_upload:
+                                rich.print(f)
+                                my_files.append(discord.File(f"{f}"))
+
+                            LOGGER.debug(f"{type(self).__name__} -> my_files = {my_files}")
+                            rich.print(my_files)
+
+                            try:
+                                msg: Message
+                                # msg = await ctx.send(files=my_files)
+                                # await ctx.send(
+                                #     embed=discord.Embed(description=f"File successfully uploaded -> {my_files}....")
+                                # )
+                            except Exception as ex:
+                                # await ctx.send(embed=discord.Embed(description="Could not upload story to discord...."))
+                                print(ex)
+                                exc_type, exc_value, exc_traceback = sys.exc_info()
+                                LOGGER.error(f"Error Class: {str(ex.__class__)}")
+                                output = f"[UNEXPECTED] {type(ex).__name__}: {ex}"
+                                LOGGER.warning(output)
+                                # await ctx.send(embed=discord.Embed(description=output))
+                                LOGGER.error(f"exc_type: {exc_type}")
+                                LOGGER.error(f"exc_value: {exc_value}")
+                                traceback.print_tb(exc_traceback)
 
         except Exception as e:
             exc_type, exc_value, exc_traceback = sys.exc_info()
-            err_msg = f"Failed to download image from discord. Status code: {response.status_code}. Error invoking Async DownloadTool(image_path='{image_path}', prompt='{prompt}'): exc_type={type(e).__name__},exc_value='{exc_value}': {e}"
+            err_msg = f"Error invoking regular DownloadTool(url='{url}'): exc_type={type(e).__name__},exc_value='{exc_value}': {e}"
             LOGGER.error(err_msg)
             LOGGER.error(f"exc_type={exc_type},exc_value={exc_value}")
-            LOGGER.error(f"Args: image_path={image_path}, prompt={prompt}")
+            LOGGER.error(f"Args: url='{url}'")
             traceback.print_tb(exc_traceback)
             raise ToolException(err_msg) from e

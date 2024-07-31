@@ -56,6 +56,9 @@ from goob_ai.utils.file_functions import VIDEO_EXTENSIONS, unlink_orig_file
 from goob_ai.utils.torchutils import load_model
 
 
+# https://github.com/universityofprofessorex/ESRGAN-Bot
+
+
 async def get_duration(input_file: Path) -> None:
     """
     Get duration of a file using FFmpeg.
@@ -244,7 +247,7 @@ async def process_audio(input_file: Path) -> None:
     await _aio_run_process_and_communicate(compress_cmd)
 
 
-async def compress_video(tmpdirname: str, file_to_compress: str, bot: Any, ctx: Any) -> bool:
+async def aio_compress_video(tmpdirname: str, file_to_compress: str, bot: Any, ctx: Any) -> bool:
     """_summary_
 
     Args:
@@ -288,8 +291,63 @@ async def compress_video(tmpdirname: str, file_to_compress: str, bot: Any, ctx: 
             with concurrent.futures.ThreadPoolExecutor() as pool:
                 unlink_result = await bot.loop.run_in_executor(pool, unlink_func)
 
-            # Nuke old message now that everything is done
-            # await msg_upload.delete()
+            return True
+        except Exception as ex:
+            print(ex)
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            LOGGER.error(f"Error Class: {str(ex.__class__)}")
+            output = f"[UNEXPECTED] {type(ex).__name__}: {ex}"
+            LOGGER.warning(output)
+            LOGGER.error(f"exc_type: {exc_type}")
+            LOGGER.error(f"exc_value: {exc_value}")
+            traceback.print_tb(exc_traceback)
+
+    else:
+        LOGGER.debug(f"no videos to process in {tmpdirname}")
+        return False
+
+
+def compress_video(tmpdirname: str, file_to_compress: str, bot: Any, ctx: Any) -> bool:
+    """_summary_
+
+    Args:
+        tmpdirname (str): _description_
+        file_to_compress (str): _description_
+        bot (Any): _description_
+        ctx (Any): _description_
+
+    Returns:
+        List[str]: _description_
+    """
+    if (pathlib.Path(f"{file_to_compress}").is_file()) and pathlib.Path(
+        f"{file_to_compress}"
+    ).suffix in VIDEO_EXTENSIONS:
+        LOGGER.debug(f"compressing file -> {file_to_compress}")
+        ######################################################
+        # compress the file if it is too large
+        ######################################################
+        compress_command = [
+            "./scripts/compress-discord.sh",
+            f"{file_to_compress}",
+        ]
+
+        try:
+            # _ = await shell._aio_run_process_and_communicate(compress_command, cwd=f"{tmpdirname}")
+            _ = shell.pquery(compress_command, cwd=f"{tmpdirname}")
+
+            LOGGER.debug(
+                f"compress_video: new file size for {file_to_compress} = {pathlib.Path(file_to_compress).stat().st_size}"
+            )
+
+            ######################################################
+            # nuke the uncompressed version
+            ######################################################
+
+            LOGGER.info(f"nuking uncompressed: {file_to_compress}")
+
+            # nuke the originals
+            unlink_orig_file(f"{file_to_compress}")
+
             return True
         except Exception as ex:
             print(ex)
