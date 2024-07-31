@@ -69,3 +69,10 @@ repos:
         language: system
         types: [toml]
         files: "^pyproject.*$"
+
+      - id: detect-pytest-live-log
+        name: detect-pytest-live-log
+        entry: ./hack/hooks/detect_pytest_live_logging.sh
+        language: system
+        types: [toml]
+        files: "^app/pyproject.*$"

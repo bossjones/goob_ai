@@ -229,23 +229,8 @@ class BaseChromaDBTool(BaseModel):
     # db: SQLDatabase = Field(exclude=True)
     db: langchain_chroma.vectorstores.Chroma = Field(exclude=True)
 
-    hub_prompt = ChatPromptTemplate = RAG_PROMPT
-    # db: langchain_chroma.vectorstores.Chroma = Field(
-    #     default_factory=lambda: Chroma(
-    #         client=ChromaService.client,
-    #         collection_name="readthedocs",
-    #         embedding_function=OpenAIEmbeddings(),
-    # )
+    hub_prompt: ChatPromptTemplate = RAG_PROMPT
     llm: ChatOpenAI = Field(exclude=True)
-    # model: ClassVar[ChatOpenAI] | None = LlmManager().llm
-    # llm_chain: LLMChain = Field(
-    #     default_factory=lambda: LLMChain(
-    #         llm=OpenAI(temperature=0),
-    #         prompt=PromptTemplate(
-    #             template=QUERY_CHECKER, input_variables=["query", "dialect"]
-    #         ),
-    #     )
-    # )
 
     class Config(BaseTool.Config):
         pass
