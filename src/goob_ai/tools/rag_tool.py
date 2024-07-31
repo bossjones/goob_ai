@@ -240,11 +240,11 @@ class BaseChromaDBTool(BaseModel):
         description="vector store client for getting, inserting, filtering, document embeddings.",
     )
 
-    # hub_prompt: ChatPromptTemplate = RAG_PROMPT
-    hub_prompt: ChatPromptTemplate = Field(
-        ..., exclude=True, title="hub_prompt", description="rlm/rag-prompt to use in invokations of the custom tool."
-    )
-    # llm: ChatOpenAI = Field(exclude=True)
+    hub_prompt: ChatPromptTemplate = RAG_PROMPT
+    # hub_prompt: ChatPromptTemplate = Field(
+    #     ..., exclude=True, title="hub_prompt", description="rlm/rag-prompt to use in invokations of the custom tool."
+    # )
+    # # llm: ChatOpenAI = Field(exclude=True)
     llm: ChatOpenAI = Field(exclude=True, title="llm", description="Large Language model to use for embedding.")
 
     class Config(BaseTool.Config):
