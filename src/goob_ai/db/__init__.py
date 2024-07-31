@@ -4,7 +4,6 @@ from __future__ import annotations
 
 from typing import Optional
 
-# from pydantic import BaseModel
 from langchain.pydantic_v1 import BaseModel
 from redis.asyncio import ConnectionPool, Redis
 
@@ -68,7 +67,7 @@ async def shutdown_worker_redis(redis_pool: ConnectionPool) -> None:  # pragma: 
 async def get_redis_value(
     key: str,
     redis_pool: ConnectionPool,
-) -> None:
+) -> RedisValueDTO:
     """
     Get value from redis.
 

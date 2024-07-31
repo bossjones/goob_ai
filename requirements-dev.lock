@@ -865,7 +865,6 @@ packaging==24.1
     # via onnxruntime
     # via pypi-command-line
     # via pytest
-    # via pytest-rerunfailures
     # via pytest-sugar
     # via streamlit
     # via tensorboardx
@@ -1076,7 +1075,6 @@ pytest==8.2.2
     # via pytest-httpx
     # via pytest-ignore-flaky
     # via pytest-mock
-    # via pytest-rerunfailures
     # via pytest-retry
     # via pytest-skip-slow
     # via pytest-sugar
@@ -1090,7 +1088,6 @@ pytest-cov==5.0.0
 pytest-httpx==0.30.0
 pytest-ignore-flaky==2.2.1
 pytest-mock==3.14.0
-pytest-rerunfailures==14.0
 pytest-retry==1.6.3
 pytest-skip-slow==0.0.5
 pytest-sugar==1.0.0

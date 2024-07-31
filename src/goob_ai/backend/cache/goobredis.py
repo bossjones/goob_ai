@@ -58,7 +58,7 @@ class NoRedisConfigured(Exception):
 
 
 class GoobRedisClient:
-    def __init__(self, url, max_connections=10):
+    def __init__(self, url: str, max_connections: int = 10):
         self._pool: Redis | None = None  # pyright: ignore[reportAttributeAccessIssue]
         self._pubsub = None
         self._loop = None

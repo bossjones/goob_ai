@@ -95,6 +95,7 @@ def test_rag_tool_injected_arg_with_schema(
 
     assert tool_.get_input_schema().schema() == {
         "title": "ReadTheDocsQASchema",
+        "description": "You must use this tool for any questions or queries related to opencv, rich, and Pillow or substrings of it. This will return documents that are related to the user's question. The documents may not be always relevant to the user's question. If you use any of the documents returned to provide a helpful answer to question, please make sure to also return a valid URL of the document you used.\n\nArgs:\n    question: A question to ask about a readthedocs pdf. Cannot be empty. Must be a question abount opencv, rich, or Pillow.",
         "type": "object",
         "properties": {
             "question": {
@@ -108,6 +109,7 @@ def test_rag_tool_injected_arg_with_schema(
 
     assert tool_.args_schema.schema() == {
         "title": "ReadTheDocsQASchema",
+        "description": "You must use this tool for any questions or queries related to opencv, rich, and Pillow or substrings of it. This will return documents that are related to the user's question. The documents may not be always relevant to the user's question. If you use any of the documents returned to provide a helpful answer to question, please make sure to also return a valid URL of the document you used.\n\nArgs:\n    question: A question to ask about a readthedocs pdf. Cannot be empty. Must be a question abount opencv, rich, or Pillow.",
         "type": "object",
         "properties": {
             "question": {
@@ -118,20 +120,6 @@ def test_rag_tool_injected_arg_with_schema(
         },
         "required": ["question"],
     }
-
-    # res = tool_.invoke(
-    #     {
-    #         "question": rag_tool_prompt,
-    #     }
-    # )
-
-    # assert "3.6" in res or "3.7" in res
-
-    # with pytest.raises(
-    #     ValidationError,
-    #     match=r".*1 validation error for ReadTheDocsQASchema.*",
-    # ) as excinfo:
-    #     tool_.invoke({"x": 5})
 
     assert convert_to_openai_function(tool_) == {
         "name": "chroma_question_answering",

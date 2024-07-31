@@ -36,18 +36,9 @@ import cv2
 import numpy as np
 import pytz
 import rich
-import torch
-import torchvision.transforms as transforms
 import torchvision.transforms.functional as FT
 
 from loguru import logger as LOGGER
-from PIL import Image
-from scipy.spatial import KDTree
-from torch import nn
-from torchvision.transforms.functional import InterpolationMode
-from torchvision.utils import make_grid
-from tqdm.auto import tqdm
-from webcolors import CSS3_HEX_TO_NAMES, hex_to_rgb
 
 from goob_ai import db, helpers, shell, utils
 from goob_ai.shell import _aio_run_process_and_communicate
@@ -59,7 +50,7 @@ from goob_ai.utils.torchutils import load_model
 # https://github.com/universityofprofessorex/ESRGAN-Bot
 
 
-async def get_duration(input_file: Path) -> None:
+async def get_duration(input_file: Path) -> float:
     """
     Get duration of a file using FFmpeg.
 
@@ -161,6 +152,7 @@ async def process_video(input_file: Path) -> None:
     output_file = input_file.parent / f"25MB_{input_file.stem}.mp4"
     compress_cmd = [
         "ffmpeg",
+        "-y",
         "-hide_banner",
         "-loglevel",
         "warning",

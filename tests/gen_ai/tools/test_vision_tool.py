@@ -43,11 +43,6 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
-# def test_vision_tool_schema():
-#     # Arrange
-#     vision_tool = VisionTool()
-
-
 @pytest.fixture
 def discord_image() -> str:
     return "https://i.imgur.com/ae2d4hj.png"
