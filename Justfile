@@ -207,3 +207,7 @@ docs_deploy:
 
 changelog:
 	rye run towncrier build --version main --draft
+
+gco:
+	gco main
+	git pull --rebase
