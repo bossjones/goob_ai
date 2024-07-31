@@ -94,7 +94,7 @@ class GoobRedisClient:
             str(aiosettings.redis_url), max_connections=self._max_connections
         )
         self._pool: Redis = redis.asyncio.Redis(connection_pool=self._conn_pool)
-        self._pubsub_channels: Dict[str, PubSub] = {}
+        self._pubsub_channels: dict[str, PubSub] = {}
 
     async def finalize(self):
         await self._conn_pool.disconnect()
@@ -146,7 +146,7 @@ class GoobRedisClient:
             raise NoRedisConfigured()
         return await self._pool.keys(f"{key}*")
 
-    async def delete_all(self, keys: List[str]):
+    async def delete_all(self, keys: list[str]):
         if self._pool is None:
             raise NoRedisConfigured()
         for key in keys:

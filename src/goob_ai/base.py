@@ -31,7 +31,7 @@ class GoobMessage:
 
 @dataclass
 class GoobConversation:
-    messages: List[GoobMessage]
+    messages: list[GoobMessage]
 
     def prepend(self, message: GoobMessage):
         self.messages.insert(0, message)
@@ -45,7 +45,7 @@ class GoobConversation:
 class GoobConfig:
     name: str
     instructions: str
-    example_conversations: List[GoobConversation]
+    example_conversations: list[GoobConversation]
 
 
 @dataclass(frozen=True)
@@ -58,7 +58,7 @@ class GoobThreadConfig:
 @dataclass(frozen=True)
 class GoobPrompt:
     header: GoobMessage
-    examples: List[GoobConversation]
+    examples: list[GoobConversation]
     convo: GoobConversation
 
     def full_render(self, bot_name: str):

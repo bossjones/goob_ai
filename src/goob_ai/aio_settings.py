@@ -9,7 +9,7 @@ import pathlib
 
 from pathlib import Path
 from tempfile import gettempdir
-from typing import Any, Callable, Dict, List, Optional, Set, Union, cast
+from typing import Annotated, Any, Callable, Dict, List, Optional, Set, Union, cast
 
 from pydantic import (
     AliasChoices,
@@ -26,7 +26,7 @@ from pydantic import (
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from rich.console import Console
 from rich.table import Table
-from typing_extensions import Annotated, TypedDict
+from typing_extensions import TypedDict
 from yarl import URL
 
 from goob_ai import __version__

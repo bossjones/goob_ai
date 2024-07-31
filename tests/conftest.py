@@ -11,8 +11,9 @@ import os
 import posixpath
 import typing
 
+from collections.abc import Iterable, Iterator
 from pathlib import Path, PosixPath
-from typing import TYPE_CHECKING, Iterable, Iterator
+from typing import TYPE_CHECKING
 
 from _pytest.monkeypatch import MonkeyPatch
 

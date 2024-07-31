@@ -24,23 +24,9 @@ import typing
 import uuid
 
 from collections import Counter, defaultdict
+from collections.abc import AsyncIterator, Coroutine, Iterable
 from io import BytesIO
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    AsyncIterator,
-    Callable,
-    Coroutine,
-    Dict,
-    Iterable,
-    List,
-    NoReturn,
-    Optional,
-    Tuple,
-    TypeVar,
-    Union,
-    cast,
-)
+from typing import TYPE_CHECKING, Any, Callable, Dict, List, NoReturn, Optional, Tuple, TypeVar, Union, cast
 
 import aiohttp
 import bpdb
@@ -171,7 +157,7 @@ async def save_attachment(attm: discord.Attachment, basedir: str = "./") -> None
         await attm.save(path)
 
 
-def attachment_to_dict(attm: discord.Attachment) -> Dict[str, Any]:
+def attachment_to_dict(attm: discord.Attachment) -> dict[str, Any]:
     """Convert a discord.Attachment object to a dictionary.
 
     This function takes a discord.Attachment object and converts it into a dictionary
@@ -215,7 +201,7 @@ def attachment_to_dict(attm: discord.Attachment) -> Dict[str, Any]:
     return result
 
 
-def file_to_local_data_dict(fname: str, dir_root: str) -> Dict[str, Any]:
+def file_to_local_data_dict(fname: str, dir_root: str) -> dict[str, Any]:
     """Convert a file to a dictionary with metadata.
 
     This function takes a file path and a root directory, and converts the file
@@ -238,7 +224,7 @@ def file_to_local_data_dict(fname: str, dir_root: str) -> Dict[str, Any]:
     }
 
 
-async def handle_save_attachment_locally(attm_data_dict: Dict[str, Any], dir_root: str) -> str:
+async def handle_save_attachment_locally(attm_data_dict: dict[str, Any], dir_root: str) -> str:
     """Save a Discord attachment locally.
 
     This asynchronous function saves a Discord attachment to a specified directory.
@@ -363,7 +349,7 @@ def dump_logger(logger_name: str) -> Any:
     return get_lm_from_tree(rootm, logger_name)
 
 
-def filter_empty_string(a_list: List[str]) -> List[str]:
+def filter_empty_string(a_list: list[str]) -> list[str]:
     """Filter out empty strings from a list of strings.
 
     This function takes a list of strings and returns a new list with all empty strings removed.
@@ -467,7 +453,7 @@ async def get_prefix(_bot: AsyncGoobBot, message: discord.Message) -> Any:
 
 
 # SOURCE: https://github.com/makupi/cookiecutter-discord.py-postgres/blob/master/%7B%7Bcookiecutter.bot_slug%7D%7D/bot/__init__.py#L28
-async def preload_guild_data() -> Dict[int, Dict[str, str]]:
+async def preload_guild_data() -> dict[int, dict[str, str]]:
     """
     Preload guild data.
 
@@ -499,7 +485,7 @@ def extensions() -> Iterable[str]:
         yield file.as_posix()[:-3].replace("/", ".")
 
 
-def _prefix_callable(bot: AsyncGoobBot, msg: discord.Message) -> List[str]:
+def _prefix_callable(bot: AsyncGoobBot, msg: discord.Message) -> list[str]:
     """Generate a list of command prefixes for the bot.
 
     This function generates a list of command prefixes for the bot based on the message context.
@@ -523,7 +509,7 @@ def _prefix_callable(bot: AsyncGoobBot, msg: discord.Message) -> List[str]:
     return base
 
 
-async def details_from_file(path_to_media_from_cli: str, cwd: typing.Union[str, None] = None) -> Tuple[str, str, str]:
+async def details_from_file(path_to_media_from_cli: str, cwd: typing.Union[str, None] = None) -> tuple[str, str, str]:
     """Generate input and output file paths and retrieve the timestamp of the input file.
 
     This function takes a file path and an optional current working directory (cwd),
@@ -621,11 +607,11 @@ class AsyncGoobBot(commands.Bot):
 
         self.start_time = datetime.datetime.now()
 
-        self.typerCtx: Dict | None = None
+        self.typerCtx: dict | None = None
 
         #### For upscaler
 
-        self.job_queue: Dict[Any, Any] = {}
+        self.job_queue: dict[Any, Any] = {}
 
         # self.db: RedisConnectionPool | None = None
 
@@ -673,7 +659,7 @@ class AsyncGoobBot(commands.Bot):
         self.prefixes: list[str] = [aiosettings.prefix]
 
         self.version = goob_ai.__version__
-        self.guild_data: Dict[Any, Any] = {}
+        self.guild_data: dict[Any, Any] = {}
         self.intents.members = True
         self.intents.message_content = True
 
@@ -1058,7 +1044,7 @@ class AsyncGoobBot(commands.Bot):
 
     def get_attachments(
         self, message: discord.Message
-    ) -> Tuple[List[Dict[str, Any]], List[str], List[Dict[str, Any]], List[str]]:
+    ) -> tuple[list[dict[str, Any]], list[str], list[dict[str, Any]], list[str]]:
         """Retrieve attachment data from a Discord message.
 
         This function processes the attachments in a Discord message and converts each attachment
@@ -1158,8 +1144,8 @@ class AsyncGoobBot(commands.Bot):
             rich.print(file_to_upload_list)
 
     def prepare_agent_input(
-        self, message: Union[discord.Message, discord.Thread], user_real_name: str, surface_info: Dict
-    ) -> Dict[str, Any]:
+        self, message: Union[discord.Message, discord.Thread], user_real_name: str, surface_info: dict
+    ) -> dict[str, Any]:
         """Prepare the agent input from the incoming Discord message.
 
         This function constructs the input dictionary to be sent to the agent based on the
@@ -1177,10 +1163,10 @@ class AsyncGoobBot(commands.Bot):
         # ctx: Context = await self.get_context(message)  # type: ignore
         if isinstance(message, discord.Thread):
             agent_input = {"user name": user_real_name, "message": message.starter_message.content}  # pyright: ignore[reportAttributeAccessIssue]
-            attachments: List[discord.Attachment] = message.starter_message.attachments  # pyright: ignore[reportAttributeAccessIssue]
+            attachments: list[discord.Attachment] = message.starter_message.attachments  # pyright: ignore[reportAttributeAccessIssue]
         elif isinstance(message, discord.Message):
             agent_input = {"user name": user_real_name, "message": message.content}  # pyright: ignore[reportAttributeAccessIssue]
-            attachments: List[discord.Attachment] = message.attachments  # pyright: ignore[reportAttributeAccessIssue]
+            attachments: list[discord.Attachment] = message.attachments  # pyright: ignore[reportAttributeAccessIssue]
 
         if len(attachments) > 0:  # pyright: ignore[reportAttributeAccessIssue]
             for attachment in attachments:  # pyright: ignore[reportAttributeAccessIssue]

@@ -25,8 +25,8 @@ class watch:
         *,
         counter: Optional[Counter] = None,
         histogram: Optional[Histogram] = None,
-        error_mappings: Dict[str, Type[BaseException]] = None,
-        labels: Optional[Dict[str, str]] = None,
+        error_mappings: dict[str, type[BaseException]] = None,
+        labels: Optional[dict[str, str]] = None,
     ):
         self.counter = counter
         self.histogram = histogram
@@ -39,7 +39,7 @@ class watch:
 
     def __exit__(
         self,
-        exc_type: Optional[Type[BaseException]],
+        exc_type: Optional[type[BaseException]],
         exc_value: Optional[Exception],
         exc_traceback: Optional[traceback.StackSummary],
     ):
@@ -74,7 +74,7 @@ class watch_lock:
         self,
         histogram: Histogram,
         lock: asyncio.Lock,
-        labels: Optional[Dict[str, str]] = None,
+        labels: Optional[dict[str, str]] = None,
     ):
         self.histogram = histogram
         self.lock = lock

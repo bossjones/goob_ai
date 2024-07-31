@@ -38,7 +38,7 @@ RETRIEVAL_QA_CHAT_PROMPT: ChatPromptTemplate = hub.pull("langchain-ai/retrieval-
 RAG_PROMPT: ChatPromptTemplate = hub.pull("rlm/rag-prompt")
 
 
-def format_docs(docs: List[Document]):
+def format_docs(docs: list[Document]):
     """_summary_
 
     Args:
@@ -252,7 +252,7 @@ class ReadTheDocsQATool(BaseChromaDBTool, BaseTool):
 
     description: str = "You must use this tool for any questions or queries related to opencv, rich, and Pillow or substrings of it. This will return documents that are related to the user's question. The documents may not be always relevant to the user's question. If you use any of the documents returned to provide a helpful answer to question, please make sure to also return a valid URL of the document you used."
     # Optional but recommended, can be used to provide more information (e.g., few-shot examples) or validation for expected parameters
-    args_schema: Type[ReadTheDocsQASchema] = ReadTheDocsQASchema
+    args_schema: type[ReadTheDocsQASchema] = ReadTheDocsQASchema
     # Only relevant for agents. When True, after invoking the given tool, the agent will stop and return the result direcly to the user.
     return_direct: bool = False
     handle_tool_error: bool = False

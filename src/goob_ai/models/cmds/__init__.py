@@ -20,5 +20,5 @@ class CmdArgs:
 @dataclass
 class DataCmd:
     name: str
-    command_args: Union[List[str], None] = []
-    command_kargs: Dict[str, str] = {}
+    command_args: Union[list[str], None] = []
+    command_kargs: dict[str, str] = {}

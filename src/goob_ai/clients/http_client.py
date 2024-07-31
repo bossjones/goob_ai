@@ -95,7 +95,7 @@ class HttpClient(BaseModel):
         return resp
 
     def get(
-        self, url: str, urlparams: Dict[str, str] | None = None, headers: Optional[Dict[str, str]] = None
+        self, url: str, urlparams: dict[str, str] | None = None, headers: Optional[dict[str, str]] = None
     ) -> Response:
         """
         Perform an http get request
@@ -137,7 +137,7 @@ class HttpClient(BaseModel):
             raise e
         return resp
 
-    def __get_headers(self, additional_headers: Optional[Dict[str, str]] = None) -> Dict[str, str]:
+    def __get_headers(self, additional_headers: Optional[dict[str, str]] = None) -> dict[str, str]:
         headers = {
             # "Content-Type": "application/json",
             "goob-ai": "true",

@@ -14,7 +14,7 @@ import tenacity
 from goob_ai.aio_settings import aiosettings
 
 
-TenacityParameters = Dict[str, Any]
+TenacityParameters = dict[str, Any]
 from loguru import logger as LOGGER
 
 

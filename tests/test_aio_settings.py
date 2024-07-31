@@ -5,8 +5,9 @@ from __future__ import annotations
 import asyncio
 import os
 
+from collections.abc import Iterable, Iterator
 from pathlib import Path, PosixPath
-from typing import TYPE_CHECKING, Iterable, Iterator
+from typing import TYPE_CHECKING
 
 import pytest_asyncio
 

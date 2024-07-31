@@ -3,8 +3,9 @@ from __future__ import annotations
 import os
 import shutil
 
+from collections.abc import Generator, Iterable, Iterator
 from pathlib import Path
-from typing import TYPE_CHECKING, Generator, Iterable, Iterator
+from typing import TYPE_CHECKING
 
 from chromadb import Collection
 from goob_ai.aio_settings import aiosettings
@@ -305,8 +306,8 @@ def test_split_text(mocker: MockerFixture) -> None:
     from goob_ai.services.chroma_service import split_text
     from langchain.schema import Document
 
-    mock_documents: List[Document] = [Document(page_content="This is a test document.", metadata={})]
-    mock_chunks: List[Document] = [
+    mock_documents: list[Document] = [Document(page_content="This is a test document.", metadata={})]
+    mock_chunks: list[Document] = [
         Document(page_content="This is a test", metadata={"start_index": 0}),
         Document(page_content="document.", metadata={"start_index": 15}),
     ]
@@ -316,7 +317,7 @@ def test_split_text(mocker: MockerFixture) -> None:
     )
     mock_text_splitter.return_value.split_documents.return_value = mock_chunks
 
-    chunks: List[Document] = split_text(mock_documents)
+    chunks: list[Document] = split_text(mock_documents)
 
     assert len(chunks) == 2
     assert chunks[0].page_content == "This is a test"

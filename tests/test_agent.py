@@ -21,9 +21,10 @@ import asyncio
 import sys
 import uuid
 
+from collections.abc import AsyncIterator, Iterable, Iterator, Sequence
 from functools import partial
 from itertools import cycle
-from typing import Any, AsyncIterator, Dict, Iterable, Iterator, List, Optional, Sequence, cast
+from typing import Any, Dict, List, Optional, cast
 
 from langchain_core.callbacks import CallbackManagerForRetrieverRun, Callbacks
 from langchain_core.chat_history import BaseChatMessageHistory
@@ -59,7 +60,7 @@ class AnyStr(str):
         return isinstance(other, str)
 
 
-def _with_nulled_run_id(events: Sequence[StreamEvent]) -> List[StreamEvent]:
+def _with_nulled_run_id(events: Sequence[StreamEvent]) -> list[StreamEvent]:
     """Removes the run ids from events."""
     for event in events:
         assert "run_id" in event, f"Event {event} does not have a run_id."
@@ -68,18 +69,18 @@ def _with_nulled_run_id(events: Sequence[StreamEvent]) -> List[StreamEvent]:
         assert isinstance(event["parent_ids"], list), f"Event {event} parent_ids is not a list."
 
     return cast(
-        List[StreamEvent],
+        list[StreamEvent],
         [{**event, "run_id": "", "parent_ids": []} for event in events],
     )
 
 
-async def _as_async_iterator(iterable: List) -> AsyncIterator:
+async def _as_async_iterator(iterable: list) -> AsyncIterator:
     """Converts an iterable into an async iterator."""
     for item in iterable:
         yield item
 
 
-async def _collect_events(events: AsyncIterator[StreamEvent], with_nulled_ids: bool = True) -> List[StreamEvent]:
+async def _collect_events(events: AsyncIterator[StreamEvent], with_nulled_ids: bool = True) -> list[StreamEvent]:
     """Collect the events and remove the run ids."""
     materialized_events = [event async for event in events]
 

@@ -73,7 +73,7 @@ class VisionTool(BaseTool):
     description: str = (
         "This tool calls OpenAI's Vision API to get more information about an image given a URL to an image file."
     )
-    args_schema: Type[BaseModel] = VisionToolInput
+    args_schema: type[BaseModel] = VisionToolInput
     return_direct: bool = False
     handle_tool_error: bool = True
 

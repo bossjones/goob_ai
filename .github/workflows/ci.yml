@@ -26,6 +26,7 @@ on:
 
 env:
   python-version: '3.10'
+  MAIN_PYTHON_VERSION: "3.10"
 
 jobs:
   test:
@@ -100,11 +101,21 @@ jobs:
         shell: bash  # use bash to run date command
         run: 'echo "HASH=${{ runner.os }}-${{ runner.arch }}-Py${{ env.python-version }}-$(date -u "+%Y%m")" >> $GITHUB_ENV'
 
+      # SOURCE: https://github.com/wakabame/study_pytorch/blob/327bee3de2c283e1592d806d9b909e8b4af6b9fe/.github/workflows/apply_lint_and_test.yaml#L24
+      - name: Load cached venv
+        id: cached-rye-dependencies
+        uses: actions/cache@v3
+        with:
+          path: .venv
+          key: venv-${{ runner.name }}-${{ runner.os }}-${{ hashFiles('.github/dependabot/requirements-dev.txt') }}
 
       - name: "Set up Python ${{ env.python-version }}"
+        if: steps.cached-rye-dependencies.outputs.cache-hit != 'true'
         uses: actions/setup-python@v5
         with:
           python-version: "${{ env.python-version }}"
+          cache: "pip"
+          cache-dependency-path: .github/dependabot/requirements-dev.txt
 
       - name: Install Rye
         run: |
@@ -124,7 +135,8 @@ jobs:
       #     python -m http.server --bind localhost 19000 -d ./tests/fixtures &
 
 
-      - name: Run tests and collect coverage
+      - name: Install dependencies
+        if: steps.cached-rye-dependencies.outputs.cache-hit != 'true'
         env:
           LANGCHAIN_ENDPOINT: "https://api.smith.langchain.com"
           LANGCHAIN_TRACING_V2: true
@@ -140,6 +152,24 @@ jobs:
           cp -f env.sample .env
           rye config --set-bool behavior.use-uv=true
           ./scripts/retry -t 4  -- rye sync --all-features
+
+
+      - name: Run tests and collect coverage
+        env:
+          LANGCHAIN_ENDPOINT: "https://api.smith.langchain.com"
+          LANGCHAIN_TRACING_V2: true
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          LANGCHAIN_API_KEY: ${{ secrets.LANGCHAIN_API_KEY }}
+          # Update with your API URL if using a hosted instance of Langsmith.
+          LANGCHAIN_HUB_API_URL: "https://api.hub.langchain.com"
+          LANGCHAIN_HUB_API_KEY: ${{ secrets.LANGCHAIN_API_KEY }}
+          LANGCHAIN_PROJECT: "goob-ci"
+          GOOB_AI_CONFIG_DISCORD_TOKEN: "foo"
+          GOOB_AI_CONFIG_OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          # cp -f env.sample .env
+          # rye config --set-bool behavior.use-uv=true
+          # ./scripts/retry -t 4  -- rye sync --all-features
 
           rye run goobctl chroma generate
 

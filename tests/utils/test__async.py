@@ -4,8 +4,9 @@ import asyncio
 import os
 
 from asyncio import DefaultEventLoopPolicy
+from collections.abc import Iterable, Iterator
 from pathlib import Path, PosixPath
-from typing import TYPE_CHECKING, Iterable, Iterator
+from typing import TYPE_CHECKING
 
 import pytest_asyncio
 

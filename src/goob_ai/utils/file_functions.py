@@ -632,7 +632,7 @@ def tree(directory: str | pathlib.Path, silent: bool = False) -> list[pathlib.Pa
         raise OSError(f"{directory} is not a directory.")
 
     # from ffmpeg_tools import fileobject
-    file_system: List[pathlib.Path]
+    file_system: list[pathlib.Path]
     file_system = []
     _tree = []
     print_and_append(_tree, f"+ {directory}", silent=silent)
@@ -659,13 +659,13 @@ def format_size(a_file: int) -> str:
         str: Formatted file size.
     """
     if a_file > 1024**3:
-        return "{:.0f} GB".format(a_file / float(1024**3))
+        return f"{a_file / float(1024**3):.0f} GB"
     elif a_file > 1024**2:
-        return "{:.0f} MB".format(a_file / float(1024**2))
+        return f"{a_file / float(1024**2):.0f} MB"
     elif a_file > 1024:
-        return "{:.0f} KB".format(a_file / float(1024))
+        return f"{a_file / float(1024):.0f} KB"
     else:
-        return "{:.0f} B".format(a_file)
+        return f"{a_file:.0f} B"
 
 
 async def aiowrite_file(data: str, dl_dir: str = "./", fname: str = "", ext: str = "") -> None:

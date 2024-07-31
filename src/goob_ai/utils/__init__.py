@@ -17,28 +17,11 @@ import warnings
 
 from asyncio import Semaphore, as_completed
 from asyncio.futures import isfuture
+from collections.abc import AsyncIterable, AsyncIterator, Awaitable, Coroutine, Generator, Iterable, Iterator
 from importlib.util import find_spec
 from itertools import chain
 from pathlib import Path
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    AsyncIterable,
-    AsyncIterator,
-    Awaitable,
-    Callable,
-    Coroutine,
-    Dict,
-    Generator,
-    Iterable,
-    Iterator,
-    List,
-    NoReturn,
-    Optional,
-    Tuple,
-    TypeVar,
-    Union,
-)
+from typing import TYPE_CHECKING, Any, Callable, Dict, List, NoReturn, Optional, Tuple, TypeVar, Union
 
 from discord.utils import maybe_coroutine
 from loguru import logger as LOGGER
@@ -95,7 +78,7 @@ def module_exists(name: str) -> bool:
 
 
 @contextlib.contextmanager
-def temp_env_update(env: Dict[str, str]) -> Iterator[None]:
+def temp_env_update(env: dict[str, str]) -> Iterator[None]:
     old = os.environ.copy()
 
     try:
@@ -180,7 +163,7 @@ def deduplicate_iterables(*iterables):
 
 
 # https://github.com/PyCQA/pylint/issues/2717
-class AsyncFilter(AsyncIterator[_T], Awaitable[List[_T]]):  # pylint: disable=duplicate-bases
+class AsyncFilter(AsyncIterator[_T], Awaitable[list[_T]]):  # pylint: disable=duplicate-bases
     """Class returned by `async_filter`. See that function for details.
 
     We don't recommend instantiating this class directly.
@@ -220,7 +203,7 @@ class AsyncFilter(AsyncIterator[_T], Awaitable[List[_T]]):  # pylint: disable=du
             if await self.__func(item):
                 yield item
 
-    async def __flatten(self) -> List[_T]:
+    async def __flatten(self) -> list[_T]:
         return [item async for item in self]
 
     def __aiter__(self):
@@ -266,7 +249,7 @@ def async_filter(
     return AsyncFilter(func, iterable)
 
 
-async def async_enumerate(async_iterable: AsyncIterable[_T], start: int = 0) -> AsyncIterator[Tuple[int, _T]]:
+async def async_enumerate(async_iterable: AsyncIterable[_T], start: int = 0) -> AsyncIterator[tuple[int, _T]]:
     """Async iterable version of `enumerate`.
 
     Parameters
@@ -340,7 +323,7 @@ def bounded_gather(
     return_exceptions: bool = False,
     limit: int = 4,
     semaphore: Optional[Semaphore] = None,
-) -> Awaitable[List[Any]]:
+) -> Awaitable[list[Any]]:
     """
     A semaphore-bounded wrapper to :meth:`asyncio.gather`.
 
@@ -375,7 +358,7 @@ def bounded_gather(
     return asyncio.gather(*tasks, return_exceptions=return_exceptions)
 
 
-class AsyncIter(AsyncIterator[_T], Awaitable[List[_T]]):  # pylint: disable=duplicate-bases
+class AsyncIter(AsyncIterator[_T], Awaitable[list[_T]]):  # pylint: disable=duplicate-bases
     """Asynchronous iterator yielding items from ``iterable``
     that sleeps for ``delay`` seconds every ``steps`` items.
 
@@ -427,7 +410,7 @@ class AsyncIter(AsyncIterator[_T], Awaitable[List[_T]]):  # pylint: disable=dupl
         self._i += 1
         return await maybe_coroutine(self._map, item) if self._map is not None else item
 
-    def __await__(self) -> Generator[Any, None, List[_T]]:
+    def __await__(self) -> Generator[Any, None, list[_T]]:
         """Returns a list of the iterable.
 
         Examples
@@ -471,7 +454,7 @@ class AsyncIter(AsyncIterator[_T], Awaitable[List[_T]]):  # pylint: disable=dupl
             value = default
         return value
 
-    async def flatten(self) -> List[_T]:
+    async def flatten(self) -> list[_T]:
         """Returns a list of the iterable.
 
         Examples
@@ -520,7 +503,7 @@ class AsyncIter(AsyncIterator[_T], Awaitable[List[_T]]):  # pylint: disable=dupl
         """
         return async_filter(function, self)
 
-    def enumerate(self, start: int = 0) -> AsyncIterator[Tuple[int, _T]]:
+    def enumerate(self, start: int = 0) -> AsyncIterator[tuple[int, _T]]:
         """Async iterable version of `enumerate`.
 
         Parameters

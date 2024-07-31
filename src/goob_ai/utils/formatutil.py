@@ -30,7 +30,7 @@ bar_emoji = {
 }
 
 
-def chunk_list(sentences: List[Any], chunk_size: int = 10) -> List[List[str]]:
+def chunk_list(sentences: list[Any], chunk_size: int = 10) -> list[list[str]]:
     """
     Summary:
     Chunk a list into blocks of a specified size. Chunk list into blocks of 10.

@@ -151,6 +151,57 @@ goobctl = 'goob_ai.cli:entry'
 requires = ["hatchling", "packaging<24"]
 build-backend = "hatchling.build"
 
+# SOURCE: https://github.com/humblFINANCE/humblAPI/blob/master/pyproject.toml
+[tool.commitizen]
+name = "cz_gitmoji"
+version_provider = "pep621"
+# version = "0.4.0"
+tag_format = "v$version"
+update_changelog_on_bump = true
+annotated_tag = true
+bump_message = "🔖 bump(release): v$current_version → v$new_version"
+major_version_zero = true
+version_files = [
+    "pyproject.toml:^version",
+]
+path = ".cz-config.js"
+
+[tool.commitizen.customize]
+example = "feat: this feature enables customizing through pyproject.toml file"
+schema = """
+<type>(<scope>): <subject> \n
+<BLANK LINE> \n
+<body> \n
+<BLANK LINE> \n
+(BREAKING CHANGE: )<breaking> \n
+<BLANK LINE> \n
+(ISSUES: )<footer>
+"""
+schema_pattern = "(?s)(✨ feat|🐛 fix|🚑 hotfix|🔧 chore|♻️ refactor|🚧 WIP|📚 docs|⚡️ perf|💄 style|🏗️ build|👷 ci|✅ test|⏪ revert|➕ add_dep|➖ rem_dep)(\\(\\S+\\))?!?:( [^\\n\\r]+)((\\n\\n.*)|(\\s*))?$"
+bump_pattern = "^(✨ feat|🐛 fix|🚑 hotfix|⚡️ perf|♻️ refactor|⏪ revert|➕ add_dep)"
+bump_map = {"BREAKING CHANGE" = "MAJOR", "✨ feat" = "MINOR", "🐛 fix" = "PATCH", "🚑 hotfix" = "PATCH", "⚡️ perf" = "PATCH", "♻️ refactor" = "PATCH"}
+change_type_order = [
+    "BREAKING CHANGE",
+    "✨ feat",
+    "🐛 fix",
+    "🚑 hotfix",
+    "♻️ refactor",
+    "⚡️ perf",
+    "🏗️ build",
+    "💄 style",
+    "📚 docs",
+    "➕ add_dep",
+    "➖ rem_dep",
+]
+info_path = "cz_customize_info.txt"
+info = """
+This is customized commitizen info
+"""
+commit_parser = "^(?P<change_type>✨ feat|🐛 fix|🚑 hotfix|🔧 chore|♻️ refactor|🚧 WIP|📚 docs|⚡️ perf|💄 style|🏗️ build|👷 ci|✅ test|⏪ revert|➕ add_dep|➖ rem_dep):\\s(?P<message>.*)?"
+changelog_pattern = "^(✨ feat|🐛 fix|🚑 hotfix|🔧 chore|♻️ refactor|🚧 WIP|📚 docs|⚡️ perf|💄 style|🏗️ build|👷 ci|✅ test|⏪ revert|➕ add_dep|➖ rem_dep)?(!)?"
+change_type_map = {"🏗️ build" = "Build", "👷 ci" = "CI", "📚 docs" = "Docs", "✨ feat" = "Feat", "🐛 fix" = "Fix", "🚑 hotfix" = "Hotfix", "⚡️ perf" = "Perf", "♻️ refactor" = "Refactor", "💄 style" = "Style", "✅ test" = "Test", "🔧 chore" = "Chore", "⏪ revert" = "Revert", "➕ add_dep" = "Added Dependency", "➖ rem_dep" = "Removed Dependency"}
+
+
 [tool.rye]
 managed = true
 dev-dependencies = [
@@ -220,6 +271,15 @@ dev-dependencies = [
     "pytest-vcr>=1.0.2",
     "pytest-clarity>=1.0.1",
     "pytest-retry>=1.6.3",
+    "commitizen>=3.28.0",
+    "cz-conventional-gitmoji>=0.3.2",
+    "pydocstringformatter>=0.7.3",
+    "pylint-to-ruff>=0.3.0",
+    "mkdocs>=1.6.0",
+    "mkdocs-material>=9.5.30",
+    "mkdocs-mermaid2-plugin>=1.1.1",
+    "mkdocs-with-pdf>=0.9.3",
+    "towncrier>=23.11.0",
 ]
 
 [tool.rye.scripts]
@@ -512,6 +572,7 @@ exclude = [
     ".venv",
     "contrib",
     "scripts",
+    "venv",
 ]
 mypy_path = "typings"
 # disable_error_code = import-untyped
@@ -1708,3 +1769,114 @@ reportAttributeAccessIssue = "error"
 #     "sample*",
 #     "test*",
 # ]
+
+[tool.towncrier]
+package = "goob_ai"
+package_dir = "src"
+# filename = "doc/en/changelog.rst"
+# directory = "changelog/"
+# title_format = "pytest {version} ({project_date})"
+# template = "changelog/_template.rst"
+
+# NOTE: The types are declared because:
+# NOTE: - there is no mechanism to override just the value of
+# NOTE:   `tool.towncrier.type.misc.showcontent`;
+# NOTE: - and, we want to declare extra non-default types for
+# NOTE:   clarity and flexibility.
+# For writing into the correct file
+filename = "NEWS.rst"
+# For finding the news fragments
+directory = "news/"
+
+
+# For rendering properly for this project
+issue_format = "`#{issue} <https://github.com/pypa/pip/issues/{issue}>`_"
+template = "tools/news/template.rst"
+
+# Grouping of entries, within our changelog
+# type = [
+#   { name = "Deprecations and Removals", directory = "removal", showcontent = true },
+#   { name = "Features",                  directory = "feature", showcontent = true },
+#   { name = "Bug Fixes",                 directory = "bugfix",  showcontent = true },
+#   { name = "Vendored Libraries",        directory = "vendor",  showcontent = true },
+#   { name = "Improved Documentation",    directory = "doc",     showcontent = true },
+#   { name = "Process",                   directory = "process", showcontent = true },
+#   { name = "Trivial Changes",           directory = "trivial", showcontent = false },
+# ]
+
+[[tool.towncrier.type]]
+# When something public gets removed in a breaking way. Could be
+# deprecated in an earlier release.
+directory = "breaking"
+name = "Removals and backward incompatible breaking changes"
+showcontent = true
+
+[[tool.towncrier.type]]
+# Declarations of future API removals and breaking changes in behavior.
+directory = "deprecation"
+name = "Deprecations (removal in next major release)"
+showcontent = true
+
+[[tool.towncrier.type]]
+# New behaviors, public APIs. That sort of stuff.
+directory = "feature"
+name = "New features"
+showcontent = true
+
+[[tool.towncrier.type]]
+# New behaviors in existing features.
+directory = "improvement"
+name = "Improvements in existing functionality"
+showcontent = true
+
+[[tool.towncrier.type]]
+# Something we deemed an improper undesired behavior that got corrected
+# in the release to match pre-agreed expectations.
+directory = "bugfix"
+name = "Bug fixes"
+showcontent = true
+
+[[tool.towncrier.type]]
+# Updates regarding bundling dependencies.
+directory = "vendor"
+name = "Vendored libraries"
+showcontent = true
+
+[[tool.towncrier.type]]
+# Notable updates to the documentation structure or build process.
+directory = "doc"
+name = "Improved documentation"
+showcontent = true
+
+[[tool.towncrier.type]]
+# Notes for downstreams about unobvious side effects and tooling. Changes
+# in the test invocation considerations and runtime assumptions.
+directory = "packaging"
+name = "Packaging updates and notes for downstreams"
+showcontent = true
+
+[[tool.towncrier.type]]
+# Stuff that affects the contributor experience. e.g. Running tests,
+# building the docs, setting up the development environment.
+directory = "contrib"
+name = "Contributor-facing changes"
+showcontent = true
+
+[[tool.towncrier.type]]
+# Changes that are hard to assign to any of the above categories.
+directory = "misc"
+name = "Miscellaneous internal changes"
+showcontent = true
+
+
+[tool.pydocstringformatter]
+write = false
+style = ["pep257"]
+strip-whitespaces = true
+# Activate or deactivate split-summary-body: Split the
+# summary and body of a docstring based on a period and
+# max length. The maximum length of a summary can be set
+# with the --max-summary-lines option. Styles: pep257.
+# (default: True)
+split-summary-body = false
+numpydoc-section-hyphen-length = false

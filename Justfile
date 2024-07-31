@@ -70,12 +70,15 @@ check-taplo-installed:
 fmt-python:
 	git ls-files '*.py' '*.ipynb' | xargs rye run pre-commit run --files
 
+fmt-markdown:
+	git ls-files '*.md' | xargs rye run pre-commit run --files
+
 # format pyproject.toml using taplo
 fmt-toml:
 	pre-commit run taplo-format --all-files
 
 # format all code using pre-commit config
-fmt: fmt-python fmt-toml
+fmt: fmt-python fmt-toml fmt-markdown
 
 # lint python files using ruff
 lint-python:
@@ -170,3 +173,13 @@ version-bump-minor: minor-version-bump
 
 # Bump the version by patch
 version-bump-patch: patch-version-bump
+
+
+docs_preview:
+	rye run mkdocs serve
+
+docs_build:
+	rye run mkdocs build
+
+docs_deploy:
+	rye run mkdocs gh-deploy --clean

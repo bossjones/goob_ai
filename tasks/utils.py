@@ -5,7 +5,7 @@ supporting task functions
 # Passing an environment variable containing unicode literals to a subprocess
 # on Windows and Python2 raises a TypeError. Since there is no unicode
 # string in this script, we don't import unicode_literals to avoid the issue.
-from __future__ import absolute_import, annotations, division, print_function
+from __future__ import annotations
 
 import contextlib
 import copy
@@ -272,12 +272,12 @@ def copy_f(src, dst):
 def git_clone(repo_url, dest, sha="master"):
     # First check if folder exists
     if not os.path.exists(dest) and scm(dest) != "git":
-        clone_cmd = "git clone {repo} {dest}".format(repo=repo_url, dest=dest)
+        clone_cmd = f"git clone {repo_url} {dest}"
         _popen_stdout(clone_cmd)
 
         # CD to directory
         with cd(dest):
-            checkout_cmd = "git checkout {sha}".format(sha=sha)
+            checkout_cmd = f"git checkout {sha}"
             _popen_stdout(checkout_cmd)
 
 

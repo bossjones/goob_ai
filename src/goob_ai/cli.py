@@ -15,11 +15,13 @@ import sys
 import tempfile
 import traceback
 
+from collections.abc import Awaitable, Iterable, Sequence
 from enum import Enum
 from functools import partial, wraps
 from importlib import import_module, metadata
 from pathlib import Path
-from typing import Any, Awaitable, Callable, Dict, Iterable, List, Optional, Pattern, Sequence, Set, Tuple, Type, Union
+from re import Pattern
+from typing import Annotated, Any, Callable, Dict, List, Optional, Set, Tuple, Type, Union
 
 import anyio
 import asyncer
@@ -42,7 +44,6 @@ from rich.pretty import pprint
 from rich.prompt import Prompt
 from rich.table import Table
 from typer import Typer
-from typing_extensions import Annotated
 
 import goob_ai
 
@@ -500,7 +501,7 @@ def query_readthedocs() -> None:
 
 
 @APP.command()
-def run_predict_and_display(img_url: List[str] = None) -> None:
+def run_predict_and_display(img_url: list[str] = None) -> None:
     """Manually run screencrop's download_and_predict service and get bounding boxes"""
 
     if img_url is None:

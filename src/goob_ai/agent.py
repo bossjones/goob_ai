@@ -204,7 +204,7 @@ class AiAgent:
         )
 
     @traceable
-    def process_user_task(self, session_id: str, user_task: str) -> Dict[str, Any]:
+    def process_user_task(self, session_id: str, user_task: str) -> dict[str, Any]:
         """
         Summary:
         Process a user task by invoking an agent executor and returning the output.

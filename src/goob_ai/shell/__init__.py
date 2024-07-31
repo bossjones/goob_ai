@@ -23,7 +23,7 @@ from codetiming import Timer
 HOME_PATH = os.environ.get("HOME")
 
 
-async def _aio_run_process_and_communicate(cmd: List[str], cwd: Union[str, None] = None):
+async def _aio_run_process_and_communicate(cmd: list[str], cwd: Union[str, None] = None):
     """_summary_
 
     Args:
@@ -43,7 +43,7 @@ def _stat_y_file(fname: str, env: dict = None, cwd: Union[str, None] = None) -> 
     # """Get the timestamp of a file."""
     if env is None:
         env = {}
-    cmd_arg_without_str_fmt = """stat -c %y {fname}""".format(fname=fname)
+    cmd_arg_without_str_fmt = f"""stat -c %y {fname}"""
     print(f"cmd_arg_without_str_fmt={cmd_arg_without_str_fmt}")
 
     cmd_arg = rf"""{cmd_arg_without_str_fmt}"""
@@ -63,7 +63,7 @@ def _stat_y_file(fname: str, env: dict = None, cwd: Union[str, None] = None) -> 
     return timestamp
 
 
-def _popen(cmd_arg: Tuple, env: dict = None, cwd: Union[str, None] = None):
+def _popen(cmd_arg: tuple, env: dict = None, cwd: Union[str, None] = None):
     """_summary_
 
     Args:
@@ -89,7 +89,7 @@ def _popen(cmd_arg: Tuple, env: dict = None, cwd: Union[str, None] = None):
     return retval
 
 
-def _popen_communicate(cmd_arg: Tuple, env: dict = None, cwd: Union[str, None] = None):
+def _popen_communicate(cmd_arg: tuple, env: dict = None, cwd: Union[str, None] = None):
     """_summary_
 
     Args:

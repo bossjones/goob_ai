@@ -1,0 +1,60 @@
+# .readthedocs.yaml
+# Read the Docs configuration file
+# See https://docs.readthedocs.io/en/stable/config-file/v2.html for details
+version: 2
+
+# python:
+#    install:
+#      # Install pytest first, then doc/en/requirements.txt.
+#      # This order is important to honor any pins in doc/en/requirements.txt
+#      # when the pinned library is also a dependency of pytest.
+#      - method: pip
+#        path: .
+#      - requirements: doc/en/requirements.txt
+
+# sphinx:
+#   configuration: doc/en/conf.py
+#   fail_on_warning: true
+
+build:
+  os: ubuntu-24.04
+  tools:
+    python: >-
+      3.10
+  apt_packages:
+    - inkscape
+  jobs:
+    post_checkout:
+      - git fetch --unshallow || true
+      - git fetch --tags || true
+
+mkdocs:
+  configuration: mkdocs.yml
+
+# install package via pip
+python:
+  install:
+      - requirements: requirements-dev.lock
+
+
+formats:
+  - epub
+  - pdf
+  - htmlzip
+
+
+# # Build documentation in the "docs/" directory with Sphinx
+# sphinx:
+#   configuration: docs/conf.py
+
+# # Optionally build your docs in additional formats such as PDF and ePub
+# # formats:
+# #    - pdf
+# #    - epub
+
+# # Optional but recommended, declare the Python requirements required
+# # to build your documentation
+# # See https://docs.readthedocs.io/en/stable/guides/reproducible-builds.html
+# # python:
+# #    install:
+# #    - requirements: docs/requirements.txt

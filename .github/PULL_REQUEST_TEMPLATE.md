@@ -1,13 +1,17 @@
 ## Summary
+
 _1-2 line summary of changes_
 
 ## Jira ticket(s)
+
 _Please mention the Jira story/bug corresponding to the change_
 
 ## Changes
+
 _Please enter each change as a new bullet point_
 
 ## Relevant Documentation
+
 _Please enter the links of any docs updated to reflect this change_
 
 ## Checklist

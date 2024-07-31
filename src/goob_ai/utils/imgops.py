@@ -96,14 +96,14 @@ def setup_model() -> torch.nn.Module:
 
 
 def handle_autocrop(
-    images_filepaths: List[str],
+    images_filepaths: list[str],
     cols: int = 5,
     model: Optional[torch.nn.Module] = None,
     device: torch.device = DEVICE,
     args: Optional[dict] = None,
     resize: bool = False,
-    predict_results: Optional[List[Tuple[Image.Image, List[Tuple[int, int, int, int]]]]] = None,
-) -> List[str]:
+    predict_results: Optional[list[tuple[Image.Image, list[tuple[int, int, int, int]]]]] = None,
+) -> list[str]:
     """
     Crop images based on predicted bounding boxes.
 
@@ -214,7 +214,7 @@ def handle_autocrop_one(
     device: torch.device = DEVICE,
     args: Optional[dict] = None,
     resize: bool = False,
-    predict_results: Optional[Tuple[Image.Image, List[Tuple[int, int, int, int]]]] = None,
+    predict_results: Optional[tuple[Image.Image, list[tuple[int, int, int, int]]]] = None,
 ) -> str:
     """
     Crop a single image based on predicted bounding boxes.
@@ -262,13 +262,13 @@ def handle_autocrop_one(
 
 
 def handle_resize(
-    images_filepaths: List[str],
+    images_filepaths: list[str],
     cols: int = 5,
     model: Optional[torch.nn.Module] = None,
     device: torch.device = DEVICE,
     args: Optional[dict] = None,
     resize: bool = False,
-) -> List[str]:
+) -> list[str]:
     """
     Resize a list of images and save them to disk.
 
@@ -349,7 +349,7 @@ def handle_resize_one(
 
 
 def handle_predict(
-    images_filepaths: List[str],
+    images_filepaths: list[str],
     cols: int = 5,
     model: Optional[torch.nn.Module] = None,
     device: torch.device = DEVICE,
@@ -436,10 +436,10 @@ def handle_predict_one(
 def resize_image_and_bbox(
     image: torch.Tensor,
     boxes: torch.Tensor,
-    dims: Tuple[int, int] = (300, 300),
+    dims: tuple[int, int] = (300, 300),
     return_percent_coords: bool = False,
     device: torch.device = DEVICE,
-) -> Tuple[torch.Tensor, torch.Tensor]:
+) -> tuple[torch.Tensor, torch.Tensor]:
     """Resize an image and its bounding boxes.
 
     This function resizes an image to the specified dimensions and adjusts the bounding boxes accordingly.
@@ -486,10 +486,10 @@ def resize_image_and_bbox(
 
 # SOURCE: https://www.learnpytorch.io/09_pytorch_model_deployment/
 def pred_and_store(
-    paths: List[pathlib.Path],
+    paths: list[pathlib.Path],
     model: torch.nn.Module,
     device: torch.device = DEVICE,
-) -> List[Dict[str, Any]]:
+) -> list[dict[str, Any]]:
     """Predict bounding boxes for images and store the results.
 
     This function loops through a list of image paths, performs predictions using the provided model,
@@ -653,7 +653,7 @@ def convert_pil_image_to_rgb_channels(image_path: str) -> Image:
     return Image.open(image_path).convert("RGB") if get_pil_image_channels(image_path) != 4 else Image.open(image_path)
 
 
-def read_image_to_bgr(image_path: str) -> Tuple[np.ndarray, int, int, int]:
+def read_image_to_bgr(image_path: str) -> tuple[np.ndarray, int, int, int]:
     """
     Read an image from the specified file path and convert it to BGR format.
 
@@ -845,7 +845,7 @@ def convert_rgb_to_names(rgb_tuple: tuple[int, int, int]) -> str:
     return f"{names[index]}"
 
 
-def get_all_corners_color(urls: List[str]) -> Dict[str, str]:
+def get_all_corners_color(urls: list[str]) -> dict[str, str]:
     """Get the colors of the four corners of images.
 
     This function opens each image from the provided URLs, converts them to RGB,
@@ -895,12 +895,12 @@ def rgb2hex(r: int, g: int, b: int) -> str:
         '#ff0000'
     """
     LOGGER.info(f"RGB2HEX: {r} {g} {b}")
-    return "#{:02x}{:02x}{:02x}".format(r, g, b)
+    return f"#{r:02x}{g:02x}{b:02x}"
     # LOGGER.info(f"TYPE RGB2HEX: {type(r)} {type(g)} {type(b)}")
     # return "#{:02x}{:02x}{:02x}".format(r, g, b)
 
 
-def handle_get_dominant_color(urls: List[str], return_type: str = "name") -> str:
+def handle_get_dominant_color(urls: list[str], return_type: str = "name") -> str:
     """Get the dominant color from the corners of images.
 
     This function retrieves the colors of the four corners of images from the provided URLs.
@@ -1185,7 +1185,7 @@ async def tensor2np(
     elif n_dim == 2:
         img_np = img.numpy()
     else:
-        raise TypeError("Only support 4D, 3D and 2D tensor. But received with dimension: {:d}".format(n_dim))
+        raise TypeError(f"Only support 4D, 3D and 2D tensor. But received with dimension: {n_dim:d}")
 
     # if rgb2bgr:
     # img_np = img_np[[2, 1, 0], :, :] #RGB to BGR -> in numpy, if using OpenCV, else not needed. Only if image has colors.
@@ -1207,7 +1207,7 @@ def auto_split_upscale(
     overlap: int = 32,
     max_depth: Optional[int] = None,
     current_depth: int = 1,
-) -> typing.Tuple[np.ndarray, int]:
+) -> tuple[np.ndarray, int]:
     """Recursively upscale an image by splitting it into smaller sections.
 
     This function attempts to upscale an image using the provided `upscale_function`.

@@ -6,8 +6,9 @@ import datetime
 import itertools
 import textwrap
 
+from collections.abc import Iterator, Sequence
 from io import BytesIO
-from typing import Iterator, List, Optional, Sequence, SupportsInt, Union
+from typing import List, Optional, SupportsInt, Union
 
 import discord
 
@@ -503,7 +504,7 @@ def format_perms_list(perms: discord.Permissions) -> str:
         The humanized list.
 
     """
-    perm_names: List[str] = []
+    perm_names: list[str] = []
     for perm, value in perms:
         if value is True:
             perm_name = '"' + perm.replace("_", " ").title() + '"'

@@ -3,7 +3,8 @@ from __future__ import annotations
 import asyncio
 import io
 
-from typing import TYPE_CHECKING, Any, Callable, Generic, Iterable, Optional, Protocol, TypeVar, Union
+from collections.abc import Iterable
+from typing import TYPE_CHECKING, Any, Callable, Generic, Optional, Protocol, TypeVar, Union
 
 import discord
 

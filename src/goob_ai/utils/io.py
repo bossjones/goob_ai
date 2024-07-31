@@ -205,8 +205,8 @@ def magic_imread(filenames, *, use_dask=None, stack=True):
 
 def write_csv(
     filename: str,
-    data: Union[List, np.ndarray],
-    column_names: Optional[List[str]] = None,
+    data: Union[list, np.ndarray],
+    column_names: Optional[list[str]] = None,
 ):
     """Write a csv file.
 
@@ -233,7 +233,7 @@ def write_csv(
 
 
 def guess_layer_type_from_column_names(
-    column_names: List[str],
+    column_names: list[str],
 ) -> Optional[str]:
     """Guess layer type based on column names from a csv file.
 
@@ -256,7 +256,7 @@ def guess_layer_type_from_column_names(
         return None
 
 
-def read_csv(filename: str, require_type: str = None) -> Tuple[np.array, List[str], Optional[str]]:
+def read_csv(filename: str, require_type: str = None) -> tuple[np.array, list[str], Optional[str]]:
     """Return CSV data only if column names match format for ``require_type``.
 
     Reads only the first line of the CSV at first, then optionally raises an

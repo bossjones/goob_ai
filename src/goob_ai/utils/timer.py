@@ -100,7 +100,7 @@ class TimerCollection:
     """
 
     def __init__(self):
-        self._timers: Dict[str, Timer] = {}
+        self._timers: dict[str, Timer] = {}
 
     def start(self, name: str) -> None:
         """Start the timer with the given name."""
@@ -131,7 +131,7 @@ class TimerCollection:
         for timer in self._timers.values():
             timer.reset()
 
-    def names(self) -> Dict[str, Timer]:
+    def names(self) -> dict[str, Timer]:
         """Get the names of all timers."""
         return self._timers.keys()
 
