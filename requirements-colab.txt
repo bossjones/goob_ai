@@ -767,7 +767,7 @@ pypdf==4.2.0
     # via goob-ai
 pypdf2==3.0.1
     # via goob-ai
-pyphen==0.15.0
+pyphen==0.16.0
     # via weasyprint
 pypi-command-line==1.7.1
     # via goob-ai
