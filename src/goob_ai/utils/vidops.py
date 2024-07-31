@@ -51,9 +51,35 @@ from webcolors import CSS3_HEX_TO_NAMES, hex_to_rgb
 
 from goob_ai import db, helpers, shell, utils
 from goob_ai.shell import _aio_run_process_and_communicate
-from goob_ai.utils import file_functions
 from goob_ai.utils.devices import get_device
+from goob_ai.utils.file_functions import VIDEO_EXTENSIONS, unlink_orig_file
 from goob_ai.utils.torchutils import load_model
+
+
+async def get_duration(input_file: Path) -> None:
+    """
+    Get duration of a file using FFmpeg.
+
+    Args:
+        input_file (Path): The path to the input audio file.
+    """
+    LOGGER.debug(f"Processing audio file: {input_file}")
+
+    # Calculate input file duration
+    duration_cmd = [
+        "ffprobe",
+        "-v",
+        "error",
+        "-show_entries",
+        "format=duration",
+        "-of",
+        "default=noprint_wrappers=1:nokey=1",
+        str(input_file),
+    ]
+    LOGGER.debug(f"duration_cmd = {duration_cmd}")
+    duration = float(await _aio_run_process_and_communicate(duration_cmd))
+    LOGGER.debug(f"duration = {duration}")
+    return duration
 
 
 def calculate_bitrate(duration: float, multiplier: int) -> int:
@@ -67,7 +93,9 @@ def calculate_bitrate(duration: float, multiplier: int) -> int:
     Returns:
         int: The calculated bitrate in kbps.
     """
-    return int(multiplier * 8 * 1000 / duration)
+    bitrate = int(multiplier * 8 * 1000 / duration)
+    LOGGER.debug(f"bitrate = {bitrate}")
+    return bitrate
 
 
 async def process_video(input_file: Path) -> None:
@@ -96,7 +124,7 @@ async def process_video(input_file: Path) -> None:
         "default=noprint_wrappers=1:nokey=1",
         str(input_file),
     ]
-    duration = float(await _aio_run_process_and_communicate(duration_cmd))
+    duration = await get_duration(input_file)
     bitrate = calculate_bitrate(duration, 23)
 
     LOGGER.debug(f"Video length: {duration}s")
@@ -175,21 +203,8 @@ async def process_audio(input_file: Path) -> None:
     Returns:
         None
     """
-    LOGGER.debug(f"Processing audio file: {input_file}")
 
-    # Calculate input file duration
-    duration_cmd = [
-        "ffprobe",
-        "-v",
-        "error",
-        "-show_entries",
-        "format=duration",
-        "-of",
-        "default=noprint_wrappers=1:nokey=1",
-        str(input_file),
-    ]
-    LOGGER.debug(f"duration_cmd = {duration_cmd}")
-    duration = float(await _aio_run_process_and_communicate(duration_cmd))
+    duration = await get_duration(input_file)
     bitrate = calculate_bitrate(duration, 25)
 
     LOGGER.debug(f"Audio duration: {duration}s")
@@ -227,3 +242,65 @@ async def process_audio(input_file: Path) -> None:
     ]
     LOGGER.debug(f"compress_cmd = {compress_cmd}")
     await _aio_run_process_and_communicate(compress_cmd)
+
+
+async def compress_video(tmpdirname: str, file_to_compress: str, bot: Any, ctx: Any) -> bool:
+    """_summary_
+
+    Args:
+        tmpdirname (str): _description_
+        file_to_compress (str): _description_
+        bot (Any): _description_
+        ctx (Any): _description_
+
+    Returns:
+        List[str]: _description_
+    """
+    if (pathlib.Path(f"{file_to_compress}").is_file()) and pathlib.Path(
+        f"{file_to_compress}"
+    ).suffix in VIDEO_EXTENSIONS:
+        LOGGER.debug(f"compressing file -> {file_to_compress}")
+        ######################################################
+        # compress the file if it is too large
+        ######################################################
+        compress_command = [
+            "./scripts/compress-discord.sh",
+            f"{file_to_compress}",
+        ]
+
+        try:
+            _ = await shell._aio_run_process_and_communicate(compress_command, cwd=f"{tmpdirname}")
+
+            LOGGER.debug(
+                f"compress_video: new file size for {file_to_compress} = {pathlib.Path(file_to_compress).stat().st_size}"
+            )
+
+            ######################################################
+            # nuke the uncompressed version
+            ######################################################
+
+            LOGGER.info(f"nuking uncompressed: {file_to_compress}")
+
+            # nuke the originals
+            unlink_func = functools.partial(unlink_orig_file, f"{file_to_compress}")
+
+            # 2. Run in a custom thread pool:
+            with concurrent.futures.ThreadPoolExecutor() as pool:
+                unlink_result = await bot.loop.run_in_executor(pool, unlink_func)
+
+            # Nuke old message now that everything is done
+            # await msg_upload.delete()
+            return True
+        except Exception as ex:
+            print(ex)
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            LOGGER.error(f"Error Class: {str(ex.__class__)}")
+            output = f"[UNEXPECTED] {type(ex).__name__}: {ex}"
+            LOGGER.warning(output)
+            LOGGER.error(f"exc_type: {exc_type}")
+            LOGGER.error(f"exc_value: {exc_value}")
+            traceback.print_tb(exc_traceback)
+
+    else:
+        LOGGER.debug(f"no videos to process in {tmpdirname}")
+        return False

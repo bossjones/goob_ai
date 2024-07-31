@@ -5,16 +5,26 @@
 
 from __future__ import annotations
 
+import asyncio
+import concurrent.futures
+import functools
 import glob
 import json
 import logging
 import os
+import os.path
 import pathlib
 import string
 import sys
+import tempfile
+import time
+import traceback
+import typing
 
+from enum import IntEnum
 from os import PathLike
-from typing import TYPE_CHECKING, List, Optional, Tuple, Union
+from timeit import default_timer as timer
+from typing import TYPE_CHECKING, Any, Dict, List, NewType, Optional, Tuple, Union
 
 import aiofiles
 import pandas as pd
@@ -928,82 +938,6 @@ def run_tree(tmpdirname: str):
     file_to_upload = filter_media(file_to_upload_list)
 
     return file_to_upload
-
-
-async def compress_video(tmpdirname: str, file_to_compress: str, bot: Any, ctx: Any) -> bool:
-    """_summary_
-
-    Args:
-        tmpdirname (str): _description_
-        file_to_compress (str): _description_
-        bot (Any): _description_
-        ctx (Any): _description_
-
-    Returns:
-        List[str]: _description_
-    """
-    if (pathlib.Path(f"{file_to_compress}").is_file()) and pathlib.Path(
-        f"{file_to_compress}"
-    ).suffix in VIDEO_EXTENSIONS:
-        LOGGER.debug(f"compressing file -> {file_to_compress}")
-        ######################################################
-        # compress the file if it is too large
-        ######################################################
-        compress_command = [
-            "compress-discord.sh",
-            f"{file_to_compress}",
-        ]
-
-        try:
-            _ = await shell._aio_run_process_and_communicate(compress_command, cwd=f"{tmpdirname}")
-
-            LOGGER.debug(
-                f"compress_video: new file size for {file_to_compress} = {pathlib.Path(file_to_compress).stat().st_size}"
-            )
-
-            ######################################################
-            # nuke the uncompressed version
-            ######################################################
-
-            LOGGER.info(f"nuking uncompressed: {file_to_compress}")
-
-            # nuke the originals
-            unlink_func = functools.partial(unlink_orig_file, f"{file_to_compress}")
-
-            # 2. Run in a custom thread pool:
-            with concurrent.futures.ThreadPoolExecutor() as pool:
-                unlink_result = await bot.loop.run_in_executor(pool, unlink_func)
-                # rich.print(f"count: {count} - Unlink", unlink_result)
-
-            # Nuke old message now that everything is done
-            await msg_upload.delete()
-            return True
-        except Exception as ex:
-            print(ex)
-            exc_type, exc_value, exc_traceback = sys.exc_info()
-            LOGGER.error(f"Error Class: {str(ex.__class__)}")
-            output = f"[UNEXPECTED] {type(ex).__name__}: {ex}"
-            LOGGER.warning(output)
-            LOGGER.error(f"exc_type: {exc_type}")
-            LOGGER.error(f"exc_value: {exc_value}")
-            traceback.print_tb(exc_traceback)
-
-        # # Now that we are finished processing, we can upload the files to discord
-
-        # tree_list = file_functions.tree(pathlib.Path(f"{tmpdirname}"))
-        # rich.print("tree_list ->")
-        # rich.print(tree_list)
-
-        # file_to_upload_list = [f"{p}" for p in tree_list]
-        # LOGGER.debug(f"compress_video-> file_to_upload_list = {file_to_upload_list}")
-        # rich.print(file_to_upload_list)
-
-        # file_to_upload = file_functions.filter_media(file_to_upload_list)
-
-        # return file_to_upload
-    else:
-        LOGGER.debug(f"no videos to process in {tmpdirname}")
-        return False
 
 
 # smoke tests
