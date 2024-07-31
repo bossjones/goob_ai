@@ -48,28 +48,27 @@ local-unittest:
 
 # Fetch multiple Python versions using rye
 rye-get-pythons:
-    rye fetch 3.8.19
-    rye fetch 3.9.19
-    rye fetch 3.10.14
-    rye fetch 3.11.4
-    rye fetch 3.12.3
+	rye fetch 3.8.19
+	rye fetch 3.9.19
+	rye fetch 3.10.14
+	rye fetch 3.11.4
+	rye fetch 3.12.3
 
 # Add all dependencies using a custom script
 rye-add-all:
-    ./contrib/rye-add-all.sh
+	./contrib/rye-add-all.sh
 
 # Run all pre-commit hooks on all files
 pre-commit-run-all:
-    pre-commit run --all-files
+	pre-commit run --all-files
 
 # Install pre-commit hooks
 pre-commit-install:
-    pre-commit install
+	pre-commit install
 
 # Display the dependency tree of the project
 pipdep-tree:
-    pipdeptree --python .venv/bin/python3
-
+	pipdeptree --python .venv/bin/python3
 
 # install rye tools globally
 rye-tool-install:
@@ -77,6 +76,7 @@ rye-tool-install:
 	rye install pipdeptree
 	rye install click
 
+# Lint GitHub Actions workflow files
 lint-github-actions:
 	actionlint
 
@@ -84,9 +84,11 @@ lint-github-actions:
 check-taplo-installed:
 	@command -v taplo >/dev/null 2>&1 || { echo >&2 "taplo is required but it's not installed. run 'brew install taplo'"; exit 1; }
 
+# Format Python files using pre-commit
 fmt-python:
 	git ls-files '*.py' '*.ipynb' | xargs rye run pre-commit run --files
 
+# Format Markdown files using pre-commit
 fmt-markdown-pre-commit:
 	git ls-files '*.md' | xargs rye run pre-commit run --files
 
@@ -95,14 +97,14 @@ fmt-toml:
 	pre-commit run taplo-format --all-files
 
 # SOURCE: https://github.com/PovertyAction/ipa-data-tech-handbook/blob/ed81492f3917ee8c87f5d8a60a92599a324f2ded/Justfile
+
 # Format all markdown and config files
 fmt-markdown:
-    git ls-files '*.md' | xargs rye run mdformat
+	git ls-files '*.md' | xargs rye run mdformat
 
 # Format a single markdown file, "f"
 fmt-md f:
-    rye run mdformat {{ f }}
-
+	rye run mdformat {{ f }}
 
 # format all code using pre-commit config
 fmt: fmt-python fmt-toml fmt-markdown fmt-markdown fmt-markdown-pre-commit
@@ -121,12 +123,13 @@ lint-check-log-cli:
 
 # Check format of all markdown files
 lint-check-markdown:
-    rye run mdformat --check .
+	rye run mdformat --check .
 
 # Lint all files in the current directory (and any subdirectories).
 lint: lint-python lint-toml lint-check-log-cli lint-check-markdown
 
 # SOURCE: https://github.com/RobertCraigie/prisma-client-py/blob/da53c4280756f1a9bddc3407aa3b5f296aa8cc10/Makefile#L77
+# Remove all generated files and caches
 clean:
 	rm -rf .cache
 	rm -rf `find . -name __pycache__`
@@ -157,16 +160,19 @@ sweep-init:
 #     - trunk fmt {file_path}
 #     - trunk check {file_path}
 
-
+# Download AI models from Dropbox
 download-models:
 	curl -L 'https://www.dropbox.com/s/im6ytahqgbpyjvw/ScreenNetV1.pth?dl=1' > src/goob_ai/data/ScreenNetV1.pth
 
+# Perform a dry run of dependency upgrades
 upgrade-dry-run:
 	rye lock --update-all --all-features
 
+# Upgrade all dependencies and sync the environment
 sync-upgrade-all:
 	rye sync --update-all --all-features
 
+# Start a background HTTP server for test fixtures
 http-server-background:
 	#!/bin/bash
 	# _PID=$(pgrep -f " -m http.server --bind localhost 19000 -d ./tests/fixtures")
@@ -174,6 +180,7 @@ http-server-background:
 	python3 -m http.server --bind localhost 19000 -d ./tests/fixtures &
 	echo $! > PATH.PID
 
+# Start an HTTP server for test fixtures
 http-server:
 	#!/bin/bash
 	# _PID=$(pgrep -f " -m http.server --bind localhost 19000 -d ./tests/fixtures")
@@ -205,25 +212,31 @@ version-bump-minor: minor-version-bump
 # Bump the version by patch
 version-bump-patch: patch-version-bump
 
-
+# Serve the documentation locally for preview
 docs_preview:
-	rye run mkdocs serve
+    rye run mkdocs serve
 
+# Build the documentation
 docs_build:
-	rye run mkdocs build
+    rye run mkdocs build
 
+# Deploy the documentation to GitHub Pages
 docs_deploy:
-	rye run mkdocs gh-deploy --clean
+    rye run mkdocs gh-deploy --clean
 
+# Generate a draft changelog
 changelog:
-	rye run towncrier build --version main --draft
+    rye run towncrier build --version main --draft
 
+# Checkout main branch and pull latest changes
 gco:
-	gco main
-	git pull --rebase
+    gco main
+    git pull --rebase
 
+# Show diff for LangChain migration
 langchain-migrate-diff:
-	langchain-cli migrate --include-ipynb --diff src
+    langchain-cli migrate --include-ipynb --diff src
 
+# Perform LangChain migration
 langchain-migrate:
-	langchain-cli migrate --include-ipynb src
+    langchain-cli migrate --include-ipynb src
