@@ -37,8 +37,6 @@ from codetiming import Timer
 from discord.ext import commands
 from discord.message import Message
 from discord.user import User
-
-# from goob_ai.llm_manager import DownloadModel
 from langchain.callbacks.manager import AsyncCallbackManagerForToolRun, CallbackManagerForToolRun
 from langchain.pydantic_v1 import BaseModel, Field
 from langchain.pydantic_v1 import BaseModel as BaseModelV1
@@ -146,23 +144,23 @@ class DownloadTool(BaseTool):
 
                     for meme in file_to_upload:
                         # if it is a video, compress it
-                        if pathlib.Path(meme).stat().st_size > constants.MAX_BYTES_UPLOAD_DISCORD:
-                            await ctx.send(
-                                embed=discord.Embed(
-                                    description=f"File is over 8MB... Uploading to dropbox -> {meme}...."
-                                )
-                            )
+                        if pathlib.Path(meme).stat().st_size > MAX_BYTES_UPLOAD_DISCORD:
+                            # await ctx.send(
+                            #     embed=discord.Embed(
+                            #         description=f"File is over 8MB... Uploading to dropbox -> {meme}...."
+                            #     )
+                            # )
 
                             to_upload_list = [meme]
-                            await aiodbx.dropbox_upload(to_upload_list)
+                            # await aiodbx.dropbox_upload(to_upload_list)
 
-                            await ctx.send(
-                                embed=discord.Embed(description=f"File successfully uploaded to dropbox! -> {meme}....")
-                            )
+                            # await ctx.send(
+                            #     embed=discord.Embed(description=f"File successfully uploaded to dropbox! -> {meme}....")
+                            # )
                         else:
-                            await ctx.send(
-                                embed=discord.Embed(description=f"Uploading to discord -> {file_to_upload}....")
-                            )
+                            # await ctx.send(
+                            #     embed=discord.Embed(description=f"Uploading to discord -> {file_to_upload}....")
+                            # )
 
                             my_files = []
 
@@ -175,25 +173,26 @@ class DownloadTool(BaseTool):
 
                             try:
                                 msg: Message
-                                msg = await ctx.send(files=my_files)
-                                await ctx.send(
-                                    embed=discord.Embed(description=f"File successfully uploaded -> {my_files}....")
-                                )
+                                # msg = await ctx.send(files=my_files)
+                                # await ctx.send(
+                                #     embed=discord.Embed(description=f"File successfully uploaded -> {my_files}....")
+                                # )
                             except Exception as ex:
-                                await ctx.send(embed=discord.Embed(description="Could not upload story to discord...."))
+                                # await ctx.send(embed=discord.Embed(description="Could not upload story to discord...."))
                                 print(ex)
                                 exc_type, exc_value, exc_traceback = sys.exc_info()
                                 LOGGER.error(f"Error Class: {str(ex.__class__)}")
                                 output = f"[UNEXPECTED] {type(ex).__name__}: {ex}"
                                 LOGGER.warning(output)
-                                await ctx.send(embed=discord.Embed(description=output))
+                                # await ctx.send(embed=discord.Embed(description=output))
                                 LOGGER.error(f"exc_type: {exc_type}")
                                 LOGGER.error(f"exc_value: {exc_value}")
                                 traceback.print_tb(exc_traceback)
+                                raise ToolException(err_msg) from e
 
         except Exception as e:
             exc_type, exc_value, exc_traceback = sys.exc_info()
-            err_msg = f"Error invoking regular DownloadTool(image_path='{image_path}', prompt='{prompt}'): exc_type={type(e).__name__},exc_value='{exc_value}': {e}"
+            err_msg = f"Error invoking regular DownloadTool(url='{url}'): exc_type={type(e).__name__},exc_value='{exc_value}': {e}"
             LOGGER.error(err_msg)
             LOGGER.error(f"exc_type={exc_type},exc_value={exc_value}")
             LOGGER.error(f"Args: image_path={image_path}, prompt={prompt}")
@@ -243,13 +242,13 @@ class DownloadTool(BaseTool):
 
                     LOGGER.debug(f"Success, downloaded {dl_uri.geturi()}")
                     # refactor this into a function
-                    file_to_upload = file_functions.get_files_to_upload(tmpdirname)
+                    file_to_upload = get_files_to_upload(tmpdirname)
                     LOGGER.debug(f"BEFORE: {type(self).__name__} -> file_to_upload = {file_to_upload}")
 
                     needs_compression = False
                     # if it is a video, we should compress it
                     for meme in file_to_upload:
-                        res = await aio_compress_video(f"{tmpdirname}", f"{meme}", self.bot, ctx)
+                        res = await vidops.aio_compress_video(f"{tmpdirname}", f"{meme}", self.bot, ctx)
 
                         # if it compressed at least one video, return true
                         if res:
@@ -307,6 +306,7 @@ class DownloadTool(BaseTool):
                                 LOGGER.error(f"exc_type: {exc_type}")
                                 LOGGER.error(f"exc_value: {exc_value}")
                                 traceback.print_tb(exc_traceback)
+                                raise ToolException(err_msg) from e
 
         except Exception as e:
             exc_type, exc_value, exc_traceback = sys.exc_info()
