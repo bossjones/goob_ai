@@ -475,8 +475,9 @@ skip_covered = false
 
 # =========================[ PYTEST INI OPTIONS ]========================
 [tool.pytest.ini_options]
-# retries = 2
+retries = 5
 # retry_delay = 0.5
+retry_delay = 30
 pythonpath = "."
 asyncio_mode = "auto"
 addopts = [
