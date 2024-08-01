@@ -1,5 +1,9 @@
 """goob_ai.services.chroma_service"""
 
+# pyright: reportPrivateImportUsage=false
+# pyright: reportGeneralTypeIssues=false
+# pylint: disable=no-name-in-module
+
 # pylint: disable=no-member
 # LINK: https://github.com/mlsmall/RAG-Application-with-LangChain
 # SOURCE: https://www.linkedin.com/pulse/building-retrieval-augmented-generation-rag-app-langchain-tiwari-stpfc/
@@ -34,8 +38,6 @@ from loguru import logger as LOGGER
 from goob_ai.aio_settings import aiosettings
 from goob_ai.utils import file_functions
 
-
-# from langchain_community.vectorstores import Chroma as ChromaVectorStore
 
 HERE = os.path.dirname(__file__)
 
@@ -435,7 +437,7 @@ def save_to_chroma(chunks: list[Document]) -> None:
     LOGGER.info(embeddings)
     # Create a new DB from the documents.
     db = ChromaVectorStore.from_documents(chunks, embeddings, persist_directory=CHROMA_PATH)
-    db.persist()
+    # db.persist()
     LOGGER.info(f"Saved {len(chunks)} chunks to {CHROMA_PATH}.")
 
 
