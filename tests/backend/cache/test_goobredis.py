@@ -4,28 +4,27 @@
 # pylint: disable=consider-using-from-import
 from __future__ import annotations
 
+import asyncio
+
 from typing import TYPE_CHECKING
 
 from goob_ai.backend.cache.goobredis import get_driver
+from loguru import logger as LOGGER
 
 import pytest
 
 
 if TYPE_CHECKING:
     from _pytest.fixtures import FixtureRequest
+    from _pytest.logging import LogCaptureFixture
     from _pytest.monkeypatch import MonkeyPatch
     from goob_ai.backend.cache.goobredis import GoobRedisClient
 
     from pytest_mock.plugin import MockerFixture
 
-import asyncio
-
-
-# pytestmark = pytest.mark.asyncio
-
 
 # @pytest.mark.app_settings({"applications": ["guillotina", "guillotina.contrib.redis"]})
-async def test_redis_ops():
+async def test_redis_ops(caplog: LogCaptureFixture):
     driver = await get_driver()
     assert driver.initialized
     assert driver.pool is not None
@@ -69,7 +68,7 @@ async def test_redis_ops():
 
 
 # @pytest.mark.app_settings({"applications": ["guillotina", "guillotina.contrib.redis"]})
-async def test_redis_pubsub():
+async def test_redis_pubsub(caplog: LogCaptureFixture):
     driver = await get_driver()
     assert driver.initialized
 
