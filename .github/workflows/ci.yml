@@ -83,8 +83,9 @@ jobs:
       - name: Start Redis
         id: redis-docker-compose-up
         run: |
-          sudo apt update
-          sudo apt install docker-compose-plugin -y
+          curl -SL https://github.com/docker/compose/releases/download/v2.29.1/docker-compose-linux-x86_64 -o /usr/local/bin/docker-compose
+          sudo chmod +x /usr/local/bin/docker-compose
+          sudo ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
           docker compose up -d
           docker ps -a
         continue-on-error: true
@@ -94,7 +95,7 @@ jobs:
         run: |
           git clone --depth 1 --branch feature-boss-chroma https://github.com/bossjones/chroma.git vendored_chroma
           cd vendored_chroma
-          docker-compose up -d --build
+          docker compose up -d --build
           docker ps -a
         continue-on-error: true
 
