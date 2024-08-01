@@ -1,5 +1,6 @@
 """goob_ai.cli"""
 
+# pyright: reportMissingTypeStubs=false
 # pylint: disable=no-member
 # pylint: disable=no-value-for-parameter
 # SOURCE: https://github.com/tiangolo/typer/issues/88#issuecomment-1732469681
@@ -202,67 +203,6 @@ def show() -> None:
     cprint("\nShow goob_ai", style="yellow")
 
 
-# @APP.async_command()
-# async def info() -> None:
-#     """Returns information about the bot."""
-#     result = await bot.get_me()
-#     print("Bot me information")
-#     print_json(result.to_json())
-#     result = await bot.get_webhook_info()
-#     print("Bot webhook information")
-#     print_json(
-#         json.dumps(
-#             {
-#                 "url": result.url,
-#                 "has_custom_certificate": result.has_custom_certificate,
-#                 "pending_update_count": result.pending_update_count,
-#                 "ip_address": result.ip_address,
-#                 "last_error_date": result.last_error_date,
-#                 "last_error_message": result.last_error_message,
-#                 "last_synchronization_error_date": result.last_synchronization_error_date,
-#                 "max_connections": result.max_connections,
-#                 "allowed_updates": result.allowed_updates,
-#             }
-#         )
-#     )
-#     await bot.close_session()
-
-
-# @APP.async_command()
-# async def install() -> None:
-#     """Install bot webhook"""
-#     # Remove webhook, it fails sometimes the set if there is a previous webhook
-#     await bot.remove_webhook()
-
-#     WEBHOOK_URL_BASE = f"https://{settings.webhook_host}:{443}"
-#     WEBHOOK_URL_PATH = f"/{settings.secret_token}/"
-
-#     # Set webhook
-#     result = await bot.set_webhook(url=WEBHOOK_URL_BASE + WEBHOOK_URL_PATH)
-
-#     print(f"Set webhook to {WEBHOOK_URL_BASE + WEBHOOK_URL_PATH}: {result}")
-
-#     await bot.close_session()
-
-
-# @APP.async_command()
-# async def serve() -> None:
-#     """Run polling bot version."""
-#     logging.info("Starting...")
-
-#     await bot.remove_webhook()
-#     await bot.infinity_polling(logger_level=logging.INFO)
-
-#     await bot.close_session()
-
-
-# # @APP.async_command()
-# # async def uninstall() -> None:
-# #     """Uninstall bot webhook."""
-# #     await bot.remove_webhook()
-
-
-# #     await bot.close_session()
 def main():
     APP()
     load_commands()
@@ -288,31 +228,9 @@ async def run_bot():
         if aiosettings.dev_mode:
             bpdb.pm()
     async with AsyncGoobBot() as bot:
-        # bot.typerCtx = ctx
-        # bot.typerCtx = ctx
         if aiosettings.enable_redis:
             bot.pool = pool
         await bot.start()
-    # log = logging.getLogger()
-    # try:
-    #     pool = await create_pool()
-    # except Exception:
-    #     click.echo('Could not set up PostgreSQL. Exiting.', file=sys.stderr)
-    #     log.exception('Could not set up PostgreSQL. Exiting.')
-    #     return
-
-    # async with RoboDanny() as bot:
-    #     bot.pool = pool
-    #     await bot.start()
-
-
-# @click.group(invoke_without_command=True, options_metavar='[options]')
-# @click.pass_context
-# def main(ctx):
-#     """Launches the bot."""
-#     if ctx.invoked_subcommand is None:
-#         with setup_logging():
-#             asyncio.run(run_bot())
 
 
 # SOURCE: https://docs.pinecone.io/guides/getting-started/quickstart
@@ -419,8 +337,6 @@ def run_pyright() -> None:
 @APP.command()
 def run_screencrop() -> None:
     """Manually run screncrop service and get bounding boxes"""
-    # typer.echo("Generating type stubs for GoobAI")
-    # repo_typing.run_pyright()
     try:
         asyncio.run(
             ImageService.bindingbox_handler(
@@ -447,7 +363,6 @@ def run_download_and_predict(
     """Manually run screencrop's download_and_predict service and get bounding boxes"""
     path_to_image_from_cli = fix_path(img_url)
     try:
-        # asyncio.run(ImageService.handle_predict_from_file(path_to_image_from_cli))
         ImageService.handle_predict_from_file(path_to_image_from_cli)
     except Exception as ex:
         print(f"{ex}")

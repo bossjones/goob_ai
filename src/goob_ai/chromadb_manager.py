@@ -1,3 +1,4 @@
+# pyright: reportCallInDefaultInitializer=false
 # pylint: disable=no-member
 # SOURCE: https://github.com/bhuvan454/bareRAG/tree/master
 from __future__ import annotations
@@ -26,7 +27,6 @@ QDRANT_COLLECTION_NAME = os.getenv("QDRANT_COLLECTION_NAME", "ragcollection")
 CHUNK_SIZE = int(os.getenv("CHUNK_SIZE", "800"))
 CHUNK_OVERLAP = int(os.getenv("CHUNK_OVERLAP", "80"))
 RAG_TOP_K = int(os.getenv("RAG_TOP_K", "5"))
-
 DATA_PATH = os.path.join(HERE, "data", "chroma", "data")
 CHROMA_PATH = os.path.join(HERE, "data", "chroma", "vectorstorage")
 

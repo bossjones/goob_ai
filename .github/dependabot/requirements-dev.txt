@@ -309,7 +309,7 @@ executing==2.0.1
     # via stack-data
 factory-boy==3.3.0
     # via goob-ai
-faker==26.0.0
+faker==26.1.0
     # via factory-boy
     # via goob-ai
 fastapi==0.111.1

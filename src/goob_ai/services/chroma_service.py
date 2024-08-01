@@ -2,6 +2,7 @@
 
 # pyright: reportPrivateImportUsage=false
 # pyright: reportGeneralTypeIssues=false
+# pyright: reportCallInDefaultInitializer=false
 # pylint: disable=no-name-in-module
 
 # pylint: disable=no-member
@@ -192,13 +193,10 @@ def get_rag_embedding_function(filename: str) -> SentenceTransformerEmbeddings |
 
 
 def get_client() -> chromadb.ClientAPI:
-    """_summary_
-
-    Args:
-        query_text (str): _description_
+    """Get the ChromaDB client.
 
     Returns:
-        str: _description_
+        The ChromaDB client.
     """
     return chromadb.HttpClient(
         host=aiosettings.chroma_host,

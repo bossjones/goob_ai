@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """dancedetector dbx_logger -- Setup loguru logging with stderr and file with click."""
+# pylint: disable=no-member
 # pylint: disable=consider-using-tuple
 # pyright: ignore[reportOperatorIssue]
 # pyright: ignore[reportOptionalIterable]
