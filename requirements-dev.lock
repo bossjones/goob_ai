@@ -254,8 +254,9 @@ debugpy==1.8.2
     # via ipykernel
 decli==0.6.2
     # via commitizen
-decorator==5.1.1
+decorator==4.4.2
     # via ipython
+    # via moviepy
 defusedxml==0.7.1
     # via langchain-anthropic
     # via nbconvert
@@ -460,6 +461,9 @@ idna==3.7
     # via yarl
 imageio==2.34.2
     # via goob-ai
+    # via moviepy
+imageio-ffmpeg==0.5.1
+    # via moviepy
 importlib-metadata==8.0.0
     # via dask
     # via opentelemetry-api
@@ -751,6 +755,8 @@ more-itertools==10.3.0
     # via mdformat-mkdocs
 motor==3.5.1
     # via goob-ai
+moviepy==1.0.3
+    # via goob-ai
 mpmath==1.3.0
     # via sympy
 multidict==6.0.5
@@ -821,6 +827,7 @@ numpy==1.26.4
     # via langchain-chroma
     # via langchain-community
     # via matplotlib
+    # via moviepy
     # via onnxruntime
     # via opencv-python
     # via pandas
@@ -993,6 +1000,8 @@ prettytable==3.10.2
     # via goob-ai
 primp==0.5.5
     # via duckduckgo-search
+proglog==0.1.10
+    # via moviepy
 prometheus-client==0.20.0
     # via goob-ai
     # via jupyter-server
@@ -1259,6 +1268,7 @@ requests==2.32.3
     # via langsmith
     # via mkdocs-material
     # via mkdocs-mermaid2-plugin
+    # via moviepy
     # via posthog
     # via pyinspect
     # via pyowm
@@ -1343,6 +1353,7 @@ seqeval==1.2.2
 setproctitle==1.3.3
     # via wandb
 setuptools==72.1.0
+    # via imageio-ffmpeg
     # via jupyterlab
     # via mkdocs-mermaid2-plugin
     # via opentelemetry-instrumentation
@@ -1509,8 +1520,10 @@ tqdm==4.66.4
     # via goob-ai
     # via google-generativeai
     # via huggingface-hub
+    # via moviepy
     # via openai
     # via pinecone-client
+    # via proglog
     # via scenedetect
     # via sentence-transformers
     # via simpletransformers

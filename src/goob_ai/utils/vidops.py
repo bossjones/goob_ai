@@ -239,7 +239,7 @@ async def process_audio(input_file: Path) -> None:
     await _aio_run_process_and_communicate(compress_cmd)
 
 
-async def aio_compress_video(tmpdirname: str, file_to_compress: str, bot: Any, ctx: Any) -> bool:
+async def aio_compress_video(tmpdirname: str, file_to_compress: str, bot: Any) -> bool:
     """_summary_
 
     Args:
@@ -263,6 +263,8 @@ async def aio_compress_video(tmpdirname: str, file_to_compress: str, bot: Any, c
             f"{file_to_compress}",
         ]
 
+        loop = asyncio.get_running_loop()
+
         try:
             _ = await shell._aio_run_process_and_communicate(compress_command, cwd=f"{tmpdirname}")
 
@@ -281,7 +283,7 @@ async def aio_compress_video(tmpdirname: str, file_to_compress: str, bot: Any, c
 
             # 2. Run in a custom thread pool:
             with concurrent.futures.ThreadPoolExecutor() as pool:
-                unlink_result = await bot.loop.run_in_executor(pool, unlink_func)
+                unlink_result = await loop.run_in_executor(pool, unlink_func)
 
             return True
         except Exception as ex:
@@ -324,16 +326,11 @@ def compress_video(tmpdirname: str, file_to_compress: str, bot: Any, ctx: Any) -
         ]
 
         try:
-            # _ = await shell._aio_run_process_and_communicate(compress_command, cwd=f"{tmpdirname}")
             _ = shell.pquery(compress_command, cwd=f"{tmpdirname}")
 
             LOGGER.debug(
                 f"compress_video: new file size for {file_to_compress} = {pathlib.Path(file_to_compress).stat().st_size}"
             )
-
-            ######################################################
-            # nuke the uncompressed version
-            ######################################################
 
             LOGGER.info(f"nuking uncompressed: {file_to_compress}")
 

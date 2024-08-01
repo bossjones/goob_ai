@@ -23,6 +23,7 @@ import gc
 import inspect
 import logging
 import os
+import re
 import sys
 
 from datetime import datetime, timezone
@@ -308,6 +309,35 @@ def generate_tree() -> LoggerModel:
         parentm = rootm if i == -1 else nodesm[name[:i]]
         parentm.children.append(nodem)
     return rootm
+
+
+# SOURCE: https://github.com/Derpitron/Discord-OTP-Forcer/blob/fc9812f3b6769f0eeba42f0f5bdeb01b7c8fe57c/src/lib/logcreation.py#L24
+def obfuscate_message(message: str):
+    """Obfuscate sensitive information."""
+    obfuscation_patterns = [
+        (r"email: .*", "email: ******"),
+        (r"password: .*", "password: ******"),
+        (r"newPassword: .*", "newPassword: ******"),
+        (r"resetToken: .*", "resetToken: ******"),
+        (r"authToken: .*", "authToken: ******"),
+        (r"located at .*", "located at ******"),
+        (r"#token=.*", "#token=******"),
+        # Add more obfuscation patterns as needed
+    ]
+    for pattern, replacement in obfuscation_patterns:
+        message = re.sub(pattern, replacement, message)
+
+    return message
+
+
+def formatter(record):
+    record["extra"]["obfuscated_message"] = record["message"]
+    return "<green>[{time:YYYY-MM-DD HH:mm:ss}]</green> <level>[{level}]</level> - <cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> - <level>{extra[obfuscated_message]}</level>\n{exception}"
+
+
+def formatter_sensitive(record):
+    record["extra"]["obfuscated_message"] = obfuscate_message(record["message"])
+    return "<green>[{time:YYYY-MM-DD HH:mm:ss}]</green> <level>[{level}]</level> - <cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> - <level>{extra[obfuscated_message]}</level>\n{exception}"
 
 
 # SMOKE-TESTS

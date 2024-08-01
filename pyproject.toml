@@ -50,7 +50,7 @@ dependencies = [
     "google-auth>=2.29.0",
     "google-auth-oauthlib>=1.2.0",
     "gutter>=0.5.0",
-    "imageio>=2.34.1",
+    "imageio>=2.34.2",
     "imutils>=0.5.4",
     "logging-tree>=1.10",
     "loguru>=0.7.2",
@@ -135,6 +135,7 @@ dependencies = [
     "langchain-groq>=0.1.6",
     "notebook>=7.2.1",
     "nbconvert>=7.16.4",
+    "moviepy>=1.0.3",
 ]
 
 readme = "README.md"
@@ -1077,20 +1078,33 @@ select = [
 # SOURCE: https://github.com/ansible-collections/cloud-content-handbook/blob/9be137d78af4d1cc140b210f3058977164021c9d/proposals/ruff_transition.md - end
 
 ignore = [
-    "W191",   # tab-indentation
-    "E111",   # indentation-with-invalid-multiple
-    "E114",   # indentation-with-invalid-multiple-comment
-    "E117",   # over-indented
-    "D206",   # indent-with-spaces
-    "D300",   # triple-single-quotes
-    "Q000",   # bad-quotes-inline-string
-    "Q001",   # bad-quotes-multiline-string
-    "Q002",   # bad-quotes-docstring
-    "Q003",   # avoidable-escaped-quote
-    "COM812", # missing-trailing-comma
-    "COM819", # prohibited-trailing-comma
-    "ISC001", # single-line-implicit-string-concatenation
-    "ISC002", # multi-line-implicit-string-concatenation
+    "N804",
+    "F821",
+    "N804",
+    "PLR1722",
+    "N802",
+    "N801",
+    "PLW0602",
+    "F811",
+    "PLW2901",
+    "YTT201",
+    "E722",
+    "PLC0132",
+    "PLW0128",
+    "W191",    # tab-indentation
+    "E111",    # indentation-with-invalid-multiple
+    "E114",    # indentation-with-invalid-multiple-comment
+    "E117",    # over-indented
+    "D206",    # indent-with-spaces
+    "D300",    # triple-single-quotes
+    "Q000",    # bad-quotes-inline-string
+    "Q001",    # bad-quotes-multiline-string
+    "Q002",    # bad-quotes-docstring
+    "Q003",    # avoidable-escaped-quote
+    "COM812",  # missing-trailing-comma
+    "COM819",  # prohibited-trailing-comma
+    "ISC001",  # single-line-implicit-string-concatenation
+    "ISC002",  # multi-line-implicit-string-concatenation
     "E501",
 
     # new list

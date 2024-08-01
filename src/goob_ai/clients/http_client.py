@@ -20,10 +20,6 @@ from goob_ai.aio_settings import aiosettings
 from goob_ai.utils import retry
 
 
-# from logging_utils import request_id_contextvar
-# from langchain.pydantic_v1 import BaseModel
-
-
 class HttpClient(BaseModel):
     """
     A common http client to be used by all tools.
