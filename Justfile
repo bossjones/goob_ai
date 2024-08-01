@@ -244,3 +244,6 @@ langchain-migrate-diff:
 # Perform LangChain migration
 langchain-migrate:
     langchain-cli migrate --include-ipynb src
+
+get-ruff-config:
+	rye run ruff check --show-settings --config pyproject.toml -v -o ruff_config.toml >> ruff.log 2>&1
