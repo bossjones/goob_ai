@@ -42,6 +42,7 @@ async def create_redis(request):
         async def teardown():
             try:
                 await client.aclose()
+                # await client._pool.aclose()
                 # await client.connection_pool.disconnect()
             except redis.ConnectionError:
                 pass

@@ -16,7 +16,7 @@ import redis
 import redis.asyncio
 
 from loguru import logger as LOGGER
-from redis.asyncio import ConnectionPool, Redis
+from redis.asyncio import Connection, ConnectionPool, Redis
 from redis.asyncio.client import PubSub
 from redis.backoff import ExponentialBackoff
 from redis.cluster import ClusterNode
@@ -26,6 +26,15 @@ from redis.sentinel import Sentinel
 
 from goob_ai import metrics
 from goob_ai.aio_settings import AioSettings, aiosettings
+
+
+# from redis.asyncio.connection import (
+#     BlockingConnectionPool,
+#     Connection,
+#     ConnectionPool,
+#     SSLConnection,
+#     UnixDomainSocketConnection,
+# )
 
 
 try:
@@ -73,10 +82,11 @@ class GoobRedisClient:
         self._loop = None
         self._receivers: dict[str, Any] = {}
         self._pubsub_subscriptor = None
-        self._conn = None
+        self._conn: Optional[Connection] = None
         self.initialized = False
         self.init_lock = asyncio.Lock()
         self._max_connections = max_connections
+        self.auto_close_connection_pool: Optional[bool] = None
 
     async def initialize(self, loop: asyncio.AbstractEventLoop) -> None:
         """
@@ -104,7 +114,13 @@ class GoobRedisClient:
         self._conn_pool = redis.asyncio.ConnectionPool.from_url(
             str(aiosettings.redis_url), max_connections=self._max_connections
         )
-        self._pool = redis.asyncio.Redis(connection_pool=self._conn_pool)
+        # If you create a custom ConnectionPool to be used by a single Redis instance, use the Redis.from_pool class method. The Redis client will take ownership of the connection pool. This will cause the pool to be disconnected along with the Redis instance. Disconnecting the connection pool simply disconnects all connections hosted in the pool.
+        self._pool: redis.asyncio.Redis = redis.asyncio.Redis.from_pool(self._conn_pool)
+
+        # What delimiter do you use for your #Redis keys? Select Option 1 for colons(:), Option 2 for underscores(_), Option 3 for hyphens(-), or Option 4 if you use some other character as a delimiter or don't use a delimiter at all.
+
+        self._conn: Connection = await self._conn_pool.get_connection(":")
+
         self._pubsub_channels: dict[str, PubSub] = {}
         self.auto_close_connection_pool: bool = self._pool.auto_close_connection_pool
 
@@ -339,12 +355,30 @@ class GoobRedisClient:
         let Redis.auto_close_connection_pool decide whether to close the connection
         pool.
         """
-        conn = self._pool
+        conn = self._conn
         if conn:
-            self._pool = None
-            await self._pool.release(conn)
+            self._conn = None
+            await self._conn.release(conn)
         if close_connection_pool or (close_connection_pool is None and self.auto_close_connection_pool):
             await self._pool.disconnect()
+
+    # async def aclose(self, close_connection_pool: Optional[bool] = None) -> None:
+    #     """
+    #     Closes Redis client connection
+
+    #     :param close_connection_pool: decides whether to close the connection pool used
+    #     by this Redis client, overriding Redis.auto_close_connection_pool. By default,
+    #     let Redis.auto_close_connection_pool decide whether to close the connection
+    #     pool.
+    #     """
+    #     conn = self.connection
+    #     if conn:
+    #         self.connection = None
+    #         await self.connection_pool.release(conn)
+    #     if close_connection_pool or (
+    #         close_connection_pool is None and self.auto_close_connection_pool
+    #     ):
+    #         await self.connection_pool.disconnect()
 
 
 #     def set(self, key, value, expiration=3600):

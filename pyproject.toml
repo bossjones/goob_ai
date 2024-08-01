@@ -343,8 +343,8 @@ test = {chain = [
 coverage-combine = {cmd = "python -m coverage combine"}
 coverage-html = {cmd = "python -m coverage html --skip-covered --skip-empty"}
 coverage-pytest = {cmd = "coverage run --rcfile=pyproject.toml -m pytest tests"}
-coverage-pytest-debug = {cmd = "coverage run --rcfile=pyproject.toml -m pytest --verbose --pdb --pdbcls bpdb:BPdb --showlocals --tb=short --capture=no tests"}
-coverage-pytest-evals-debug = {cmd = "coverage run --rcfile=pyproject.toml -m pytest --verbose --pdb --pdbcls bpdb:BPdb --showlocals --tb=short --capture=no -m evals --slow tests"}
+coverage-pytest-debug = {cmd = "coverage run --rcfile=pyproject.toml -m pytest --verbose -vvv --pdb --pdbcls bpdb:BPdb --showlocals --tb=short --capture=no tests"}
+coverage-pytest-evals-debug = {cmd = "coverage run --rcfile=pyproject.toml -m pytest --verbose -vv --pdb --pdbcls bpdb:BPdb --showlocals --tb=short --capture=no -m evals --slow tests"}
 coverage-report = {chain = [
     "coverage-pytest",
     "coverage-combine",
