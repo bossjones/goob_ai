@@ -225,6 +225,7 @@ async def process_audio(input_file: Path) -> None:
     output_file = input_file.parent / f"25MB_{input_file.stem}.mp3"
     compress_cmd = [
         "ffmpeg",
+        "-y",
         "-hide_banner",
         "-loglevel",
         "warning",
