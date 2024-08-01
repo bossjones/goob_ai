@@ -19,6 +19,7 @@ from collections.abc import Awaitable, Iterable, Sequence
 from enum import Enum
 from functools import partial, wraps
 from importlib import import_module, metadata
+from importlib.metadata import version as importlib_metadata_version
 from pathlib import Path
 from re import Pattern
 from typing import Annotated, Any, Callable, Dict, List, Optional, Set, Tuple, Type, Union
@@ -169,6 +170,23 @@ def version_callback(version: bool) -> None:
 def version() -> None:
     """version command"""
     rich.print(f"goob_ai version: {goob_ai.__version__}")
+
+
+@APP.command()
+def deps() -> None:
+    """deps command"""
+    rich.print(f"goob_ai version: {goob_ai.__version__}")
+    rich.print(f"langchain_version: {importlib_metadata_version('langchain')}")
+    rich.print(f"langchain_community_version: {importlib_metadata_version('langchain_community')}")
+    rich.print(f"langchain_core_version: {importlib_metadata_version('langchain_core')}")
+    rich.print(f"langchain_openai_version: {importlib_metadata_version('langchain_openai')}")
+    rich.print(f"langchain_text_splitters_version: {importlib_metadata_version('langchain_text_splitters')}")
+    rich.print(f"langchain_chroma_version: {importlib_metadata_version('langchain_chroma')}")
+    rich.print(f"chromadb_version: {importlib_metadata_version('chromadb')}")
+    rich.print(f"langsmith_version: {importlib_metadata_version('langsmith')}")
+    rich.print(f"pydantic_version: {importlib_metadata_version('pydantic')}")
+    rich.print(f"pydantic_settings_version: {importlib_metadata_version('pydantic_settings')}")
+    rich.print(f"langchain_version: {importlib_metadata_version('langchain')}")
 
 
 @APP.command()
