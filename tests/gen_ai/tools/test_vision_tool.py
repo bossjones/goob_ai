@@ -43,14 +43,14 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
-@pytest.fixture
+@pytest.fixture()
 def discord_image() -> str:
     return "https://i.imgur.com/ae2d4hj.png"
     # return "http://127.0.0.1:19000/vision_api_fixture.PNG"
     # return "https://cdn.discordapp.com/attachments/1237526936201334804/1264394713868406845/20240720_1_screenshot_image_larger00009.PNG?ex=669db6d7&is=669c6557&hm=d1bfe1131eb4938949ca4645de73ee51a36aca7d2ef8cbb83f3b3c7bb33eab57&"
 
 
-@pytest.fixture
+@pytest.fixture()
 def vision_tool_prompt() -> str:
     return "Extract text from the image"
 
@@ -59,9 +59,9 @@ def vision_tool_prompt() -> str:
 # input: "{'image_path': 'https://cdn.discordapp.com/attachments/1237526936201334804/1264394713868406845/20240720_1_screenshot_image_larger00009.PNG?ex=669db6d7&is=669c6557&hm=d1bfe1131eb4938949ca4645de73ee51a36aca7d2ef8cbb83f3b3c7bb33eab57&', 'prompt': 'Extract text from the image'}"
 
 
-@pytest.mark.integration
-@pytest.mark.e2e
-@pytest.mark.visiontoolonly
+@pytest.mark.integration()
+@pytest.mark.e2e()
+@pytest.mark.visiontoolonly()
 # looks like pydantic models between patch versions of langchain can break things if you are not careful. Let's start writing some tests to ensure the schema remains the same between versions.
 # @pytest.mark.parametrize(
 #     "tool_",

@@ -14,11 +14,13 @@ import subprocess
 import sys
 import tempfile
 import traceback
+import typing
 
 from collections.abc import Awaitable, Iterable, Sequence
 from enum import Enum
 from functools import partial, wraps
 from importlib import import_module, metadata
+from importlib.metadata import version as importlib_metadata_version
 from pathlib import Path
 from re import Pattern
 from typing import Annotated, Any, Callable, Dict, List, Optional, Set, Tuple, Type, Union
@@ -33,9 +35,9 @@ import typer
 
 from loguru import logger as LOGGER
 from pinecone import Pinecone, ServerlessSpec  # pyright: ignore[reportAttributeAccessIssue]
-from pinecone.core.client.model.describe_index_stats_response import DescribeIndexStatsResponse
-from pinecone.core.client.model.query_response import QueryResponse
-from pinecone.core.client.model.upsert_response import UpsertResponse
+from pinecone.core.openapi.data.model.describe_index_stats_response import DescribeIndexStatsResponse
+from pinecone.core.openapi.data.model.query_response import QueryResponse
+from pinecone.core.openapi.data.model.upsert_response import UpsertResponse
 from pinecone.data.index import Index
 from redis.asyncio import ConnectionPool, Redis
 from rich import print, print_json
@@ -73,13 +75,13 @@ if aiosettings.dev_mode:
 
     def info(type, value, tb):
         LOGGER.info(f"type: {type}")
-        LOGGER.info(f"reveal_type(type): {reveal_type(type)}")  # pylint: disable=undefined-variable
+        LOGGER.info(f"reveal_type(type): {typing.reveal_type(type)}")  # pylint: disable=undefined-variable
 
         LOGGER.info(f"value: {value}")
-        LOGGER.info(f"reveal_type(value): {reveal_type(value)}")  # pylint: disable=undefined-variable
+        LOGGER.info(f"reveal_type(value): {typing.reveal_type(value)}")  # pylint: disable=undefined-variable
 
         LOGGER.info(f"tb: {tb}")
-        LOGGER.info(f"reveal_type(type): {reveal_type(tb)}")  # pylint: disable=undefined-variable
+        LOGGER.info(f"reveal_type(type): {typing.reveal_type(tb)}")  # pylint: disable=undefined-variable
 
         if hasattr(sys, "ps1") or not sys.stderr.isatty() or not sys.stdin.isatty():
             # stdin or stderr is redirected, just do the normal thing
@@ -109,7 +111,7 @@ if aiosettings.dev_mode:
     # ! note that python3 has more rigid scopes so you might not see everything you want
     original_hook = sys.excepthook
     # setting PYTHON_DEBUG to NO suppresses any debugging
-    if sys.excepthook == sys.__excepthook__ and not os.environ.get("PYTHON_DEBUG", "pdb") in ["NO", "no"]:
+    if sys.excepthook == sys.__excepthook__ and os.environ.get("PYTHON_DEBUG", "pdb") not in ["NO", "no"]:
         # if someone already patched excepthook, let them win
         sys.excepthook = info
 
@@ -172,6 +174,23 @@ def version() -> None:
 
 
 @APP.command()
+def deps() -> None:
+    """deps command"""
+    rich.print(f"goob_ai version: {goob_ai.__version__}")
+    rich.print(f"langchain_version: {importlib_metadata_version('langchain')}")
+    rich.print(f"langchain_community_version: {importlib_metadata_version('langchain_community')}")
+    rich.print(f"langchain_core_version: {importlib_metadata_version('langchain_core')}")
+    rich.print(f"langchain_openai_version: {importlib_metadata_version('langchain_openai')}")
+    rich.print(f"langchain_text_splitters_version: {importlib_metadata_version('langchain_text_splitters')}")
+    rich.print(f"langchain_chroma_version: {importlib_metadata_version('langchain_chroma')}")
+    rich.print(f"chromadb_version: {importlib_metadata_version('chromadb')}")
+    rich.print(f"langsmith_version: {importlib_metadata_version('langsmith')}")
+    rich.print(f"pydantic_version: {importlib_metadata_version('pydantic')}")
+    rich.print(f"pydantic_settings_version: {importlib_metadata_version('pydantic_settings')}")
+    rich.print(f"ruff_version: {importlib_metadata_version('ruff')}")
+
+
+@APP.command()
 def about() -> None:
     """about command"""
     typer.echo("This is GoobBot CLI")
@@ -180,7 +199,7 @@ def about() -> None:
 @APP.command()
 def show() -> None:
     """show command"""
-    cprint(f"\nShow goob_ai", style="yellow")
+    cprint("\nShow goob_ai", style="yellow")
 
 
 # @APP.async_command()

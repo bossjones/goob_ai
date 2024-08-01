@@ -79,7 +79,7 @@ process_audio() {
     # Compress audio file using FFmpeg
     pushd "$input_directory"
     echo "Compressing audio file using FFmpeg..."
-    ffmpeg -hide_banner -loglevel warning -stats -i "$input_file" -preset slow -c:a libmp3lame -b:a ${bitrate}k -bufsize ${bitrate}k -minrate 100k -maxrate ${bitrate}k "25MB_${input_file_name}.mp3"
+    ffmpeg -y -hide_banner -loglevel warning -stats -i "$input_file" -preset slow -c:a libmp3lame -b:a ${bitrate}k -bufsize ${bitrate}k -minrate 100k -maxrate ${bitrate}k "25MB_${input_file_name}.mp3"
     popd
 }
 

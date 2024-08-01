@@ -22,9 +22,9 @@ import uritools
 
 from chromadb.config import Settings as ChromaSettings
 from langchain_chroma import Chroma
+from langchain_chroma import Chroma as ChromaVectorStore
 from langchain_community.document_loaders import PyMuPDFLoader, PyPDFLoader, TextLoader, WebBaseLoader
 from langchain_community.embeddings.sentence_transformer import SentenceTransformerEmbeddings
-from langchain_community.vectorstores import Chroma as ChromaVectorStore
 from langchain_core.documents import Document
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
@@ -34,6 +34,8 @@ from loguru import logger as LOGGER
 from goob_ai.aio_settings import aiosettings
 from goob_ai.utils import file_functions
 
+
+# from langchain_community.vectorstores import Chroma as ChromaVectorStore
 
 HERE = os.path.dirname(__file__)
 

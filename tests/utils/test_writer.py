@@ -24,8 +24,6 @@ import aiofiles
 
 from goob_ai.utils.writer import write_file
 
-import pytest
-
 
 # Parametrized test for happy path scenarios
 @pytest.mark.parametrize(

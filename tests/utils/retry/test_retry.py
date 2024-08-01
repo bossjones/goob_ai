@@ -25,8 +25,8 @@ MockType = Union[
 logger = logging.getLogger(__name__)
 
 
-@pytest.mark.unittest
-@pytest.mark.configonly
+@pytest.mark.unittest()
+@pytest.mark.configonly()
 def test__base_parameters(mocker) -> None:
     """
     test the base parameters for tenacity
@@ -55,7 +55,7 @@ def test__base_parameters(mocker) -> None:
     spy_tenacity_before_sleep_log.assert_called_once_with(mocker.ANY, logging.WARN)
 
 
-@pytest.mark.configonly
+@pytest.mark.configonly()
 def test_linear_backoff_parameters(mocker) -> None:
     """
     test linear parameters for tenacity
@@ -80,7 +80,7 @@ def test_linear_backoff_parameters(mocker) -> None:
     # spy_tenacity_wait_fixed.assert_called_with(15)  # default = 15
 
 
-@pytest.mark.configonly
+@pytest.mark.configonly()
 def test_exponential_backoff_parameters(mocker) -> None:
     """
     test linear parameters for tenacity
@@ -109,7 +109,7 @@ def test_exponential_backoff_parameters(mocker) -> None:
     # )
 
 
-@pytest.mark.configonly
+@pytest.mark.configonly()
 def test_is_result_none() -> None:
     """
     Function that can be assigned to the retry_if_result paramter to
@@ -119,7 +119,7 @@ def test_is_result_none() -> None:
     assert not retry.is_result_none(1)
 
 
-@pytest.mark.configonly
+@pytest.mark.configonly()
 def test_return_outcome_result() -> None:
     """
     Callback that can be assigned to the retry_error_callback parameter to

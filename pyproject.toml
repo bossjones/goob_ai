@@ -98,7 +98,7 @@ dependencies = [
     "httpx[http2]>=0.27.0",
     "python-json-logger>=2.0.7",
     "torch==2.0.1",
-    "chromadb>=0.5.0",
+    "chromadb==0.5.3",
     "duckduckgo-search>=6.1.6",
     "wikipedia>=1.4.0",
     "pandas>=2.2.2",
@@ -291,6 +291,13 @@ dev-dependencies = [
     "mkdocs-include-markdown-plugin>=6.2.1",
     "pytest-ignore-flaky>=2.2.1",
     "mdformat-footnote>=0.1.1",
+    "mkdocstrings[python]>=0.25.2",
+    "mkdocs-jupyter>=0.24.8",
+    "mkdocs-redirects>=1.2.1",
+    "mdformat-mkdocs>=3.0.0",
+    "yamlfix>=1.16.0",
+    "yamllint>=1.35.1",
+    "pymarkdownlnt>=0.9.21",
 ]
 
 [tool.rye.scripts]
@@ -904,6 +911,13 @@ ignore_errors = true
 # ===========================[ RUFF ]========================
 # SOURCE: https://docs.astral.sh/ruff/settings/#tab-size
 [tool.ruff]
+# SOURCE: https://github.com/humblFINANCE/humblAPI/blob/master/pyproject.toml
+# select = ["A", "ASYNC", "B", "BLE", "C4", "C90", "D", "DTZ", "E", "EM", "ERA", "F", "FBT", "FLY", "FURB", "G", "I", "ICN", "INP", "INT", "ISC", "LOG", "N", "NPY", "PERF", "PGH", "PIE", "PLC", "PLE", "PLR", "PLW", "PT", "PTH", "PYI", "RET", "RSE", "RUF", "S", "SIM", "SLF", "SLOT", "T10", "T20", "TCH", "TID", "TRY", "UP", "W", "YTT"]
+# ignore = ["E501", "PGH001", "RET504", "S101"]
+# unfixable = ["ERA001", "F401", "F841", "T201", "T203"]
+# SOURCE: https://github.com/humblFINANCE/humblAPI/blob/master/pyproject.toml - end
+
+
 extend-include = ["*.ipynb"]
 # Allow imports relative to the "src" and "test" directories.
 # src = ["src", "tests"]
@@ -911,7 +925,7 @@ extend-include = ["*.ipynb"]
 output-format = "full"
 force-exclude = true
 respect-gitignore = true
-include = ["*.py", "*.pyi", "**/pyproject.toml", "*.ipynb"]
+include = ["*.py", "*.pyi", "**/pyproject.toml", "*.ipynb", "pyproject.toml"]
 extend-exclude = [
     "__pycache__",
     "__pypackages__",
@@ -937,6 +951,7 @@ extend-exclude = [
     "data/*",
     "dist",
     "docs",
+    "doc",
     "git",
     "logs/*",
     "node_modules",
@@ -951,10 +966,16 @@ extend-exclude = [
 # The formatter wraps lines at a length of 88
 line-length = 120
 target-version = "py310"
+unsafe-fixes = false
 
+[tool.ruff.lint.flake8-tidy-imports]
+ban-relative-imports = "all"
 
 # ===========================[ RUFF lint ]========================
 [tool.ruff.lint]
+unfixable = [
+    "ERA", # do not autoremove commented out code
+]
 # A list of rule codes or prefixes for which safe fixes should be considered unsafe. default []
 extend-unsafe-fixes = [
     "D",
@@ -965,41 +986,130 @@ extend-unsafe-fixes = [
 
 # Only allow fix behavior for `E` and `F` rules. https://docs.astral.sh/ruff/settings/#lint_fixable
 
-fixable = [
-    "E", # Error (E)# https://docs.astral.sh/ruff/rules/#pycodestyle-e-w
-    "F", # Pyflakes (F)
-    "I",
+# fixable = [
+#     "E", # Error (E)# https://docs.astral.sh/ruff/rules/#pycodestyle-e-w
+#     "F", # Pyflakes (F)
+#     "I",
+# ]
+# Allow fix for all enabled rules (when `--fix`) is provided.
+fixable = ["ALL"]
+
+# # Enable Pyflakes (`F`) and a subset of the pycodestyle (`E`)  codes by default.
+# # Unlike Flake8, Ruff doesn't enable pycodestyle warnings (`W`) or
+# # McCabe complexity (`C901`) by default.
+# select = [
+#     "I", # isort
+#     "Q", # flake8-quotes (Q) https://docs.astral.sh/ruff/rules/#flake8-quotes-q
+#     # "RUF100", # unused `noqa` directive
+#     # "C90",    # mccabe (C90). C901 complex-structure	{name} is too complex ({complexity} > {max_complexity})
+#     # "F",      # pyflakes (F) https://docs.astral.sh/ruff/rules/#pyflakes-f
+#     "D",    # pydocstyle (D) https://docs.astral.sh/ruff/rules/#pydocstyle-d
+#     "I002", # from __future__ import annotations
+#     # # used to be in extended select
+#     # "ARG", # flake8-unused-arguments
+#     # "C",   # pylint: Convention (C)
+#     # "C4",  # flake8-comprehensions
+#     # "D107", # pycodestyle (Missing docstring in __init__)
+#     # "E",    # pycodestyle errors https://docs.astral.sh/ruff/rules/#pycodestyle-e-w
+#     # "PL",    # pylint
+#     # "RUF",   # Ruff
+#     # "SIM",   # flake8-simplify
+#     # "T10",   # debugger
+#     # "TCH",   # type-checking
+#     # "UP",    # pyupgrade
+#     # "PLW1508", # pycodestyle warnings. invalid-envvar-default (PLW1508)#. https://docs.astral.sh/ruff/rules/invalid-envvar-default/
+#     # "ASYNC", # flake8-async
+#     # "TCH", # flake8-type-checking (TCH). https://docs.astral.sh/ruff/rules/#flake8-type-checking-tch
+# ]
+
+# SOURCE: https://github.com/ansible-collections/cloud-content-handbook/blob/9be137d78af4d1cc140b210f3058977164021c9d/proposals/ruff_transition.md
+# This section configures specific linting rules and options for ruff.
+# See all rules at https://docs.astral.sh/ruff/rules/
+select = [
+    "E",    # pycodestyle
+    "W",    # pycodestyle
+    "F",    # Pyflakes
+    "Q",    # flake8-quotes
+    "I",    # isort
+    "TID",  # flake8-tidy-imports
+    "TCH",  # flake8-type-checking
+    "PL",   # Pylint
+    "FLY",  # Flynt
+    "COM",  # flake8-commas
+    "N",    # pep8-naming
+    "YTT",  # flake8-2020
+    "PT",   # flake8-pytest-style
+    "ISC",  # flake8-implicit-str-concat
+    "D",    # pydocstyle
+    "C90",  # mccabe
+    "I002", # from __future__ import annotations
+
+    # To be enabed
+    # "S",      # flake8-bandit
+    # "C",      # complexity
+    # "FBT001", # flake8-boolean-trap
+    # "UP",     # pyupgrade
+    # "SIM",    # flake8-simplify
+    # "C4",     # flake8-comprehensions
+    # "RUF",    # Ruff-specific rules
+    # "B",      # flake8-bugbear
+
+    # https://github.com/python-poetry/cleo/blob/main/pyproject.toml
+    # "B",      # flake8-bugbear
+    # "C4",     # flake8-comprehensions
+    # "ERA",    # flake8-eradicate/eradicate
+    # "I",      # isort
+    # "N",      # pep8-naming
+    # "PIE",    # flake8-pie
+    # "PGH",    # pygrep
+    # "PTH",    # flake8-use-pathlib
+    # "ISC",    # flake8-implicit-string-concat
+    # "RET",    # flake8-return
+    # "FLY",    # flynt
+    # "PERF",   # perflint
+    # "RUF",    # ruff checks
+    # "SIM",    # flake8-simplify
+    # "TCH",    # flake8-type-checking
+    # "TID",    # flake8-tidy-imports
+    # "UP",     # pyupgrade
 ]
 
-# Enable Pyflakes (`F`) and a subset of the pycodestyle (`E`)  codes by default.
-# Unlike Flake8, Ruff doesn't enable pycodestyle warnings (`W`) or
-# McCabe complexity (`C901`) by default.
-select = [
-    "I", # isort
-    "Q", # flake8-quotes (Q) https://docs.astral.sh/ruff/rules/#flake8-quotes-q
-    # "RUF100", # unused `noqa` directive
-    # "C90",    # mccabe (C90). C901 complex-structure	{name} is too complex ({complexity} > {max_complexity})
-    # "F",      # pyflakes (F) https://docs.astral.sh/ruff/rules/#pyflakes-f
-    "D",    # pydocstyle (D) https://docs.astral.sh/ruff/rules/#pydocstyle-d
-    "I002", # from __future__ import annotations
-    # # used to be in extended select
-    # "ARG", # flake8-unused-arguments
-    # "C",   # pylint: Convention (C)
-    # "C4",  # flake8-comprehensions
-    # "D107", # pycodestyle (Missing docstring in __init__)
-    # "E",    # pycodestyle errors https://docs.astral.sh/ruff/rules/#pycodestyle-e-w
-    # "PL",    # pylint
-    # "RUF",   # Ruff
-    # "SIM",   # flake8-simplify
-    # "T10",   # debugger
-    # "TCH",   # type-checking
-    # "UP",    # pyupgrade
-    # "PLW1508", # pycodestyle warnings. invalid-envvar-default (PLW1508)#. https://docs.astral.sh/ruff/rules/invalid-envvar-default/
-    # "ASYNC", # flake8-async
-    # "TCH", # flake8-type-checking (TCH). https://docs.astral.sh/ruff/rules/#flake8-type-checking-tch
-]
+# SOURCE: https://github.com/ansible-collections/cloud-content-handbook/blob/9be137d78af4d1cc140b210f3058977164021c9d/proposals/ruff_transition.md - end
 
 ignore = [
+    "W191",   # tab-indentation
+    "E111",   # indentation-with-invalid-multiple
+    "E114",   # indentation-with-invalid-multiple-comment
+    "E117",   # over-indented
+    "D206",   # indent-with-spaces
+    "D300",   # triple-single-quotes
+    "Q000",   # bad-quotes-inline-string
+    "Q001",   # bad-quotes-multiline-string
+    "Q002",   # bad-quotes-docstring
+    "Q003",   # avoidable-escaped-quote
+    "COM812", # missing-trailing-comma
+    "COM819", # prohibited-trailing-comma
+    "ISC001", # single-line-implicit-string-concatenation
+    "ISC002", # multi-line-implicit-string-concatenation
+    "E501",
+
+    # new list
+    "E721",
+    "E741",
+    "E731",
+    "E731",
+    "PLR1714",
+    "N818",
+    "PLW0127",
+    "PT012",
+    "N806",
+    "E712",
+    "E711",
+    "W505",
+    "PT006",
+    "PLR2004",
+    "N812",
+    "F841",
     # "R1730",
     # "I",      # isort, ruff doesn't have enough support for isort yet.
     "TID",     # flake8-tidy-imports (TID)#
@@ -1118,14 +1228,20 @@ ignore = [
 
 # SOURCE: https://github.com/google/jax/blob/a1c82219e2d23ec994e42761ebcaf4c53d9e4ea7/pyproject.toml#L159C1-L160C20
 [tool.ruff.lint.mccabe]
-max-complexity = 18
+# max-complexity = 18
+max-complexity = 31 # C901: Recommended goal is 10
 
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401"]
 # https://github.com/astral-sh/ruff/issues/3928
-"*.pyi" = [
-    "I002", # from __future__ import annotations
-]
+# "*.pyi" = [
+#     "I002", # from __future__ import annotations
+# ]
+"conf/*" = ["D"]
+"demo/*" = ["D"]
+"docs/*" = ["D"]
+"test/*" = ["D"]
+"*.pyi" = ["D", "E501", "E701", "I002"]
 
 # ===========================[ ISORT ]========================
 # SOURCE: https://github.com/zulip/zulip/blob/f4d109c289f614273b43b411cbd8d1fad128842e/pyproject.toml#L199
@@ -1944,3 +2060,120 @@ numpydoc-section-hyphen-length = false
 wrap = 120         # possible values: {"keep", "no", INTEGER}
 number = false     # possible values: {false, true}
 end_of_line = "lf" # possible values: {"lf", "crlf", "keep"}
+
+[tool.pydocstyle]
+convention = "pep257"
+
+[tool.docformatter]
+# wrap long summary lines at this length; set to 0 to disable wrapping (default: 79, 88 with --black option)
+wrap-summaries = 120
+# wrap descriptions at this length; set to 0 to disable wrapping (default: 72, 88 with --black option)
+wrap-descriptions = 120
+in-place = true
+# add a newline before one-line or the summary of a multi-line docstring
+pre-summary-newline = true
+# place closing triple quotes on a new-line when a one-line docstring wraps to two or more lines
+close-quotes-on-newline = true
+#  make formatting compatible with standard black options
+black = true
+# add blank line after elaborate description
+blank = true
+recursive = true
+style = "google"
+
+# add a newline before and after a one-line docstring
+# make_summary_multiline = false
+# add a newline before one-line or the summary of a multi-line docstring
+# pre_summary_newline    = false
+# add a space between the opening triple quotes and the first word in a one-line or summary line of a multi-line docstring
+# pre_summary_space      = false
+
+exclude = [
+    ".venv",
+    "build",
+    "dist",
+    "docs",
+    "examples",
+    "notebooks",
+    "sample*",
+    "test*",
+    "tasks*",
+    "task*",
+]
+
+# SOURCE: https://github.com/astropy/astropy/blob/922afe8446cda46f65c5b5ec4aac9e43fadabcc3/pyproject.toml#L427
+# [tool.docformatter]
+# # The ``summaries`` are not (yet) 75 characters because the summary lines can't be
+# # automatically wrapped and must be re-written, which should be done at some point.
+# recursive = true
+# wrap-summaries = 1000
+# wrap-descriptions = 75
+# black = true
+# syntax = "numpy"
+
+
+[tool.yamlfix]
+line_length = 120
+preserve_quotes = true
+# sequence_style = "block_style"
+comments_min_spaces_from_content = 1
+whitelines = 1
+indent_mapping = 4
+indent_offset = 4
+indent_sequence = 6
+
+
+# allow_duplicate_keys: bool = False
+# comments_min_spaces_from_content: int = 2
+# comments_require_starting_space: bool = True
+# comments_whitelines: int = 1
+# whitelines: int = 0
+# section_whitelines: int = 0
+# config_path: Optional[str] = None
+# explicit_start: bool = True
+# indent_mapping: int = 2
+# indent_offset: int = 2
+# indent_sequence: int = 4
+# line_length: int = 80
+# none_representation: str = ""
+# quote_basic_values: bool = False
+# quote_keys_and_basic_values: bool = False
+# preserve_quotes: bool = False
+# quote_representation: str = "'"
+# sequence_style: YamlNodeStyle = YamlNodeStyle.FLOW_STYLE
+
+# [tool.repo-review]
+# ignore = ["RTD103"]
+
+
+# [tool.repo-review]
+# ignore = ["PY004", "PY007", "PP308", "GH102", "PC140", "RTD100", "RTD103"]
+
+# SOURCE: https://github.com/astropy/astropy/blob/922afe8446cda46f65c5b5ec4aac9e43fadabcc3/pyproject.toml#L427
+[tool.repo-review]
+ignore = [
+    "MY",    # ignore MyPy setting checks
+    "PC111", # ignore using `blacken-docs` in pre-commit
+    "PC140", # ignore using `mypy` in pre-commit
+    "PC180", # ignore using `prettier` in pre-commit
+    "PC901", # ignore using custom update message (we have many of the default ones in our history already)
+    "PP308", # ignore requiring `-ra` flag for pytest, astropy's test suite is too large for this to be useful
+]
+
+
+[tool.pycln]
+# path = "."
+paths = ["src", "tests"]
+# include=".*_util\.py$"
+exclude = ".*test.py$"
+# Expand wildcard star imports.
+expand_stars = true
+# Also emit messages to stderr about files that were not changed and about files/imports that were ignored.
+verbose = true
+# Do not write the files back, just output a diff for each file on stdout.
+diff = true
+# Remove all unused imports (not just those checked from side effects).
+# all=true
+no_gitignore = false
+# Stop enforcing the existence of the __all__ dunder in __init__.py files. (disabling this policy)
+disable_all_dunder_policy = true

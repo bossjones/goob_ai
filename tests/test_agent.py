@@ -52,8 +52,6 @@ from langchain_core.runnables.utils import Input, Output
 from langchain_core.tools import tool
 from langchain_core.utils.aiter import aclosing
 
-import pytest
-
 
 class AnyStr(str):
     def __eq__(self, other: Any) -> bool:
@@ -99,7 +97,7 @@ VALID_USER_TASK = "calculate something"
 INVALID_USER_TASK = ""
 
 
-@pytest.fixture
+@pytest.fixture()
 def agent(monkeypatch: MonkeyPatch, mocker: MockerFixture, request: FixtureRequest):
     monkeypatch.setenv("GOOB_AI_CONFIG_DISCORD_TOKEN", "fake_discord_token")
     monkeypatch.setenv("GOOB_AI_CONFIG_DISCORD_TOKEN", "fake_discord_token")

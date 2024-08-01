@@ -1,15 +1,50 @@
+---
+# To use:
+#
+#     pre-commit run -a
+#
+# Or:
+#
+#     pre-commit install  # (runs every time you commit in git)
+#
+# To update this file:
+#
+#     pre-commit autoupdate
+#
+# See https://github.com/pre-commit/pre-commit
+ci:
+    autofix_commit_msg: "style: pre-commit fixes"
+    autofix_prs: true
+    autoupdate_branch: ''
+    autoupdate_commit_msg: "chore: update pre-commit hooks"
+    autoupdate_schedule: weekly
+    skip: []
+    submodules: false
+
+default_install_hook_types:
+  # is triggered before the commit is finalized to allow checks on the code being committed. Running hooks on unstaged changes can lead to both false-positives and false-negatives during committing. pre-commit only runs on the staged contents of files by temporarily stashing the unstaged changes while running hooks.
+    - pre-commit
+  # hooks will be passed a single filename -- this file contains the current contents of the commit message to be validated. The commit will be aborted if there is a nonzero exit code.
+    - commit-msg
+  # pre-push is triggered on git push.
+    - pre-push
+
+default_stages:
+    - commit
+    - push
+
 # TODO: Work with team to see when the right time is to enable this
 # # exclude: '^src/validate_pyproject/_vendor'
 
 repos:
-  - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.6.0
-    hooks:
+    - repo: https://github.com/pre-commit/pre-commit-hooks
+      rev: v4.6.0
+      hooks:
       # Simply check whether files parse as valid python.
-      - id: check-ast
-        exclude: (.vscode|contrib)
-      - id: check-json
-        exclude: (.vscode|.devcontainer|hack)
+          - id: check-ast
+            exclude: (.vscode|contrib)
+          - id: check-json
+            exclude: (.vscode|.devcontainer|hack)
 
   # SOURCE: https://github.com/Ruzzy77/python-template/blob/57c8964f1efb2635d0bdca5684613a8d8736aed0/.pre-commit-config.yaml
   # - repo: https://github.com/pre-commit/mirrors-prettier
@@ -28,21 +63,63 @@ repos:
   #                 "--ignore-unknown",
   #             ]
   #         # additional_dependencies: ["prettier", "prettier-plugin-multiline-arrays"]
+
+  # # NOTE: if we are going to use this, it needs to run before ruff.
+  # - repo: https://github.com/PyCQA/docformatter
+  #   rev: v1.7.5
+  #   hooks:
+  #     - id: docformatter
+  #       additional_dependencies: [tomli]
+  #       args: [--in-place, --config, ./pyproject.toml]
+
   # SOURCE: https://github.com/astral-sh/ruff-pre-commit
-  - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.4.8
-    hooks:
+    - repo: https://github.com/astral-sh/ruff-pre-commit
+      rev: v0.5.5
+      hooks:
       # Run the linter.
-      - id: ruff
+          - id: ruff
         # entry: ruff check --force-exclude
-        args: [--fix, --exit-non-zero-on-fix, --show-fixes, --config=pyproject.toml]
+            args:
+                - --fix
+                - --exit-non-zero-on-fix
+                - --show-fixes
+                - --config=pyproject.toml
+        # SOURCE: https://github.com/girder/large_image/blob/2e6fd90cfb9179f2c0bd59031f45805018f3f04a/.pre-commit-config.yaml
+            types_or:
+                - python
+                - pyi
+                - jupyter
 
       # Run the formatter.
-      - id: ruff-format
+          - id: ruff-format
         # entry: ruff format --force-exclude
-        args: [--config=pyproject.toml]
-        files: ^((src|tests|notebooks)/.+)?[^/]+\.(py|pyi|ipynb)$
-        exclude: (.tasks|hack)
+            args: [--config=pyproject.toml]
+            files: ^((src|tests|notebooks)/.+)?[^/]+\.(py|pyi|ipynb)$
+            exclude: (.tasks|hack)
+
+    - repo: https://github.com/pre-commit/pre-commit-hooks
+      rev: v4.6.0
+      hooks:
+          - id: check-added-large-files
+          - id: check-case-conflict
+          - id: check-merge-conflict
+          - id: check-symlinks
+          # - id: check-yaml
+          #   exclude: (.mkdocs.yml|hack)
+          # - id: debug-statements
+          - id: end-of-file-fixer
+          - id: mixed-line-ending
+          # - id: requirements-txt-fixer
+          - id: trailing-whitespace
+  ##########################################################################################
+  # # # NOTE: if we are going to use this, it needs to run AFTER ruff.
+  ##########################################################################################
+  # - repo: https://github.com/pycqa/pydocstyle
+  #   rev: 6.3.0
+  #   hooks:
+  #     - id: pydocstyle
+  #       additional_dependencies: [toml]
+  #       args: [--config, ./pyproject.toml]
 
   # - repo: https://github.com/pre-commit/pygrep-hooks
   #   rev: v1.10.0
@@ -58,13 +135,20 @@ repos:
   #         additional_dependencies: [tomli]
   #         args: ["--in-place", "--recursive", "--diff", "."]
 
+  # - repo: https://github.com/PyCQA/docformatter
+  #   rev: v1.7.5
+  #   hooks:
+  #     - id: docformatter
+  #       additional_dependencies: [tomli]
+  #       args: [--in-place, --config, ./pyproject.toml]
+
   # SOURCE:https://github.com/humblFINANCE/humblAPI/blob/master/.pre-commit-config.yaml
   # SOURCE: https://github.com/pypa/pip/blob/main/.pre-commit-config.yaml
-  - repo: https://github.com/pre-commit/pygrep-hooks
-    rev: v1.10.0
-    hooks:
-    - id: python-no-log-warn
-    - id: text-unicode-replacement-char
+    - repo: https://github.com/pre-commit/pygrep-hooks
+      rev: v1.10.0
+      hooks:
+          - id: python-no-log-warn
+          - id: text-unicode-replacement-char
     # - id: python-no-eval
     # - id: rst-backticks
     #   files: .*\.rst$
@@ -72,57 +156,65 @@ repos:
     #   exclude: ^.*(NEWS.rst|doc/env/changelog.rst)  # The errors flagged in NEWS.rst are old.
 
   # NOTE: This requires you to brew install taplo
-  - repo: local
-    hooks:
-      - id: taplo-lint
-        name: taplo
-        entry: taplo lint  --config taplo.toml --schema=https://json.schemastore.org/pyproject.json pyproject.toml
-        language: system
-        types: [toml]
-        files: "^pyproject.*$"
+    - repo: local
+      hooks:
+          - id: taplo-lint
+            name: taplo
+            entry: taplo lint  --config taplo.toml --schema=https://json.schemastore.org/pyproject.json pyproject.toml
+            language: system
+            types: [toml]
+            files: "^pyproject.*$"
 
-      - id: taplo-format
-        name: taplo
-        entry: taplo format --config taplo.toml
-        language: system
-        types: [toml]
-        files: "^pyproject.*$"
+          - id: taplo-format
+            name: taplo
+            entry: taplo format --config taplo.toml
+            language: system
+            types: [toml]
+            files: "^pyproject.*$"
 
-      - id: detect-pytest-live-log
-        name: detect-pytest-live-log
-        entry: bash -x ./detect_pytest_live_logging.sh
-        language: system
-        types: [toml]
-        files: "^pyproject.*$"
-
-      # SOURCE: https://github.com/wakabame/study_pytorch/blob/327bee3de2c283e1592d806d9b909e8b4af6b9fe/.pre-commit-config.yaml#L31
-      - id: update requirements.txt for dependabot
-        name: update requirements.txt for dependabot
-        entry: bash -c 'sed -e "/^-e/d" -e "s/\+cpu//" -e "s/setuptools/# setuptools/" requirements.lock > .github/dependabot/requirements.txt'
-        language: system
-        require_serial: true
+          - id: detect-pytest-live-log
+            name: detect-pytest-live-log
+            entry: bash -x ./detect_pytest_live_logging.sh
+            language: system
+            types: [toml]
+            files: "^pyproject.*$"
 
       # SOURCE: https://github.com/wakabame/study_pytorch/blob/327bee3de2c283e1592d806d9b909e8b4af6b9fe/.pre-commit-config.yaml#L31
-      - id: update requirements-dev.txt for dependabot
-        name: update requirements-dev.txt for dependabot
-        entry: bash -c 'sed -e "/^-e/d" -e "s/\+cpu//" -e "s/setuptools/# setuptools/" requirements-dev.lock > .github/dependabot/requirements-dev.txt'
-        language: system
-        require_serial: true
+          - id: update requirements.txt for dependabot
+            name: update requirements.txt for dependabot
+            entry: bash -c 'sed -e "/^-e/d" -e "s/\+cpu//" -e "s/setuptools/# setuptools/" requirements.lock > .github/dependabot/requirements.txt'
+            language: system
+            require_serial: true
 
       # SOURCE: https://github.com/wakabame/study_pytorch/blob/327bee3de2c283e1592d806d9b909e8b4af6b9fe/.pre-commit-config.yaml#L31
-      - id: update requirements-dev.txt for colaboratory
-        name: update requirements-dev.txt for dependabot
-        entry: bash -c 'sed -e "/^-e/d" -e "s/2+cpu/0+cu121/" -e "s/setuptools/# setuptools/" requirements.lock > requirements-colab.txt'
-        language: system
-        require_serial: true
+          - id: update requirements-dev.txt for dependabot
+            name: update requirements-dev.txt for dependabot
+            entry: bash -c 'sed -e "/^-e/d" -e "s/\+cpu//" -e "s/setuptools/# setuptools/" requirements-dev.lock > .github/dependabot/requirements-dev.txt'
+            language: system
+            require_serial: true
+
+      # SOURCE: https://github.com/wakabame/study_pytorch/blob/327bee3de2c283e1592d806d9b909e8b4af6b9fe/.pre-commit-config.yaml#L31
+          - id: update requirements-dev.txt for colaboratory
+            name: update requirements-dev.txt for dependabot
+            entry: bash -c 'sed -e "/^-e/d" -e "s/2+cpu/0+cu121/" -e "s/setuptools/# setuptools/" requirements.lock > requirements-colab.txt'
+            language: system
+            require_serial: true
 
       # SOURCE: https://github.com/pypa/pip/blob/main/.pre-commit-config.yaml
-      - id: news-fragment-filenames
-        name: NEWS fragment
-        language: fail
-        entry: NEWS fragment files must be named *.(process|removal|feature|bugfix|vendor|doc|trivial).rst
-        exclude: ^news/(.gitignore|.*\.(process|removal|feature|bugfix|vendor|doc|trivial).rst)
-        files: ^news/
+          - id: news-fragment-filenames
+            name: NEWS fragment
+            language: fail
+            entry: NEWS fragment files must be named *.(process|removal|feature|bugfix|vendor|doc|trivial).rst
+            exclude: ^news/(.gitignore|.*\.(process|removal|feature|bugfix|vendor|doc|trivial).rst)
+            files: ^news/
+
+          - id: commitizen
+            name: commitizen
+            entry: cz check
+            args: [--commit-msg-file]
+            require_serial: true
+            language: system
+            stages: [commit-msg]
 
       # TODO: enable this
       # - id: commitizen
@@ -198,56 +290,114 @@ repos:
       #     types: [python]
 
   # SOURCE: https://github.com/3MAH/microgen/blob/0a7b86ccffb6a904443049e475c1c571a94addb5/.pre-commit-config.yaml#L42
-  - repo: https://github.com/DanielNoord/pydocstringformatter
-    rev: v0.7.3
-    hooks:
-      - id: pydocstringformatter
-        args: [
-          "--style {numpydoc,pep257}",
-          "--no-strip-whitespace",
-          "--no-capitalize-first-letter",
-        ]
+    - repo: https://github.com/DanielNoord/pydocstringformatter
+      rev: v0.7.3
+      hooks:
+          - id: pydocstringformatter
+            args: ["--style {numpydoc,pep257}", "--no-strip-whitespace", "--no-capitalize-first-letter"]
+            files: ^((src|tests|notebooks)/.+)?[^/]+\.(py|pyi|ipynb)$
+            exclude: (.tasks|hack)
 
-  - repo: https://github.com/asottile/pyupgrade
-    rev: v3.15.1
-    hooks:
-    - id: pyupgrade
-      args: [--py39-plus, --keep-runtime-typing]
+    - repo: https://github.com/asottile/pyupgrade
+      rev: v3.17.0
+      hooks:
+          - id: pyupgrade
+            args:
+                - --py39-plus
+                - --keep-runtime-typing
 
   # - repo: https://github.com/python-jsonschema/check-jsonschema
   #   rev: 0.28.0
   #   hooks:
   #     - id: check-github-workflows
 
+  # DISABLED:
   # VIA: https://github.com/marimo-team/marimo/tree/main/configs
-  - repo: https://github.com/igorshubovych/markdownlint-cli
-    rev: v0.41.0
-    hooks:
-      - id: markdownlint-fix
-        args: [-c, .markdownlint.yaml, --fix]
-        # exclude: ^marimo/_tutorials/.*\.md
-        exclude: (CONTRIBUTING.md|DEBUG.md|REFERENCES.md|README.md|cursor_share_your_rules_for_ai.md)
+    # - repo: https://github.com/igorshubovych/markdownlint-cli
+    #   rev: v0.41.0
+    #   hooks:
+    #       - id: markdownlint-fix
+    #         args:
+    #             - -c
+    #             - .markdownlint.yaml
+    #             - --fix
+    #     # exclude: ^marimo/_tutorials/.*\.md
+    #         exclude: (CONTRIBUTING.md|DEBUG.md|REFERENCES.md|README.md|cursor_share_your_rules_for_ai.md)
 
-  - repo: https://github.com/twisted/towncrier
-    rev: 23.11.0  # run 'pre-commit autoupdate' to update
-    hooks:
-      - id: towncrier-update
-        files: $changelog\.d/
-        args: ['--keep']
+    - repo: https://github.com/twisted/towncrier
+      rev: 24.7.1 # run 'pre-commit autoupdate' to update
+      hooks:
+          - id: towncrier-update
+            files: $changelog\.d/
+            args: ['--keep']
 
-  - repo: https://github.com/hadolint/hadolint
-    rev: v2.12.0
-    hooks:
-      - id: hadolint
-        name: Lint Dockerfiles
-        description: Runs hadolint to lint Dockerfiles
-        language: system
-        types: ["dockerfile"]
-        entry: hadolint
+    - repo: https://github.com/hadolint/hadolint
+      rev: v2.13.0-beta
+      hooks:
+          - id: hadolint
+            name: Lint Dockerfiles
+            description: Runs hadolint to lint Dockerfiles
+            language: system
+            types: ["dockerfile"]
+            entry: hadolint
 
-  - repo: https://github.com/sirosen/texthooks
-    rev: 0.6.6
-    hooks:
+    - repo: https://github.com/sirosen/texthooks
+      rev: 0.6.6
+      hooks:
       # - id: alphabetize-codeowners
-      - id: fix-smartquotes
+          - id: fix-smartquotes
       # - id: fix-ligatures
+
+  # SOURCE: https://github.com/PyCQA/docformatter/blob/master/.pre-commit-config.yaml
+  # - repo: https://github.com/myint/eradicate
+  #   rev: '2.2.0'
+  #   hooks:
+  #     - id: eradicate
+  #       args: []
+
+  # DISABLED:
+  # SOURCE: https://github.com/ultralytics/ultralytics/blob/main/.pre-commit-config.yaml
+    # - repo: https://github.com/executablebooks/mdformat
+    #   rev: 0.7.17
+    #   hooks:
+    #       - id: mdformat
+    #         name: MD formatting
+    #         additional_dependencies: [mdformat-gfm, mdformat-frontmatter, mdformat-mkdocs]
+    #         args: [--wrap=no, --number]
+    #         exclude: 'docs/.*\.md'
+        # exclude: "README.md|README.zh-CN.md|CONTRIBUTING.md"
+
+    # # A formatter for finding and removing unused import statements.
+    # - repo: https://github.com/hadialqattan/pycln
+    #   rev: v2.4.0 # Possible releases: https://github.com/hadialqattan/pycln/releases
+    #   hooks:
+    #     - id: pycln
+    #       args: [--config=pyproject.toml]
+
+    - repo: https://github.com/lyz-code/yamlfix
+      rev: 1.16.0
+      hooks:
+          - id: yamlfix
+            args:
+                - -c
+                - pyproject.toml
+
+    # SOURCE: https://github.com/scientific-python/cookie/blob/d5c18f56dd44830cafb4862871ff66496f11de80/.pre-commit-config.yaml
+    # - repo: https://github.com/pre-commit/mirrors-prettier
+    #   rev: "v3.1.0"
+    #   hooks:
+    #     - id: prettier
+    #       types_or: [yaml, markdown, html, css, scss, javascript, json]
+    #       args: [--prose-wrap=always]
+
+    - repo: https://github.com/python-jsonschema/check-jsonschema
+      rev: 0.29.1
+      hooks:
+          - id: check-dependabot
+          - id: check-github-workflows
+          - id: check-readthedocs
+
+    # - repo: https://github.com/scientific-python/cookie
+    #   rev: 2024.04.23
+    #   hooks:
+    #     - id: sp-repo-review

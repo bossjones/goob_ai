@@ -10,13 +10,13 @@
 |     Commit | de428d16611512f321732c0f7fe5fcc2bd4cbff1        |
 
 - use Original
-  - .browserslistrc
-  - CONTRIBUTING.md
-  - LICENSE
-  - docs/
-  - material/
+    - .browserslistrc
+    - CONTRIBUTING.md
+    - LICENSE
+    - docs/
+    - material/
 - modified
-  - mkdocs.yml - modified
+    - mkdocs.yml - modified
 - added extra scss and pdf event hooks
 
 ```console

@@ -39,9 +39,11 @@ We use [`rye`](https://rye-up.com/) to manage the python environment. This guide
 and set up. However, we add info boxes for other environments where necessary.
 
 !!! note The reason for using `rye` is that it allows us to set up the project as a workspace. The workspace itself has
+
 no python package, however, it consists of the `controller` package and the `controller_gui` GUI.
 
 !!! info If you are not using `rye`, you will need to install development dependencies manually. See the
+
 `pyproject.toml` file for details, especially the section `[tool.rye.dev-dependencies]`.
 
 In addition to `rye`, you should have `pre-commit` installed and available in your path. With `rye`, this can easily be
@@ -69,6 +71,7 @@ rye fmt
 ```
 
 !!! info If you are not using `rye`, you can run `ruff` directly. However, you will need to install `ruff` in your
+
 environment. See the `ruff` documentation for details.
 
 ### Testing

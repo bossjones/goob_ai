@@ -18,8 +18,8 @@ TEST_RESPONSE = {
 }
 
 
-@pytest.mark.unittest
-@pytest.mark.httpclientonly
+@pytest.mark.unittest()
+@pytest.mark.httpclientonly()
 def test_post_success(requests_mock: Mocker):
     requests_mock.post(
         TEST_URL,
@@ -33,8 +33,8 @@ def test_post_success(requests_mock: Mocker):
     assert response.status_code == 200
 
 
-@pytest.mark.unittest
-@pytest.mark.httpclientonly
+@pytest.mark.unittest()
+@pytest.mark.httpclientonly()
 def test_post_bad_http_code(requests_mock: Mocker):
     requests_mock.post(
         TEST_URL,
@@ -53,8 +53,8 @@ def test_post_bad_http_code(requests_mock: Mocker):
 
 # FIXME: Now that we have a better understanding of what is possible with 'requests_mock',
 # we can add more tests to cover other scenarios in a followup PR. For now this should be sufficent.
-@pytest.mark.unittest
-@pytest.mark.httpclientonly
+@pytest.mark.unittest()
+@pytest.mark.httpclientonly()
 def test_post_throws(mocker):
     err_str = "The server encountered an internal error"
     mocked_response = mocker.create_autospec(requests.Response)
@@ -90,8 +90,8 @@ def test_get_success(requests_mock: Mocker):
     assert response.status_code == 200
 
 
-@pytest.mark.unittest
-@pytest.mark.httpclientonly
+@pytest.mark.unittest()
+@pytest.mark.httpclientonly()
 def test_get_throws(mocker: Mocker):
     err_str = "The server encountered an internal error"
     mocked_response = mocker.create_autospec(requests.Response)
@@ -111,8 +111,8 @@ def test_get_throws(mocker: Mocker):
     assert "Failed to connect" in str(e.value)
 
 
-@pytest.mark.unittest
-@pytest.mark.httpclientonly
+@pytest.mark.unittest()
+@pytest.mark.httpclientonly()
 def test_get_bad_http_code(requests_mock: Mocker):
     requests_mock.get(
         TEST_URL,

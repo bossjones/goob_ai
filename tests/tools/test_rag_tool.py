@@ -43,13 +43,13 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
-@pytest.fixture
+@pytest.fixture()
 def rag_tool_prompt() -> str:
     # return "Using readthedocs, given the following text 'alert! Something Happened', how do I rich.print 'alert!' with style 'bold red; using rich.print? Do not use 'rich.console' in your answer."
     return "Using readthedocs, What the minimum version of python needed to install rich?"
 
 
-@pytest.mark.visiontoolonly
+@pytest.mark.visiontoolonly()
 def test_rag_tool_injected_arg_with_schema(
     caplog,
     rag_tool_prompt: FixtureRequest,

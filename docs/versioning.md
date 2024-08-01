@@ -41,6 +41,7 @@ Minor versions are reserved for non-breaking changes, where new features are add
 compatible with firmware versions `v010` and `v020` as well as with controller versions `v0.1.0` and `v0.2.0`.
 
 !!! warning The GUI with version `v0.2.0` however will not be compatible with firmware or controller versions that are
+
 lower than `v0.2.0`. The same holds true for the controller, which will not be compatible with firmware versions with
 lower minor versions.
 

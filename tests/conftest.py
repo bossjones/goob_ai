@@ -26,7 +26,6 @@ if TYPE_CHECKING:
 
 
 import glob
-import os
 
 import discord as dc
 import discord.ext.test as dpytest
@@ -35,8 +34,6 @@ import pytest_asyncio
 from discord.client import _LoopSentinel
 from discord.ext import commands
 from goob_ai.goob_bot import AsyncGoobBot
-
-import pytest
 
 
 # from prisma.utils import get_or_create_event_loop

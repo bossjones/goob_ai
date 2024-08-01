@@ -117,6 +117,10 @@ lint-python:
 lint-toml: check-taplo-installed
 	pre-commit run taplo-lint --all-files
 
+# lint yaml files using yamlfix
+lint-yaml:
+	pre-commit run yamlfix --all-files
+
 # lint pyproject.toml and detect log_cli = true
 lint-check-log-cli:
 	pre-commit run detect-pytest-live-log --all-files

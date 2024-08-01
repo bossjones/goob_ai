@@ -24,7 +24,7 @@ if TYPE_CHECKING:
     from pytest_mock.plugin import MockerFixture
 
 
-@pytest.fixture
+@pytest.fixture()
 def mock_openai_api_key(mocker: MockerFixture) -> str:
     """Fixture to provide a mock OpenAI API key for testing purposes.
 
@@ -41,7 +41,7 @@ def mock_openai_api_key(mocker: MockerFixture) -> str:
     return "test_api_key"
 
 
-@pytest.fixture
+@pytest.fixture()
 def custom_embeddings(mock_openai_api_key: str) -> CustomOpenAIEmbeddings:
     """Create a CustomOpenAIEmbeddings instance with the provided API key.
 
@@ -165,7 +165,7 @@ def test_get_list_collections(mocker: MockerFixture) -> None:
     mock_client.list_collections.assert_called_once()
 
 
-@pytest.mark.slow
+@pytest.mark.slow()
 @pytest.mark.skipif(
     not os.getenv("DEBUG_AIDER"),
     reason="These tests are meant to only run locally on laptop prior to porting it over to new system",
@@ -197,7 +197,7 @@ def test_custom_openai_embeddings_call(mocker: MockerFixture, custom_embeddings:
     assert result == mock_embeddings
 
 
-@pytest.fixture
+@pytest.fixture()
 def mock_pdf_file(tmp_path: Path) -> Path:
     """Fixture to create a mock PDF file for testing purposes.
 
@@ -215,7 +215,7 @@ def mock_pdf_file(tmp_path: Path) -> Path:
     return test_pdf_path
 
 
-@pytest.fixture
+@pytest.fixture()
 def mock_txt_file(tmp_path: Path) -> Path:
     """Fixture to create a mock text file for testing purposes.
 
@@ -281,7 +281,7 @@ def test_load_documents(mocker: MockerFixture, mock_pdf_file: Path) -> None:
     # mock_save_to_chroma.assert_called_once_with([Document(page_content="Test chunk", metadata={})])
 
 
-@pytest.mark.slow
+@pytest.mark.slow()
 # @pytest.mark.skipif(
 #     os.getenv("PINECONE_ENV"),
 #     reason="These tests are meant to only run locally on laptop prior to porting it over to new system",
@@ -341,9 +341,9 @@ def test_split_text(mocker: MockerFixture) -> None:
 
 
 # FIXME: This is a work in progress till I can incorporate this into the main codebase
-@pytest.mark.slow
-@pytest.mark.integration
-@pytest.mark.e2e
+@pytest.mark.slow()
+@pytest.mark.integration()
+@pytest.mark.e2e()
 def test_chroma_service_e2e(mocker: MockerFixture, mock_txt_file: Path) -> None:
     import chromadb
 
@@ -384,9 +384,9 @@ def test_chroma_service_e2e(mocker: MockerFixture, mock_txt_file: Path) -> None:
 
 
 # FIXME: This is a work in progress till I can incorporate this into the main codebase
-@pytest.mark.slow
-@pytest.mark.integration
-@pytest.mark.e2e
+@pytest.mark.slow()
+@pytest.mark.integration()
+@pytest.mark.e2e()
 def test_chroma_service_e2e_add_to_chroma(mocker: MockerFixture, mock_txt_file: Path) -> None:
     from goob_ai.services.chroma_service import ChromaService
 
@@ -408,9 +408,9 @@ def test_chroma_service_e2e_add_to_chroma(mocker: MockerFixture, mock_txt_file: 
 
 
 # FIXME: This is a work in progress till I can incorporate this into the main codebase
-@pytest.mark.slow
-@pytest.mark.integration
-@pytest.mark.e2e
+@pytest.mark.slow()
+@pytest.mark.integration()
+@pytest.mark.e2e()
 def test_chroma_service_e2e_add_to_chroma_url(mocker: MockerFixture) -> None:
     from goob_ai.services.chroma_service import ChromaService
 
