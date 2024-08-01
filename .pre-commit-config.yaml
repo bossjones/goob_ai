@@ -367,12 +367,6 @@ repos:
     #         exclude: 'docs/.*\.md'
         # exclude: "README.md|README.zh-CN.md|CONTRIBUTING.md"
 
-    # - repo: https://github.com/hadialqattan/pycln
-    #   rev: v2.4.0
-    #   hooks:
-    #       - id: pycln
-    #         args: [--all]
-
     # # A formatter for finding and removing unused import statements.
     # - repo: https://github.com/hadialqattan/pycln
     #   rev: v2.4.0 # Possible releases: https://github.com/hadialqattan/pycln/releases

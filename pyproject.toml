@@ -2059,5 +2059,20 @@ ignore = [
     "PP308", # ignore requiring `-ra` flag for pytest, astropy's test suite is too large for this to be useful
 ]
 
+
 [tool.pycln]
-all = true
+# path = "."
+paths = ["src", "tests"]
+# include=".*_util\.py$"
+exclude = ".*test.py$"
+# Expand wildcard star imports.
+expand_stars = true
+# Also emit messages to stderr about files that were not changed and about files/imports that were ignored.
+verbose = true
+# Do not write the files back, just output a diff for each file on stdout.
+diff = true
+# Remove all unused imports (not just those checked from side effects).
+# all=true
+no_gitignore = false
+# Stop enforcing the existence of the __all__ dunder in __init__.py files. (disabling this policy)
+disable_all_dunder_policy = true
