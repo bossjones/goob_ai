@@ -2058,3 +2058,6 @@ ignore = [
     "PC901", # ignore using custom update message (we have many of the default ones in our history already)
     "PP308", # ignore requiring `-ra` flag for pytest, astropy's test suite is too large for this to be useful
 ]
+
+[tool.pycln]
+all = true

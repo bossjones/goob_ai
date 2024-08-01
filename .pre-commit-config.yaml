@@ -208,6 +208,14 @@ repos:
             exclude: ^news/(.gitignore|.*\.(process|removal|feature|bugfix|vendor|doc|trivial).rst)
             files: ^news/
 
+          - id: commitizen
+            name: commitizen
+            entry: cz check
+            args: [--commit-msg-file]
+            require_serial: true
+            language: system
+            stages: [commit-msg]
+
       # TODO: enable this
       # - id: commitizen
       #   name: commitizen
@@ -357,11 +365,18 @@ repos:
             exclude: 'docs/.*\.md'
         # exclude: "README.md|README.zh-CN.md|CONTRIBUTING.md"
 
-    - repo: https://github.com/hadialqattan/pycln
-      rev: v2.4.0
-      hooks:
-          - id: pycln
-            args: [--all]
+    # - repo: https://github.com/hadialqattan/pycln
+    #   rev: v2.4.0
+    #   hooks:
+    #       - id: pycln
+    #         args: [--all]
+
+    # # A formatter for finding and removing unused import statements.
+    # - repo: https://github.com/hadialqattan/pycln
+    #   rev: v2.4.0 # Possible releases: https://github.com/hadialqattan/pycln/releases
+    #   hooks:
+    #     - id: pycln
+    #       args: [--config=pyproject.toml]
 
     - repo: https://github.com/lyz-code/yamlfix
       rev: 1.16.0
