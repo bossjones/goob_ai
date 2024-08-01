@@ -294,6 +294,10 @@ dev-dependencies = [
     "mkdocstrings[python]>=0.25.2",
     "mkdocs-jupyter>=0.24.8",
     "mkdocs-redirects>=1.2.1",
+    "mdformat-mkdocs>=3.0.0",
+    "yamlfix>=1.16.0",
+    "yamllint>=1.35.1",
+    "pymarkdownlnt>=0.9.21",
 ]
 
 [tool.rye.scripts]
@@ -907,6 +911,12 @@ ignore_errors = true
 # ===========================[ RUFF ]========================
 # SOURCE: https://docs.astral.sh/ruff/settings/#tab-size
 [tool.ruff]
+# SOURCE: https://github.com/humblFINANCE/humblAPI/blob/master/pyproject.toml
+# select = ["A", "ASYNC", "B", "BLE", "C4", "C90", "D", "DTZ", "E", "EM", "ERA", "F", "FBT", "FLY", "FURB", "G", "I", "ICN", "INP", "INT", "ISC", "LOG", "N", "NPY", "PERF", "PGH", "PIE", "PLC", "PLE", "PLR", "PLW", "PT", "PTH", "PYI", "RET", "RSE", "RUF", "S", "SIM", "SLF", "SLOT", "T10", "T20", "TCH", "TID", "TRY", "UP", "W", "YTT"]
+# ignore = ["E501", "PGH001", "RET504", "S101"]
+# unfixable = ["ERA001", "F401", "F841", "T201", "T203"]
+# SOURCE: https://github.com/humblFINANCE/humblAPI/blob/master/pyproject.toml - end
+
 extend-include = ["*.ipynb"]
 # Allow imports relative to the "src" and "test" directories.
 # src = ["src", "tests"]
@@ -914,7 +924,7 @@ extend-include = ["*.ipynb"]
 output-format = "full"
 force-exclude = true
 respect-gitignore = true
-include = ["*.py", "*.pyi", "**/pyproject.toml", "*.ipynb"]
+include = ["*.py", "*.pyi", "**/pyproject.toml", "*.ipynb", "pyproject.toml"]
 extend-exclude = [
     "__pycache__",
     "__pypackages__",
@@ -955,6 +965,8 @@ extend-exclude = [
 line-length = 120
 target-version = "py310"
 
+[tool.ruff.flake8-tidy-imports]
+ban-relative-imports = "all"
 
 # ===========================[ RUFF lint ]========================
 [tool.ruff.lint]
@@ -1986,4 +1998,63 @@ exclude = [
     "test*",
     "tasks*",
     "task*",
+]
+
+# SOURCE: https://github.com/astropy/astropy/blob/922afe8446cda46f65c5b5ec4aac9e43fadabcc3/pyproject.toml#L427
+# [tool.docformatter]
+# # The ``summaries`` are not (yet) 75 characters because the summary lines can't be
+# # automatically wrapped and must be re-written, which should be done at some point.
+# recursive = true
+# wrap-summaries = 1000
+# wrap-descriptions = 75
+# black = true
+# syntax = "numpy"
+
+
+[tool.yamlfix]
+line_length = 120
+preserve_quotes = true
+# sequence_style = "block_style"
+comments_min_spaces_from_content = 1
+whitelines = 1
+indent_mapping = 4
+indent_offset = 4
+indent_sequence = 6
+
+
+# allow_duplicate_keys: bool = False
+# comments_min_spaces_from_content: int = 2
+# comments_require_starting_space: bool = True
+# comments_whitelines: int = 1
+# whitelines: int = 0
+# section_whitelines: int = 0
+# config_path: Optional[str] = None
+# explicit_start: bool = True
+# indent_mapping: int = 2
+# indent_offset: int = 2
+# indent_sequence: int = 4
+# line_length: int = 80
+# none_representation: str = ""
+# quote_basic_values: bool = False
+# quote_keys_and_basic_values: bool = False
+# preserve_quotes: bool = False
+# quote_representation: str = "'"
+# sequence_style: YamlNodeStyle = YamlNodeStyle.FLOW_STYLE
+
+# [tool.repo-review]
+# ignore = ["RTD103"]
+
+
+# [tool.repo-review]
+# ignore = ["PY004", "PY007", "PP308", "GH102", "PC140", "RTD100", "RTD103"]
+
+# SOURCE: https://github.com/astropy/astropy/blob/922afe8446cda46f65c5b5ec4aac9e43fadabcc3/pyproject.toml#L427
+[tool.repo-review]
+ignore = [
+    "MY",    # ignore MyPy setting checks
+    "PC111", # ignore using `blacken-docs` in pre-commit
+    "PC140", # ignore using `mypy` in pre-commit
+    "PC180", # ignore using `prettier` in pre-commit
+    "PC901", # ignore using custom update message (we have many of the default ones in our history already)
+    "PP308", # ignore requiring `-ra` flag for pytest, astropy's test suite is too large for this to be useful
 ]

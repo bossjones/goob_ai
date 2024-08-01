@@ -5,6 +5,7 @@
     "semi": true,
     "singleQuote": false,
     "endOfLine": "auto",
+    "trailingComma": "all",
 
     "plugins": ["prettier-plugin-ini"],
 
