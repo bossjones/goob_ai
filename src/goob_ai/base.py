@@ -82,7 +82,7 @@ class GoobPrompt:
 
     def render_messages(self, bot_name: str):
         for message in self.convo.messages:
-            if not bot_name in message.user:
+            if bot_name not in message.user:
                 yield {
                     "role": "user",
                     "name": message.user,

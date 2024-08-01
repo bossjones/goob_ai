@@ -20,8 +20,6 @@ if TYPE_CHECKING:
 
 import asyncio
 
-import pytest
-
 
 # pytestmark = pytest.mark.asyncio
 

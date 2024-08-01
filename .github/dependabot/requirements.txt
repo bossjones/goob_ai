@@ -500,13 +500,13 @@ langchain-google-genai==1.0.8
     # via goob-ai
 langchain-groq==0.1.9
     # via goob-ai
-langchain-openai==0.1.19
+langchain-openai==0.1.20
     # via goob-ai
 langchain-text-splitters==0.2.2
     # via langchain
 langchainhub==0.1.20
     # via goob-ai
-langgraph==0.1.18
+langgraph==0.1.19
     # via goob-ai
 langserve==0.2.2
     # via goob-ai

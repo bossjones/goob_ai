@@ -25,7 +25,7 @@ import pytest
 #     assert True
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_async_command() -> None:
     """Test the async_command decorator."""
     app = AsyncTyper()

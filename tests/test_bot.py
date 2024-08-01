@@ -82,9 +82,9 @@ async def bot():
 #     reason="These tests are meant to only run locally on laptop prior to porting it over to new system",
 # )
 @pytest.mark.filterwarnings("ignore:unclosed <ssl.SSLSocket ")
-@pytest.mark.integration
+@pytest.mark.integration()
 class TestBot:
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     # @pytest.mark.justaio
     async def test_defaults(self, mocker: MockerFixture, monkeypatch: MonkeyPatch) -> None:
         # pytest-asyncio provides and manages the `event_loop`
@@ -149,14 +149,14 @@ class TestBot:
         # # await test_bot.metrics_api.stop()
 
 
-@pytest.mark.integration
+@pytest.mark.integration()
 class TestBotWithDPyTest:
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_ping(self, bot):
         await dpytest.message("?ping")
         assert dpytest.verify().message().content("Pong !")
 
-    @pytest.mark.asyncio
+    @pytest.mark.asyncio()
     async def test_echo(self, bot):
         await dpytest.message("?echo Hello world")
         assert dpytest.verify().message().contains().content("Hello")

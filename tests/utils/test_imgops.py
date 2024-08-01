@@ -38,7 +38,7 @@ import pytest
 import pytest_mock
 
 
-@pytest.fixture
+@pytest.fixture()
 def test_image():
     image_path = Path("tests/fixtures/screenshot_image_larger00013.PNG")
     return np.array(Image.open(image_path))
@@ -49,7 +49,7 @@ def dummy_upscale_function(image: np.ndarray) -> np.ndarray:
     return image
 
 
-@pytest.mark.imgops
+@pytest.mark.imgops()
 def test_auto_split_upscale_no_split(test_image):
     """Test auto_split_upscale without splitting the image."""
     scale = 2
@@ -85,7 +85,7 @@ def test_auto_split_upscale_no_split(test_image):
 #         auto_split_upscale(test_image, dummy_upscale_function, scale, overlap, max_depth=max_depth)
 
 
-@pytest.mark.imgops
+@pytest.mark.imgops()
 def test_bgr_to_rgb(test_image):
     """Test bgr_to_rgb function."""
     # Convert the test image to a tensor
@@ -103,7 +103,7 @@ def test_bgr_to_rgb(test_image):
     assert np.array_equal(rgb_image[:, :, 2], test_image[:, :, 0])  # B channel
 
 
-@pytest.mark.imgops
+@pytest.mark.imgops()
 def test_convert_tensor_to_pil_image1(test_image):
     """Test convert_tensor_to_pil_image function."""
     # Convert the test image to a tensor
@@ -122,7 +122,7 @@ def test_convert_tensor_to_pil_image1(test_image):
     assert pil_image.mode == "RGB"
 
 
-@pytest.mark.imgops
+@pytest.mark.imgops()
 def test_convert_tensor_to_pil_image2(test_image):
     """Test convert_tensor_to_pil_image function."""
     # Convert the test image to a tensor
@@ -151,7 +151,7 @@ def test_convert_tensor_to_pil_image2(test_image):
     assert chw_image_tensor.shape == (test_image_hwc.shape[2], test_image_hwc.shape[0], test_image_hwc.shape[1])
 
 
-@pytest.mark.imgops
+@pytest.mark.imgops()
 def test_convert_pil_image_to_rgb_channels(test_image, mocker):
     """Test convert_pil_image_to_rgb_channels function."""
     from goob_ai.utils.imgops import convert_pil_image_to_rgb_channels
@@ -163,7 +163,7 @@ def test_convert_pil_image_to_rgb_channels(test_image, mocker):
     assert converted_image.mode == "RGB"  # pyright: ignore[reportAttributeAccessIssue]
 
 
-@pytest.mark.imgops
+@pytest.mark.imgops()
 def test_convert_pil_image_to_torch_tensor(test_image):
     """Test convert_pil_image_to_torch_tensor function."""
     from goob_ai.utils.imgops import convert_pil_image_to_torch_tensor
@@ -182,12 +182,12 @@ def test_convert_pil_image_to_torch_tensor(test_image):
     assert tensor_image.max() <= 1.0
 
 
-@pytest.fixture
+@pytest.fixture()
 def test_image_path():
     return "tests/fixtures/screenshot_image_larger00013.PNG"
 
 
-@pytest.fixture
+@pytest.fixture()
 def mock_model(mocker):
     model = mocker.Mock()
     model.name = "mock_model"
@@ -223,8 +223,8 @@ def mock_model(mocker):
 #     assert resized_image.getpixel((0, 0)) == expected_color
 
 
-@pytest.mark.imgops
-@pytest.mark.asyncio
+@pytest.mark.imgops()
+@pytest.mark.asyncio()
 async def test_setup_model(mocker):
     """Test setup_model function."""
     from goob_ai.utils.imgops import load_model, setup_model
@@ -264,9 +264,9 @@ async def test_setup_model(mocker):
 #     os.getenv("PINECONE_ENV"),
 #     reason="These tests are meant to only run locally on laptop prior to porting it over to new system",
 # )
-@pytest.mark.slow
-@pytest.mark.imgops
-@pytest.mark.integration
+@pytest.mark.slow()
+@pytest.mark.imgops()
+@pytest.mark.integration()
 async def test_pred_and_store(mocker):
     """Test pred_and_store function."""
     from goob_ai.utils.imgops import pred_and_store, setup_model
@@ -290,7 +290,7 @@ async def test_pred_and_store(mocker):
     # assert "bounding_boxes" in result[0]
 
 
-@pytest.mark.imgops
+@pytest.mark.imgops()
 async def test_np2tensor():
     """Test np2tensor function."""
     from goob_ai.utils.imgops import np2tensor
@@ -342,7 +342,7 @@ async def test_np2tensor():
     # assert resized_image_path == test_image_path
 
 
-@pytest.mark.imgops
+@pytest.mark.imgops()
 @pytest.mark.parametrize(
     "input_tensor, expected_output",
     [
@@ -412,8 +412,8 @@ def test_norm(input_tensor, expected_output):
 #     assert tensor_image.max() <= 1.0
 
 
-@pytest.mark.imgops
-@pytest.mark.asyncio
+@pytest.mark.imgops()
+@pytest.mark.asyncio()
 async def test_tensor2np(mocker):
     """Test tensor2np function."""
     from goob_ai.utils.imgops import tensor2np
@@ -467,7 +467,7 @@ async def test_tensor2np(mocker):
     # assert resized_image_path == test_image_path
 
 
-@pytest.mark.imgops
+@pytest.mark.imgops()
 def test_read_image_to_bgr(mocker):
     """Test read_image_to_bgr function."""
     from goob_ai.utils.imgops import read_image_to_bgr
@@ -488,11 +488,10 @@ def test_read_image_to_bgr(mocker):
     assert width == mock_image.shape[1]
 
 
-@pytest.mark.imgops
+@pytest.mark.imgops()
 @pytest.mark.parametrize("return_percent_coords", [True, False])
 def test_resize_image_and_bbox(mocker, test_image, return_percent_coords):
     """Test resize_image_and_bbox function."""
-    from goob_ai.utils.imgops import resize_image_and_bbox
 
     # Mock the device
     test_device = get_device()
@@ -539,8 +538,8 @@ def test_resize_image_and_bbox(mocker, test_image, return_percent_coords):
 #     os.getenv("PINECONE_ENV"),
 #     reason="These tests are meant to only run locally on laptop prior to porting it over to new system",
 # )
-@pytest.mark.imgops
-@pytest.mark.slow
+@pytest.mark.imgops()
+@pytest.mark.slow()
 # @pytest.mark.asyncio
 def test_handle_predict_one(mocker):
     """Test handle_predict_one function."""
@@ -564,8 +563,8 @@ def test_handle_predict_one(mocker):
 #     os.getenv("PINECONE_ENV"),
 #     reason="These tests are meant to only run locally on laptop prior to porting it over to new system",
 # )
-@pytest.mark.slow
-@pytest.mark.imgops
+@pytest.mark.slow()
+@pytest.mark.imgops()
 def test_handle_predict(mocker):
     """Test handle_predict function."""
     image_path = "tests/fixtures/screenshot_image_larger00013.PNG"
@@ -586,7 +585,7 @@ def test_handle_predict(mocker):
     # assert predict_results[0][1][0] == (0, 0, 100, 100)
 
 
-@pytest.mark.imgops
+@pytest.mark.imgops()
 def test_get_all_corners_color():
     """Test get_all_corners_color function."""
     image_path = "tests/fixtures/screenshot_image_larger00013.PNG"
@@ -602,7 +601,7 @@ def test_get_all_corners_color():
     assert corner_colors["bottom_right"] == (23, 31, 42)
 
 
-@pytest.mark.imgops
+@pytest.mark.imgops()
 # @pytest.mark.asyncio
 def test_get_pil_image_channels(mocker):
     """Test get_pil_image_channels function."""
@@ -618,8 +617,8 @@ def test_get_pil_image_channels(mocker):
 #     os.getenv("PINECONE_ENV"),
 #     reason="These tests are meant to only run locally on laptop prior to porting it over to new system",
 # )
-@pytest.mark.slow
-@pytest.mark.imgops
+@pytest.mark.slow()
+@pytest.mark.imgops()
 # @pytest.mark.asyncio
 def test_handle_autocrop(mocker):
     """Test handle_autocrop function."""
@@ -642,8 +641,8 @@ def test_handle_autocrop(mocker):
 #     os.getenv("PINECONE_ENV"),
 #     reason="These tests are meant to only run locally on laptop prior to porting it over to new system",
 # )
-@pytest.mark.slow
-@pytest.mark.imgops
+@pytest.mark.slow()
+@pytest.mark.imgops()
 # @pytest.mark.asyncio
 def test_handle_autocrop_one(mocker):
     """Test handle_autocrop_one function."""
@@ -683,7 +682,7 @@ def test_handle_autocrop_one(mocker):
 #     assert cropped_image_path == image_path
 
 
-@pytest.mark.imgops
+@pytest.mark.imgops()
 # @pytest.mark.asyncio
 def test_handle_get_dominant_color_name():
     """Test handle_get_dominant_color function with return_type 'name'."""
@@ -695,7 +694,7 @@ def test_handle_get_dominant_color_name():
     assert dominant_color == "black"
 
 
-@pytest.mark.imgops
+@pytest.mark.imgops()
 @pytest.mark.parametrize(
     "r, g, b, expected_hex",
     [
@@ -714,7 +713,7 @@ def test_rgb2hex(r, g, b, expected_hex):
     assert hex_color == expected_hex
 
 
-@pytest.mark.imgops
+@pytest.mark.imgops()
 @pytest.mark.parametrize(
     "input_tensor, min_max, expected_output",
     [
@@ -729,7 +728,7 @@ def test_denorm(input_tensor, min_max, expected_output):
     assert torch.allclose(output, expected_output), f"Expected {expected_output}, but got {output}"
 
 
-@pytest.mark.imgops
+@pytest.mark.imgops()
 # @pytest.mark.asyncio
 def test_get_pixel_rgb(mocker):
     """Test get_pixel_rgb function."""
@@ -772,7 +771,7 @@ def test_get_pixel_rgb(mocker):
 #     assert tensor_image.max() <= 1.0
 
 
-@pytest.mark.imgops
+@pytest.mark.imgops()
 def test_convert_rgb_to_names():
     """Test convert_rgb_to_names function."""
     from goob_ai.utils.imgops import convert_rgb_to_names
@@ -821,7 +820,7 @@ def test_convert_rgb_to_names():
 #     assert np.array_equal(rgba_image[:, :, 3], np.full(async_test_image.shape[:2], 255))  # A channel
 
 
-@pytest.mark.imgops
+@pytest.mark.imgops()
 # @pytest.mark.asyncio
 def test_rgba_to_bgra(test_image):
     """Test rgba_to_bgra function."""
@@ -845,7 +844,7 @@ def test_rgba_to_bgra(test_image):
     assert np.array_equal(bgra_image[:, :, 3], np.full(test_image.shape[:2], 255))  # A channel
 
 
-@pytest.mark.imgops
+@pytest.mark.imgops()
 # @pytest.mark.asyncio
 def test_rgb_to_bgr_async(test_image):
     """Test rgb_to_bgr function (async)."""

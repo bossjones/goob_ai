@@ -917,6 +917,9 @@ ignore_errors = true
 # unfixable = ["ERA001", "F401", "F841", "T201", "T203"]
 # SOURCE: https://github.com/humblFINANCE/humblAPI/blob/master/pyproject.toml - end
 
+unfixable = [
+    "ERA", # do not autoremove commented out code
+]
 extend-include = ["*.ipynb"]
 # Allow imports relative to the "src" and "test" directories.
 # src = ["src", "tests"]
@@ -950,6 +953,7 @@ extend-exclude = [
     "data/*",
     "dist",
     "docs",
+    "doc",
     "git",
     "logs/*",
     "node_modules",
@@ -964,8 +968,9 @@ extend-exclude = [
 # The formatter wraps lines at a length of 88
 line-length = 120
 target-version = "py310"
+unsafe-fixes = false
 
-[tool.ruff.flake8-tidy-imports]
+[tool.ruff.lint.flake8-tidy-imports]
 ban-relative-imports = "all"
 
 # ===========================[ RUFF lint ]========================
@@ -980,41 +985,113 @@ extend-unsafe-fixes = [
 
 # Only allow fix behavior for `E` and `F` rules. https://docs.astral.sh/ruff/settings/#lint_fixable
 
-fixable = [
-    "E", # Error (E)# https://docs.astral.sh/ruff/rules/#pycodestyle-e-w
-    "F", # Pyflakes (F)
-    "I",
+# fixable = [
+#     "E", # Error (E)# https://docs.astral.sh/ruff/rules/#pycodestyle-e-w
+#     "F", # Pyflakes (F)
+#     "I",
+# ]
+# Allow fix for all enabled rules (when `--fix`) is provided.
+fixable = ["ALL"]
+
+# # Enable Pyflakes (`F`) and a subset of the pycodestyle (`E`)  codes by default.
+# # Unlike Flake8, Ruff doesn't enable pycodestyle warnings (`W`) or
+# # McCabe complexity (`C901`) by default.
+# select = [
+#     "I", # isort
+#     "Q", # flake8-quotes (Q) https://docs.astral.sh/ruff/rules/#flake8-quotes-q
+#     # "RUF100", # unused `noqa` directive
+#     # "C90",    # mccabe (C90). C901 complex-structure	{name} is too complex ({complexity} > {max_complexity})
+#     # "F",      # pyflakes (F) https://docs.astral.sh/ruff/rules/#pyflakes-f
+#     "D",    # pydocstyle (D) https://docs.astral.sh/ruff/rules/#pydocstyle-d
+#     "I002", # from __future__ import annotations
+#     # # used to be in extended select
+#     # "ARG", # flake8-unused-arguments
+#     # "C",   # pylint: Convention (C)
+#     # "C4",  # flake8-comprehensions
+#     # "D107", # pycodestyle (Missing docstring in __init__)
+#     # "E",    # pycodestyle errors https://docs.astral.sh/ruff/rules/#pycodestyle-e-w
+#     # "PL",    # pylint
+#     # "RUF",   # Ruff
+#     # "SIM",   # flake8-simplify
+#     # "T10",   # debugger
+#     # "TCH",   # type-checking
+#     # "UP",    # pyupgrade
+#     # "PLW1508", # pycodestyle warnings. invalid-envvar-default (PLW1508)#. https://docs.astral.sh/ruff/rules/invalid-envvar-default/
+#     # "ASYNC", # flake8-async
+#     # "TCH", # flake8-type-checking (TCH). https://docs.astral.sh/ruff/rules/#flake8-type-checking-tch
+# ]
+
+# SOURCE: https://github.com/ansible-collections/cloud-content-handbook/blob/9be137d78af4d1cc140b210f3058977164021c9d/proposals/ruff_transition.md
+# This section configures specific linting rules and options for ruff.
+# See all rules at https://docs.astral.sh/ruff/rules/
+select = [
+    "E",    # pycodestyle
+    "W",    # pycodestyle
+    "F",    # Pyflakes
+    "Q",    # flake8-quotes
+    "I",    # isort
+    "TID",  # flake8-tidy-imports
+    "TCH",  # flake8-type-checking
+    "PL",   # Pylint
+    "FLY",  # Flynt
+    "COM",  # flake8-commas
+    "N",    # pep8-naming
+    "YTT",  # flake8-2020
+    "PT",   # flake8-pytest-style
+    "ISC",  # flake8-implicit-str-concat
+    "D",    # pydocstyle
+    "C90",  # mccabe
+    "I002", # from __future__ import annotations
+
+    # To be enabed
+    # "S",      # flake8-bandit
+    # "C",      # complexity
+    # "FBT001", # flake8-boolean-trap
+    # "UP",     # pyupgrade
+    # "SIM",    # flake8-simplify
+    # "C4",     # flake8-comprehensions
+    # "RUF",    # Ruff-specific rules
+    # "B",      # flake8-bugbear
+
+    # https://github.com/python-poetry/cleo/blob/main/pyproject.toml
+    # "B",      # flake8-bugbear
+    # "C4",     # flake8-comprehensions
+    # "ERA",    # flake8-eradicate/eradicate
+    # "I",      # isort
+    # "N",      # pep8-naming
+    # "PIE",    # flake8-pie
+    # "PGH",    # pygrep
+    # "PTH",    # flake8-use-pathlib
+    # "ISC",    # flake8-implicit-string-concat
+    # "RET",    # flake8-return
+    # "FLY",    # flynt
+    # "PERF",   # perflint
+    # "RUF",    # ruff checks
+    # "SIM",    # flake8-simplify
+    # "TCH",    # flake8-type-checking
+    # "TID",    # flake8-tidy-imports
+    # "UP",     # pyupgrade
 ]
 
-# Enable Pyflakes (`F`) and a subset of the pycodestyle (`E`)  codes by default.
-# Unlike Flake8, Ruff doesn't enable pycodestyle warnings (`W`) or
-# McCabe complexity (`C901`) by default.
-select = [
-    "I", # isort
-    "Q", # flake8-quotes (Q) https://docs.astral.sh/ruff/rules/#flake8-quotes-q
-    # "RUF100", # unused `noqa` directive
-    # "C90",    # mccabe (C90). C901 complex-structure	{name} is too complex ({complexity} > {max_complexity})
-    # "F",      # pyflakes (F) https://docs.astral.sh/ruff/rules/#pyflakes-f
-    "D",    # pydocstyle (D) https://docs.astral.sh/ruff/rules/#pydocstyle-d
-    "I002", # from __future__ import annotations
-    # # used to be in extended select
-    # "ARG", # flake8-unused-arguments
-    # "C",   # pylint: Convention (C)
-    # "C4",  # flake8-comprehensions
-    # "D107", # pycodestyle (Missing docstring in __init__)
-    # "E",    # pycodestyle errors https://docs.astral.sh/ruff/rules/#pycodestyle-e-w
-    # "PL",    # pylint
-    # "RUF",   # Ruff
-    # "SIM",   # flake8-simplify
-    # "T10",   # debugger
-    # "TCH",   # type-checking
-    # "UP",    # pyupgrade
-    # "PLW1508", # pycodestyle warnings. invalid-envvar-default (PLW1508)#. https://docs.astral.sh/ruff/rules/invalid-envvar-default/
-    # "ASYNC", # flake8-async
-    # "TCH", # flake8-type-checking (TCH). https://docs.astral.sh/ruff/rules/#flake8-type-checking-tch
-]
+# SOURCE: https://github.com/ansible-collections/cloud-content-handbook/blob/9be137d78af4d1cc140b210f3058977164021c9d/proposals/ruff_transition.md - end
 
 ignore = [
+    "E721",
+    "E741",
+    "E731",
+    "E731",
+    "PLR1714",
+    "N818",
+    "PLW0127",
+    "PT012",
+    "N806",
+    "E712",
+    "E711",
+    "W505",
+    "PT006",
+    "PLR2004",
+    "N812",
+    "F841",
     # "R1730",
     # "I",      # isort, ruff doesn't have enough support for isort yet.
     "TID",     # flake8-tidy-imports (TID)#
@@ -1133,14 +1210,20 @@ ignore = [
 
 # SOURCE: https://github.com/google/jax/blob/a1c82219e2d23ec994e42761ebcaf4c53d9e4ea7/pyproject.toml#L159C1-L160C20
 [tool.ruff.lint.mccabe]
-max-complexity = 18
+# max-complexity = 18
+max-complexity = 31 # C901: Recommended goal is 10
 
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401"]
 # https://github.com/astral-sh/ruff/issues/3928
-"*.pyi" = [
-    "I002", # from __future__ import annotations
-]
+# "*.pyi" = [
+#     "I002", # from __future__ import annotations
+# ]
+"conf/*" = ["D"]
+"demo/*" = ["D"]
+"docs/*" = ["D"]
+"test/*" = ["D"]
+"*.pyi" = ["D", "E501", "E701", "I002"]
 
 # ===========================[ ISORT ]========================
 # SOURCE: https://github.com/zulip/zulip/blob/f4d109c289f614273b43b411cbd8d1fad128842e/pyproject.toml#L199

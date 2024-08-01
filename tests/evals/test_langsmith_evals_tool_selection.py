@@ -53,10 +53,10 @@ examples = []
 
 
 # @pytest.mark.skip(reason="This is a work in progress and it is currently expected to fail")
-@pytest.mark.integration
-@pytest.mark.evals
-@pytest.mark.slow
-@pytest.mark.flaky
+@pytest.mark.integration()
+@pytest.mark.evals()
+@pytest.mark.slow()
+@pytest.mark.flaky()
 def test_evals_goob_ai_tool_selection(caplog: LogCaptureFixture):
     ls_client = langsmith.Client()
     llm = LlmManager().llm

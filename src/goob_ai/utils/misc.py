@@ -34,9 +34,6 @@ if TYPE_CHECKING:
 ROOT_DIR = path.dirname(path.dirname(__file__))
 
 
-import importlib.metadata
-
-
 def parse_version(v: str) -> packaging.version._BaseVersion:
     """Parse a version string and return a packaging.version.Version obj."""
     import packaging.version
@@ -387,9 +384,6 @@ def divide_chunks(l: list[str], n: int = 10):
     # looping till length l
     for i in range(0, len(l), n):
         yield l[i : i + n]
-
-
-import sys
 
 
 # SOURCE: https://stackoverflow.com/questions/5067604/determine-function-name-from-within-that-function

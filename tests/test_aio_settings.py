@@ -25,7 +25,7 @@ IS_RUNNING_ON_GITHUB_ACTIONS = bool(os.environ.get("GITHUB_ACTOR"))
 
 
 # TODO: Make sure os,environ unsets values while running tests
-@pytest.mark.unittest
+@pytest.mark.unittest()
 class TestSettings:
     def test_defaults(
         self,

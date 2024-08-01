@@ -14,6 +14,7 @@ import subprocess
 import sys
 import tempfile
 import traceback
+import typing
 
 from collections.abc import Awaitable, Iterable, Sequence
 from enum import Enum
@@ -74,13 +75,13 @@ if aiosettings.dev_mode:
 
     def info(type, value, tb):
         LOGGER.info(f"type: {type}")
-        LOGGER.info(f"reveal_type(type): {reveal_type(type)}")  # pylint: disable=undefined-variable
+        LOGGER.info(f"reveal_type(type): {typing.reveal_type(type)}")  # pylint: disable=undefined-variable
 
         LOGGER.info(f"value: {value}")
-        LOGGER.info(f"reveal_type(value): {reveal_type(value)}")  # pylint: disable=undefined-variable
+        LOGGER.info(f"reveal_type(value): {typing.reveal_type(value)}")  # pylint: disable=undefined-variable
 
         LOGGER.info(f"tb: {tb}")
-        LOGGER.info(f"reveal_type(type): {reveal_type(tb)}")  # pylint: disable=undefined-variable
+        LOGGER.info(f"reveal_type(type): {typing.reveal_type(tb)}")  # pylint: disable=undefined-variable
 
         if hasattr(sys, "ps1") or not sys.stderr.isatty() or not sys.stdin.isatty():
             # stdin or stderr is redirected, just do the normal thing
@@ -110,7 +111,7 @@ if aiosettings.dev_mode:
     # ! note that python3 has more rigid scopes so you might not see everything you want
     original_hook = sys.excepthook
     # setting PYTHON_DEBUG to NO suppresses any debugging
-    if sys.excepthook == sys.__excepthook__ and not os.environ.get("PYTHON_DEBUG", "pdb") in ["NO", "no"]:
+    if sys.excepthook == sys.__excepthook__ and os.environ.get("PYTHON_DEBUG", "pdb") not in ["NO", "no"]:
         # if someone already patched excepthook, let them win
         sys.excepthook = info
 
@@ -186,7 +187,7 @@ def deps() -> None:
     rich.print(f"langsmith_version: {importlib_metadata_version('langsmith')}")
     rich.print(f"pydantic_version: {importlib_metadata_version('pydantic')}")
     rich.print(f"pydantic_settings_version: {importlib_metadata_version('pydantic_settings')}")
-    rich.print(f"langchain_version: {importlib_metadata_version('langchain')}")
+    rich.print(f"ruff_version: {importlib_metadata_version('ruff')}")
 
 
 @APP.command()
@@ -198,7 +199,7 @@ def about() -> None:
 @APP.command()
 def show() -> None:
     """show command"""
-    cprint(f"\nShow goob_ai", style="yellow")
+    cprint("\nShow goob_ai", style="yellow")
 
 
 # @APP.async_command()

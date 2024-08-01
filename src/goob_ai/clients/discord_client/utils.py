@@ -28,9 +28,8 @@ def discord_message_to_message(message: DiscordMessage) -> Optional[GoobMessage]
         field = message.reference.cached_message.embeds[0].fields[0]
         if field.value:
             return GoobMessage(user=field.name, text=field.value)
-    else:
-        if message.content:
-            return GoobMessage(user=message.author.name, text=message.content)
+    elif message.content:
+        return GoobMessage(user=message.author.name, text=message.content)
     return None
 
 

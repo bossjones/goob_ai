@@ -1454,7 +1454,7 @@ class AsyncGoobBot(commands.Bot):
 
                 # if no thread defined, create it
                 if not isinstance(channel, discord.Thread):
-                    LOGGER.error(f"if no thread defined, create it")
+                    LOGGER.error("if no thread defined, create it")
                     embed = discord.Embed(
                         description=f"<@{ctx.message.author.id}> wants to chat! 🤖💬",  # pyright: ignore[reportAttributeAccessIssue]
                         color=discord.Color.green(),
@@ -1486,7 +1486,7 @@ class AsyncGoobBot(commands.Bot):
                     )
                 # if it is a thread, just set channel equal to thread
                 elif isinstance(channel, discord.Thread):  # type: ignore
-                    LOGGER.error(f"channel is a thread")
+                    LOGGER.error("channel is a thread")
                     thread: discord.Thread = (
                         channel  # mypy: disable-error-code="no-redef" # type: ignore  # type: ignore
                     )

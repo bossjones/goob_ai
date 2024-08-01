@@ -52,8 +52,8 @@ def pytest_collection_modifyitems(items):
 
 # ORIG: https://gist.github.com/iedmrc/2fbddeb8ca8df25356d8acc3d297e955
 @pytest.mark.asyncio(scope="module")
-@pytest.mark.unittest
-@pytest.mark.integration
+@pytest.mark.unittest()
+@pytest.mark.integration()
 class TestUtilsAsync:
     # SOURCE: https://pytest-asyncio.readthedocs.io/en/latest/how-to-guides/run_class_tests_in_same_loop.html
     loop: asyncio.AbstractEventLoop

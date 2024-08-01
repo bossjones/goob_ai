@@ -16,7 +16,7 @@ from goob_ai.utils import vidops
 import pytest
 
 
-@pytest.fixture
+@pytest.fixture()
 def sample_video():
     return Path("tests/fixtures/song.mp4")
 
@@ -28,7 +28,7 @@ def test_calculate_bitrate():
     assert vidops.calculate_bitrate(30, 20) == 5333
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_duration_video(sample_video, tmp_path, mocker):
     """Test the process_video function."""
 
@@ -36,7 +36,7 @@ async def test_duration_video(sample_video, tmp_path, mocker):
     assert duration == 36.133333
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_process_video(sample_video, tmp_path, mocker):
     """Test the process_video function."""
     # mocker.patch("goob_ai.utils.vidops._aio_run_process_and_communicate", return_value="60.0")
@@ -48,7 +48,7 @@ async def test_process_video(sample_video, tmp_path, mocker):
     # vidops.LOGGER.debug.assert_called()
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_process_audio(sample_video, tmp_path, mocker):
     """Test the process_audio function."""
     mocker.patch("goob_ai.utils.vidops._aio_run_process_and_communicate", return_value="120.0")
@@ -60,7 +60,7 @@ async def test_process_audio(sample_video, tmp_path, mocker):
     # vidops.LOGGER.debug.assert_called()
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_process_video_low_bitrate(sample_video, tmp_path, mocker):
     """Test the process_video function with a low bitrate scenario."""
     # mocker.patch("goob_ai.utils.vidops._aio_run_process_and_communicate", return_value="3600.0")
@@ -73,7 +73,7 @@ async def test_process_video_low_bitrate(sample_video, tmp_path, mocker):
     # vidops.LOGGER.debug.assert_any_call("Unable to compress.")
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 async def test_process_audio_low_bitrate(sample_video, tmp_path, mocker):
     """Test the process_audio function with a low bitrate scenario."""
     # mocker.patch("goob_ai.utils.vidops._aio_run_process_and_communicate", return_value="7200.0")

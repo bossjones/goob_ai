@@ -55,6 +55,7 @@ def _stat_y_file(fname: str, env: dict = None, cwd: Union[str, None] = None) -> 
             stderr=subprocess.DEVNULL,
             text=True,
             shell=True,
+            check=False,
         )
         timestamp = result.stdout.replace("\n", "")
         print(f"timestamp={timestamp}")
