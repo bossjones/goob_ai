@@ -11,9 +11,6 @@ import torch
 from goob_ai.core import errors
 
 
-# from icecream import ic
-
-
 def get_device() -> torch.device:
     """
     Summary:

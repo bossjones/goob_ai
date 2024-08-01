@@ -28,16 +28,20 @@ from redis.sentinel import Sentinel
 
 from goob_ai import metrics
 from goob_ai.aio_settings import AioSettings, aiosettings
+from goob_ai.backend.cache.goobredis import GoobRedisClient
 
 
 class RedisSessionManagerUtility:
+    """Utility class for managing sessions using Redis."""
+
     def __init__(self):
         self._ttl = 3660
         self._prefix = "session"
-        self._driver = None
+        self._driver: Optional[GoobRedisClient] = None
         self._initialized = False
 
-    async def initialize(self):
+    async def initialize(self) -> None:
+        """Initialize the Redis session manager."""
         from goob_ai.backend.cache import goobredis
 
         loop = asyncio.get_event_loop()
@@ -45,27 +49,56 @@ class RedisSessionManagerUtility:
         await self._driver.initialize(loop)
         self._initialized = True
 
-    async def finalize(self):
+    async def finalize(self) -> None:
+        """Finalize the Redis session manager."""
         self._initialized = False
 
     async def new_session(self, ident: str, data: str = "") -> str:
+        """
+        Create a new session.
+
+        Args:
+            ident: The identifier for the session.
+            data: The data to store in the session.
+
+        Returns:
+            The session ID.
+        """
         session = uuid.uuid4().hex
         session_key = f"{self._prefix}:{ident}:{session}"
         LOGGER.debug(f"Creating new session: session_key={session_key}")
         await self._driver.set(session_key, data, expire=self._ttl)
         return session
 
-    async def exist_session(self, ident: str | None, session: str | None) -> bool:
-        if session is None:
-            return False
-        if ident is None:
+    async def exist_session(self, ident: Optional[str], session: Optional[str]) -> bool:
+        """
+        Check if a session exists.
+
+        Args:
+            ident: The identifier for the session.
+            session: The session ID.
+
+        Returns:
+            True if the session exists, False otherwise.
+        """
+        if session is None or ident is None:
             return False
         session_key = f"{self._prefix}:{ident}:{session}"
         LOGGER.debug(f"Existing session: session_key={session_key}")
         value = await self._driver.get(session_key)
         return value is not None
 
-    async def drop_session(self, ident: str, session: str):
+    async def drop_session(self, ident: str, session: str) -> None:
+        """
+        Drop a session.
+
+        Args:
+            ident: The identifier for the session.
+            session: The session ID.
+
+        Raises:
+            KeyError: If the session is invalid.
+        """
         session_key = f"{self._prefix}:{ident}:{session}"
         LOGGER.debug(f"Drop session: session_key={session_key}")
         value = await self._driver.get(session_key)
@@ -74,7 +107,20 @@ class RedisSessionManagerUtility:
         else:
             raise KeyError("Invalid session")
 
-    async def refresh_session(self, ident: str, session: str):
+    async def refresh_session(self, ident: str, session: str) -> str:
+        """
+        Refresh a session.
+
+        Args:
+            ident: The identifier for the session.
+            session: The session ID.
+
+        Returns:
+            The refreshed session ID.
+
+        Raises:
+            KeyError: If the session is invalid.
+        """
         session_key = f"{self._prefix}:{ident}:{session}"
         LOGGER.debug(f"Refresh session: session_key={session_key}")
         value = await self._driver.get(session_key)
@@ -86,7 +132,16 @@ class RedisSessionManagerUtility:
         else:
             raise KeyError("Invalid session")
 
-    async def list_sessions(self, ident: str | None):
+    async def list_sessions(self, ident: Optional[str]) -> list[str]:
+        """
+        List all sessions for a given identifier.
+
+        Args:
+            ident: The identifier for the sessions.
+
+        Returns:
+            A list of session IDs.
+        """
         if ident is None:
             return []
         session_key = f"{self._prefix}:{ident}"
@@ -95,10 +150,20 @@ class RedisSessionManagerUtility:
         LOGGER.debug(f"List session: value={value}")
         return [x.split(b":")[2].decode("utf-8") for x in value]
 
-    async def get_session(self, ident: str | None, session: str | None):
+    async def get_session(self, ident: Optional[str], session: Optional[str]) -> str:
+        """
+        Get the data for a session.
+
+        Args:
+            ident: The identifier for the session.
+            session: The session ID.
+
+        Returns:
+            The session data.
+        """
         if ident is None:
-            return []
+            return ""
         session_key = f"{self._prefix}:{ident}:{session}"
         LOGGER.debug(f"Get session: session_key={session_key}")
         value = await self._driver.get(session_key)
-        return value.decode("utf-8")  # pyright: ignore[reportAttributeAccessIssue]
+        return value.decode("utf-8") if value else ""

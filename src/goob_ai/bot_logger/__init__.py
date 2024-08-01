@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """dancedetector dbx_logger -- Setup loguru logging with stderr and file with click."""
 # pylint: disable=consider-using-tuple
-# pyright: reportOperatorIssue=false
-# pyright: reportOptionalIterable=false
+# pyright: ignore[reportOperatorIssue]
+# pyright: ignore[reportOptionalIterable]
 # SOURCE: https://betterstack.com/community/guides/logging/loguru/
 
 # FIXME: https://github.com/sweepai/sweep/blob/7d93c612568b8febd4aaf3c75810794bc10c09ae/sweepai/utils/event_logger.py#L7
@@ -43,6 +43,21 @@ from loguru._defaults import LOGURU_FORMAT
 from goob_ai.models.loggers import LoggerModel, LoggerPatch
 
 
+if TYPE_CHECKING:
+    from better_exceptions.log import BetExcLogger
+    from loguru._logger import Logger as _Logger
+
+
+LOGLEVEL_MAPPING = {
+    50: "CRITICAL",
+    40: "ERROR",
+    30: "WARNING",
+    20: "INFO",
+    10: "DEBUG",
+    0: "NOTSET",
+}
+
+
 # ###################################################################################################
 # # NOTE: Make sure we don't log secrets
 # # SOURCE: https://github.com/Delgan/loguru/issues/537#issuecomment-986259036
@@ -76,61 +91,50 @@ REQUEST_ID_CONTEXTVAR = contextvars.ContextVar("request_id", default=None)
 REQUEST_ID_CONTEXTVAR.set("notset")
 
 
-def set_log_extras(record):
-    """
-    set_log_extras [summary].
-
-    [extended_summary]
+def set_log_extras(record: dict[str, Any]) -> None:
+    """Set extra log fields in the log record.
 
     Args:
-    ----
-        record ([type]): [description]
-
+        record: The log record to modify.
     """
-    record["extra"]["datetime"] = datetime.now(
-        timezone.utc
-    )  # Log datetime in UTC time zone, even if server is using another timezone
+    record["extra"]["datetime"] = datetime.now(timezone.utc)
 
 
 # SOURCE: https://github.com/joint-online-judge/fastapi-rest-framework/blob/b0e93f0c0085597fcea4bb79606b653422f16700/fastapi_rest_framework/logging.py#L43
 def format_record(record: dict[str, Any]) -> str:
-    """
-    Custom format for loguru loggers.
+    """Custom format for loguru loggers.
+
     Uses pformat for log any data like request/response body during debug.
     Works with logging if loguru handler it.
 
-    Example:
-    -------
-    >>> payload = [{"users":[{"name": "Nick", "age": 87, "is_active": True},
-    >>>     {"name": "Alex", "age": 27, "is_active": True}], "count": 2}]
-    >>> logger.bind(payload=).debug("users payload")
-    >>> [   {   'count': 2,
-    >>>         'users': [   {'age': 87, 'is_active': True, 'name': 'Nick'},
-    >>>                      {'age': 27, 'is_active': True, 'name': 'Alex'}]}]
+    Args:
+        record: The log record.
 
+    Returns:
+        The formatted log record.
     """
+    # """
+    # Custom format for loguru loggers.
+    # Uses pformat for log any data like request/response body during debug.
+    # Works with logging if loguru handler it.
+
+    # Example:
+    # -------
+    # >>> payload = [{"users":[{"name": "Nick", "age": 87, "is_active": True},
+    # >>>     {"name": "Alex", "age": 27, "is_active": True}], "count": 2}]
+    # >>> logger.bind(payload=).debug("users payload")
+    # >>> [   {   'count': 2,
+    # >>>         'users': [   {'age': 87, 'is_active': True, 'name': 'Nick'},
+    # >>>                      {'age': 27, 'is_active': True, 'name': 'Alex'}]}]
+
+    # """
     format_string = LOGURU_FORMAT
-    # format_string += "<green>{extra[datetime]}</green> | "
     if record["extra"].get("payload") is not None:
         record["extra"]["payload"] = pformat(record["extra"]["payload"], indent=4, compact=True, width=88)
         format_string += "\n<level>{extra[payload]}</level>"
 
     format_string += "{exception}\n"
     return format_string
-
-
-if TYPE_CHECKING:
-    from better_exceptions.log import BetExcLogger
-    from loguru._logger import Logger as _Logger
-
-LOGLEVEL_MAPPING = {
-    50: "CRITICAL",
-    40: "ERROR",
-    30: "WARNING",
-    20: "INFO",
-    10: "DEBUG",
-    0: "NOTSET",
-}
 
 
 class InterceptHandler(logging.Handler):
@@ -196,22 +200,15 @@ def request_id_filter(record: dict[str, Any]):
 
 # FIXME: https://github.com/abnerjacobsen/fastapi-mvc-loguru-demo/blob/main/mvc_demo/core/loguru_logs.py
 # SOURCE: https://loguru.readthedocs.io/en/stable/api/logger.html#loguru._logger.Logger
-def global_log_config(log_level: Union[str, int] = logging.DEBUG, json: bool = False):
-    """
-    global_log_config [summary].
-
-    [extended_summary]
+def global_log_config(log_level: Union[str, int] = logging.DEBUG, json: bool = False) -> _Logger:
+    """Configure global logging settings.
 
     Args:
-    ----
-        log_level (Union[str, int], optional): [description].
-            Defaults to logging.DEBUG.
-        json (bool, optional): [description]. Defaults to True.
+        log_level: The log level to use. Defaults to logging.DEBUG.
+        json: Whether to format logs as JSON. Defaults to False.
 
     Returns:
-    -------
-        [type]: [description]
-
+        The configured logger instance.
     """
     if isinstance(log_level, str) and (log_level in logging._nameToLevel):
         log_level = logging.DEBUG
@@ -292,7 +289,16 @@ def global_log_config(log_level: Union[str, int] = logging.DEBUG, json: bool = F
     return logger
 
 
-def get_lm_from_tree(loggertree: LoggerModel, find_me: str) -> LoggerModel:
+def get_lm_from_tree(loggertree: LoggerModel, find_me: str) -> Optional[LoggerModel]:
+    """Recursively search for a logger model in the logger tree.
+
+    Args:
+        loggertree: The root logger model to search from.
+        find_me: The name of the logger model to find.
+
+    Returns:
+        The found logger model, or None if not found.
+    """
     if find_me == loggertree.name:
         print("Found")
         return loggertree
@@ -301,28 +307,38 @@ def get_lm_from_tree(loggertree: LoggerModel, find_me: str) -> LoggerModel:
             print(f"Looking in: {ch.name}")
             if i := get_lm_from_tree(ch, find_me):
                 return i
+    return None
 
 
 def generate_tree() -> LoggerModel:
-    # pylint: disable=no-member
-    # adapted from logging_tree package https://github.com/brandon-rhodes/logging_tree
+    """Generate a tree of logger models.
+
+    Returns:
+        The root logger model of the generated tree.
+    """
     rootm = LoggerModel(name="root", level=logging.getLogger().getEffectiveLevel(), children=[])
-    nodesm = {}
-    items = sorted(logging.root.manager.loggerDict.items())
+    nodesm: dict[str, LoggerModel] = {}
+    items = sorted(logging.root.manager.loggerDict.items())  # type: ignore
     for name, loggeritem in items:
         if isinstance(loggeritem, logging.PlaceHolder):
             nodesm[name] = nodem = LoggerModel(name=name, children=[])
         else:
             nodesm[name] = nodem = LoggerModel(name=name, level=loggeritem.getEffectiveLevel(), children=[])
-        i = name.rfind(".", 0, len(name) - 1)  # same formula used in `logging`
+        i = name.rfind(".", 0, len(name) - 1)
         parentm = rootm if i == -1 else nodesm[name[:i]]
         parentm.children.append(nodem)
     return rootm
 
 
-# SOURCE: https://github.com/Derpitron/Discord-OTP-Forcer/blob/fc9812f3b6769f0eeba42f0f5bdeb01b7c8fe57c/src/lib/logcreation.py#L24
-def obfuscate_message(message: str):
-    """Obfuscate sensitive information."""
+def obfuscate_message(message: str) -> str:
+    """Obfuscate sensitive information in a message.
+
+    Args:
+        message: The message to obfuscate.
+
+    Returns:
+        The obfuscated message.
+    """
     obfuscation_patterns = [
         (r"email: .*", "email: ******"),
         (r"password: .*", "password: ******"),
@@ -331,7 +347,6 @@ def obfuscate_message(message: str):
         (r"authToken: .*", "authToken: ******"),
         (r"located at .*", "located at ******"),
         (r"#token=.*", "#token=******"),
-        # Add more obfuscation patterns as needed
     ]
     for pattern, replacement in obfuscation_patterns:
         message = re.sub(pattern, replacement, message)
@@ -339,14 +354,38 @@ def obfuscate_message(message: str):
     return message
 
 
-def formatter(record):
+def formatter(record: dict[str, Any]) -> str:
+    """Format a log record.
+
+    Args:
+        record: The log record to format.
+
+    Returns:
+        The formatted log record.
+    """
     record["extra"]["obfuscated_message"] = record["message"]
-    return "<green>[{time:YYYY-MM-DD HH:mm:ss}]</green> <level>[{level}]</level> - <cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> - <level>{extra[obfuscated_message]}</level>\n{exception}"
+    return (
+        "<green>[{time:YYYY-MM-DD HH:mm:ss}]</green> <level>[{level}]</level> - "
+        "<cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> - "
+        "<level>{extra[obfuscated_message]}</level>\n{exception}"
+    )
 
 
-def formatter_sensitive(record):
+def formatter_sensitive(record: dict[str, Any]) -> str:
+    """Format a log record with sensitive information obfuscated.
+
+    Args:
+        record: The log record to format.
+
+    Returns:
+        The formatted log record with sensitive information obfuscated.
+    """
     record["extra"]["obfuscated_message"] = obfuscate_message(record["message"])
-    return "<green>[{time:YYYY-MM-DD HH:mm:ss}]</green> <level>[{level}]</level> - <cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> - <level>{extra[obfuscated_message]}</level>\n{exception}"
+    return (
+        "<green>[{time:YYYY-MM-DD HH:mm:ss}]</green> <level>[{level}]</level> - "
+        "<cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> - "
+        "<level>{extra[obfuscated_message]}</level>\n{exception}"
+    )
 
 
 # SMOKE-TESTS
