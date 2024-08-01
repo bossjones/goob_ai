@@ -5,176 +5,178 @@ name: CI-UPGRADE
 # SOURCE: https://github.com/tornadoweb/tornado/blob/f399f40fde0ae1b130646db783a6f79cc59231b2/.github/workflows/build.yml#L37
 on: # yamllint disable-line rule:truthy
   # https://docs.github.com/en/webhooks-and-events/webhooks/webhook-events-and-payloads#push
-    push:
-        branches:
+  push:
+    branches:
       # Run on release branches. This gives us a chance to detect rot in this
       # configuration before pushing a tag (which we'd rather not have to undo).
-            - main
-            - feature/**
-            - '[0-9].*.x' # e.g., 4.14.x
-            - '[0-9][0-9].*.x' # e.g., 23.3.x
-        tags:
+      - main
+      - feature/**
+      - '[0-9].*.x'       # e.g., 4.14.x
+      - '[0-9][0-9].*.x'       # e.g., 23.3.x
+    tags:
       # The main purpose of this workflow is to build wheels for release tags.
       # It runs automatically on tags matching this pattern and pushes to pypi.
-            - "v*"
+      - "v*"
 
   # https://docs.github.com/en/webhooks-and-events/webhooks/webhook-events-and-payloads#pull_request
-    pull_request:
+  pull_request:
 
   # https://docs.github.com/en/webhooks-and-events/webhooks/webhook-events-and-payloads#workflow_dispatch
-    workflow_dispatch:
-        inputs:
-            debug_enabled:
-                description: 'Run the build with tmate debugging enabled (https://github.com/marketplace/actions/debugging-with-tmate)'
-                required: false
-                default: false
+  workflow_dispatch:
+    inputs:
+      debug_enabled:
+        description: 'Run the build with tmate debugging enabled (https://github.com/marketplace/actions/debugging-with-tmate)'
+        required: false
+        default: false
     # Allow this workflow to be run manually (pushing to testpypi instead of pypi)
 
 env:
-    python-version: '3.10'
+  python-version: '3.10'
 
 jobs:
-    test:
-        name: test
-        runs-on: ubuntu-22.04
+  test:
+    name: test
+    runs-on: ubuntu-22.04
 
-        if: github.repository == 'bossjones/goob_ai'
-        env:
-            OS: ubuntu-22.04
-            PYTHON: '3.10'
-            LANGCHAIN_ENDPOINT: "https://api.smith.langchain.com"
-            LANGCHAIN_TRACING_V2: true
-            OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-            LANGCHAIN_API_KEY: ${{ secrets.LANGCHAIN_API_KEY }}
+    if: github.repository == 'bossjones/goob_ai'
+    env:
+      OS: ubuntu-22.04
+      PYTHON: '3.10'
+      LANGCHAIN_ENDPOINT: "https://api.smith.langchain.com"
+      LANGCHAIN_TRACING_V2: true
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      LANGCHAIN_API_KEY: ${{ secrets.LANGCHAIN_API_KEY }}
       # Update with your API URL if using a hosted instance of Langsmith.
-            LANGCHAIN_HUB_API_URL: "https://api.hub.langchain.com"
-            LANGCHAIN_HUB_API_KEY: ${{ secrets.LANGCHAIN_API_KEY }}
-            LANGCHAIN_PROJECT: "goob-ci-upgrade"
-            GOOB_AI_CONFIG_DISCORD_TOKEN: "foo"
-            GOOB_AI_CONFIG_OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-        steps:
+      LANGCHAIN_HUB_API_URL: "https://api.hub.langchain.com"
+      LANGCHAIN_HUB_API_KEY: ${{ secrets.LANGCHAIN_API_KEY }}
+      LANGCHAIN_PROJECT: "goob-ci-upgrade"
+      GOOB_AI_CONFIG_DISCORD_TOKEN: "foo"
+      GOOB_AI_CONFIG_OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+    steps:
 
-            - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
-            - run: echo "🐧 This job is now running on a ${{ runner.os }} server hosted by GitHub!"
-            - run: echo "🔎 The name of your branch is ${{ github.ref_name }} and your repository is ${{ github.repository }}."
+      - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
+      - run: echo "🐧 This job is now running on a ${{ runner.os }} server hosted by GitHub!"
+      - run: echo "🔎 The name of your branch is ${{ github.ref_name }} and your repository is ${{ github.repository }}."
 
-            - name: Set up Git repository
-              uses: actions/checkout@v4
-            - name: Set up Docker Buildx
-              uses: docker/setup-buildx-action@v3
+      - name: Set up Git repository
+        uses: actions/checkout@v4
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
-            - name: Start Redis
-              id: redis-docker-compose-up
-              run: |
-                  docker-compose up -d
-                  docker ps -a
-              continue-on-error: true
+      - name: Start Redis
+        id: redis-docker-compose-up
+        run: |
+          sudo apt update
+          sudo apt install docker-compose-plugin -y
+          docker compose up -d
+          docker ps -a
+        continue-on-error: true
 
-            - name: Start Chroma
-              id: chroma-docker-compose-up
-              run: |
-                  git clone --depth 1 --branch feature-boss-chroma https://github.com/bossjones/chroma.git vendored_chroma
-                  cd vendored_chroma
-                  docker-compose up -d --build
-                  docker ps -a
-              continue-on-error: true
+      - name: Start Chroma
+        id: chroma-docker-compose-up
+        run: |
+          git clone --depth 1 --branch feature-boss-chroma https://github.com/bossjones/chroma.git vendored_chroma
+          cd vendored_chroma
+          docker-compose up -d --build
+          docker ps -a
+        continue-on-error: true
 
-            - name: Checkout
-              uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
-            - name: get version python
-              shell: bash # use bash to run date command
-              run: echo "Py${{ env.python-version }}"
+      - name: get version python
+        shell: bash       # use bash to run date command
+        run: echo "Py${{ env.python-version }}"
 
-            - name: Hash + Timestamp
-              shell: bash # use bash to run date command
-              run: 'echo "HASH=${{ runner.os }}-${{ runner.arch }}-Py${{ env.python-version }}-$(date -u "+%Y%m")" >> $GITHUB_ENV'
+      - name: Hash + Timestamp
+        shell: bash       # use bash to run date command
+        run: 'echo "HASH=${{ runner.os }}-${{ runner.arch }}-Py${{ env.python-version }}-$(date -u "+%Y%m")" >> $GITHUB_ENV'
 
-            - name: "Set up Python ${{ env.python-version }}"
-              uses: actions/setup-python@v5
-              with:
-                  python-version: "${{ env.python-version }}"
+      - name: "Set up Python ${{ env.python-version }}"
+        uses: actions/setup-python@v5
+        with:
+          python-version: "${{ env.python-version }}"
 
-            - name: Install Rye
-              run: |
-                  curl -sSf https://rye.astral.sh/get | bash
-                  echo "$HOME/.rye/shims" >> $GITHUB_PATH
-              env:
-                  RYE_VERSION: 'latest'
-                  RYE_INSTALL_OPTION: '--yes'
+      - name: Install Rye
+        run: |
+          curl -sSf https://rye.astral.sh/get | bash
+          echo "$HOME/.rye/shims" >> $GITHUB_PATH
+        env:
+          RYE_VERSION: 'latest'
+          RYE_INSTALL_OPTION: '--yes'
 
-            - name: install tesseract
-              run: |
-                  # wget -qO - 'https://proget.makedeb.org/debian-feeds/prebuilt-mpr.pub' | gpg --dearmor | sudo tee /usr/share/keyrings/prebuilt-mpr-archive-keyring.gpg 1> /dev/null
-                  # echo "deb [arch=all,$(dpkg --print-architecture) signed-by=/usr/share/keyrings/prebuilt-mpr-archive-keyring.gpg] https://proget.makedeb.org prebuilt-mpr $(lsb_release -cs)" | sudo tee /etc/apt/sources.list.d/prebuilt-mpr.list
-                  sudo apt update
-                  sudo apt-get install -y tesseract-ocr tesseract-ocr-por
-                  # sudo apt-get install -y tesseract-ocr tesseract-ocr-por just zsh
-                  curl -fsSL https://github.com/tamasfe/taplo/releases/latest/download/taplo-full-linux-x86_64.gz | gzip -d - | sudo install -m 755 /dev/stdin /usr/local/bin/taplo
+      - name: install tesseract
+        run: |
+          # wget -qO - 'https://proget.makedeb.org/debian-feeds/prebuilt-mpr.pub' | gpg --dearmor | sudo tee /usr/share/keyrings/prebuilt-mpr-archive-keyring.gpg 1> /dev/null
+          # echo "deb [arch=all,$(dpkg --print-architecture) signed-by=/usr/share/keyrings/prebuilt-mpr-archive-keyring.gpg] https://proget.makedeb.org prebuilt-mpr $(lsb_release -cs)" | sudo tee /etc/apt/sources.list.d/prebuilt-mpr.list
+          sudo apt update
+          sudo apt-get install -y tesseract-ocr tesseract-ocr-por
+          # sudo apt-get install -y tesseract-ocr tesseract-ocr-por just zsh
+          curl -fsSL https://github.com/tamasfe/taplo/releases/latest/download/taplo-full-linux-x86_64.gz | gzip -d - | sudo install -m 755 /dev/stdin /usr/local/bin/taplo
 
-            - name: install tesseract and ffmpeg
-              run: |
-                  sudo apt-get install -y tesseract-ocr tesseract-ocr-por
-                  sudo apt install ffmpeg -y
+      - name: install tesseract and ffmpeg
+        run: |
+          sudo apt-get install -y tesseract-ocr tesseract-ocr-por
+          sudo apt install ffmpeg -y
 
       # Allow debugging with tmate
-            - name: Setup tmate session
-              uses: mxschmitt/action-tmate@v3
-              if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.debug_enabled }}
-              with:
-                  limit-access-to-actor: true
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
+        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.debug_enabled }}
+        with:
+          limit-access-to-actor: true
 
-            - name: Run tests and collect coverage
-              id: upgrade-and-test
-              continue-on-error: true
-              env:
-                  LANGCHAIN_ENDPOINT: "https://api.smith.langchain.com"
-                  LANGCHAIN_TRACING_V2: true
-                  OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-                  LANGCHAIN_API_KEY: ${{ secrets.LANGCHAIN_API_KEY }}
+      - name: Run tests and collect coverage
+        id: upgrade-and-test
+        continue-on-error: true
+        env:
+          LANGCHAIN_ENDPOINT: "https://api.smith.langchain.com"
+          LANGCHAIN_TRACING_V2: true
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          LANGCHAIN_API_KEY: ${{ secrets.LANGCHAIN_API_KEY }}
           # Update with your API URL if using a hosted instance of Langsmith.
-                  LANGCHAIN_HUB_API_URL: "https://api.hub.langchain.com"
-                  LANGCHAIN_HUB_API_KEY: ${{ secrets.LANGCHAIN_API_KEY }}
-                  LANGCHAIN_PROJECT: "goob-ci-upgrade"
-                  GOOB_AI_CONFIG_DISCORD_TOKEN: "foo"
-                  GOOB_AI_CONFIG_OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-              run: |
-                  cp -f env.sample .env
-                  rye config --set-bool behavior.use-uv=true
-                  ./scripts/retry -t 4  -- rye sync --update-all --all-features
+          LANGCHAIN_HUB_API_URL: "https://api.hub.langchain.com"
+          LANGCHAIN_HUB_API_KEY: ${{ secrets.LANGCHAIN_API_KEY }}
+          LANGCHAIN_PROJECT: "goob-ci-upgrade"
+          GOOB_AI_CONFIG_DISCORD_TOKEN: "foo"
+          GOOB_AI_CONFIG_OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          cp -f env.sample .env
+          rye config --set-bool behavior.use-uv=true
+          ./scripts/retry -t 4  -- rye sync --update-all --all-features
 
-                  rye run goobctl chroma generate
+          rye run goobctl chroma generate
 
-                  git diff requirements.lock > requirements.lock.diff
-                  git diff requirements-dev.lock > requirements-dev.lock.diff
+          git diff requirements.lock > requirements.lock.diff
+          git diff requirements-dev.lock > requirements-dev.lock.diff
 
-                  # rye run typecheck
+          # rye run typecheck
 
-                  echo "rye run python -c 'import goob_ai'"
-                  rye run python -c 'import goob_ai'
+          echo "rye run python -c 'import goob_ai'"
+          rye run python -c 'import goob_ai'
 
-                  pip install pre-commit
-                  pre-commit install
-                  pre-commit autoupdate
+          pip install pre-commit
+          pre-commit install
+          pre-commit autoupdate
 
-                  # NOTE: just fmt
-                  git ls-files '*.py' '*.ipynb' | xargs rye run pre-commit run --files
+          # NOTE: just fmt
+          git ls-files '*.py' '*.ipynb' | xargs rye run pre-commit run --files
 
-                  # NOTE: just lint
-                  pre-commit run ruff --all-files
+          # NOTE: just lint
+          pre-commit run ruff --all-files
 
-                  echo "rye run test"
-                  rye run test
+          echo "rye run test"
+          rye run test
 
-            - name: Upload Diff Of Rye Requirements
-              if: '!cancelled()'
-              uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
-              with:
-                  name: rye-requirements-diff-${{ env.HASH }}
-                  path: |
-                      requirements.lock
-                      requirements.lock.diff
-                      requirements-dev.lock.diff
-                      requirements-dev.lock
-                      pyproject.toml
-                  retention-days: 1 # temporary, combined in aggregate below
+      - name: Upload Diff Of Rye Requirements
+        if: '!cancelled()'
+        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
+        with:
+          name: rye-requirements-diff-${{ env.HASH }}
+          path: |
+            requirements.lock
+            requirements.lock.diff
+            requirements-dev.lock.diff
+            requirements-dev.lock
+            pyproject.toml
+          retention-days: 1         # temporary, combined in aggregate below

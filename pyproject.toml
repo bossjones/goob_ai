@@ -2374,12 +2374,13 @@ exclude = [
 [tool.yamlfix]
 line_length = 120
 preserve_quotes = true
-# sequence_style = "block_style"
+sequence_style = "block_style"
 comments_min_spaces_from_content = 1
+comments_require_starting_space = false
 whitelines = 1
-indent_mapping = 4
-indent_offset = 4
-indent_sequence = 6
+# indent_mapping = 4
+# indent_offset = 4
+# indent_sequence = 6
 
 
 # allow_duplicate_keys: bool = False
