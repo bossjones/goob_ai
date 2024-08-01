@@ -182,9 +182,9 @@ charset-normalizer==3.3.2
     # via commitizen
     # via docformatter
     # via requests
-chroma-hnswlib==0.7.6
+chroma-hnswlib==0.7.3
     # via chromadb
-chromadb==0.5.5
+chromadb==0.5.3
     # via goob-ai
     # via langchain-chroma
 click==8.1.7
@@ -1245,6 +1245,7 @@ regex==2024.7.24
     # via transformers
 requests==2.32.3
     # via bpython
+    # via chromadb
     # via datasets
     # via gallery-dl
     # via goob-ai
