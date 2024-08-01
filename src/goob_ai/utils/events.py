@@ -31,13 +31,17 @@ def css_syntax_highlight(text: str):
 
 
 def ig_type(typename: str):
-    """Take instagram metadata payload typenames and convert them into readable IG post type values, eg Albums, Reels, or Image Post.
+    """
+    Take instagram metadata payload typenames and convert them into readable IG post type values, eg Albums, Reels, or Image Post.
 
     Args:
+    ----
         typename (str): _description_
 
     Returns:
+    -------
         _type_: _description_
+
     """
     if typename == "GraphSidecar":
         return "Album"

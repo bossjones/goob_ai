@@ -138,7 +138,8 @@ def str_to_rgb(arg):
 
 
 def ensure_iterable(arg, color=False):
-    """Ensure an argument is an iterable. Useful when an input argument
+    """
+    Ensure an argument is an iterable. Useful when an input argument
     can either be a single value or a list. If a color is passed then it
     will be treated specially to determine if it is iterable.
     """
@@ -146,7 +147,8 @@ def ensure_iterable(arg, color=False):
 
 
 def is_iterable(arg, color=False):
-    """Determine if a single argument is an iterable. If a color is being
+    """
+    Determine if a single argument is an iterable. If a color is being
     provided and the argument is a 1-D array of length 3 or 4 then the input
     is taken to not be iterable.
     """
@@ -163,7 +165,8 @@ def is_iterable(arg, color=False):
 
 
 def is_sequence(arg):
-    """Check if ``arg`` is a sequence like a list or tuple.
+    """
+    Check if ``arg`` is a sequence like a list or tuple.
 
     return True:
         list
@@ -178,7 +181,8 @@ def is_sequence(arg):
 
 
 def ensure_sequence_of_iterables(obj, length: Optional[int] = None):
-    """Ensure that ``obj`` behaves like a (nested) sequence of iterables.
+    """
+    Ensure that ``obj`` behaves like a (nested) sequence of iterables.
 
     If length is provided and the object is already a sequence of iterables,
     a ValueError will be raised if ``len(obj) != length``.
@@ -208,8 +212,8 @@ def ensure_sequence_of_iterables(obj, length: Optional[int] = None):
 
     In [4]: ensure_sequence_of_iterables(None)
     Out[4]: repeat(None)
-    """
 
+    """
     if obj is not None and is_sequence(obj) and is_iterable(obj[0]):
         if length is not None and len(obj) != length:
             raise ValueError(f"length of {obj} must equal {length}")
@@ -244,7 +248,8 @@ T = TypeVar("T", str, Sequence[str])
 
 
 def abspath_or_url(relpath: T) -> T:
-    """Utility function that normalizes paths or a sequence thereof.
+    """
+    Utility function that normalizes paths or a sequence thereof.
 
     Expands user directory and converts relpaths to abspaths... but ignores
     URLS that begin with "http", "ftp", or "file".
@@ -259,6 +264,7 @@ def abspath_or_url(relpath: T) -> T:
     abspath : str or list or tuple
         An absolute path, or list or tuple of absolute paths (same type as
         input).
+
     """
     from urllib.parse import urlparse
 
@@ -278,7 +284,7 @@ def abspath_or_url(relpath: T) -> T:
 # SOURCE: https://github.com/napari/napari/blob/6ce45aed3c893c03a47dc1d743e43b342b7022cb/napari/utils/misc.py#L400
 class CallDefault(inspect.Parameter):
     def __str__(self) -> str:
-        """wrap defaults"""
+        """Wrap defaults"""
         kind = self.kind
         formatted = self.name
 
@@ -298,7 +304,8 @@ class CallSignature(inspect.Signature):
     _parameter_cls = CallDefault
 
     def __str__(self):
-        """do not render separators
+        """
+        Do not render separators
 
         commented code is what was taken out from
         the copy/pasted inspect module code :)
@@ -317,7 +324,8 @@ callsignature = CallSignature.from_callable
 
 
 def all_subclasses(cls: type) -> set:
-    """Recursively find all subclasses of class ``cls``.
+    """
+    Recursively find all subclasses of class ``cls``.
 
     Parameters
     ----------
@@ -328,12 +336,14 @@ def all_subclasses(cls: type) -> set:
     -------
     set
         the set of all classes that are subclassed from ``cls``
+
     """
     return set(cls.__subclasses__()).union([s for c in cls.__subclasses__() for s in all_subclasses(c)])
 
 
 def ensure_n_tuple(val, n, fill=0):
-    """Ensure input is a length n tuple.
+    """
+    Ensure input is a length n tuple.
 
     Parameters
     ----------
@@ -346,6 +356,7 @@ def ensure_n_tuple(val, n, fill=0):
     -------
     tuple
         Coerced tuple.
+
     """
     assert n > 0, "n must be greater than 0"
     tuple_value = tuple(val)

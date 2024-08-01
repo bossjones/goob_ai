@@ -25,15 +25,20 @@ if TYPE_CHECKING:
 async def download_file(bot: AsyncGoobBot, session: aiohttp.ClientSession, url: str, output_directory: str):
     """
     Downloads a file from a given URL.
+
     Args:
+    ----
       bot (Bot): The bot instance.
       session (aiohttp.ClientSession): The aiohttp session.
       url (str): The URL of the file to download.
       output_directory (str): The directory to save the file to.
     Side Effects:
       Writes the file to the output directory.
+
     Examples:
+    --------
       >>> download_file(bot, session, "https://example.com/file.txt", "/tmp/")
+
     """
     async with session.get(url) as response:
         if response.status == 200:
@@ -49,14 +54,19 @@ async def download_file(bot: AsyncGoobBot, session: aiohttp.ClientSession, url: 
 async def ingest(bot: AsyncGoobBot, url: str, namespace: str):
     """
     Ingests documents from a given URL into Pinecone.
+
     Args:
+    ----
       bot (Bot): The bot instance.
       url (str): The URL of the documents to ingest.
       namespace (str): The namespace to ingest the documents into.
     Side Effects:
       Ingests documents into Pinecone.
+
     Examples:
+    --------
       >>> ingest_db(bot, "https://example.com/db", "my_namespace")
+
     """
     base_url = url
 
@@ -82,13 +92,20 @@ async def ingest(bot: AsyncGoobBot, url: str, namespace: str):
             def _clean_data(self, data: str) -> str:
                 """
                 Cleans the data from a given HTML string.
+
                 Args:
+                ----
                   data (str): The HTML string to clean.
+
                 Returns:
+                -------
                   str: The cleaned string.
+
                 Examples:
+                --------
                   >>> MyReadThedbLoader._clean_data("<html><body>Hello World!</body></html>")
                   'Hello World!'
+
                 """
                 from bs4 import BeautifulSoup
 

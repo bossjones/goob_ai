@@ -26,30 +26,38 @@ if TYPE_CHECKING:
 
 @pytest.fixture()
 def mock_openai_api_key(mocker: MockerFixture) -> str:
-    """Fixture to provide a mock OpenAI API key for testing purposes.
+    """
+    Fixture to provide a mock OpenAI API key for testing purposes.
 
     This fixture returns a mock OpenAI API key that can be used in tests
     to simulate the presence of a valid API key without making actual
     API calls.
 
     Args:
+    ----
         mocker (MockerFixture): The mocker fixture for patching.
 
     Returns:
+    -------
         str: A mock OpenAI API key.
+
     """
     return "test_api_key"
 
 
 @pytest.fixture()
 def custom_embeddings(mock_openai_api_key: str) -> CustomOpenAIEmbeddings:
-    """Create a CustomOpenAIEmbeddings instance with the provided API key.
+    """
+    Create a CustomOpenAIEmbeddings instance with the provided API key.
 
     Args:
+    ----
         mock_openai_api_key (str): The OpenAI API key to use for the embeddings.
 
     Returns:
+    -------
         CustomOpenAIEmbeddings: An instance of CustomOpenAIEmbeddings initialized with the provided API key.
+
     """
     return CustomOpenAIEmbeddings(openai_api_key=mock_openai_api_key)
 
@@ -79,7 +87,9 @@ def test_add_collection(mocker: MockerFixture) -> None:
     to ChromaDB using the provided collection name and embedding function.
 
     Args:
+    ----
         mocker (MockerFixture): The mocker fixture for patching.
+
     """
     from goob_ai.services.chroma_service import ChromaService
 
@@ -106,7 +116,9 @@ def test_get_client(mocker: MockerFixture) -> None:
     the ChromaDB client.
 
     Args:
+    ----
         mocker (MockerFixture): The mocker fixture for patching.
+
     """
     from goob_ai.services.chroma_service import ChromaService
 
@@ -126,7 +138,9 @@ def test_get_collection(mocker: MockerFixture) -> None:
     a collection from ChromaDB using the provided collection name and embedding function.
 
     Args:
+    ----
         mocker (MockerFixture): The mocker fixture for patching.
+
     """
     from goob_ai.services.chroma_service import ChromaService
 
@@ -151,7 +165,9 @@ def test_get_list_collections(mocker: MockerFixture) -> None:
     the list of collections from ChromaDB.
 
     Args:
+    ----
         mocker (MockerFixture): The mocker fixture for patching.
+
     """
     from goob_ai.services.chroma_service import ChromaService
 
@@ -171,14 +187,17 @@ def test_get_list_collections(mocker: MockerFixture) -> None:
     reason="These tests are meant to only run locally on laptop prior to porting it over to new system",
 )
 def test_custom_openai_embeddings_call(mocker: MockerFixture, custom_embeddings: CustomOpenAIEmbeddings) -> None:
-    """Test the call method of CustomOpenAIEmbeddings.
+    """
+    Test the call method of CustomOpenAIEmbeddings.
 
     This test verifies that the call method of CustomOpenAIEmbeddings returns
     the expected embeddings for the given texts.
 
     Args:
+    ----
         mocker (MockerFixture): The mocker fixture for patching.
         custom_embeddings (CustomOpenAIEmbeddings): An instance of CustomOpenAIEmbeddings.
+
     """
     mock_texts: list[str] = ["This is a test document."]
     mock_embeddings: list[list[float]] = [[0.1, 0.2, 0.3]]
@@ -199,16 +218,20 @@ def test_custom_openai_embeddings_call(mocker: MockerFixture, custom_embeddings:
 
 @pytest.fixture()
 def mock_pdf_file(tmp_path: Path) -> Path:
-    """Fixture to create a mock PDF file for testing purposes.
+    """
+    Fixture to create a mock PDF file for testing purposes.
 
     This fixture creates a temporary directory and copies a test PDF file into it.
     The path to the mock PDF file is then returned for use in tests.
 
     Args:
+    ----
         tmp_path (Path): The temporary path provided by pytest.
 
     Returns:
+    -------
         Path: A Path object of the path to the mock PDF file.
+
     """
     test_pdf_path: Path = tmp_path / "rich-readthedocs-io-en-latest.pdf"
     shutil.copy("src/goob_ai/data/chroma/documents/rich-readthedocs-io-en-latest.pdf", test_pdf_path)
@@ -217,16 +240,20 @@ def mock_pdf_file(tmp_path: Path) -> Path:
 
 @pytest.fixture()
 def mock_txt_file(tmp_path: Path) -> Path:
-    """Fixture to create a mock text file for testing purposes.
+    """
+    Fixture to create a mock text file for testing purposes.
 
     This fixture creates a temporary directory and copies a test txt file into it.
     The path to the mock txt file is then returned for use in tests.
 
     Args:
+    ----
         tmp_path (Path): The temporary path provided by pytest.
 
     Returns:
+    -------
         Path: A Path object of the path to the mock txt file.
+
     """
     test_txt_path: Path = tmp_path / "state_of_the_union.txt"
     shutil.copy("src/goob_ai/data/chroma/documents/state_of_the_union.txt", test_txt_path)
@@ -234,13 +261,15 @@ def mock_txt_file(tmp_path: Path) -> Path:
 
 
 def test_load_documents(mocker: MockerFixture, mock_pdf_file: Path) -> None:
-    """Test the loading of documents from a PDF file.
+    """
+    Test the loading of documents from a PDF file.
 
     This test verifies that the `load_documents` function correctly loads
     documents from a PDF file, splits the text into chunks, and saves the
     chunks to Chroma.
 
     Args:
+    ----
         mocker (MockerFixture): The mocker fixture for patching.
         mock_pdf_file (Path): The path to the mock PDF file.
 
@@ -249,6 +278,7 @@ def test_load_documents(mocker: MockerFixture, mock_pdf_file: Path) -> None:
     2. Mocks the `PyPDFLoader` to return a document with test content.
     3. Calls the `generate_data_store` function to load, split, and save the document.
     4. Asserts that the document is loaded, split, and saved correctly.
+
     """
     # mocker.patch("os.listdir", return_value=["rich-readthedocs-io-en-latest.pdf"])
     # mocker.patch("os.path.join", return_value=mock_pdf_file)
@@ -287,12 +317,14 @@ def test_load_documents(mocker: MockerFixture, mock_pdf_file: Path) -> None:
 #     reason="These tests are meant to only run locally on laptop prior to porting it over to new system",
 # )
 def test_split_text(mocker: MockerFixture) -> None:
-    """Test the split_text function.
+    """
+    Test the split_text function.
 
     This test verifies that the `split_text` function correctly splits
     documents into chunks using the RecursiveCharacterTextSplitter.
 
     Args:
+    ----
         mocker (MockerFixture): The mocker fixture for patching.
 
     The test performs the following steps:
@@ -300,6 +332,7 @@ def test_split_text(mocker: MockerFixture) -> None:
     2. Calls the `split_text` function with a mock document.
     3. Asserts that the document is split into the expected chunks.
     4. Verifies that the RecursiveCharacterTextSplitter is called with the correct arguments.
+
     """
     from typing import List
 

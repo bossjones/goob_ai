@@ -28,10 +28,7 @@ logger = logging.getLogger(__name__)
 @pytest.mark.unittest()
 @pytest.mark.configonly()
 def test__base_parameters(mocker) -> None:
-    """
-    test the base parameters for tenacity
-    """
-
+    """Test the base parameters for tenacity"""
     # INFO: https://pytest-mock.readthedocs.io/en/latest/usage.html#spys
     _spy_base_parameters: MockType = mocker.spy(retry, "_base_parameters")
     spy_retry_settings: MockType = mocker.spy(retry, "aiosettings")
@@ -57,10 +54,7 @@ def test__base_parameters(mocker) -> None:
 
 @pytest.mark.configonly()
 def test_linear_backoff_parameters(mocker) -> None:
-    """
-    test linear parameters for tenacity
-    """
-
+    """Test linear parameters for tenacity"""
     # Use mocker.spy to inspect function calls
     _spy_base_parameters: MockType = mocker.spy(retry, "_base_parameters")
     # INFO: https://pytest-mock.readthedocs.io/en/latest/usage.html#spys
@@ -82,10 +76,7 @@ def test_linear_backoff_parameters(mocker) -> None:
 
 @pytest.mark.configonly()
 def test_exponential_backoff_parameters(mocker) -> None:
-    """
-    test linear parameters for tenacity
-    """
-
+    """Test linear parameters for tenacity"""
     # Use mocker.spy to inspect function calls
     # INFO: https://pytest-mock.readthedocs.io/en/latest/usage.html#spys
     _spy_base_parameters = mocker.spy(retry, "_base_parameters")
@@ -115,7 +106,6 @@ def test_is_result_none() -> None:
     Function that can be assigned to the retry_if_result paramter to
     tenacity.retry to conditionally retry if None is returned.
     """
-
     assert not retry.is_result_none(1)
 
 
@@ -126,7 +116,6 @@ def test_return_outcome_result() -> None:
     tenacity.retry to return the last return value instead of raising RetryError
     when the retry stop condition is reached.
     """
-
     retry_state = tenacity.RetryCallState(None, None, (), {})
 
     assert not retry.return_outcome_result(retry_state)

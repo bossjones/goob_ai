@@ -94,9 +94,7 @@ class query_rag:
 
 
 def load_pdf(file_path: str) -> dict[str, Any]:
-    """
-    Load the pdf file and return the text content
-    """
+    """Load the pdf file and return the text content"""
     loader = PyMuPDFLoader(file_path)
     return loader.load()
 

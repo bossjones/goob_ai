@@ -169,13 +169,13 @@ def version_callback(version: bool) -> None:
 
 @APP.command()
 def version() -> None:
-    """version command"""
+    """Version command"""
     rich.print(f"goob_ai version: {goob_ai.__version__}")
 
 
 @APP.command()
 def deps() -> None:
-    """deps command"""
+    """Deps command"""
     rich.print(f"goob_ai version: {goob_ai.__version__}")
     rich.print(f"langchain_version: {importlib_metadata_version('langchain')}")
     rich.print(f"langchain_community_version: {importlib_metadata_version('langchain_community')}")
@@ -192,13 +192,13 @@ def deps() -> None:
 
 @APP.command()
 def about() -> None:
-    """about command"""
+    """About command"""
     typer.echo("This is GoobBot CLI")
 
 
 @APP.command()
 def show() -> None:
-    """show command"""
+    """Show command"""
     cprint("\nShow goob_ai", style="yellow")
 
 
@@ -445,7 +445,6 @@ def run_download_and_predict(
     img_url: str = "/Users/malcolm/dev/bossjones/goob_ai/tests/fixtures/screenshot_image_larger00000.JPEG",
 ) -> None:
     """Manually run screencrop's download_and_predict service and get bounding boxes"""
-
     path_to_image_from_cli = fix_path(img_url)
     try:
         # asyncio.run(ImageService.handle_predict_from_file(path_to_image_from_cli))
@@ -522,7 +521,6 @@ def query_readthedocs() -> None:
 @APP.command()
 def run_predict_and_display(img_url: list[str] = None) -> None:
     """Manually run screencrop's download_and_predict service and get bounding boxes"""
-
     if img_url is None:
         img_url = [  # type: ignore
             # "/Users/malcolm/dev/bossjones/goob_ai/tests/fixtures/screenshot_image_larger.JPEG",
@@ -563,7 +561,6 @@ def run_predict_and_display(img_url: list[str] = None) -> None:
 @APP.command()
 def run_final() -> None:
     """Manually run screencrop's download_and_predict service and get bounding boxes"""
-
     img_path = "/Users/malcolm/dev/bossjones/goob_ai/tests/fixtures/screenshot_image_larger00013.PNG"
     path_to_image_from_cli = fix_path(img_path)
     try:
@@ -585,7 +582,6 @@ def run_final() -> None:
 @APP.command()
 def chroma(choices: ChromaChoices) -> None:
     """Interact w/ chroma local vectorstore"""
-
     try:
         if choices == ChromaChoices.load:
             ChromaService.load_documents()

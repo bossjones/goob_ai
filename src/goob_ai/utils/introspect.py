@@ -1,4 +1,5 @@
-"""goob_ai/utils/introspect.py
+"""
+goob_ai/utils/introspect.py
 
 Defines built in goob_ai functions to aid in introspection
 """
@@ -56,7 +57,8 @@ def takes_all_arguments(function, *named_arguments):
 
 
 def generate_accepted_kwargs(function, *named_arguments):
-    """Dynamically creates a function that when called with dictionary of arguments will produce a kwarg that's
+    """
+    Dynamically creates a function that when called with dictionary of arguments will produce a kwarg that's
     compatible with the supplied function
     """
     if hasattr(function, "__code__") and takes_kwargs(function):

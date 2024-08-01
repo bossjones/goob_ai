@@ -8,7 +8,8 @@ from typing import Dict, Optional
 
 
 class Timer:
-    """Utility timer class.
+    """
+    Utility timer class.
 
     This class can be used to time operations. It can be started, stopped, and reset. The duration of the timer can be
     retrieved at any time.
@@ -66,7 +67,8 @@ class Timer:
 
 
 class TimerCollection:
-    """Utility class for timing multiple operations.
+    """
+    Utility class for timing multiple operations.
 
     This class keeps a collection of named timers. Each timer can be started, stopped, and reset. The duration of each
     timer can be retrieved at any time. If a timer is stopped and restarted, the duration will be added to the previous

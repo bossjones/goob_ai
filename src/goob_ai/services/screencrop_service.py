@@ -206,7 +206,6 @@ class ImageService:
         Explanation:
         This static method processes image file paths to predict bounding boxes using a specified model and device. It returns the bounding box results for further processing.
         """
-
         if model is None:
             model = setup_model()
 

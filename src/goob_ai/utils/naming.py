@@ -37,7 +37,8 @@ def _inc_name_count_sub(match):
 
 @formatdoc
 def inc_name_count(name):
-    """Increase a name's count matching `{numbered_patt}` by ``1``.
+    """
+    Increase a name's count matching `{numbered_patt}` by ``1``.
 
     If the name is not already numbered, append '{sep}[{start}]'.
 
@@ -50,12 +51,14 @@ def inc_name_count(name):
     -------
     incremented_name : str
         Numbered name incremented by ``1``.
+
     """
     return numbered_patt.sub(_inc_name_count_sub, name, count=1)
 
 
 def magic_name(value, *, path_prefix):
-    """Fetch the name of the variable with the given value passed to the calling function.
+    """
+    Fetch the name of the variable with the given value passed to the calling function.
 
     Parameters
     ----------
@@ -68,6 +71,7 @@ def magic_name(value, *, path_prefix):
     -------
     name : str or None
         Name of the variable, if found.
+
     """
     frame = inspect.currentframe()
     try:

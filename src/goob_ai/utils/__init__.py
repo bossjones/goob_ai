@@ -93,7 +93,8 @@ def temp_env_update(env: dict[str, str]) -> Iterator[None]:
 
 @contextlib.contextmanager
 def monkeypatch(obj: Any, attr: str, new: Any) -> Any:
-    """Temporarily replace a method with a new funtion
+    """
+    Temporarily replace a method with a new funtion
 
     The previously set method is passed as the first argument to the new function
     """
@@ -111,7 +112,8 @@ def monkeypatch(obj: Any, attr: str, new: Any) -> Any:
 
 
 def get_or_create_event_loop() -> asyncio.AbstractEventLoop:
-    """Return the currently set event loop or create a new event loop if there
+    """
+    Return the currently set event loop or create a new event loop if there
     is no set event loop.
 
     Starting from python3.10, asyncio.get_event_loop() raises a DeprecationWarning
@@ -133,7 +135,8 @@ def get_or_create_event_loop() -> asyncio.AbstractEventLoop:
 
 
 def assert_never(value: NoReturn) -> NoReturn:
-    """Used by type checkers for exhaustive match cases.
+    """
+    Used by type checkers for exhaustive match cases.
 
     https://github.com/microsoft/pyright/issues/767
     """
@@ -141,7 +144,8 @@ def assert_never(value: NoReturn) -> NoReturn:
 
 
 def make_optional(value: _T) -> _T | None:
-    """Helper function for type checkers to change the given type to include None.
+    """
+    Helper function for type checkers to change the given type to include None.
 
     This is useful in cases where you do not have an explicit type for a symbol (e.g. modules)
     but want to mark it as potentially None.
@@ -164,7 +168,8 @@ def deduplicate_iterables(*iterables):
 
 # https://github.com/PyCQA/pylint/issues/2717
 class AsyncFilter(AsyncIterator[_T], Awaitable[list[_T]]):  # pylint: disable=duplicate-bases
-    """Class returned by `async_filter`. See that function for details.
+    """
+    Class returned by `async_filter`. See that function for details.
 
     We don't recommend instantiating this class directly.
     """
@@ -222,7 +227,8 @@ def async_filter(
     func: Callable[[_T], Union[bool, Awaitable[bool]]],
     iterable: Union[AsyncIterable[_T], Iterable[_T]],
 ) -> AsyncFilter[_T]:
-    """Filter an (optionally async) iterable with an (optionally async) predicate.
+    """
+    Filter an (optionally async) iterable with an (optionally async) predicate.
 
     At least one of the arguments must be async.
 
@@ -250,7 +256,8 @@ def async_filter(
 
 
 async def async_enumerate(async_iterable: AsyncIterable[_T], start: int = 0) -> AsyncIterator[tuple[int, _T]]:
-    """Async iterable version of `enumerate`.
+    """
+    Async iterable version of `enumerate`.
 
     Parameters
     ----------
@@ -297,6 +304,7 @@ def bounded_gather_iter(
     ------
     TypeError
         When invalid parameters are passed
+
     """
     loop = asyncio.get_running_loop()
 
@@ -344,6 +352,7 @@ def bounded_gather(
     ------
     TypeError
         When invalid parameters are passed
+
     """
     loop = asyncio.get_running_loop()
 
@@ -359,7 +368,8 @@ def bounded_gather(
 
 
 class AsyncIter(AsyncIterator[_T], Awaitable[list[_T]]):  # pylint: disable=duplicate-bases
-    """Asynchronous iterator yielding items from ``iterable``
+    """
+    Asynchronous iterator yielding items from ``iterable``
     that sleeps for ``delay`` seconds every ``steps`` items.
 
     Parameters
@@ -411,7 +421,8 @@ class AsyncIter(AsyncIterator[_T], Awaitable[list[_T]]):  # pylint: disable=dupl
         return await maybe_coroutine(self._map, item) if self._map is not None else item
 
     def __await__(self) -> Generator[Any, None, list[_T]]:
-        """Returns a list of the iterable.
+        """
+        Returns a list of the iterable.
 
         Examples
         --------
@@ -424,7 +435,8 @@ class AsyncIter(AsyncIterator[_T], Awaitable[list[_T]]):  # pylint: disable=dupl
         return self.flatten().__await__()
 
     async def next(self, default: Any = ...) -> _T:
-        """Returns a next entry of the iterable.
+        """
+        Returns a next entry of the iterable.
 
         Parameters
         ----------
@@ -455,7 +467,8 @@ class AsyncIter(AsyncIterator[_T], Awaitable[list[_T]]):  # pylint: disable=dupl
         return value
 
     async def flatten(self) -> list[_T]:
-        """Returns a list of the iterable.
+        """
+        Returns a list of the iterable.
 
         Examples
         --------
@@ -468,7 +481,8 @@ class AsyncIter(AsyncIterator[_T], Awaitable[list[_T]]):  # pylint: disable=dupl
         return [item async for item in self]
 
     def filter(self, function: Callable[[_T], Union[bool, Awaitable[bool]]]) -> AsyncFilter[_T]:
-        """Filter the iterable with an (optionally async) predicate.
+        """
+        Filter the iterable with an (optionally async) predicate.
 
         Parameters
         ----------
@@ -504,7 +518,8 @@ class AsyncIter(AsyncIterator[_T], Awaitable[list[_T]]):  # pylint: disable=dupl
         return async_filter(function, self)
 
     def enumerate(self, start: int = 0) -> AsyncIterator[tuple[int, _T]]:
-        """Async iterable version of `enumerate`.
+        """
+        Async iterable version of `enumerate`.
 
         Parameters
         ----------
@@ -558,7 +573,8 @@ class AsyncIter(AsyncIterator[_T], Awaitable[list[_T]]):  # pylint: disable=dupl
         predicate: Callable[[_T], Union[bool, Awaitable[bool]]],
         default: Optional[Any] = None,
     ) -> AsyncIterator[_T]:
-        """Calls ``predicate`` over items in iterable and return first value to match.
+        """
+        Calls ``predicate`` over items in iterable and return first value to match.
 
         Parameters
         ----------
@@ -577,6 +593,7 @@ class AsyncIter(AsyncIterator[_T], Awaitable[list[_T]]):  # pylint: disable=dupl
         >>> from redbot.core.utils import AsyncIter
         >>> await AsyncIter(range(3)).find(lambda x: x == 1)
         1
+
         """
         while True:
             try:
@@ -588,7 +605,8 @@ class AsyncIter(AsyncIterator[_T], Awaitable[list[_T]]):  # pylint: disable=dupl
                 return elem
 
     def map(self, func: Callable[[_T], Union[_S, Awaitable[_S]]]) -> AsyncIter[_S]:
-        """Set the mapping callable for this instance of `AsyncIter`.
+        """
+        Set the mapping callable for this instance of `AsyncIter`.
 
         .. important::
             This should be called after AsyncIter initialization and before any other of its methods.
@@ -613,7 +631,6 @@ class AsyncIter(AsyncIterator[_T], Awaitable[list[_T]]):  # pylint: disable=dupl
         True
 
         """
-
         if not callable(func):
             raise TypeError("Mapping must be a callable.")
         self._map = func
@@ -642,6 +659,7 @@ def get_end_user_data_statement(file: Union[Path, str]) -> Optional[str]:
     >>> from redbot.core.utils import get_end_user_data_statement
     >>> __red_end_user_data_statement__ = get_end_user_data_statement(__file__)
     >>> def setup(bot): ...
+
     """
     try:
         file = Path(file).parent.absolute()
@@ -693,6 +711,7 @@ def get_end_user_data_statement_or_raise(file: Union[Path, str]) -> str:
     Exception
         Any other exception raised from ``pathlib`` and ``json`` modules
         when attempting to parse the ``info.json`` for the ``end_user_data_statement`` key.
+
     """
     file = Path(file).parent.absolute()
     info_json = file / "info.json"

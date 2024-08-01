@@ -22,7 +22,7 @@ logger.setLevel("DEBUG")
 @task(incrementable=["verbose"])
 def clean(ctx, loc="local", verbose=0, cleanup=False):
     """
-    clean compiled python artifacts
+    Clean compiled python artifacts
     Usage: inv ci.clean
     """
     env = get_compose_env(ctx, loc=loc)
@@ -51,7 +51,7 @@ xargs rm -rf
 @task(incrementable=["verbose"])
 def coverage_clean(ctx, loc="local", verbose=0, cleanup=False):
     """
-    clean coverage files
+    Clean coverage files
     Usage: inv ci.coverage-clean
     """
     env = get_compose_env(ctx, loc=loc)
@@ -80,7 +80,7 @@ rm -f cov.xml
 @task
 def pylint(ctx, loc="local", tests=False, everything=False, specific=""):
     """
-    pylint cerebro-bot folder
+    Pylint cerebro-bot folder
     Usage: inv ci.pylint
     """
     env = get_compose_env(ctx, loc=loc)
@@ -111,7 +111,7 @@ def pylint(ctx, loc="local", tests=False, everything=False, specific=""):
 @task(incrementable=["verbose"])
 def mypy(ctx, loc="local", verbose=0):
     """
-    mypy cerebro-bot folder
+    Mypy cerebro-bot folder
     Usage: inv ci.mypy
     """
     env = get_compose_env(ctx, loc=loc)
@@ -129,7 +129,7 @@ def mypy(ctx, loc="local", verbose=0):
 @task(incrementable=["verbose"])
 def sourcery(ctx, loc: str = "local", verbose: Union[bool, int] = 0):
     """
-    sourcery pytorch_lab folder
+    Sourcery pytorch_lab folder
     Usage: inv ci.sourcery
     """
     env = get_compose_env(ctx, loc=loc)
@@ -189,7 +189,7 @@ def flake8(ctx, loc: str = "local", verbose: Union[bool, int] = 0):
 @task(incrementable=["verbose"])
 def ruff(ctx, loc: str = "local", verbose: Union[bool, int] = 0):
     """
-    ruff pytorch_lab folder
+    Ruff pytorch_lab folder
     Usage: inv ci.ruff
     """
     env = get_compose_env(ctx, loc=loc)
@@ -255,7 +255,7 @@ def black(ctx, loc="local", check=False, debug=False, verbose=0, tests=False):
 )
 def isort(ctx, loc="local", check=False, dry_run=False, verbose=0, diff=False):
     """
-    isort cerebro-bot module. Some of the arguments were taken from the starlette contrib scripts. Tries to align w/ black to prevent having to reformat multiple times.
+    Isort cerebro-bot module. Some of the arguments were taken from the starlette contrib scripts. Tries to align w/ black to prevent having to reformat multiple times.
 
     To check mode only(does not make changes permenantly):
         Usage: inv ci.isort --check -vvv
@@ -305,14 +305,13 @@ def isort(ctx, loc="local", check=False, dry_run=False, verbose=0, diff=False):
 )
 def bandit(ctx, loc="local", package=True, tests=True, verbose=0):
     """
-    bandit cerebro-bot module. Some of the arguments were taken from the starlette contrib scripts. Tries to align w/ black to prevent having to reformat multiple times.
+    Bandit cerebro-bot module. Some of the arguments were taken from the starlette contrib scripts. Tries to align w/ black to prevent having to reformat multiple times.
 
     To check mode only(does not make changes permenantly):
         Usage: inv ci.bandit --package -vvv
     Simply display command we would run:
         Usage: inv ci.bandit --package --tests -vvv
     """
-
     # SOURCE: https://security.openstack.org/guidelines/dg_use-subprocess-securely.html
 
     env = get_compose_env(ctx, loc=loc)

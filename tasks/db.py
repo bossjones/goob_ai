@@ -66,7 +66,7 @@ def get_python_path(ctx, loc="local", verbose=0):
 @task(incrementable=["verbose"])
 def detect_os(ctx, loc="local", verbose=0):
     """
-    detect what type of os we are using
+    Detect what type of os we are using
     Usage: inv db.detect-os
     """
     env = get_compose_env(ctx, loc=loc)
@@ -189,7 +189,8 @@ def alembic(ctx, loc="local", verbose=0, clean=False, dry_run=True, comment="", 
     """
     Invoke alembic commands <OPTIONS> [upgrade, autogenerate, show, history, status, downgrade]
 
-    Examples:
+    Examples
+    --------
         # upgrade migrations
         $ invoke db.alembic --run=upgrade -v
 
@@ -210,8 +211,8 @@ def alembic(ctx, loc="local", verbose=0, clean=False, dry_run=True, comment="", 
 
         # downgrade
         $ invoke db.alembic --run=downgrade -v
-    """
 
+    """
     env = get_compose_env(ctx, loc=loc)
 
     # Override run commands' env variables one key at a time

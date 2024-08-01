@@ -33,8 +33,10 @@ class ImageDefaults:
     """
     A class to hold default settings for image processing.
 
-    Attributes:
+    Attributes
+    ----------
         device (str): The device to be used for image processing, default is "cpu".
+
     """
 
     def __init__(self) -> None:
@@ -53,10 +55,13 @@ def download_image(img_url: str) -> Image.Image | None:
     If the download fails or the image cannot be opened, it returns None.
 
     Args:
+    ----
         img_url (str): The URL of the image to be downloaded.
 
     Returns:
+    -------
         Image.Image | None: The downloaded image as a PIL Image object, or None if the download fails.
+
     """
     image = None
     try:
@@ -82,15 +87,19 @@ def image_crop(img: Image.Image, size: tuple[int, int], crop_type: str = "middle
     from the top, middle, or bottom of the image based on the specified crop type.
 
     Args:
+    ----
         img (Image.Image): The input image to be cropped.
         size (tuple[int, int]): The desired size (width, height) of the cropped image.
         crop_type (str, optional): The type of cropping to perform. Can be 'top', 'middle', or 'bottom'. Defaults to 'middle'.
 
     Returns:
+    -------
         Image.Image: The cropped image.
 
     Raises:
+    ------
         ValueError: If an invalid value is provided for crop_type.
+
     """
     # Get current and desired ratio for the images
     img_ratio = img.size[0] / float(img.size[1])
@@ -148,9 +157,11 @@ class VideoWrapper:
     """
     A class to wrap video file information.
 
-    Attributes:
+    Attributes
+    ----------
         video_path (str): The path to the video file.
         video_size (tuple[int, int]): The size of the video (width, height).
+
     """
 
     def __init__(self, video_path: str, video_size: tuple[int, int]) -> None:
@@ -158,8 +169,10 @@ class VideoWrapper:
         Initialize the VideoWrapper class.
 
         Args:
+        ----
             video_path (str): The path to the video file.
             video_size (tuple[int, int]): The size of the video (width, height).
+
         """
         self.video_path = video_path
         self.video_size = video_size
@@ -168,8 +181,10 @@ class VideoWrapper:
         """
         Get the path to the video file.
 
-        Returns:
+        Returns
+        -------
             str: The path to the video file.
+
         """
         return self.video_path
 
@@ -193,26 +208,33 @@ class ImageWrapper:
     def __init__(
         self, data: list[Image.Image] | torch.Tensor, image_type: str, labels: list[int] | None = None
     ) -> None:
-        """Initialize the ImageWrapper class.
+        """
+        Initialize the ImageWrapper class.
 
         Args:
+        ----
             data (list[Image.Image] | torch.Tensor): The image data.
             image_type (str): The type of the image data ('pil' or 'pt').
             labels (list[int] | None, optional): The labels for the images. Defaults to None.
+
         """
         self.data: list[Image.Image] | torch.Tensor = data
         self.image_type: str = image_type
         self.labels: list[int] = list(range(len(data))) if labels is None else labels
 
     def resize(self, size: tuple[int, int] = (256, 256), **kwargs: Any) -> ImageWrapper:
-        """Resize the images to the specified size.
+        """
+        Resize the images to the specified size.
 
         Args:
+        ----
             size (tuple[int, int], optional): The desired size (width, height) of the resized images. Defaults to (256, 256).
             **kwargs (Any): Additional keyword arguments to be passed to the resize method of the PIL Image class.
 
         Returns:
+        -------
             ImageWrapper: A new ImageWrapper instance containing the resized images.
+
         """
         ref = self
         if self.image_type != "pil":
@@ -227,14 +249,18 @@ class ImageWrapper:
         return ImageWrapper(new_images, "pil")
 
     def crop(self, size: tuple[int, int] = (256, 256), crop_type: str = "middle") -> ImageWrapper:
-        """Crop the images to the specified size.
+        """
+        Crop the images to the specified size.
 
         Args:
+        ----
             size (tuple[int, int], optional): The desired size (width, height) of the cropped images. Defaults to (256, 256).
             crop_type (str, optional): The type of cropping to perform. Can be 'top', 'middle', or 'bottom'. Defaults to 'middle'.
 
         Returns:
+        -------
             ImageWrapper: A new ImageWrapper instance containing the cropped images.
+
         """
         ref = self
         if ref.image_type != "pil":
@@ -249,10 +275,13 @@ class ImageWrapper:
         return ImageWrapper(new_images, "pil")
 
     def normalize(self) -> ImageWrapper:
-        """Normalize the image data.
+        """
+        Normalize the image data.
 
-        Returns:
+        Returns
+        -------
             ImageWrapper: A new ImageWrapper instance containing the normalized image data.
+
         """
         ref: ImageWrapper = self
         if self.image_type != "pt":
@@ -262,16 +291,21 @@ class ImageWrapper:
         return ImageWrapper(normalized, "pt")
 
     def pick(self, *args: int | list[int]) -> ImageWrapper:  # type: ignore
-        """Select specific images from the ImageWrapper instance.
+        """
+        Select specific images from the ImageWrapper instance.
 
         Args:
+        ----
             *args (int | list[int]): The indexes of the images to be picked. Can be individual integers or a list of integers.
 
         Returns:
+        -------
             ImageWrapper: A new ImageWrapper instance containing the selected images.
 
         Raises:
+        ------
             Exception: If no indexes are provided.
+
         """
         if not args:
             raise Exception("provide some indexes to pick")
@@ -287,10 +321,13 @@ class ImageWrapper:
             return ImageWrapper(self.data[indexes], "pt")
 
     def sinrange(self: ImageWrapper) -> ImageWrapper:
-        """Scale image data to the range [-1, 1].
+        """
+        Scale image data to the range [-1, 1].
 
-        Returns:
+        Returns
+        -------
             ImageWrapper: A new ImageWrapper instance containing the scaled image data.
+
         """
         ref = self
         if self.image_type != "pt":
@@ -299,10 +336,13 @@ class ImageWrapper:
         return ImageWrapper(ref.data * 2 - 1, "pt")
 
     def pil(self) -> Image.Image | list[Image.Image]:  # type: ignore
-        """Convert the image data to PIL format.
+        """
+        Convert the image data to PIL format.
 
-        Returns:
+        Returns
+        -------
             Image.Image | list[Image.Image]: The image data in PIL format. If there is only one image, it returns a single PIL Image object. Otherwise, it returns a list of PIL Image objects.
+
         """
         if self.image_type == "pil":
             return self.data[0] if len(self.data) == 1 else self.data
@@ -314,10 +354,13 @@ class ImageWrapper:
             return pil_images[0] if len(pil_images) == 1 else pil_images
 
     def pt(self) -> torch.Tensor:
-        """Convert the image data to PyTorch tensor format.
+        """
+        Convert the image data to PyTorch tensor format.
 
-        Returns:
+        Returns
+        -------
             torch.Tensor: The image data in PyTorch tensor format.
+
         """
         if self.image_type == "pil":
             pt_images = [transforms.ToTensor()(im) for im in self.data]
@@ -327,16 +370,21 @@ class ImageWrapper:
             return self.data
 
     def to(self, device: str = "cpu") -> ImageWrapper:
-        """Move the image data to the specified device.
+        """
+        Move the image data to the specified device.
 
         Args:
+        ----
             device (str, optional): The device to move the image data to. Defaults to "cpu".
 
         Returns:
+        -------
             ImageWrapper: A new ImageWrapper instance with the image data moved to the specified device.
 
         Raises:
+        ------
             Exception: If the image data is not in PyTorch tensor format.
+
         """
         if self.image_type != "pt":
             raise Exception("to() only applied for pytorch tensors")
@@ -344,10 +392,13 @@ class ImageWrapper:
         return ImageWrapper(self.data.to(device), "pt")  # type: ignore
 
     def cpil(self) -> ImageWrapper:
-        """Convert the image data to PIL format.
+        """
+        Convert the image data to PIL format.
 
-        Returns:
+        Returns
+        -------
             ImageWrapper: A new ImageWrapper instance containing the image data in PIL format.
+
         """
         images: list[Image.Image] | Image.Image = self.pil()
         if isinstance(images, Image.Image):
@@ -356,10 +407,13 @@ class ImageWrapper:
         return ImageWrapper(images, "pil")
 
     def cpt(self) -> ImageWrapper:
-        """Convert the image data to PyTorch tensor format.
+        """
+        Convert the image data to PyTorch tensor format.
 
-        Returns:
+        Returns
+        -------
             ImageWrapper: A new ImageWrapper instance containing the image data in PyTorch tensor format.
+
         """
         return ImageWrapper(self.pt(), "pt")
 
@@ -372,15 +426,18 @@ class ImageWrapper:
         scale: int = -1,
         captions: bool = True,
     ) -> None:
-        """Display a grid of images.
+        """
+        Display a grid of images.
 
         Args:
+        ----
             cmap (Any, optional): The colormap to use for displaying the images. Defaults to None.
             figsize (tuple[int, int] | None, optional): The size of the figure. Defaults to None.
             cols (int, optional): The number of columns in the grid. Defaults to 6.
             max_count (int, optional): The maximum number of images to display. Defaults to 36.
             scale (int, optional): The scale of the images. Defaults to -1.
             captions (bool, optional): Whether to display captions for the images. Defaults to True.
+
         """
         if len(self.data) == 1:
             """
@@ -440,12 +497,15 @@ class ImageWrapper:
                         ax[row][col].axis("off")
 
     def to_dir(self, output_dir: str, prefix: str = "image", max_workers: int = N_WORKERS) -> None:
-        """Save images to a specified directory.
+        """
+        Save images to a specified directory.
 
         Args:
+        ----
             output_dir (str): The path to the directory where the images will be saved.
             prefix (str, optional): The prefix for the saved image filenames. Defaults to "image".
             max_workers (int, optional): The maximum number of worker threads to use for saving images. Defaults to N_WORKERS.
+
         """
         ref = self
         if self.image_type != "pil":
@@ -465,10 +525,13 @@ class ImageWrapper:
             the saving process, it prints an error message.
 
             Args:
+            ----
                 i (int): The index of the image in the list to be saved.
 
             Raises:
+            ------
                 Exception: If an error occurs during the image saving process.
+
             """
             try:
                 path = Path(output_dir) / f"{prefix}_{i:04}.png"
@@ -479,14 +542,18 @@ class ImageWrapper:
         thread_loop(save_image, range(len(images)))  # type: ignore
 
     def to_video(self, out_path: PathLike | str | None = None, frame_rate: int = 12) -> VideoWrapper:
-        """Convert a sequence of images to a video.
+        """
+        Convert a sequence of images to a video.
 
         Args:
+        ----
             out_path (PathLike | str | None, optional): The path to save the video file. If None, a temporary path is used. Defaults to None.
             frame_rate (int, optional): The frame rate of the video. Defaults to 12.
 
         Returns:
+        -------
             VideoWrapper: An instance of the VideoWrapper class containing the video file path and size.
+
         """
         ref = self
         if self.image_type == "pt":
@@ -523,15 +590,19 @@ def wrap(
     ImageWrapper instance.
 
     Args:
+    ----
         input_data (Union[ImageWrapper, torch.Tensor, Image.Image, list[Union[torch.Tensor, Image.Image, ImageWrapper]]]):
             The image data to be wrapped.
         labels (list[int] | None, optional): The labels for the images. Defaults to None.
 
     Returns:
+    -------
         ImageWrapper: An ImageWrapper instance containing the wrapped image data.
 
     Raises:
+    ------
         Exception: If the input data type is not supported.
+
     """
     if isinstance(input_data, ImageWrapper):
         # If the input data is already an ImageWrapper, return it as is.
@@ -578,25 +649,32 @@ def from_dir(dir_path: str) -> ImageWrapper:
     wrapped in an ImageWrapper instance and returned.
 
     Args:
+    ----
         dir_path (str): The path to the directory containing the images.
 
     Returns:
+    -------
         ImageWrapper: An ImageWrapper instance containing the loaded images.
 
     Raises:
+    ------
         UnidentifiedImageError: If a file in the directory is not a valid image.
+
     """
     file_list = [f for f in Path(dir_path).iterdir() if not f.is_dir()]
     image_list = []
 
     def read_image(f: Path) -> None:
-        """Read an image from a file and convert it to RGB format.
+        """
+        Read an image from a file and convert it to RGB format.
 
         This function attempts to open an image file and convert it to RGB format.
         If the file is not a valid image, it is ignored.
 
         Args:
+        ----
             f (Path): The path to the image file.
+
         """
         try:
             image_list.append(Image.open(f).convert("RGB"))
@@ -616,13 +694,17 @@ def from_path(input_data: Union[str, Path]) -> ImageWrapper:
     and wraps it in an ImageWrapper instance.
 
     Args:
+    ----
         input_data (Union[str, Path]): The path to the image file.
 
     Returns:
+    -------
         ImageWrapper: An ImageWrapper instance containing the loaded image.
 
     Raises:
+    ------
         UnidentifiedImageError: If the file at the specified path is not a valid image.
+
     """
     pil_image = Image.open(input_data).convert("RGB")
     return ImageWrapper([pil_image], "pil")
@@ -811,13 +893,17 @@ def download(image_urls: Union[str, list[str]]) -> ImageWrapper:
     and returns them wrapped in an ImageWrapper instance.
 
     Args:
+    ----
         image_urls (Union[str, List[str]]): A single image URL or a list of image URLs.
 
     Returns:
+    -------
         ImageWrapper: An ImageWrapper instance containing the downloaded images.
 
     Raises:
+    ------
         Exception: If the image URLs are invalid or the images cannot be downloaded.
+
     """
     if isinstance(image_urls, str):
         """
@@ -914,9 +1000,11 @@ def search_history() -> ImageWrapper | None:
     from the last search performed using the `search_images` function.
     If no search has been performed yet, it returns None.
 
-    Returns:
+    Returns
+    -------
         ImageWrapper | None: The ImageWrapper instance containing the last searched images,
                                 or None if no search has been performed.
+
     """
     return _last_search_wrapper
 

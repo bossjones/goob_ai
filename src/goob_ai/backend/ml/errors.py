@@ -9,11 +9,14 @@ from collections.abc import Callable
 
 
 def run(code: Callable, task: str) -> None:
-    """_summary_
+    """
+    _summary_
 
     Args:
+    ----
         code (_type_): _description_
         task (_type_): _description_
+
     """
     try:
         code()

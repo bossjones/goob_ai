@@ -455,24 +455,32 @@ safe_list = {
 
 
 class RestrictedUnpickler(pickle.Unpickler):
-    """_summary_
+    """
+    _summary_
 
     Args:
+    ----
         pickle (_type_): _description_
+
     """
 
     def find_class(self, module: Any, name: Any) -> Any:
-        """_summary_
+        """
+        _summary_
 
         Args:
+        ----
             module (_type_): _description_
             name (_type_): _description_
 
         Raises:
+        ------
             pickle.UnpicklingError: _description_
 
         Returns:
+        -------
             _type_: _description_
+
         """
         # Only allow required classes to load state dict
         if (module, name) not in safe_list:

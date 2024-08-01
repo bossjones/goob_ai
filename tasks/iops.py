@@ -92,10 +92,13 @@ def filter_media(working_dir: list[str]) -> list[str]:
 
 
 def get_dataframe_from_csv(filename: str, return_parent_folder_name: bool = False) -> pd.core.frame.DataFrame:
-    """Open csv files and return a dataframe from pandas
+    """
+    Open csv files and return a dataframe from pandas
 
     Args:
+    ----
         filename (str): path to file
+
     """
     src = pathlib.Path(f"{filename}").resolve()
     df = pd.read_csv(f"{src}")
@@ -107,15 +110,19 @@ def get_dataframe_from_csv(filename: str, return_parent_folder_name: bool = Fals
 
 
 def sort_dataframe(df: pd.core.frame.DataFrame, columns: list = None, ascending: tuple = ()) -> pd.core.frame.DataFrame:
-    """Return dataframe sorted via columns
+    """
+    Return dataframe sorted via columns
 
     Args:
+    ----
         df (pd.core.frame.DataFrame): existing dataframe
         columns (list, optional): [description]. Defaults to []. Eg. ["Total Followers", "Total Likes", "Total Comments", "ERDay", "ERpost"]
         ascending (Tuple, optional): [description]. Defaults to (). Eg. (False, False, False, False, False)
 
     Returns:
+    -------
         pd.core.frame.DataFrame: [description]
+
     """
     if columns is None:
         columns = []

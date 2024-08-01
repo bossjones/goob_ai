@@ -78,7 +78,9 @@ class DownloadToolInput(BaseModelV1):
     Use this tool to download images and video from twitter using gallery-dl. Use whenever the url comes from domain x.com or twitter.com or some subset of those DNS names.
 
     Args:
+    ----
         url: url to read
+
     """
 
     url: str = FieldV1(..., title="url", description="url to read")

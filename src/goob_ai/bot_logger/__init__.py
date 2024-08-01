@@ -77,12 +77,15 @@ REQUEST_ID_CONTEXTVAR.set("notset")
 
 
 def set_log_extras(record):
-    """set_log_extras [summary].
+    """
+    set_log_extras [summary].
 
     [extended_summary]
 
     Args:
+    ----
         record ([type]): [description]
+
     """
     record["extra"]["datetime"] = datetime.now(
         timezone.utc
@@ -95,15 +98,17 @@ def format_record(record: dict[str, Any]) -> str:
     Custom format for loguru loggers.
     Uses pformat for log any data like request/response body during debug.
     Works with logging if loguru handler it.
+
     Example:
+    -------
     >>> payload = [{"users":[{"name": "Nick", "age": 87, "is_active": True},
     >>>     {"name": "Alex", "age": 27, "is_active": True}], "count": 2}]
     >>> logger.bind(payload=).debug("users payload")
     >>> [   {   'count': 2,
     >>>         'users': [   {'age': 87, 'is_active': True, 'name': 'Nick'},
     >>>                      {'age': 27, 'is_active': True, 'name': 'Alex'}]}]
-    """
 
+    """
     format_string = LOGURU_FORMAT
     # format_string += "<green>{extra[datetime]}</green> | "
     if record["extra"].get("payload") is not None:
@@ -192,17 +197,21 @@ def request_id_filter(record: dict[str, Any]):
 # FIXME: https://github.com/abnerjacobsen/fastapi-mvc-loguru-demo/blob/main/mvc_demo/core/loguru_logs.py
 # SOURCE: https://loguru.readthedocs.io/en/stable/api/logger.html#loguru._logger.Logger
 def global_log_config(log_level: Union[str, int] = logging.DEBUG, json: bool = False):
-    """global_log_config [summary].
+    """
+    global_log_config [summary].
 
     [extended_summary]
 
     Args:
+    ----
         log_level (Union[str, int], optional): [description].
             Defaults to logging.DEBUG.
         json (bool, optional): [description]. Defaults to True.
 
     Returns:
+    -------
         [type]: [description]
+
     """
     if isinstance(log_level, str) and (log_level in logging._nameToLevel):
         log_level = logging.DEBUG

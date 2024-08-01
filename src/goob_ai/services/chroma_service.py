@@ -57,15 +57,18 @@ WEBBASE_LOADER_PATTERN = r"^https?://[a-zA-Z0-9.-]+\.github\.io(/.*)?$"
 
 
 def get_suffix(filename: str) -> str:
-    """_summary_
+    """
+    _summary_
 
     Args:
+    ----
         filename (str): _description_
 
     Returns:
+    -------
         str: _description_
-    """
 
+    """
     ext = pathlib.Path(f"{filename}").suffix.lower()
     ext_without_period = f"{ext.replace('.','')}"
     LOGGER.debug(f"ext: {ext}, ext_without_period: {ext_without_period}")
@@ -73,13 +76,17 @@ def get_suffix(filename: str) -> str:
 
 
 def is_pdf(filename: str) -> bool:
-    """_summary_
+    """
+    _summary_
 
     Args:
+    ----
         filename (str): _description_
 
     Returns:
+    -------
         bool: _description_
+
     """
     suffix = get_suffix(filename)
     res = suffix in file_functions.PDF_EXTENSIONS
@@ -88,13 +95,17 @@ def is_pdf(filename: str) -> bool:
 
 
 def is_txt(filename: str) -> bool:
-    """_summary_
+    """
+    _summary_
 
     Args:
+    ----
         filename (str): _description_
 
     Returns:
+    -------
         bool: _description_
+
     """
     suffix = get_suffix(filename)
     res = suffix in file_functions.TXT_EXTENSIONS
@@ -111,11 +122,14 @@ def get_rag_loader(filename: str) -> TextLoader | PyMuPDFLoader | WebBaseLoader 
     and URLs matching the pattern for GitHub Pages.
 
     Args:
+    ----
         filename (str): The name of the file to load.
 
     Returns:
+    -------
         TextLoader | PyMuPDFLoader | WebBaseLoader | None: The loader for the given file,
         or None if the file type is not supported.
+
     """
     if re.match(WEBBASE_LOADER_PATTERN, f"{filename}"):
         # verfiy it is a uri as well
@@ -146,13 +160,15 @@ def get_rag_splitter(filename: str) -> CharacterTextSplitter | None:
     URLs matching the pattern for GitHub Pages.
 
     Args:
+    ----
         filename (str): The name of the file to split.
 
     Returns:
+    -------
         CharacterTextSplitter | None: The text splitter for the given file,
         or None if the file type is not supported.
-    """
 
+    """
     if re.match(WEBBASE_LOADER_PATTERN, f"{filename}"):
         LOGGER.debug(
             "selected filetype github.io url, usingRecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)"
@@ -175,13 +191,15 @@ def get_rag_embedding_function(filename: str) -> SentenceTransformerEmbeddings |
     PDF files, and URLs matching the pattern for GitHub Pages.
 
     Args:
+    ----
         filename (str): The name of the file to embed.
 
     Returns:
+    -------
         SentenceTransformerEmbeddings | OpenAIEmbeddings | None: The embedding function for the given file,
         or None if the file type is not supported.
-    """
 
+    """
     if re.match(WEBBASE_LOADER_PATTERN, f"{filename}"):
         LOGGER.debug("selected filetype github.io url, using OpenAIEmbeddings()")
         return OpenAIEmbeddings()
@@ -197,13 +215,17 @@ def get_rag_embedding_function(filename: str) -> SentenceTransformerEmbeddings |
 
 
 def get_client() -> chromadb.ClientAPI:
-    """_summary_
+    """
+    _summary_
 
     Args:
+    ----
         query_text (str): _description_
 
     Returns:
+    -------
         str: _description_
+
     """
     return chromadb.HttpClient(
         host=aiosettings.chroma_host,
@@ -214,13 +236,17 @@ def get_client() -> chromadb.ClientAPI:
 
 # Function to perform the query and get the response
 def get_response(query_text: str) -> str:
-    """Perform the query and get the response.
+    """
+    Perform the query and get the response.
 
     Args:
+    ----
         query_text (str): The query text to search in the database.
 
     Returns:
+    -------
         str: The response text based on the query.
+
     """
     embedding_function = OpenAIEmbeddings()
     db = Chroma(persist_directory=CHROMA_PATH, embedding_function=embedding_function)
@@ -253,54 +279,69 @@ def main() -> None:
 
 
 class CustomOpenAIEmbeddings(OpenAIEmbeddings):
-    """Custom embeddings class using OpenAI's API.
+    """
+    Custom embeddings class using OpenAI's API.
 
     This class extends the OpenAIEmbeddings class to provide custom functionality
     for embedding documents using OpenAI's API.
 
-    Attributes:
+    Attributes
+    ----------
         openai_api_key (str): The API key for accessing OpenAI services.
+
     """
 
     def __init__(self, openai_api_key: str = aiosettings.openai_api_key.get_secret_value()) -> None:
-        """Initialize the CustomOpenAIEmbeddings class.
+        """
+        Initialize the CustomOpenAIEmbeddings class.
 
         Args:
+        ----
             openai_api_key (str): The API key for accessing OpenAI services.
+
         """
         super().__init__(openai_api_key=openai_api_key)
 
     def _embed_documents(self, texts: list[str]) -> list[list[float]]:
-        """Embed a list of documents.
+        """
+        Embed a list of documents.
 
         This method takes a list of document texts and returns their embeddings
         as a list of float vectors.
 
         Args:
+        ----
             texts (list of str): The list of document texts to be embedded.
 
         Returns:
+        -------
             list of list of float: The embeddings of the input documents.
+
         """
         return super().embed_documents(texts)
 
     def __call__(self, input: list[str]) -> list[float]:
-        """Embed a list of documents.
+        """
+        Embed a list of documents.
 
         This method is a callable that takes a list of document texts and returns
         their embeddings as a list of float vectors.
 
         Args:
+        ----
             input (list of str): The list of document texts to be embedded.
 
         Returns:
+        -------
             list of float: The embeddings of the input documents.
+
         """
         return self._embed_documents(input)
 
 
 def generate_data_store() -> None:
-    """Generate and store document embeddings in a Chroma vector store.
+    """
+    Generate and store document embeddings in a Chroma vector store.
 
     This function performs the following steps:
     1. Loads documents from the specified data path.
@@ -313,13 +354,16 @@ def generate_data_store() -> None:
 
 
 def load_documents() -> list[Document]:
-    """Load documents from the specified data path.
+    """
+    Load documents from the specified data path.
 
     This function loads documents from the specified data path and returns them
     as a list of Document objects.
 
-    Returns:
+    Returns
+    -------
         List[Document]: The list of loaded documents.
+
     """
     documents = []
 
@@ -342,17 +386,21 @@ def load_documents() -> list[Document]:
 
 
 def split_text(documents: list[Document]) -> list[Document]:
-    """Split documents into smaller chunks.
+    """
+    Split documents into smaller chunks.
 
     This function takes a list of documents and splits each document into smaller chunks
     using the RecursiveCharacterTextSplitter. The chunks are then returned as a list of
     Document objects.
 
     Args:
+    ----
         documents (List[Document]): The list of documents to be split into chunks.
 
     Returns:
+    -------
         List[Document]: The list of document chunks.
+
     """
     text_splitter: RecursiveCharacterTextSplitter = RecursiveCharacterTextSplitter(
         chunk_size=300,
@@ -366,7 +414,8 @@ def split_text(documents: list[Document]) -> list[Document]:
 
 
 def save_to_chroma(chunks: list[Document]) -> None:
-    """Save document chunks to a Chroma vector store.
+    """
+    Save document chunks to a Chroma vector store.
 
     This function performs the following steps:
     1. Initializes the embeddings using the OpenAI API key.
@@ -374,7 +423,9 @@ def save_to_chroma(chunks: list[Document]) -> None:
     3. Persists the database to the specified directory.
 
     Args:
+    ----
         chunks (list of Document): The list of document chunks to be saved.
+
     """
     # Clear out the database first.
     # if os.path.exists(CHROMA_PATH):
@@ -410,11 +461,14 @@ class ChromaService:
         Add a collection to ChromaDB.
 
         Args:
+        ----
             collection_name (str): The name of the collection to add.
             embedding_function (Any): The embedding function to use.
 
         Returns:
+        -------
             chromadb.Collection: The created or retrieved collection.
+
         """
         return (
             ChromaService.client.get_or_create_collection(name=collection_name, embedding_function=embedding_function)
@@ -427,8 +481,10 @@ class ChromaService:
         """
         List all collections in ChromaDB.
 
-        Returns:
+        Returns
+        -------
             Sequence[chromadb.Collection]: A sequence of all collections.
+
         """
         return ChromaService.client.list_collections()
 
@@ -438,11 +494,14 @@ class ChromaService:
         Retrieve a collection from ChromaDB.
 
         Args:
+        ----
             collection_name (str): The name of the collection to retrieve.
             embedding_function (Any): The embedding function to use.
 
         Returns:
+        -------
             chromadb.Collection | None: The retrieved collection or None if not found.
+
         """
         return ChromaService.client.get_collection(name=collection_name, embedding_function=embedding_function)
 
@@ -451,8 +510,10 @@ class ChromaService:
         """
         Get the ChromaDB client.
 
-        Returns:
+        Returns
+        -------
             chromadb.ClientAPI: The ChromaDB client.
+
         """
         return ChromaService.client
 
@@ -462,10 +523,13 @@ class ChromaService:
         Get or create a collection in ChromaDB.
 
         Args:
+        ----
             query_text (str): The query text to search in the database.
 
         Returns:
+        -------
             chromadb.ClientAPI: The ChromaDB client.
+
         """
         return ChromaService.client
 
@@ -475,18 +539,19 @@ class ChromaService:
         Get a response from ChromaDB based on the query text.
 
         Args:
+        ----
             query_text (str): The query text to search in the database.
 
         Returns:
+        -------
             str: The response text based on the query.
+
         """
         return get_response(query_text)
 
     @staticmethod
     def generate_data_store() -> None:
-        """
-        Generate and store document embeddings in a Chroma vector store.
-        """
+        """Generate and store document embeddings in a Chroma vector store."""
         generate_data_store()
 
     @staticmethod
@@ -494,8 +559,10 @@ class ChromaService:
         """
         Load documents from the specified data path.
 
-        Returns:
+        Returns
+        -------
             List[Document]: The list of loaded documents.
+
         """
         return load_documents()
 
@@ -505,10 +572,13 @@ class ChromaService:
         Split documents into smaller chunks.
 
         Args:
+        ----
             documents (List[Document]): The list of documents to be split into chunks.
 
         Returns:
+        -------
             List[Document]: The list of document chunks.
+
         """
         return split_text(documents)
 
@@ -521,9 +591,10 @@ class ChromaService:
         Add/Save document chunks to a Chroma vector store.
 
         Args:
+        ----
             chunks (list[Document]): The list of document chunks to be saved.
-        """
 
+        """
         LOGGER.debug(f"path_to_document = {path_to_document}")
         LOGGER.debug(f"collection_name = {collection_name}")
         LOGGER.debug(f"embedding_function = {embedding_function}")
@@ -560,7 +631,9 @@ class ChromaService:
         Save document chunks to a Chroma vector store.
 
         Args:
+        ----
             chunks (list[Document]): The list of document chunks to be saved.
+
         """
         save_to_chroma(chunks)
 

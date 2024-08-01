@@ -18,9 +18,7 @@ class RedisValueDTO(BaseModel):
 
 
 def init_worker_redis() -> ConnectionPool:  # pragma: no cover
-    """
-    Creates connection pool for redis.
-    """
+    """Creates connection pool for redis."""
     redis_pool: ConnectionPool = ConnectionPool.from_url(
         str(aiosettings.redis_url),
     )
@@ -29,9 +27,7 @@ def init_worker_redis() -> ConnectionPool:  # pragma: no cover
 
 
 def get_redis_conn_pool() -> ConnectionPool:  # pragma: no cover
-    """
-    Creates connection pool for redis.
-    """
+    """Creates connection pool for redis."""
     redis_pool: ConnectionPool = ConnectionPool.from_url(
         str(aiosettings.redis_url),
     )

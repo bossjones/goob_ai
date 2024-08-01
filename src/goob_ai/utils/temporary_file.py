@@ -10,11 +10,14 @@ from tempfile import NamedTemporaryFile
 
 @contextmanager
 def temporary_file(suffix=""):
-    """Yield a writable temporary filename that is deleted on context exit.
+    """
+    Yield a writable temporary filename that is deleted on context exit.
+
     Parameters
     ----------
     suffix : string, optional
         The suffix for the file.
+
     Examples
     --------
     >>> import numpy as np
@@ -23,6 +26,7 @@ def temporary_file(suffix=""):
     ...     im = np.arange(25, dtype=np.uint8).reshape((5, 5))
     ...     io.imsave(tempfile, im)
     ...     assert np.all(io.imread(tempfile) == im)
+
     """
     tempfile_stream = NamedTemporaryFile(suffix=suffix, delete=False)
     tempfile = tempfile_stream.name

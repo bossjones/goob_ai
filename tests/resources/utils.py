@@ -11,17 +11,22 @@ from PIL.Image import Image
 
 
 def images_are_identical(image_1: Image, image_2: Image):
-    """_summary_
+    """
+    _summary_
 
     Args:
+    ----
         image_1 (Image): _description_
         image_2 (Image): _description_
 
     Raises:
+    ------
         NotImplementedError: _description_
 
     Returns:
+    -------
         _type_: _description_
+
     """
     if image_1.mode != image_2.mode:
         warn(f"Images do not have the same mode. Found {image_1.mode} and {image_2.mode}.")

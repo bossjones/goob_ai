@@ -24,9 +24,7 @@ from goob_ai.aio_settings import aiosettings
 
 
 class DropboxAPIError(Exception):
-    """
-    Exception for errors thrown by the API. Contains the HTTP status code and the returned error message.
-    """
+    """Exception for errors thrown by the API. Contains the HTTP status code and the returned error message."""
 
     def __init__(self, status: int, message: typing.Union[str, dict]):
         self.status = status
@@ -94,13 +92,15 @@ class Request:
         Performs a request. Automatically retries the request for specific return statuses.
         Should not be called directly. Instead, use an `async with` block with a Request object to manage the response context properly.
 
-        Returns:
+        Returns
+        -------
             aiohttp.ClientResponse: response returned from the `self.request` callable.
 
-        Raises:
+        Raises
+        ------
             DropboxAPIError: If the response status is >= 400 and if it is not in `self.ok_statuses`
-        """
 
+        """
         self.current_attempt += 1
         if self.current_attempt > 1:
             self.log.debug(f"Attempt {self.current_attempt} out of {self.retry_count}")
@@ -146,12 +146,14 @@ class AsyncDropboxAPI:
     Dropbox API client using asynchronous HTTP requests.
 
     Args:
+    ----
         token:
             a Dropbox API access token
         retry_statuses:
             list of statuses that will automatically be retried (default is [429])
         log:
             logger to use for log messages (default is a null logger)
+
     """
 
     def __init__(self, token: str, retry_statuses: list[int] = None, log: logging.Logger = None):
@@ -169,14 +171,17 @@ class AsyncDropboxAPI:
         Validates the user authentication token.
         https://www.dropbox.com/developers/documentation/http/documentation#check-user
 
-        Returns:
+        Returns
+        -------
             bool:
                 True if the API returns the same string (thus the token is valid)
-        Raises:
+
+        Raises
+        ------
             DropboxApiError:
                 If the token is invalid
-        """
 
+        """
         self.log.debug("Validating token")
 
         nonce = base64.b64encode(os.urandom(8), altchars=b"-_").decode("utf-8")
@@ -200,15 +205,18 @@ class AsyncDropboxAPI:
         https://www.dropbox.com/developers/documentation/http/documentation#files-download
 
         Args:
+        ----
             dropbox_path:
                 File path on Dropbox to download from
             local_path:
                 Path on the local disk to download to (defaults to None, which downloads to the current directory)
+
         Returns:
+        -------
             str:
                 `local_path` where the file was downloaded to
-        """
 
+        """
         # default to current directory
         if local_path is None:
             local_path = os.path.basename(dropbox_path)
@@ -234,15 +242,18 @@ class AsyncDropboxAPI:
         https://www.dropbox.com/developers/documentation/http/documentation#files-download_zip
 
         Args:
+        ----
             dropbox_path:
                 Folder path on Dropbox to download from
             local_path:
                 Path on the local disk to download to (defaults to None, which downloads to the current directory)
+
         Returns:
+        -------
             str:
                 `local_path` where the zip file was downloaded to
-        """
 
+        """
         # default to current directory
         if local_path is None:
             local_path = os.path.basename(dropbox_path)
@@ -268,15 +279,18 @@ class AsyncDropboxAPI:
         https://www.dropbox.com/developers/documentation/http/documentation#sharing-get_shared_link_file
 
         Args:
+        ----
             shared_link:
                 Shared link to download from
             local_path:
                 Path on the local disk to download to (defaults to None, which downloads to the current directory)
+
         Returns:
+        -------
             str:
                 `local_path` where the file was downloaded to
-        """
 
+        """
         # default to current directory, with the path in the shared link
         if local_path is None:
             local_path = os.path.basename(shared_link[: shared_link.index("?")])
@@ -302,23 +316,28 @@ class AsyncDropboxAPI:
         https://www.dropbox.com/developers/documentation/http/documentation#files-upload_session-start
 
         Args:
+        ----
             local_path:
                 Local path to upload from.
             dropbox_path:
                 Dropbox path to upload to.
+
         Returns:
+        -------
             dict:
                 UploadSessionFinishArg dict with information on the upload.
                 This dict is automatically stored in `self.upload_session` to be committed later with `upload_finish`.
                 It is returned here anyways so that the commit information can be used for other purposes.
+
         Raises:
+        ------
             ValueError:
                 If `local_path` does not exist.
             RuntimeError:
                 If the current upload session is larger than 1000 files.
                 To avoid this, call `upload_finish` regularly to split high quantity uploads into batches.
-        """
 
+        """
         if not os.path.exists(local_path):
             raise ValueError(f"local_path {local_path} does not exist")
         if len(self.upload_session) >= 1000:
@@ -361,16 +380,19 @@ class AsyncDropboxAPI:
         https://www.dropbox.com/developers/documentation/http/documentation#files-upload_session-finish_batch
 
         Args:
+        ----
             check_interval:
                 how often to check on the upload completion status (default is 3)
+
         Returns:
+        -------
             list[dict]:
                 List of FileMetadata dicts containing metadata on each uploaded file
         Raises:
             DropboxAPIError:
                 If an unknown response is returned from the API.
-        """
 
+        """
         if len(self.upload_session) == 0:
             raise RuntimeError("upload_session is empty, have you uploaded any files yet?")
 
@@ -405,6 +427,7 @@ class AsyncDropboxAPI:
         https://www.dropbox.com/developers/documentation/http/documentation#files-upload_session-finish_batch-check:w
 
         Args:
+        ----
             job_id:
                 the job ID to check the status of
             check_interval:
@@ -412,8 +435,8 @@ class AsyncDropboxAPI:
         Returns:
             list[dict]:
                 List of FileMetadata dicts containing metadata on each uploaded file
-        """
 
+        """
         self.log.debug(f"Batch not finished, checking every {check_interval} seconds")
 
         url = "https://api.dropboxapi.com/2/files/upload_session/finish_batch/check"
@@ -441,20 +464,25 @@ class AsyncDropboxAPI:
         https://www.dropbox.com/developers/documentation/http/documentation#files-upload
 
         Args:
+        ----
             local_path:
                 Local path to upload from.
             dropbox_path:
                 Dropbox path to upload to.
             args:
                 Dictionary of arguments to pass to the API.
+
         Returns:
+        -------
             dict:
                 FileMetadata of the uploaded file, if successful.
+
         Raises:
+        ------
             ValueError:
                 If `local_path` does not exist.
-        """
 
+        """
         if args is None:
             args = {"mode": "add", "autorename": False, "mute": False}
         if not os.path.exists(local_path):
@@ -482,17 +510,22 @@ class AsyncDropboxAPI:
         https://www.dropbox.com/developers/documentation/http/documentation#sharing-create_shared_link_with_settings
 
         Args:
+        ----
             dropbox_path:
                 Path of a file on Dropbox to create a shared link for.
+
         Returns:
+        -------
             str:
                 A shared link for the given file.
                 If a shared link already exists, the existing one is returned, otherwise a new one is created.
+
         Raises:
+        ------
             DropboxAPIError:
                 If `dropbox_path` does not exist on Dropbox, or if an otherwise unknown status is returned.
-        """
 
+        """
         self.log.info(f"Creating shared link for file {os.path.basename(dropbox_path)}")
         self.log.debug(f"Full path is {dropbox_path}")
 
@@ -533,13 +566,16 @@ class AsyncDropboxAPI:
         https://www.dropbox.com/developers/documentation/http/documentation#sharing-get_shared_link_metadata
 
         Args:
+        ----
             shared_link:
                 A shared link which points to the file or folder to get metadata from.
+
         Returns:
+        -------
             dict:
                 FileMetadata or FolderMetadata for the file/folder behind the shared link
-        """
 
+        """
         self.log.info(f"Getting metadata from shared link {shared_link}")
 
         url = "https://api.dropboxapi.com/2/sharing/get_shared_link_metadata"
@@ -568,10 +604,13 @@ async def run_upload_to_dropbox(dbx: AsyncDropboxAPI, path_to_file: pathlib.Posi
 
 
 async def dropbox_upload(list_of_files_to_upload: list[str]) -> None:
-    """Async upload function for dropbox. Call this to kick off a dbx.upload_start
+    """
+    Async upload function for dropbox. Call this to kick off a dbx.upload_start
 
     Args:
+    ----
         list_of_files_to_upload (List[str]): [description]
+
     """
     # TEMPCHANGE: # async with AsyncDropboxAPI(DROPBOX_CEREBRO_TOKEN) as dbx:
     # TEMPCHANGE: #     await dbx.validate()

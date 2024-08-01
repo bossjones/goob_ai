@@ -42,7 +42,6 @@ def test_calculate_bitrate():
 @pytest.mark.asyncio()
 async def test_duration_video(sample_video, tmp_path, mocker):
     """Test the process_video function."""
-
     duration: float = await vidops.get_duration(sample_video)
     assert duration == 36.133333
 
@@ -50,26 +49,22 @@ async def test_duration_video(sample_video, tmp_path, mocker):
 @pytest.mark.asyncio()
 async def test_process_video(sample_video, tmp_path, mocker):
     """Test the process_video function."""
-
     await vidops.process_video(sample_video)
 
 
 @pytest.mark.asyncio()
 async def test_process_audio(sample_video, tmp_path, mocker):
     """Test the process_audio function."""
-
     await vidops.process_audio(sample_video)
 
 
 @pytest.mark.asyncio()
 async def test_process_video_low_bitrate(sample_video, tmp_path, mocker):
     """Test the process_video function with a low bitrate scenario."""
-
     await vidops.process_video(sample_video)
 
 
 @pytest.mark.asyncio()
 async def test_process_audio_low_bitrate(sample_video, tmp_path, mocker):
     """Test the process_audio function with a low bitrate scenario."""
-
     await vidops.process_audio(sample_video)

@@ -78,7 +78,7 @@ def ipython(ctx, loc="local", verbose=0):
 @task(incrementable=["verbose"])
 def detect_os(ctx, loc="local", verbose=0):
     """
-    detect what type of os we are using
+    Detect what type of os we are using
     Usage: inv local.detect-os
     """
     env = get_compose_env(ctx, loc=loc)
@@ -206,7 +206,7 @@ def detect_os(ctx, loc="local", verbose=0):
 @task(pre=[call(detect_os, loc="local")], incrementable=["verbose"], aliases=["install"])
 def bootstrap(ctx, loc="local", verbose=0, cleanup=False, upgrade=False):
     """
-    start up fastapi application
+    Start up fastapi application
     Usage: inv local.bootstrap
     """
     env = get_compose_env(ctx, loc=loc)
@@ -300,7 +300,7 @@ pip freeze > freeze.before.txt
 )
 def pip_deps(ctx, loc="local", verbose=0, cleanup=False, upgrade=False):
     """
-    lock fastapi pip dependencies [requirements, dev, test]
+    Lock fastapi pip dependencies [requirements, dev, test]
     Usage: inv local.pip_deps
     """
     env = get_compose_env(ctx, loc=loc)
@@ -352,7 +352,7 @@ def pip_tools(
     dry_run=False,
 ):
     """
-    upgrade single requirements.txt file [requirements, dev, test]
+    Upgrade single requirements.txt file [requirements, dev, test]
     Usage: inv local.pip-tools --upgrade --package="MonkeyType" --dev -vvv
     """
     env = get_compose_env(ctx, loc=loc)
@@ -461,7 +461,7 @@ cp -fv ./contrib/.ptpython_config.py ~/ptpython/config.py
 @task(pre=[call(detect_os, loc="local")], incrementable=["verbose"])
 def rsync(ctx, loc="local", verbose=0, cleanup=False):
     """
-    rsync over files to ~vagrant/cerebro-bot folder
+    Rsync over files to ~vagrant/cerebro-bot folder
     Usage: inv local.rsync
     """
     env = get_compose_env(ctx, loc=loc)
@@ -484,7 +484,7 @@ cd && rsync -r --exclude cerebro-bot_venv --exclude .vagrant --exclude .git --ex
 @task(pre=[call(detect_os, loc="local")], incrementable=["verbose"])
 def clean(ctx, loc="local", verbose=0, cleanup=False):
     """
-    clean compiled python artifacts
+    Clean compiled python artifacts
     Usage: inv local.clean
     """
     env = get_compose_env(ctx, loc=loc)
@@ -554,7 +554,7 @@ def clean_name(txt: str) -> str:
 @task(pre=[call(detect_os, loc="local")], incrementable=["verbose"])
 def clean_dir_names(ctx, loc="local", verbose=0, cleanup=False, filename="", overwrite=False):
     """
-    clean compiled python artifacts
+    Clean compiled python artifacts
     Usage: inv local.clean
     """
     env = get_compose_env(ctx, loc=loc)
@@ -606,7 +606,7 @@ def smaller(
     print_only=False,
 ):
     """
-    clean compiled python artifacts
+    Clean compiled python artifacts
     Usage: inv local.smaller
     """
     env = get_compose_env(ctx, loc=loc)
@@ -673,7 +673,7 @@ ffmpeg -y -hide_banner -loglevel warning -i \"{filename}\" -vf "scale=128:128:fo
 )
 def dev(ctx, loc="local", verbose=0, cleanup=False):
     """
-    install dev version of application
+    Install dev version of application
     Usage: inv local.dev
     """
     env = get_compose_env(ctx, loc=loc)

@@ -205,10 +205,11 @@ class Context(commands.Context):
         delete_after: bool = True,
         author_id: Optional[int] = None,
     ) -> Optional[bool]:
-        """An interactive reaction confirmation dialog.
+        """
+        An interactive reaction confirmation dialog.
 
         Parameters
-        -----------
+        ----------
         message: str
             The message to show along with the prompt.
         timeout: float
@@ -220,13 +221,13 @@ class Context(commands.Context):
             Context's message.
 
         Returns
-        --------
+        -------
         Optional[bool]
             ``True`` if explicit confirm,
             ``False`` if explicit deny,
             ``None`` if deny due to timeout
-        """
 
+        """
         author_id = author_id or self.author.id
         view = ConfirmationView(
             timeout=timeout,
@@ -251,7 +252,8 @@ class Context(commands.Context):
         return self.pool
 
     async def show_help(self, command: Any = None) -> None:
-        """Shows the help command for the specified command if given.
+        """
+        Shows the help command for the specified command if given.
 
         If no command is given, then it'll show help for the current
         command.
@@ -261,7 +263,8 @@ class Context(commands.Context):
         await self.invoke(cmd, command=command)
 
     async def safe_send(self, content: str, *, escape_mentions: bool = True, **kwargs) -> discord.Message:
-        """Same as send except with some safe guards.
+        """
+        Same as send except with some safe guards.
 
         1) If the message is too long then it sends a file with the results instead.
         2) If ``escape_mentions`` is ``True`` then it escapes mentions.

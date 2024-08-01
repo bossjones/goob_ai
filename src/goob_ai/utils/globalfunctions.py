@@ -26,12 +26,14 @@ def find_urls(text: str):
     This function uses a regular expression pattern to search for URLs within the input text 'text'. It then returns a list of URLs found in the text.
 
     Args:
+    ----
     - text (str): The text in which to search for URLs.
 
     Returns:
+    -------
     - List[str]: A list of URLs extracted from the input text.
-    """
 
+    """
     url_pattern = r"http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*(),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+"
     return re.findall(url_pattern, text)
 
@@ -44,13 +46,16 @@ def split_and_cluster_strings(input_string: str, max_cluster_size: int, split_su
     Return the list of clusters.
 
     Args:
+    ----
     input_string (str): The string to be split and clustered.
     max_cluster_size (int): The preferred maximum length of each cluster.
     split_substring (str): The substring used to split the input_string.
     length(Callable):  function to determine string length with.
 
     Returns:
+    -------
     list[str]: A list of clusters.
+
     """
     clusters = []
     # There's no reason to split if input is already less than max_cluster_size
@@ -113,6 +118,7 @@ def prioritized_string_split(
 
 
     Args:
+    ----
         input_string (str): The string to be split.
         substring_split_order (list[Union[str, tuple[str, int]]]):
             A list of strings or tuples containing
@@ -124,9 +130,10 @@ def prioritized_string_split(
         trim (bool): If True, trim leading and trailing whitespaces in each cluster. Default is False.
 
     Returns:
+    -------
         list[str]: A list of clusters containing the split substrings.
-    """
 
+    """
     # Initalize new cluster
     current_clusters = [input_string]
     for e, arg in enumerate(substring_split_order):
@@ -164,14 +171,16 @@ def split_string_with_code_blocks(input_str: str, max_length: int, oncode=False)
     This function takes an input string 'input_str' and splits it into segments based on various splitting criteria such as Markdown headings, horizontal lines, and code blocks. It returns a list of segmented strings based on the provided maximum length 'max_length' and the presence of code blocks.
 
     Args:
+    ----
     - input_str (str): The input string to be split into segments.
     - max_length (int): The maximum length of each segment.
     - oncode (bool): Flag to indicate whether to split on code blocks. Default is False.
 
     Returns:
+    -------
     - List[str]: A list of segmented strings based on the splitting criteria and maximum length.
-    """
 
+    """
     tosplitby = [
         # First, try to split along Markdown headings (starting with level 2)
         "\n#{1,6} ",
@@ -240,6 +249,7 @@ def the_string_numerizer(num: int, thestring: str, comma: bool = False, force: b
     This function takes a numerical value 'num', a string 'thestring', and optional parameters to format the value and string together. It returns a formatted string with the numerical value, string, and optional pluralization and comma based on the provided parameters.
 
     Args:
+    ----
     - num (int): The numerical value to be formatted.
     - thestring (str): The string to be combined with the numerical value.
     - comma (bool): Flag to include a comma in the formatted string. Default is False.
@@ -247,9 +257,10 @@ def the_string_numerizer(num: int, thestring: str, comma: bool = False, force: b
     - have_s (bool): Flag to pluralize the string if the numerical value is greater than 1. Default is True.
 
     Returns:
+    -------
     - str: The formatted string combining the numerical value and string based on the provided parameters.
-    """
 
+    """
     if num > 0 or force:
         retstr = f"{num:.2f} {thestring}"
         if num > 1 and have_s:
@@ -261,7 +272,7 @@ def the_string_numerizer(num: int, thestring: str, comma: bool = False, force: b
 
 
 def seconds_to_time_string(seconds_start):
-    """return string of days, hours, minutes, and seconds"""
+    """Return string of days, hours, minutes, and seconds"""
     return_string = ""
     seconds = seconds_start % 60
     minutes_r = (seconds_start - seconds) // 60
@@ -288,12 +299,14 @@ def seconds_to_time_stamp(seconds_init: int | float):
     This function takes an initial number of seconds 'seconds_init' and converts it into a time stamp string representing days, hours, minutes, and seconds. It calculates the corresponding values for days, hours, minutes, and seconds and returns the formatted time stamp string.
 
     Args:
+    ----
     - seconds_init (int | float): The initial number of seconds to convert to a time stamp.
 
     Returns:
+    -------
     - str: The time stamp string in the format 'd:h:m:s' representing the converted seconds.
-    """
 
+    """
     return_string = ""
     seconds_start = int(round(seconds_init))
     seconds = seconds_start % 60
@@ -332,12 +345,14 @@ def extract_timestamp(timestamp: str):
     This function takes a timestamp string 'timestamp' and adjusts it to include up to 6 digits of fractional seconds. It then converts the adjusted timestamp string to a datetime object with timezone information and returns the datetime object.
 
     Args:
+    ----
     - timestamp (str): The timestamp string to be converted to a datetime object.
 
     Returns:
+    -------
     - datetime: The datetime object representing the converted timestamp with timezone information.
-    """
 
+    """
     # Define the format of the timestamp string (with 7-digit fractional seconds)
     format_string = "%Y-%m-%dT%H:%M:%S.%fZ"
 

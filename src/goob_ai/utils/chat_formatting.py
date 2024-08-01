@@ -17,7 +17,8 @@ from babel.numbers import format_decimal
 
 
 def error(text: str) -> str:
-    """Get text prefixed with an error emoji.
+    """
+    Get text prefixed with an error emoji.
 
     Parameters
     ----------
@@ -34,7 +35,8 @@ def error(text: str) -> str:
 
 
 def warning(text: str) -> str:
-    """Get text prefixed with a warning emoji.
+    """
+    Get text prefixed with a warning emoji.
 
     Parameters
     ----------
@@ -51,7 +53,8 @@ def warning(text: str) -> str:
 
 
 def info(text: str) -> str:
-    """Get text prefixed with an info emoji.
+    """
+    Get text prefixed with an info emoji.
 
     Parameters
     ----------
@@ -68,7 +71,8 @@ def info(text: str) -> str:
 
 
 def success(text: str) -> str:
-    """Get text prefixed with a success emoji.
+    """
+    Get text prefixed with a success emoji.
 
     Parameters
     ----------
@@ -85,7 +89,8 @@ def success(text: str) -> str:
 
 
 def question(text: str) -> str:
-    """Get text prefixed with a question emoji.
+    """
+    Get text prefixed with a question emoji.
 
     Parameters
     ----------
@@ -102,7 +107,8 @@ def question(text: str) -> str:
 
 
 def bold(text: str, escape_formatting: bool = True) -> str:
-    """Get the given text in bold.
+    """
+    Get the given text in bold.
 
     Note: By default, this function will escape ``text`` prior to emboldening.
 
@@ -123,7 +129,8 @@ def bold(text: str, escape_formatting: bool = True) -> str:
 
 
 def box(text: str, lang: str = "") -> str:
-    """Get the given text in a code block.
+    """
+    Get the given text in a code block.
 
     Parameters
     ----------
@@ -142,7 +149,8 @@ def box(text: str, lang: str = "") -> str:
 
 
 def inline(text: str) -> str:
-    """Get the given text as inline code.
+    """
+    Get the given text as inline code.
 
     Parameters
     ----------
@@ -159,7 +167,8 @@ def inline(text: str) -> str:
 
 
 def italics(text: str, escape_formatting: bool = True) -> str:
-    """Get the given text in italics.
+    """
+    Get the given text in italics.
 
     Note: By default, this function will escape ``text`` prior to italicising.
 
@@ -180,7 +189,8 @@ def italics(text: str, escape_formatting: bool = True) -> str:
 
 
 def spoiler(text: str, escape_formatting: bool = True) -> str:
-    """Get the given text as a spoiler.
+    """
+    Get the given text as a spoiler.
 
     Note: By default, this function will escape ``text`` prior to making the text a spoiler.
 
@@ -201,7 +211,8 @@ def spoiler(text: str, escape_formatting: bool = True) -> str:
 
 
 def bordered(*columns: Sequence[str], ascii_border: bool = False) -> str:
-    """Get two blocks of text inside borders.
+    """
+    Get two blocks of text inside borders.
 
     Note
     ----
@@ -274,7 +285,8 @@ def pagify(
     shorten_by: int = 8,
     page_length: int = 2000,
 ) -> Iterator[str]:
-    """Generate multiple pages from the given text.
+    """
+    Generate multiple pages from the given text.
 
     Note
     ----
@@ -339,7 +351,8 @@ def pagify(
 
 
 def strikethrough(text: str, escape_formatting: bool = True) -> str:
-    """Get the given text with a strikethrough.
+    """
+    Get the given text with a strikethrough.
 
     Note: By default, this function will escape ``text`` prior to applying a strikethrough.
 
@@ -360,7 +373,8 @@ def strikethrough(text: str, escape_formatting: bool = True) -> str:
 
 
 def underline(text: str, escape_formatting: bool = True) -> str:
-    """Get the given text with an underline.
+    """
+    Get the given text with an underline.
 
     Note: By default, this function will escape ``text`` prior to underlining.
 
@@ -381,7 +395,8 @@ def underline(text: str, escape_formatting: bool = True) -> str:
 
 
 def quote(text: str) -> str:
-    """Quotes the given text.
+    """
+    Quotes the given text.
 
     Parameters
     ----------
@@ -398,7 +413,8 @@ def quote(text: str) -> str:
 
 
 def escape(text: str, *, mass_mentions: bool = False, formatting: bool = False) -> str:
-    """Get text with all mass mentions or markdown escaped.
+    """
+    Get text with all mass mentions or markdown escaped.
 
     Parameters
     ----------
@@ -424,7 +440,8 @@ def escape(text: str, *, mass_mentions: bool = False, formatting: bool = False) 
 
 
 def humanize_list(items: Sequence[str], *, locale: Optional[str] = None, style: str = "standard") -> str:
-    """Get comma-separated list, with the last element joined with *and*.
+    """
+    Get comma-separated list, with the last element joined with *and*.
 
     Parameters
     ----------
@@ -482,12 +499,12 @@ def humanize_list(items: Sequence[str], *, locale: Optional[str] = None, style: 
         'omena, peruna tai aplari'
 
     """
-
     return babel_list(items, style=style, locale="en-US")
 
 
 def format_perms_list(perms: discord.Permissions) -> str:
-    """Format a list of permission names.
+    """
+    Format a list of permission names.
 
     This will return a humanized list of the names of all enabled
     permissions in the provided `discord.Permissions` object.
@@ -541,8 +558,8 @@ def humanize_timedelta(
     ------
     ValueError
         The function was called with neither a number of seconds nor a timedelta object
-    """
 
+    """
     try:
         obj = seconds if seconds is not None else timedelta.total_seconds()
     except AttributeError as e:
@@ -585,6 +602,7 @@ def humanize_number(val: Union[int, float], override_locale=None) -> str:
     -------
     str
         locale aware formatted number.
+
     """
     return format_decimal(val, locale="en-US")
 
@@ -596,7 +614,8 @@ def text_to_file(
     spoiler: bool = False,
     encoding: str = "utf-8",
 ):
-    """Prepares text to be sent as a file on Discord, without character limit.
+    """
+    Prepares text to be sent as a file on Discord, without character limit.
 
     This writes text into a bytes object that can be used for the ``file`` or ``files`` parameters
     of :meth:`discord.abc.Messageable.send`.
