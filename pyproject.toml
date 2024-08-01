@@ -917,9 +917,7 @@ ignore_errors = true
 # unfixable = ["ERA001", "F401", "F841", "T201", "T203"]
 # SOURCE: https://github.com/humblFINANCE/humblAPI/blob/master/pyproject.toml - end
 
-unfixable = [
-    "ERA", # do not autoremove commented out code
-]
+
 extend-include = ["*.ipynb"]
 # Allow imports relative to the "src" and "test" directories.
 # src = ["src", "tests"]
@@ -975,6 +973,9 @@ ban-relative-imports = "all"
 
 # ===========================[ RUFF lint ]========================
 [tool.ruff.lint]
+unfixable = [
+    "ERA", # do not autoremove commented out code
+]
 # A list of rule codes or prefixes for which safe fixes should be considered unsafe. default []
 extend-unsafe-fixes = [
     "D",
