@@ -8,6 +8,8 @@ import asyncio
 
 from typing import TYPE_CHECKING
 
+import redis.asyncio as redis
+
 from goob_ai.backend.cache.goobredis import get_driver
 from loguru import logger as LOGGER
 
@@ -22,10 +24,54 @@ if TYPE_CHECKING:
 
     from pytest_mock.plugin import MockerFixture
 
+##########################################################################
+
+
+@pytest.fixture(name="create_redis")
+async def create_redis(request):
+    """Wrapper around redis.create_redis."""
+    # (single_connection,) = request.param
+
+    teardown_clients = []
+
+    async def client_factory(
+        **kwargs,
+    ) -> GoobRedisClient:
+        client = await get_driver()
+
+        async def teardown():
+            try:
+                await client.aclose()
+                # await client.connection_pool.disconnect()
+            except redis.ConnectionError:
+                pass
+
+        teardown_clients.append(teardown)
+        return client
+
+    yield client_factory
+
+    for teardown in teardown_clients:
+        await teardown()
+
+
+@pytest.fixture(name="r")
+async def r(create_redis):
+    return await create_redis()
+
+
+@pytest.fixture(name="decoded_r")
+async def decoded_r(create_redis):
+    return await create_redis(decode_responses=True)
+
+
+##########################################################################
+
 
 # @pytest.mark.app_settings({"applications": ["guillotina", "guillotina.contrib.redis"]})
-async def test_redis_ops(caplog: LogCaptureFixture):
-    driver = await get_driver()
+async def test_redis_ops(caplog: LogCaptureFixture, create_redis, **kwargs):
+    driver: GoobRedisClient = await get_driver()
+    r = await create_redis(**kwargs)
     assert driver.initialized
     assert driver.pool is not None
 

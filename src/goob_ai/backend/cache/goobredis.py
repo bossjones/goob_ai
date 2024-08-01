@@ -106,6 +106,7 @@ class GoobRedisClient:
         )
         self._pool = redis.asyncio.Redis(connection_pool=self._conn_pool)
         self._pubsub_channels: dict[str, PubSub] = {}
+        self.auto_close_connection_pool: bool = self._pool.auto_close_connection_pool
 
     async def finalize(self) -> None:
         """Finalize the Redis client."""
@@ -293,28 +294,6 @@ class GoobRedisClient:
             finally:
                 await p.__aexit__(None, None, None)
 
-    # async def subscribe(self, channel_name: str) -> AsyncGenerator[Any, None]:
-    #     """
-    #     Subscribe to a Redis channel.
-
-    #     Args:
-    #         channel_name: The name of the channel to subscribe to.
-
-    #     Yields:
-    #         Messages received from the subscribed channel.
-
-    #     Raises:
-    #         NoRedisConfigured: If no Redis is configured.
-    #     """
-    #     if self._pool is None:
-    #         raise NoRedisConfigured()
-
-    #     p: PubSub = await self._pool.pubsub().__aenter__()
-    #     self._pubsub_channels[channel_name] = p
-    #     await p.subscribe(channel_name)
-    #     async for message in self._listener(p):
-    #         yield message
-
     async def subscribe(self, channel_name: str) -> AsyncGenerator[Any, None]:
         """
         Subscribe to a Redis channel.
@@ -350,6 +329,22 @@ class GoobRedisClient:
             message = await p.get_message(ignore_subscribe_messages=True, timeout=1)
             if message is not None:
                 yield message["data"]
+
+    async def aclose(self, close_connection_pool: Optional[bool] = None) -> None:
+        """
+        Closes Redis client connection
+
+        :param close_connection_pool: decides whether to close the connection pool used
+        by this Redis client, overriding Redis.auto_close_connection_pool. By default,
+        let Redis.auto_close_connection_pool decide whether to close the connection
+        pool.
+        """
+        conn = self._pool
+        if conn:
+            self._pool = None
+            await self._pool.release(conn)
+        if close_connection_pool or (close_connection_pool is None and self.auto_close_connection_pool):
+            await self._pool.disconnect()
 
 
 #     def set(self, key, value, expiration=3600):
