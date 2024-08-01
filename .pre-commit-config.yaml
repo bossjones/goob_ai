@@ -58,6 +58,15 @@ repos:
   #         additional_dependencies: [tomli]
   #         args: ["--in-place", "--recursive", "--diff", "."]
 
+
+
+  # - repo: https://github.com/PyCQA/docformatter
+  #   rev: v1.7.5
+  #   hooks:
+  #     - id: docformatter
+  #       additional_dependencies: [tomli]
+  #       args: [--in-place, --config, ./pyproject.toml]
+
   # SOURCE:https://github.com/humblFINANCE/humblAPI/blob/master/.pre-commit-config.yaml
   # SOURCE: https://github.com/pypa/pip/blob/main/.pre-commit-config.yaml
   - repo: https://github.com/pre-commit/pygrep-hooks
@@ -251,3 +260,10 @@ repos:
       # - id: alphabetize-codeowners
       - id: fix-smartquotes
       # - id: fix-ligatures
+
+  # SOURCE: https://github.com/PyCQA/docformatter/blob/master/.pre-commit-config.yaml
+  # - repo: https://github.com/myint/eradicate
+  #   rev: '2.2.0'
+  #   hooks:
+  #     - id: eradicate
+  #       args: []

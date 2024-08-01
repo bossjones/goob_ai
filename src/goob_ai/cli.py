@@ -33,9 +33,9 @@ import typer
 
 from loguru import logger as LOGGER
 from pinecone import Pinecone, ServerlessSpec  # pyright: ignore[reportAttributeAccessIssue]
-from pinecone.core.client.model.describe_index_stats_response import DescribeIndexStatsResponse
-from pinecone.core.client.model.query_response import QueryResponse
-from pinecone.core.client.model.upsert_response import UpsertResponse
+from pinecone.core.openapi.data.model.describe_index_stats_response import DescribeIndexStatsResponse
+from pinecone.core.openapi.data.model.query_response import QueryResponse
+from pinecone.core.openapi.data.model.upsert_response import UpsertResponse
 from pinecone.data.index import Index
 from redis.asyncio import ConnectionPool, Redis
 from rich import print, print_json

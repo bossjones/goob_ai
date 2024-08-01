@@ -291,6 +291,9 @@ dev-dependencies = [
     "mkdocs-include-markdown-plugin>=6.2.1",
     "pytest-ignore-flaky>=2.2.1",
     "mdformat-footnote>=0.1.1",
+    "mkdocstrings[python]>=0.25.2",
+    "mkdocs-jupyter>=0.24.8",
+    "mkdocs-redirects>=1.2.1",
 ]
 
 [tool.rye.scripts]
@@ -1944,3 +1947,6 @@ numpydoc-section-hyphen-length = false
 wrap = 120         # possible values: {"keep", "no", INTEGER}
 number = false     # possible values: {false, true}
 end_of_line = "lf" # possible values: {"lf", "crlf", "keep"}
+
+[tool.pydocstyle]
+convention = "pep257"
