@@ -249,7 +249,7 @@ async def process_audio(input_file: Path) -> None:
     await _aio_run_process_and_communicate(compress_cmd)
 
 
-async def aio_compress_video(tmpdirname: str, file_to_compress: str, bot: Any) -> bool:
+async def aio_compress_video(tmpdirname: str, file_to_compress: str) -> bool:
     """
     _summary_
 
@@ -315,7 +315,7 @@ async def aio_compress_video(tmpdirname: str, file_to_compress: str, bot: Any) -
         return False
 
 
-def compress_video(tmpdirname: str, file_to_compress: str, bot: Any, ctx: Any) -> bool:
+def compress_video(tmpdirname: str, file_to_compress: str) -> bool:
     """
     _summary_
 
