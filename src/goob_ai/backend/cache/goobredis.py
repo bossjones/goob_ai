@@ -8,7 +8,8 @@ from __future__ import annotations
 import asyncio
 import pickle
 
-from typing import Any, Dict, List, Optional
+from collections.abc import AsyncGenerator
+from typing import Any, Callable, Dict, List, Optional, Union
 
 import backoff
 import redis
@@ -54,29 +55,39 @@ except ImportError:
 
 
 class NoRedisConfigured(Exception):
-    pass
+    """Exception raised when no Redis is configured."""
 
 
 class GoobRedisClient:
+    """
+    A Redis client class for Goob AI.
+
+    Args:
+        url: The URL of the Redis server.
+        max_connections: The maximum number of connections to the Redis server.
+    """
+
     def __init__(self, url: str, max_connections: int = 10):
-        self._pool: Redis | None = None  # pyright: ignore[reportAttributeAccessIssue]
-        self._pubsub = None
+        self._pool: Optional[Redis] = None
+        self._pubsub: Optional[PubSub] = None
         self._loop = None
-        self._receivers = {}
+        self._receivers: dict[str, Any] = {}
         self._pubsub_subscriptor = None
         self._conn = None
         self.initialized = False
         self.init_lock = asyncio.Lock()
         self._max_connections = max_connections
 
-        # self.pool: ConnectionPool = ConnectionPool.from_url(str(aiosettings.redis_url), max_connections=max_connections)
+    async def initialize(self, loop: asyncio.AbstractEventLoop) -> None:
+        """
+        Initialize the Redis client.
 
-        # self.connection: Redis = redis.asyncio.Redis(connection_pool=self.pool)
-
-    async def initialize(self, loop):
+        Args:
+            loop: The event loop to use.
+        """
         self._loop = loop
         async with self.init_lock:
-            if self.initialized is False:
+            if not self.initialized:
                 while True:
                     try:
                         await self._connect()
@@ -88,40 +99,72 @@ class GoobRedisClient:
                         LOGGER.error("Error initializing pubsub", exc_info=True)
 
     @backoff.on_exception(backoff.expo, (OSError,), max_time=30, max_tries=4)
-    async def _connect(self):
-        # settings = app_settings["redis"]
-        self._conn_pool: ConnectionPool = redis.asyncio.ConnectionPool.from_url(
+    async def _connect(self) -> None:
+        """Connect to the Redis server."""
+        self._conn_pool = redis.asyncio.ConnectionPool.from_url(
             str(aiosettings.redis_url), max_connections=self._max_connections
         )
-        self._pool: Redis = redis.asyncio.Redis(connection_pool=self._conn_pool)
+        self._pool = redis.asyncio.Redis(connection_pool=self._conn_pool)
         self._pubsub_channels: dict[str, PubSub] = {}
 
-    async def finalize(self):
+    async def finalize(self) -> None:
+        """Finalize the Redis client."""
         await self._conn_pool.disconnect()
         self.initialized = False
 
     @property
-    def pool(self):
+    def pool(self) -> Optional[Redis]:
+        """Get the Redis connection pool."""
         return self._pool
 
-    async def info(self):
+    async def info(self) -> dict[str, Any]:
+        """
+        Get information about the Redis server.
+
+        Returns:
+            A dictionary containing information about the Redis server.
+
+        Raises:
+            NoRedisConfigured: If no Redis is configured.
+        """
         if self._pool is None:
             raise NoRedisConfigured()
         return await self._pool.info("get")
 
-    # VALUE API
+    async def set(self, key: str, data: str, *, expire: Optional[int] = None) -> None:
+        """
+        Set a key-value pair in Redis.
 
-    async def set(self, key: str, data: str, *, expire: Optional[int] = None):
+        Args:
+            key: The key to set.
+            data: The value to set.
+            expire: The expiration time in seconds.
+
+        Raises:
+            NoRedisConfigured: If no Redis is configured.
+        """
         if self._pool is None:
             raise NoRedisConfigured()
         kwargs = {}
         if expire is not None:
             kwargs["ex"] = expire
         with watch("set"):
-            ok = await self._pool.set(key, data, **kwargs)  # mypy: disable-error-code="arg-type"
+            ok = await self._pool.set(key, data, **kwargs)  # type: ignore
         assert ok is True, ok
 
-    async def get(self, key: str) -> str | Any | None:
+    async def get(self, key: str) -> Optional[str]:
+        """
+        Get the value of a key from Redis.
+
+        Args:
+            key: The key to get.
+
+        Returns:
+            The value of the key, or None if the key does not exist.
+
+        Raises:
+            NoRedisConfigured: If no Redis is configured.
+        """
         if self._pool is None:
             raise NoRedisConfigured()
         with watch("get") as w:
@@ -130,23 +173,63 @@ class GoobRedisClient:
                 w.labels["type"] = "get_miss"
             return val
 
-    async def delete(self, key: str):
+    async def delete(self, key: str) -> None:
+        """
+        Delete a key from Redis.
+
+        Args:
+            key: The key to delete.
+
+        Raises:
+            NoRedisConfigured: If no Redis is configured.
+        """
         if self._pool is None:
             raise NoRedisConfigured()
         with watch("delete"):
             await self._pool.delete(key)
 
-    async def expire(self, key: str, expire: int):
+    async def expire(self, key: str, expire: int) -> None:
+        """
+        Set the expiration time for a key in Redis.
+
+        Args:
+            key: The key to set the expiration for.
+            expire: The expiration time in seconds.
+
+        Raises:
+            NoRedisConfigured: If no Redis is configured.
+        """
         if self._pool is None:
             raise NoRedisConfigured()
         await self._pool.expire(key, expire)
 
-    async def keys_startswith(self, key: str):
+    async def keys_startswith(self, key: str) -> list[str]:
+        """
+        Get all keys that start with a given prefix.
+
+        Args:
+            key: The prefix to search for.
+
+        Returns:
+            A list of keys that start with the given prefix.
+
+        Raises:
+            NoRedisConfigured: If no Redis is configured.
+        """
         if self._pool is None:
             raise NoRedisConfigured()
         return await self._pool.keys(f"{key}*")
 
-    async def delete_all(self, keys: list[str]):
+    async def delete_all(self, keys: list[str]) -> None:
+        """
+        Delete multiple keys from Redis.
+
+        Args:
+            keys: The list of keys to delete.
+
+        Raises:
+            NoRedisConfigured: If no Redis is configured.
+        """
         if self._pool is None:
             raise NoRedisConfigured()
         for key in keys:
@@ -157,22 +240,48 @@ class GoobRedisClient:
             except Exception:
                 LOGGER.warning(f"Error deleting cache keys {keys}", exc_info=True)
 
-    async def flushall(self, *, async_op: bool = False):
+    async def flushall(self, *, async_op: bool = False) -> None:
+        """
+        Flush all keys from Redis.
+
+        Args:
+            async_op: Whether to perform the operation asynchronously.
+
+        Raises:
+            NoRedisConfigured: If no Redis is configured.
+        """
         if self._pool is None:
             raise NoRedisConfigured()
         with watch("flush"):
             await self._pool.flushdb(asynchronous=async_op)
 
-    # PUBSUB API
+    async def publish(self, channel_name: str, data: str) -> None:
+        """
+        Publish a message to a Redis channel.
 
-    async def publish(self, channel_name: str, data: str):
+        Args:
+            channel_name: The name of the channel to publish to.
+            data: The message to publish.
+
+        Raises:
+            NoRedisConfigured: If no Redis is configured.
+        """
         if self._pool is None:
             raise NoRedisConfigured()
 
         with watch("publish"):
             await self._pool.publish(channel_name, data)
 
-    async def unsubscribe(self, channel_name: str):
+    async def unsubscribe(self, channel_name: str) -> None:
+        """
+        Unsubscribe from a Redis channel.
+
+        Args:
+            channel_name: The name of the channel to unsubscribe from.
+
+        Raises:
+            NoRedisConfigured: If no Redis is configured.
+        """
         if self._pool is None:
             raise NoRedisConfigured()
 
@@ -184,143 +293,61 @@ class GoobRedisClient:
             finally:
                 await p.__aexit__(None, None, None)
 
-    async def subscribe(self, channel_name: str):
+    async def subscribe(self, channel_name: str) -> AsyncGenerator[Any, None]:
+        """
+        Subscribe to a Redis channel.
+
+        Args:
+            channel_name: The name of the channel to subscribe to.
+
+        Yields:
+            Messages received from the subscribed channel.
+
+        Raises:
+            NoRedisConfigured: If no Redis is configured.
+        """
         if self._pool is None:
             raise NoRedisConfigured()
 
         p: PubSub = await self._pool.pubsub().__aenter__()
         self._pubsub_channels[channel_name] = p
         await p.subscribe(channel_name)
-        return self._listener(p)
+        async for message in self._listener(p):
+            yield message
 
-    async def _listener(self, p: PubSub):
+    async def _listener(self, p: PubSub) -> AsyncGenerator[Any, None]:
+        """
+        Listen for messages on a Redis channel.
+
+        Args:
+            p: The PubSub object to listen on.
+
+        Yields:
+            Messages received from the subscribed channel.
+        """
         while True:
             message = await p.get_message(ignore_subscribe_messages=True, timeout=1)
             if message is not None:
                 yield message["data"]
 
 
-#     def set(self, key, value, expiration=3600):
-#         try:
-#             if pickled := pickle.dumps(value):
-#                 self.cluster_nodes(key)
-#                 result = self.connection.setex(key, expiration, pickled)
-#                 if not result:
-#                     raise ValueError('RedisCache could not set the value.')
-#             else:
-#                 LOGGER.error('pickle error, value={}', value)
-#         except TypeError as exc:
-#             raise TypeError('RedisCache only accepts values that can be pickled. ') from exc
-#         finally:
-#             self.close()
-
-#     def setNx(self, key, value, expiration=3600):
-#         try:
-#             if pickled := pickle.dumps(value):
-#                 self.cluster_nodes(key)
-#                 result = self.connection.setnx(key, pickled)
-#                 self.connection.expire(key, expiration)
-#                 if not result:
-#                     return False
-#                 return True
-#         except TypeError as exc:
-#             raise TypeError('RedisCache only accepts values that can be pickled. ') from exc
-#         finally:
-#             self.close()
-
-#     def hsetkey(self, name, key, value, expiration=3600):
-#         try:
-#             self.cluster_nodes(key)
-#             r = self.connection.hset(name, key, value)
-#             if expiration:
-#                 self.connection.expire(name, expiration)
-#             return r
-#         finally:
-#             self.close()
-
-#     def hset(self, name, map: dict, expiration=3600):
-#         try:
-#             self.cluster_nodes(name)
-#             r = self.connection.hset(name, mapping=map)
-#             if expiration:
-#                 self.connection.expire(name, expiration)
-#             return r
-#         finally:
-#             self.close()
-
-#     def hget(self, name, key):
-#         try:
-#             self.cluster_nodes(name)
-#             return self.connection.hget(name, key)
-#         finally:
-#             self.close()
-
-#     def get(self, key):
-#         try:
-#             self.cluster_nodes(key)
-#             value = self.connection.get(key)
-#             return pickle.loads(value) if value else None
-#         finally:
-#             self.close()
-
-#     def delete(self, key):
-#         try:
-#             self.cluster_nodes(key)
-#             return self.connection.delete(key)
-#         finally:
-#             self.close()
-
-#     def exists(self, key):
-#         try:
-#             self.cluster_nodes(key)
-#             return self.connection.exists(key)
-#         finally:
-#             self.close()
-
-#     def close(self):
-#         self.connection.close()
-
-#     def __contains__(self, key):
-#         """Check if the key is in the cache."""
-#         self.cluster_nodes(key)
-#         return False if key is None else self.connection.exists(key)
-
-#     def __getitem__(self, key):
-#         """Retrieve an item from the cache using the square bracket notation."""
-#         self.cluster_nodes(key)
-#         return self.connection.get(key)
-
-#     def __setitem__(self, key, value):
-#         """Add an item to the cache using the square bracket notation."""
-#         self.cluster_nodes(key)
-#         self.connection.set(key, value)
-
-#     def __delitem__(self, key):
-#         """Remove an item from the cache using the square bracket notation."""
-#         self.cluster_nodes(key)
-#         self.connection.delete(key)
-
-#     def cluster_nodes(self, key):
-#         if isinstance(self.connection,
-#                       RedisCluster) and self.connection.get_default_node() is None:
-#             target = self.connection.get_node_from_key(key)
-#             self.connection.set_default_node(target)
-
-
-# # Example usage
-# redis_client = RedisClient(f"{aiosettings.redis_url}")
-
-_DRIVER = GoobRedisClient(str(aiosettings.redis_url))
+_DRIVER: Optional[GoobRedisClient] = GoobRedisClient(str(aiosettings.redis_url))
 
 
 async def get_driver() -> GoobRedisClient:
-    global _driver
+    """
+    Get the Redis client driver.
+
+    Returns:
+        The Redis client driver.
+
+    Raises:
+        Exception: If the Redis client is not added to the applications.
+    """
+    global _DRIVER
     if _DRIVER is None:
         raise Exception("Not added goob_ai.contrib.redis on applications")
-    if _DRIVER.initialized is False:
+    if not _DRIVER.initialized:
         loop = asyncio.get_event_loop()
         await _DRIVER.initialize(loop)
     return _DRIVER
-
-
-# redis_client = await get_driver()
