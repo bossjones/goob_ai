@@ -16,13 +16,18 @@ on:
       # The main purpose of this workflow is to build wheels for release tags.
       # It runs automatically on tags matching this pattern and pushes to pypi.
       - "v*"
-
   # https://docs.github.com/en/webhooks-and-events/webhooks/webhook-events-and-payloads#pull_request
   pull_request:
 
-  # https://docs.github.com/en/webhooks-and-events/webhooks/webhook-events-and-payloads#workflow_dispatch
+  # # https://docs.github.com/en/webhooks-and-events/webhooks/webhook-events-and-payloads#workflow_dispatch
+  # workflow_dispatch:
+  #   # Allow this workflow to be run manually (pushing to testpypi instead of pypi)
   workflow_dispatch:
-    # Allow this workflow to be run manually (pushing to testpypi instead of pypi)
+    inputs:
+      debug_enabled:
+        description: 'Run the build with tmate debugging enabled (https://github.com/marketplace/actions/debugging-with-tmate)'
+        required: false
+        default: false
 
 env:
   python-version: '3.10'
@@ -154,6 +159,14 @@ jobs:
           rye config --set-bool behavior.use-uv=true
           ./scripts/retry -t 4  -- rye sync --all-features
 
+      # Allow debugging with tmate
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
+        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.debug_enabled }}
+        with:
+          # Use registered public SSH key(s)
+          # If you have registered one or more public SSH keys with your GitHub profile, tmate will be started such that only those keys are authorized to connect, otherwise anybody can connect to the tmate session. If you want to require a public SSH key to be installed with the tmate session, no matter whether the user who started the workflow has registered any in their GitHub profile, you will need to configure the setting limit-access-to-actor to true, like so:
+          limit-access-to-actor: true
 
       - name: Run tests and collect coverage
         env:
@@ -189,6 +202,25 @@ jobs:
           sudo apt-get install tree -y
           tree
           ls -lta
+
+      # SOURCE: https://til.simonwillison.net/github-actions/debug-tmate
+      # Starting a shell just for test failures on manual runs #
+      # I had a tricky test failure that I wanted to debug interactively. Here's a recipe for starting a tmate shell ONLY if the previous step failed, and only if the run was triggered manually (using workflow_dispatch) - because I don't want an accidental test opening up a shell and burning up my GitHub Actions minutes allowance.
+
+      #     steps:
+      #     - name: Run tests
+      #       run: pytest
+      #     - name: tmate session if tests fail
+      #       if: failure() && github.event_name == 'workflow_dispatch'
+      #       uses: mxschmitt/action-tmate@v3
+
+      - name: tmate session if tests fail
+        if: failure() && github.event_name == 'workflow_dispatch'
+        uses: mxschmitt/action-tmate@v3
+        with:
+          # Use registered public SSH key(s)
+          # If you have registered one or more public SSH keys with your GitHub profile, tmate will be started such that only those keys are authorized to connect, otherwise anybody can connect to the tmate session. If you want to require a public SSH key to be installed with the tmate session, no matter whether the user who started the workflow has registered any in their GitHub profile, you will need to configure the setting limit-access-to-actor to true, like so:
+          limit-access-to-actor: true
 
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v4

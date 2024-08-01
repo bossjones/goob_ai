@@ -1,3 +1,15 @@
+default_install_hook_types:
+  # is triggered before the commit is finalized to allow checks on the code being committed. Running hooks on unstaged changes can lead to both false-positives and false-negatives during committing. pre-commit only runs on the staged contents of files by temporarily stashing the unstaged changes while running hooks.
+  - pre-commit
+  # hooks will be passed a single filename -- this file contains the current contents of the commit message to be validated. The commit will be aborted if there is a nonzero exit code.
+  - commit-msg
+  # pre-push is triggered on git push.
+  - pre-push
+
+default_stages:
+  - commit
+  - push
+
 # TODO: Work with team to see when the right time is to enable this
 # # exclude: '^src/validate_pyproject/_vendor'
 
@@ -28,6 +40,15 @@ repos:
   #                 "--ignore-unknown",
   #             ]
   #         # additional_dependencies: ["prettier", "prettier-plugin-multiline-arrays"]
+
+  # # NOTE: if we are going to use this, it needs to run before ruff.
+  # - repo: https://github.com/PyCQA/docformatter
+  #   rev: v1.7.5
+  #   hooks:
+  #     - id: docformatter
+  #       additional_dependencies: [tomli]
+  #       args: [--in-place, --config, ./pyproject.toml]
+
   # SOURCE: https://github.com/astral-sh/ruff-pre-commit
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.4.8
@@ -43,6 +64,16 @@ repos:
         args: [--config=pyproject.toml]
         files: ^((src|tests|notebooks)/.+)?[^/]+\.(py|pyi|ipynb)$
         exclude: (.tasks|hack)
+
+  ##########################################################################################
+  # # # NOTE: if we are going to use this, it needs to run AFTER ruff.
+  ##########################################################################################
+  # - repo: https://github.com/pycqa/pydocstyle
+  #   rev: 6.3.0
+  #   hooks:
+  #     - id: pydocstyle
+  #       additional_dependencies: [toml]
+  #       args: [--config, ./pyproject.toml]
 
   # - repo: https://github.com/pre-commit/pygrep-hooks
   #   rev: v1.10.0
@@ -216,6 +247,8 @@ repos:
           "--no-strip-whitespace",
           "--no-capitalize-first-letter",
         ]
+        files: ^((src|tests|notebooks)/.+)?[^/]+\.(py|pyi|ipynb)$
+        exclude: (.tasks|hack)
 
   - repo: https://github.com/asottile/pyupgrade
     rev: v3.15.1

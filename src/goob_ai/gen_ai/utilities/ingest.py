@@ -12,7 +12,7 @@ import pinecone
 
 from bs4 import BeautifulSoup
 from langchain_community.document_loaders import ReadTheDocsLoader
-from langchain_community.embeddings import OpenAIEmbeddings
+from langchain_openai import OpenAIEmbeddings
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from loguru import logger as LOGGER
 from pinecone import Pinecone

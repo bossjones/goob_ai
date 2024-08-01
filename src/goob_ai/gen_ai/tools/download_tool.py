@@ -41,7 +41,6 @@ from codetiming import Timer
 from discord.ext import commands
 from discord.message import Message
 from discord.user import User
-from langchain.callbacks.manager import AsyncCallbackManagerForToolRun, CallbackManagerForToolRun
 from langchain.pydantic_v1 import BaseModel, Field
 from langchain.pydantic_v1 import BaseModel as BaseModelV1
 from langchain.pydantic_v1 import Field as FieldV1

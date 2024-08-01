@@ -1950,3 +1950,40 @@ end_of_line = "lf" # possible values: {"lf", "crlf", "keep"}
 
 [tool.pydocstyle]
 convention = "pep257"
+
+[tool.docformatter]
+# wrap long summary lines at this length; set to 0 to disable wrapping (default: 79, 88 with --black option)
+wrap-summaries = 120
+# wrap descriptions at this length; set to 0 to disable wrapping (default: 72, 88 with --black option)
+wrap-descriptions = 120
+in-place = true
+# add a newline before one-line or the summary of a multi-line docstring
+pre-summary-newline = true
+# place closing triple quotes on a new-line when a one-line docstring wraps to two or more lines
+close-quotes-on-newline = true
+#  make formatting compatible with standard black options
+black = true
+# add blank line after elaborate description
+blank = true
+recursive = true
+style = "google"
+
+# add a newline before and after a one-line docstring
+# make_summary_multiline = false
+# add a newline before one-line or the summary of a multi-line docstring
+# pre_summary_newline    = false
+# add a space between the opening triple quotes and the first word in a one-line or summary line of a multi-line docstring
+# pre_summary_space      = false
+
+exclude = [
+    ".venv",
+    "build",
+    "dist",
+    "docs",
+    "examples",
+    "notebooks",
+    "sample*",
+    "test*",
+    "tasks*",
+    "task*",
+]

@@ -152,3 +152,7 @@ source: <https://www.youtube.com/watch?v=AeASAsPp9LE>
 - https://github.com/humblFINANCE/humblAPI/blob/master/pyproject.toml
 - https://github.com/humblFINANCE/humblAPI/blob/master/pyproject.toml
 - https://github.com/humblFINANCE/humblAPI/blob/master/pyproject.toml
+
+# aug 2024
+
+- [simonw/shot-scraper - A command-line utility for taking automated screenshots of websites](https://github.com/simonw/shot-scraper)
