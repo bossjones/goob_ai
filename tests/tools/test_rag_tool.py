@@ -95,7 +95,7 @@ def test_rag_tool_injected_arg_with_schema(
 
     assert tool_.get_input_schema().schema() == {
         "title": "ReadTheDocsQASchema",
-        "description": "You must use this tool for any questions or queries related to opencv, rich, and Pillow or substrings of it. This will return documents that are related to the user's question. The documents may not be always relevant to the user's question. If you use any of the documents returned to provide a helpful answer to question, please make sure to also return a valid URL of the document you used.\n\nArgs:\n    question: A question to ask about a readthedocs pdf. Cannot be empty. Must be a question abount opencv, rich, or Pillow.",
+        "description": "You must use this tool for any questions or queries related to opencv, rich, and Pillow or substrings of it. This will return documents that are related to the user's question. The documents may not be always relevant to the user's question. If you use any of the documents returned to provide a helpful answer to question, please make sure to also return a valid URL of the document you used.\n\nArgs:\n----\n    question: A question to ask about a readthedocs pdf. Cannot be empty. Must be a question abount opencv, rich, or Pillow.",
         "type": "object",
         "properties": {
             "question": {
@@ -109,7 +109,7 @@ def test_rag_tool_injected_arg_with_schema(
 
     assert tool_.args_schema.schema() == {
         "title": "ReadTheDocsQASchema",
-        "description": "You must use this tool for any questions or queries related to opencv, rich, and Pillow or substrings of it. This will return documents that are related to the user's question. The documents may not be always relevant to the user's question. If you use any of the documents returned to provide a helpful answer to question, please make sure to also return a valid URL of the document you used.\n\nArgs:\n    question: A question to ask about a readthedocs pdf. Cannot be empty. Must be a question abount opencv, rich, or Pillow.",
+        "description": "You must use this tool for any questions or queries related to opencv, rich, and Pillow or substrings of it. This will return documents that are related to the user's question. The documents may not be always relevant to the user's question. If you use any of the documents returned to provide a helpful answer to question, please make sure to also return a valid URL of the document you used.\n\nArgs:\n----\n    question: A question to ask about a readthedocs pdf. Cannot be empty. Must be a question abount opencv, rich, or Pillow.",
         "type": "object",
         "properties": {
             "question": {
