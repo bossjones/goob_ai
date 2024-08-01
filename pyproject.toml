@@ -1307,6 +1307,7 @@ ignore = [
     "PLE1141", # dict-iter-missing-items	Unpacking a dictionary in iteration without calling .items()
     "PLE1142", # await-outside-async	await should be used within an async function
     "Q",
+    "N999",
 ]
 
 [tool.ruff.lint.flake8-tidy-imports]
@@ -1402,6 +1403,7 @@ convention = "pep257"
 # SOURCE: https://github.com/ansible-collections/cloud-content-handbook/blob/9be137d78af4d1cc140b210f3058977164021c9d/proposals/ruff_transition.md - end
 # Conflicts with the formatter
 exclude = [
+    "N999",
     "D203",    # one-blank-line-before-class	1 blank line required before class docstring	✔️ 🛠️
     "COM812",
     "ISC001",

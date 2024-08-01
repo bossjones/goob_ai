@@ -85,7 +85,7 @@ def test_tool_injected_arg_with_schema(
     )
     assert tool_.get_input_schema().schema() == {
         "title": "VisionToolInput",
-        "description": "Use this tool to get more information about an image given a URL to an image file. Use for all urls for image files including discord urls.\n\nArgs:\n    image_path: The URL to the image file\n    prompt: The prompt to use for the API call\n\nReturns: The response from the Vision API",
+        "description": "Use this tool to get more information about an image given a URL to an image file. Use for all urls for image files including discord urls.\n\nArgs:\n----\n    image_path: The URL to the image file\n    prompt: The prompt to use for the API call\n\nReturns: The response from the Vision API",
         "type": "object",
         "properties": {
             "image_path": {"title": "Image Path", "description": "The URL to the image file.", "type": "string"},
@@ -96,7 +96,7 @@ def test_tool_injected_arg_with_schema(
 
     assert tool_.args_schema.schema() == {
         "title": "VisionToolInput",
-        "description": "Use this tool to get more information about an image given a URL to an image file. Use for all urls for image files including discord urls.\n\nArgs:\n    image_path: The URL to the image file\n    prompt: The prompt to use for the API call\n\nReturns: The response from the Vision API",
+        "description": "Use this tool to get more information about an image given a URL to an image file. Use for all urls for image files including discord urls.\n\nArgs:\n----\n    image_path: The URL to the image file\n    prompt: The prompt to use for the API call\n\nReturns: The response from the Vision API",
         "type": "object",
         "properties": {
             "image_path": {"title": "Image Path", "description": "The URL to the image file.", "type": "string"},
@@ -104,30 +104,6 @@ def test_tool_injected_arg_with_schema(
         },
         "required": ["image_path", "prompt"],
     }
-
-    # res = tool_._run(
-    #     discord_image,
-    #     vision_tool_prompt,
-    #     config={"tags": ["pytest", "ci", "synchronous"]},
-    # )
-
-    # # assert "Ego" in res
-    # # assert "@HowFarCanWeFall" in res
-    # assert "Too fine. Blocked" in res
-
-    # validation_error = ValidationError(model='VisionToolInput', errors=[{'loc': ('image_path',), 'msg': 'field required', 'type': 'value_error.missing'}, {'loc': ('prompt',), 'msg': 'field required', 'type': 'value_error.missing'}])
-
-    # E   pydantic.v1.error_wrappers.ValidationError: 2 validation errors for VisionToolInput
-    # E   image_path
-    # E     field required (type=value_error.missing)
-    # E   prompt
-    # E     field required (type=value_error.missing)
-    # expected_error = ValidationError if not isinstance(tool_, vision_tool.VisionTool) else TypeError
-    # with pytest.raises(
-    #     ValidationError,
-    #     match=r".*(2 validation errors for VisionToolInput|Error in read_image_tool: Connection error).*",
-    # ) as excinfo:
-    #     tool_.invoke({"x": 5})
 
     assert convert_to_openai_function(tool_) == {
         "name": "vision_api",
