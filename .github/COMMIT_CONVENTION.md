@@ -4,7 +4,8 @@
 
 ## Commit Message Format
 
-A commit message consists of a **header**, **body** and **footer**. The header has a **type**, **scope** and **subject**. The commit message should be structured as follows:
+A commit message consists of a **header**, **body** and **footer**. The header has a **type**, **scope** and
+**subject**. The commit message should be structured as follows:
 
 ```markdown
 <type>(<scope>): <subject>
@@ -48,11 +49,13 @@ The subject contains a brief imperative description of the change.
 
 ## Body
 
-The body contains an imperative explanation of the change. It should specify the **why** and **how** the change was made.
+The body contains an imperative explanation of the change. It should specify the **why** and **how** the change was
+made.
 
 ## Footer
 
-The footer contains any information about **breaking changes** or a reference to an existing Github **issue** or **pull request**. A breaking change should start with `BREAKING CHANGE:` followed by its description.
+The footer contains any information about **breaking changes** or a reference to an existing Github **issue** or **pull
+request**. A breaking change should start with `BREAKING CHANGE:` followed by its description.
 
 ## Examples
 
