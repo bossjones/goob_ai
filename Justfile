@@ -247,3 +247,9 @@ langchain-migrate:
 
 get-ruff-config:
 	rye run ruff check --show-settings --config pyproject.toml -v -o ruff_config.toml >> ruff.log 2>&1
+
+ci:
+	rye run lint
+	rye run test
+	rye run docs_build
+	rye run docs_deploy

@@ -125,6 +125,27 @@ if aiosettings.dev_mode:
 
 
 if aiosettings.enable_sentry:
+    # NOTE: DISABLED: Currently till I update sentry_init and start using it more.
+    # sentry_init(
+    #     # Set traces_sample_rate to 1.0 to capture 100%
+    #     # of transactions for performance monitoring.
+    #     traces_sample_rate=1.0,
+    #     # Set profiles_sample_rate to 1.0 to profile 100%
+    #     # of sampled transactions.
+    #     # We recommend adjusting this value in production.
+    #     profiles_sample_rate=1.0,
+    #     # Turn off the default logging integration, but keep the rest.
+    #     default_integrations=False,
+    #     integrations=[
+    #         AtexitIntegration(),
+    #         ArgvIntegration(),
+    #         DedupeIntegration(),
+    #         ExcepthookIntegration(),
+    #         StdlibIntegration(),
+    #         ModulesIntegration(),
+    #         ThreadingIntegration(),
+    #     ],
+    # )
     sentry_init(
         # Set traces_sample_rate to 1.0 to capture 100%
         # of transactions for performance monitoring.
@@ -133,17 +154,6 @@ if aiosettings.enable_sentry:
         # of sampled transactions.
         # We recommend adjusting this value in production.
         profiles_sample_rate=1.0,
-        # Turn off the default logging integration, but keep the rest.
-        default_integrations=False,
-        integrations=[
-            AtexitIntegration(),
-            ArgvIntegration(),
-            DedupeIntegration(),
-            ExcepthookIntegration(),
-            StdlibIntegration(),
-            ModulesIntegration(),
-            ThreadingIntegration(),
-        ],
     )
     logging.getLogger("sentry_sdk").setLevel(logging.WARNING)
 
