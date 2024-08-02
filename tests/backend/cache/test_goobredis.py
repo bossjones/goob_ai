@@ -2,7 +2,6 @@
 
 # pylint: disable=assigning-non-slot
 # pylint: disable=consider-using-from-import
-# pylint: no-member
 from __future__ import annotations
 
 import asyncio
@@ -133,12 +132,12 @@ async def create_redis(
         async def teardown():
             try:
                 await client.aclose()
-                await client.connection_pool.disconnect()
+                await client.pool.disconnect()
                 # await client._pool.aclose()
-                # await client.connection_pool.disconnect()
+                # await client.pool.disconnect()
             except redis.ConnectionError:
                 await client.aclose()
-                await client.connection_pool.disconnect()
+                await client.pool.disconnect()
                 pass
 
         teardown_clients.append(teardown)
