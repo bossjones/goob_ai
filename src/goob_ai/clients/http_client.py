@@ -5,10 +5,13 @@ from __future__ import annotations
 import http.client as http_client
 import logging
 import sys
+import traceback
+import typing
 
-from typing import Any, Dict, Optional, Union
+from types import TracebackType
+from typing import TYPE_CHECKING, Any, Dict, Literal, Optional, Type, Union
 
-import aiohttp
+import httpx
 import requests
 import tenacity
 
@@ -17,8 +20,24 @@ from pydantic import BaseModel
 from requests import Response
 from tenacity import retry_if_exception_type
 
+from goob_ai import __version__
 from goob_ai.aio_settings import aiosettings
 from goob_ai.utils import retry
+
+
+USER_AGENT = (
+    f"goob-ai/{__version__} | Python/" f"{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}"
+)
+_METHODS = typing.Literal["GET", "POST"]  # pylint: disable=invalid-name
+_TIMEOUT = 1.0
+
+
+def _get_async_http_client() -> httpx.AsyncClient:
+    """
+    Return an asynchronous HTTP client for interacting with the Akismet API.
+
+    """
+    return httpx.AsyncClient(headers={"User-Agent": USER_AGENT}, timeout=_TIMEOUT)
 
 
 class HttpClient(BaseModel):
@@ -174,89 +193,220 @@ class HttpClient(BaseModel):
         return headers
 
 
-class AsyncHttpClient(BaseModel):
+class AsyncHttpxClient(BaseModel):
     """
-    A common asynchronous HTTP client to be used by all tools.
+    An asynchronous HTTP client using httpx to be used by all tools.
 
     Sends x-request-id header with value from request_id_contextvar.
     """
 
-    _session: aiohttp.ClientSession | None = None
+    _client: httpx.AsyncClient | None = None
 
     def __init__(self):
-        """Initialize the AsyncHttpClient."""
+        """Initialize the AsyncHttpxClient."""
         super().__init__()
-        self._session = aiohttp.ClientSession()
+        self._client = httpx.AsyncClient()
 
-    async def post(self, url: str, data: Any) -> aiohttp.ClientResponse:
+    # Async context-manager protocol.
+    # ----------------------------------------------------------------------------
+
+    async def __aenter__(self) -> AsyncHttpxClient:
         """
-        Perform an asynchronous HTTP POST request.
+        Entry method of the async context manager.
+
+        """
+        return self
+
+    async def __aexit__(self, exc_type: type[BaseException], exc: BaseException, tb: TracebackType):
+        """
+        Exit method of the async context manager.
+
+        """
+        await self._http_client.aclose()
+
+    @tenacity.retry(
+        **retry.exponential_backoff_parameters(
+            retry=(
+                retry_if_exception_type(httpx.TimeoutException)
+                | retry_if_exception_type(httpx.ConnectError)
+                | retry_if_exception_type(httpx.RequestError)
+                | retry_if_exception_type(httpx.HTTPStatusError)
+                | retry_if_exception_type(httpx.HTTPError)
+            )
+        ),
+        reraise=True,
+    )
+    async def post(self, url: str, data: Any) -> httpx.Response:
+        """
+        Perform an asynchronous HTTP POST request using httpx.
 
         Args:
-        ----
-            url: The URL to call.
-            data: The request body data.
+            url (str): The URL to call.
+            data (Any): The request body data.
 
         Returns:
-        -------
-            The response object. If an exception happened, reraise it.
-
+            httpx.Response: The response object. If an exception happened, reraise it.
         """
         try:
             LOGGER.info(f"Calling post: {url}")
-            async with self._session.post(url, data=data, headers=self.__get_headers()) as resp:
-                LOGGER.info(f"Received response code {resp.status} from url {url}")
-                resp.raise_for_status()
-                return resp
-        except aiohttp.ClientProxyConnectionError as e:
-            LOGGER.error(f"Proxy Error connecting url: {url}")
+            resp = await self._client.post(url, data=data, headers=self.__get_headers())
+            LOGGER.info(f"Received response code {resp.status_code} from url {url}")
+            resp.raise_for_status()
+            return resp
+        except httpx.TimeoutException as e:
+            exc_type, exc_value, _ = sys.exc_info()
+            LOGGER.error(f"Timeout Error connecting url: {url}")
+            print(f"{e}")
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            print(f"Error Class: {e.__class__}")
+            output = f"[UNEXPECTED] {type(e).__name__}: {e}"
+            print(output)
+            print(f"exc_type: {exc_type}")
+            print(f"exc_value: {exc_value}")
+            traceback.print_tb(exc_traceback)
             raise e
-        except aiohttp.ClientConnectionError as e:
-            LOGGER.error(f"Unable to connect to url: {url}")
+        except httpx.ConnectError as e:
+            exc_type, exc_value, _ = sys.exc_info()
+            LOGGER.error(f"Connect Errorconnecting url: {url}")
+            print(f"{e}")
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            print(f"Error Class: {e.__class__}")
+            output = f"[UNEXPECTED] {type(e).__name__}: {e}"
+            print(output)
+            print(f"exc_type: {exc_type}")
+            print(f"exc_value: {exc_value}")
+            traceback.print_tb(exc_traceback)
             raise e
-        except aiohttp.ClientResponseError as e:
-            LOGGER.error(f"An error occurred, method: POST, response status: {e.status}, url: {url}, Exception: {e}")
+        except httpx.RequestError as e:
+            exc_type, exc_value, _ = sys.exc_info()
+            LOGGER.error(f"Request Error connecting url: {url}")
+            LOGGER.error(f"An error occurred while requesting {e.request.url!r}.")
+            print(f"{e}")
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            print(f"Error Class: {e.__class__}")
+            output = f"[UNEXPECTED] {type(e).__name__}: {e}"
+            print(output)
+            print(f"exc_type: {exc_type}")
+            print(f"exc_value: {exc_value}")
+            traceback.print_tb(exc_traceback)
             raise e
-        except aiohttp.ClientError as e:
-            LOGGER.error(f"An error occurred, method: POST, url: {url}, Exception: {e}")
+        except httpx.HTTPStatusError as e:
+            LOGGER.error(f"HTTP Status Error connecting url: {url}")
+            LOGGER.error(f"Error response {e.response.status_code} while requesting {e.request.url!r}.")
+            print(f"{e}")
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            print(f"Error Class: {e.__class__}")
+            output = f"[UNEXPECTED] {type(e).__name__}: {e}"
+            print(output)
+            print(f"exc_type: {exc_type}")
+            print(f"exc_value: {exc_value}")
+            traceback.print_tb(exc_traceback)
+            raise e
+        except httpx.HTTPError as e:
+            exc_type, exc_value, _ = sys.exc_info()
+            LOGGER.error(f"HTTP Error connecting url: {url}")
+            print(f"{e}")
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            print(f"Error Class: {e.__class__}")
+            output = f"[UNEXPECTED] {type(e).__name__}: {e}"
+            print(output)
+            print(f"exc_type: {exc_type}")
+            print(f"exc_value: {exc_value}")
+            traceback.print_tb(exc_traceback)
             raise e
 
     async def get(
         self, url: str, urlparams: dict[str, str] | None = None, headers: Optional[dict[str, str]] = None
-    ) -> aiohttp.ClientResponse:
+    ) -> httpx.Response:
         """
-        Perform an asynchronous HTTP GET request.
+        Perform an asynchronous HTTP GET request using httpx.
 
         Args:
-        ----
-            url: The URL to call.
-            urlparams: The URL parameters.
-            headers: The headers to be passed in the request.
+            url (str): The URL to call.
+            urlparams (dict[str, str] | None, optional): The URL parameters. Defaults to None.
+            headers (Optional[dict[str, str]], optional): The headers to be passed in the request. Defaults to None.
 
         Returns:
-        -------
-            The response object. If an exception happened, reraise it.
-
+            httpx.Response: The response object. If an exception happened, reraise it.
         """
         try:
             LOGGER.info(f"Calling get: {url}")
-            async with self._session.get(
-                url=url, params=urlparams, headers=self.__get_headers(additional_headers=headers)
-            ) as resp:
-                LOGGER.info(f"Received response code {resp.status} from url {url}")
-                resp.raise_for_status()
-                return resp
-        except aiohttp.ClientProxyConnectionError as e:
-            LOGGER.error(f"Proxy Error connecting url: {url}")
+            if urlparams:
+                resp: httpx.Response = await self._client.get(
+                    url=url, params=urlparams, headers=self.__get_headers(additional_headers=headers)
+                )
+            else:
+                resp: httpx.Response = await self._client.get(
+                    url=url, headers=self.__get_headers(additional_headers=headers)
+                )
+            LOGGER.info(f"resp {resp.__dict__} from url {resp.url}")
+            LOGGER.info(f"Received response code {resp.status_code} from url {url}")
+            resp.raise_for_status()
+            return resp
+        except httpx.TimeoutException as e:
+            exc_type, exc_value, _ = sys.exc_info()
+            LOGGER.error(f"Timeout Error connecting url: {url}")
+            print(f"{e}")
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            print(f"Error Class: {e.__class__}")
+            output = f"[UNEXPECTED] {type(e).__name__}: {e}"
+            print(output)
+            print(f"exc_type: {exc_type}")
+            print(f"exc_value: {exc_value}")
+            traceback.print_tb(exc_traceback)
             raise e
-        except aiohttp.ClientConnectionError as e:
-            LOGGER.error(f"Unable to connect to url: {url}")
+        except httpx.ConnectError as e:
+            exc_type, exc_value, _ = sys.exc_info()
+            LOGGER.error(f"Connect Errorconnecting url: {url}")
+            print(f"{e}")
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            print(f"Error Class: {e.__class__}")
+            output = f"[UNEXPECTED] {type(e).__name__}: {e}"
+            print(output)
+            print(f"exc_type: {exc_type}")
+            print(f"exc_value: {exc_value}")
+            traceback.print_tb(exc_traceback)
             raise e
-        except aiohttp.ClientResponseError as e:
-            LOGGER.error(f"An error occurred, method: GET, response status: {e.status}, url: {url}, Exception: {e}")
+        except httpx.RequestError as e:
+            exc_type, exc_value, _ = sys.exc_info()
+            LOGGER.error(f"Request Error connecting url: {url}")
+            LOGGER.error(f"An error occurred while requesting {e.request.url!r}.")
+            print(f"{e}")
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            print(f"Error Class: {e.__class__}")
+            output = f"[UNEXPECTED] {type(e).__name__}: {e}"
+            print(output)
+            print(f"exc_type: {exc_type}")
+            print(f"exc_value: {exc_value}")
+            traceback.print_tb(exc_traceback)
             raise e
-        except aiohttp.ClientError as e:
-            LOGGER.error(f"An error occurred, method: GET, url: {url}, Exception: {e}")
+        except httpx.HTTPStatusError as e:
+            exc_type, exc_value, _ = sys.exc_info()
+            LOGGER.error(f"HTTP Status Error connecting url: {url}")
+            LOGGER.error(f"Error response {e.response.status_code} while requesting {e.request.url!r}.")
+            LOGGER.error(
+                f"An error occurred, method: GET, response status: {e.response.status_code}, url: {url}, Exception Type: {exc_type}, Exception: <{exc_value}>, response headers: {dict(e.response.headers)}, response body: {e.response.content}"
+            )
+            print(f"{e}")
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            print(f"Error Class: {e.__class__}")
+            output = f"[UNEXPECTED] {type(e).__name__}: {e}"
+            print(output)
+            print(f"exc_type: {exc_type}")
+            print(f"exc_value: {exc_value}")
+            traceback.print_tb(exc_traceback)
+            raise e
+        except httpx.HTTPError as e:
+            exc_type, exc_value, _ = sys.exc_info()
+            LOGGER.error(f"HTTP Error connecting url: {url}")
+            print(f"{e}")
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            print(f"Error Class: {e.__class__}")
+            output = f"[UNEXPECTED] {type(e).__name__}: {e}"
+            print(output)
+            print(f"exc_type: {exc_type}")
+            print(f"exc_value: {exc_value}")
+            traceback.print_tb(exc_traceback)
             raise e
 
     def __get_headers(self, additional_headers: Optional[dict[str, str]] = None) -> dict[str, str]:
@@ -264,20 +414,14 @@ class AsyncHttpClient(BaseModel):
         Get the headers for the request.
 
         Args:
-        ----
-            additional_headers: Additional headers to be added to the request.
+            additional_headers (Optional[dict[str, str]], optional): Additional headers to be added to the request. Defaults to None.
 
         Returns:
-        -------
-            The headers dictionary.
-
+            dict[str, str]: The headers dictionary.
         """
         headers = {
-            # "Content-Type": "application/json",
             "goob-ai": "true",
-            # "x-request-id": REQUEST_ID_CONTEXTVAR.get(),
         }
-        # Add additional headers if they are provided
         if additional_headers is not None:
             headers |= additional_headers
         return headers

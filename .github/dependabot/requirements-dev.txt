@@ -124,21 +124,21 @@ beautifulsoup4==4.12.3
     # via yfinance
 better-exceptions==0.3.3
     # via goob-ai
-black==24.4.2
+black==24.8.0
 bleach==6.1.0
     # via nbconvert
 blessed==1.20.0
     # via curtsies
 blinker==1.8.2
     # via streamlit
-boto3==1.34.151
+boto3==1.34.152
     # via goob-ai
     # via mypy-boto3
-boto3-stubs==1.34.151
-botocore==1.34.151
+boto3-stubs==1.34.152
+botocore==1.34.152
     # via boto3
     # via s3transfer
-botocore-stubs==1.34.151
+botocore-stubs==1.34.152
     # via boto3-stubs
 bpython==0.24
 bracex==2.4
@@ -291,14 +291,13 @@ docutils==0.21.2
 dominate==2.9.1
     # via pytablewriter
 dpytest==0.7.0
-duckduckgo-search==6.2.5
+duckduckgo-search==6.2.6
     # via goob-ai
 durabledict==0.9.4
     # via gutter
 editorconfig==0.12.4
     # via jsbeautifier
 email-validator==2.2.0
-    # via fastapi
     # via pydantic
 exceptiongroup==1.2.2
     # via anyio
@@ -312,14 +311,12 @@ factory-boy==3.3.0
 faker==26.1.0
     # via factory-boy
     # via goob-ai
-fastapi==0.111.1
+fastapi==0.112.0
     # via chromadb
     # via goob-ai
     # via langchain-chroma
     # via langserve
     # via sse-starlette
-fastapi-cli==0.0.4
-    # via fastapi
 fastjsonschema==2.20.0
     # via nbformat
     # via validate-pyproject
@@ -396,7 +393,7 @@ griffe==0.48.0
 groq==0.9.0
     # via langchain-groq
 grpc-stubs==1.53.0.5
-grpcio==1.65.2
+grpcio==1.65.4
     # via chromadb
     # via google-api-core
     # via grpc-stubs
@@ -428,13 +425,13 @@ httptools==0.6.1
 httpx==0.27.0
     # via anthropic
     # via chromadb
-    # via fastapi
     # via goob-ai
     # via groq
     # via jupyterlab
     # via langserve
     # via openai
     # via pytest-httpx
+    # via respx
 huggingface-hub==0.24.5
     # via datasets
     # via goob-ai
@@ -496,7 +493,6 @@ jinja2==3.1.4
     # via aiomonitor
     # via altair
     # via commitizen
-    # via fastapi
     # via jupyter-server
     # via jupyterlab
     # via jupyterlab-server
@@ -572,7 +568,7 @@ kiwisolver==1.4.5
     # via matplotlib
 kubernetes==30.1.0
     # via chromadb
-langchain==0.2.11
+langchain==0.2.12
     # via goob-ai
     # via langchain-community
 langchain-anthropic==0.1.22
@@ -581,7 +577,7 @@ langchain-chroma==0.1.2
     # via goob-ai
 langchain-community==0.2.10
     # via goob-ai
-langchain-core==0.2.26
+langchain-core==0.2.27
     # via goob-ai
     # via langchain
     # via langchain-anthropic
@@ -607,7 +603,7 @@ langgraph==0.1.19
     # via goob-ai
 langserve==0.2.2
     # via goob-ai
-langsmith==0.1.95
+langsmith==0.1.96
     # via langchain
     # via langchain-community
     # via langchain-core
@@ -732,7 +728,7 @@ mkdocs-get-deps==0.2.0
     # via mkdocs
 mkdocs-include-markdown-plugin==6.2.1
 mkdocs-jupyter==0.24.8
-mkdocs-material==9.5.30
+mkdocs-material==9.5.31
     # via mkdocs-jupyter
 mkdocs-material-extensions==1.3.1
     # via mkdocs-material
@@ -769,7 +765,7 @@ multitasking==0.0.11
 mutagen==1.47.0
     # via goob-ai
 mypy==1.11.1
-mypy-boto3==1.34.151
+mypy-boto3==1.34.152
 mypy-boto3-cloudformation==1.34.111
     # via boto3-stubs
 mypy-boto3-dynamodb==1.34.148
@@ -778,7 +774,7 @@ mypy-boto3-ec2==1.34.149
     # via boto3-stubs
 mypy-boto3-lambda==1.34.77
     # via boto3-stubs
-mypy-boto3-rds==1.34.145
+mypy-boto3-rds==1.34.152
     # via boto3-stubs
 mypy-boto3-s3==1.34.138
     # via boto3-stubs
@@ -854,7 +850,7 @@ oauthlib==3.2.2
 onnxruntime==1.18.1
     # via chromadb
     # via rapidocr-onnxruntime
-openai==1.37.1
+openai==1.38.0
     # via goob-ai
     # via langchain-openai
 opencv-python==4.10.0.84
@@ -969,10 +965,9 @@ pillow==10.4.0
     # via streamlit
     # via torchvision
     # via weasyprint
-pinecone-client==5.0.0
+pinecone-client==5.0.1
     # via goob-ai
-    # via pinecone-plugin-inference
-pinecone-plugin-inference==1.0.2
+pinecone-plugin-inference==1.0.3
     # via pinecone-client
 pinecone-plugin-interface==0.0.7
     # via pinecone-client
@@ -1183,8 +1178,6 @@ python-json-logger==2.0.7
     # via jupyter-events
 python-levenshtein==0.25.1
     # via goob-ai
-python-multipart==0.0.9
-    # via fastapi
 python-slugify==8.0.4
     # via goob-ai
 pytz==2024.1
@@ -1290,6 +1283,7 @@ requests-mock==1.12.1
 requests-oauthlib==2.0.0
     # via google-auth-oauthlib
     # via kubernetes
+respx==0.21.1
 rfc3339-validator==0.1.4
     # via jsonschema
     # via jupyter-events
@@ -1319,7 +1313,7 @@ ruamel-yaml==0.18.6
     # via mdformat-frontmatter
 ruamel-yaml-clib==0.2.8
     # via ruamel-yaml
-ruff==0.5.5
+ruff==0.5.6
 ruyaml==0.91.0
     # via yamlfix
 s3transfer==0.10.2
@@ -1556,7 +1550,6 @@ typepy==1.3.2
 typer==0.12.3
     # via bump-pydantic
     # via chromadb
-    # via fastapi-cli
     # via goob-ai
     # via pypi-command-line
 types-aiofiles==24.1.0.20240626
@@ -1675,9 +1668,8 @@ urllib3==2.2.2
     # via requests-cache
     # via sentry-sdk
     # via types-requests
-uvicorn==0.30.4
+uvicorn==0.30.5
     # via chromadb
-    # via fastapi
     # via goob-ai
     # via sse-starlette
 uvloop==0.19.0
