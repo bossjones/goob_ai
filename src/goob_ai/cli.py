@@ -46,6 +46,13 @@ from rich.console import Console
 from rich.pretty import pprint
 from rich.prompt import Prompt
 from rich.table import Table
+from sentry_sdk.integrations.argv import ArgvIntegration
+from sentry_sdk.integrations.atexit import AtexitIntegration
+from sentry_sdk.integrations.dedupe import DedupeIntegration
+from sentry_sdk.integrations.excepthook import ExcepthookIntegration
+from sentry_sdk.integrations.modules import ModulesIntegration
+from sentry_sdk.integrations.stdlib import StdlibIntegration
+from sentry_sdk.integrations.threading import ThreadingIntegration
 from typer import Typer
 
 import goob_ai
@@ -60,18 +67,6 @@ from goob_ai.services.chroma_service import ChromaService
 from goob_ai.services.screencrop_service import ImageService
 from goob_ai.utils import repo_typing
 from goob_ai.utils.file_functions import fix_path
-
-
-Copied
-import sentry_sdk
-
-from sentry_sdk.integrations.argv import ArgvIntegration
-from sentry_sdk.integrations.atexit import AtexitIntegration
-from sentry_sdk.integrations.dedupe import DedupeIntegration
-from sentry_sdk.integrations.excepthook import ExcepthookIntegration
-from sentry_sdk.integrations.modules import ModulesIntegration
-from sentry_sdk.integrations.stdlib import StdlibIntegration
-from sentry_sdk.integrations.threading import ThreadingIntegration
 
 
 # # Use the following to enable the debugger
