@@ -2,6 +2,7 @@
 
 # pylint: disable=assigning-non-slot
 # pylint: disable=consider-using-from-import
+# pylint: no-member
 from __future__ import annotations
 
 import asyncio

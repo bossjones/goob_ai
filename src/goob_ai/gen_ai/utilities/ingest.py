@@ -131,15 +131,4 @@ async def ingest(bot: AsyncGoobBot, url: str, namespace: str):
         db = loader.load()
         text_splitter = RecursiveCharacterTextSplitter(chunk_size=2000, chunk_overlap=100)
         texts = text_splitter.split_documents(db)
-        # import bpdb
-        # bpdb.set_trace()
         print("f{texts}")
-        # NOTE: via discord-ai
-        # FIXME: Figure out a way to enable this or something similar
-        # pinecone.init(api_key=bot.pinecone_api_key, environment=bot.pinecone_env)
-        # embeddings = OpenAIEmbeddings(model="text-embedding-ada-002", openai_api_key=bot.openai_api_key)
-        # Pinecone.from_documents(texts, embeddings, index_name=bot.pinecone_index, namespace=namespace)
-        # LOGGER.debug(
-        #     bot,
-        #     f"Successfully ingested {len(texts)} documents into Pinecone index {bot.pinecone_index} in namespace {namespace}.",
-        # )

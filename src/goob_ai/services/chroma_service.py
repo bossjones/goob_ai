@@ -377,7 +377,7 @@ def save_to_chroma(chunks: list[Document]) -> None:
     LOGGER.info(embeddings)
     # Create a new DB from the documents.
     db = ChromaVectorStore.from_documents(chunks, embeddings, persist_directory=CHROMA_PATH)
-    db.persist()
+    # db.persist()
     LOGGER.info(f"Saved {len(chunks)} chunks to {CHROMA_PATH}.")
 
 

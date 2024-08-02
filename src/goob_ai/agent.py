@@ -139,20 +139,6 @@ class AiAgent:
         self.all_tools = self.custom_tools
 
     # # SOURCE: https://github.com/Haste171/langchain-chatbot/blob/main/handlers/base.py
-    # def init_pinecone(self):
-    #     self.pinecone =
-
-    #     pinecone.init(api_key=self.pinecone_api_key, environment=self.pinecone_env)
-
-    #     vectorstore = Pinecone.from_existing_index(
-    #         index_name=self.pinecone_index,
-    #         embedding=self.embeddings,
-    #         text_key='text',
-    #         namespace=kwargs.get('namespace', None) # You can only specify a namespace if you have a premium Pinecone pod
-    #     )
-
-    #     retriever = vectorstore.as_retriever(search_kwargs=kwargs.get('search_kwargs', {"k": 5}))
-
     @traceable
     def init_agent_executor(self) -> None:
         """Initalize agent executor."""
