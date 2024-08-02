@@ -1461,7 +1461,7 @@ async def aio_main():
     # bpdb.set_trace()
     assert isinstance(tensor_image, torch.Tensor)
     assert tensor_image.shape == (1, test_image.shape[2], test_image.shape[0], test_image.shape[1])
-    # asyncio.run(schedule_jobs())
+    await LOGGER.complete()
 
 
 def main():

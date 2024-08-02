@@ -34,12 +34,13 @@ from pprint import pformat
 from sys import stdout
 from time import process_time
 from types import FrameType
-from typing import TYPE_CHECKING, Any, Deque, Dict, Optional, Union, cast
+from typing import TYPE_CHECKING, Any, Deque, Dict, Literal, Optional, Union, cast
 
 import loguru
 
 from loguru import logger
 from loguru._defaults import LOGURU_FORMAT
+from tqdm import tqdm
 
 from goob_ai.models.loggers import LoggerModel, LoggerPatch
 
@@ -58,6 +59,49 @@ LOGLEVEL_MAPPING = {
     0: "NOTSET",
 }
 
+LOGURU_CONSOLE_FORMAT = (
+    "<green>{time:YYYY-MM-DD HH:mm:ss.SSS}</green> | "
+    "<level>{level}</level> | "
+    "<cyan>{module}</cyan>:<cyan>{line}</cyan> | "
+    "<level>{extra[room_id]}</level> - "
+    "<level>{message}</level>"
+)
+
+LOGURU_FILE_FORMAT = (
+    "<green>{time:YYYY-MM-DD HH:mm:ss.SSS}</green> | "
+    "<level>{level}</level> | "
+    "<cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> | "
+    "<level>{extra[room_id]}</level> - "
+    "<level>{message}</level>"
+)
+
+
+LOG_LEVEL = Literal[
+    "TRACE",
+    "DEBUG",
+    "INFO",
+    "SUCCESS",
+    "WARNING",
+    "ERROR",
+    "CRITICAL",
+]
+
+
+# SOURCE: https://github.com/acgnhiki/blrec/blob/975fa2794a3843a883597acd5915a749a4e196c8/src/blrec/logging/configure_logging.py#L21
+class TqdmOutputStream:
+    def write(self, string: str = "") -> None:
+        tqdm.write(string, file=sys.stderr, end="")
+
+    def isatty(self) -> bool:
+        return sys.stderr.isatty()
+
+
+_console_handler_id: Optional[int] = None
+_file_handler_id: Optional[int] = None
+
+_old_log_dir: Optional[str] = None
+_old_console_log_level: Optional[LOG_LEVEL] = None
+_old_backup_count: Optional[int] = None
 
 # ###################################################################################################
 # # NOTE: Make sure we don't log secrets
@@ -199,6 +243,52 @@ def request_id_filter(record: dict[str, Any]):
     record["extra"]["request_id"] = REQUEST_ID_CONTEXTVAR.get()
 
 
+def reset_logging(log_dir: str, *, console_log_level: LOG_LEVEL = "INFO", backup_count: Optional[int] = None) -> None:
+    global _console_handler_id, _file_handler_id
+    global _old_log_dir, _old_console_log_level, _old_backup_count
+    logger.configure(extra={"room_id": ""})
+
+    if console_log_level != _old_console_log_level:
+        if _console_handler_id is not None:
+            logger.remove(_console_handler_id)
+        else:
+            logger.remove()  # remove the default stderr handler
+
+        # if bool(os.environ.get('BLREC_PROGRESS')):
+        #     _console_handler_id = logger.add(
+        #         TqdmOutputStream(),
+        #         level=console_log_level,
+        #         format=LOGURU_CONSOLE_FORMAT,
+        #     )
+        # else:
+        _console_handler_id = logger.add(sys.stderr, level=console_log_level, format=LOGURU_CONSOLE_FORMAT)
+
+        _old_console_log_level = console_log_level
+
+    # if log_dir != _old_log_dir or backup_count != _old_backup_count:
+    #     log_file_path = make_log_file_path(log_dir)
+    #     logger.info(f'log file: {log_file_path}')
+
+    #     file_handler_id = logger.add(
+    #         log_file_path,
+    #         level='TRACE' if bool(os.environ.get('BLREC_TRACE')) else 'DEBUG',
+    #         format=LOGURU_FILE_FORMAT,
+    #         enqueue=True,
+    #         rotation="00:00",
+    #         retention=backup_count,
+    #         backtrace=True,
+    #         diagnose=True,
+    #     )
+
+    #     if _file_handler_id is not None:
+    #         logger.remove(_file_handler_id)
+
+    #     _file_handler_id = file_handler_id
+
+    #     _old_log_dir = log_dir
+    #     _old_backup_count = backup_count
+
+
 # FIXME: https://github.com/abnerjacobsen/fastapi-mvc-loguru-demo/blob/main/mvc_demo/core/loguru_logs.py
 # SOURCE: https://loguru.readthedocs.io/en/stable/api/logger.html#loguru._logger.Logger
 def global_log_config(log_level: Union[str, int] = logging.DEBUG, json: bool = False) -> _Logger:
@@ -211,6 +301,12 @@ def global_log_config(log_level: Union[str, int] = logging.DEBUG, json: bool = F
     Returns:
         The configured logger instance.
     """
+
+    # SOURCE: https://github.com/acgnhiki/blrec/blob/975fa2794a3843a883597acd5915a749a4e196c8/src/blrec/logging/configure_logging.py#L21
+    global _console_handler_id, _file_handler_id
+    global _old_log_dir, _old_console_log_level, _old_backup_count
+    # SOURCE: https://github.com/acgnhiki/blrec/blob/975fa2794a3843a883597acd5915a749a4e196c8/src/blrec/logging/configure_logging.py#L21
+
     if isinstance(log_level, str) and (log_level in logging._nameToLevel):
         log_level = logging.DEBUG
 
@@ -287,7 +383,24 @@ def global_log_config(log_level: Union[str, int] = logging.DEBUG, json: bool = F
     # logger.add(sys.stderr, format="{extra[serialized]}")
     # logger.add("file.log", format="{extra[serialized]}")
 
+    logger.debug(f"Logger set up with log level: {log_level}")
+
+    setup_uvicorn_logger()
+    setup_gunicorn_logger()
+
     return logger
+
+
+def setup_uvicorn_logger():
+    loggers = (logging.getLogger(name) for name in logging.root.manager.loggerDict if name.startswith("uvicorn."))
+    for uvicorn_logger in loggers:
+        uvicorn_logger.handlers = []
+    logging.getLogger("uvicorn").handlers = [InterceptHandler()]
+
+
+def setup_gunicorn_logger():
+    logging.getLogger("gunicorn.error").handlers = [InterceptHandler()]
+    logging.getLogger("gunicorn.access").handlers = [InterceptHandler()]
 
 
 def get_lm_from_tree(loggertree: LoggerModel, find_me: str) -> Optional[LoggerModel]:

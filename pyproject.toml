@@ -1143,6 +1143,7 @@ select = [
 # SOURCE: https://github.com/ansible-collections/cloud-content-handbook/blob/9be137d78af4d1cc140b210f3058977164021c9d/proposals/ruff_transition.md - end
 # Conflicts with the formatter
 ignore = [
+    "PLW0603",
     "D",
     "COM812",
     "ISC001",
@@ -2412,6 +2413,7 @@ whitelines = 1
 # SOURCE: https://github.com/astropy/astropy/blob/922afe8446cda46f65c5b5ec4aac9e43fadabcc3/pyproject.toml#L427
 [tool.repo-review]
 ignore = [
+    # "PLW0603",
     "MY",    # ignore MyPy setting checks
     "PC111", # ignore using `blacken-docs` in pre-commit
     "PC140", # ignore using `mypy` in pre-commit

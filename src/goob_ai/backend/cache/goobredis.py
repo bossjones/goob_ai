@@ -16,8 +16,9 @@ import redis
 import redis.asyncio
 
 from loguru import logger as LOGGER
-from redis.asyncio import Connection, ConnectionPool, Redis
+from redis.asyncio import Connection, Redis
 from redis.asyncio.client import PubSub
+from redis.asyncio.connection import ConnectionPool as AsyncConnectionPool
 from redis.backoff import ExponentialBackoff
 from redis.cluster import ClusterNode
 from redis.exceptions import ConnectionError
@@ -28,6 +29,7 @@ from goob_ai import metrics
 from goob_ai.aio_settings import AioSettings, aiosettings
 
 
+# from langchain.cache import RedisCache
 # from redis.asyncio.connection import (
 #     BlockingConnectionPool,
 #     Connection,
@@ -77,16 +79,19 @@ class GoobRedisClient:
     """
 
     def __init__(self, url: str, max_connections: int = 10):
+        self._url: str = url
         self._pool: Optional[Redis] = None
         self._pubsub: Optional[PubSub] = None
         self._loop = None
         self._receivers: dict[str, Any] = {}
         self._pubsub_subscriptor = None
         self._conn: Optional[Connection] = None
+        self.connection: Optional[Connection] = None
         self.initialized = False
         self.init_lock = asyncio.Lock()
-        self._max_connections = max_connections
+        self._max_connections: int = max_connections
         self.auto_close_connection_pool: Optional[bool] = None
+        self._client: Optional[Redis] = None
 
     async def initialize(self, loop: asyncio.AbstractEventLoop) -> None:
         """
@@ -111,15 +116,29 @@ class GoobRedisClient:
     @backoff.on_exception(backoff.expo, (OSError,), max_time=30, max_tries=4)
     async def _connect(self) -> None:
         """Connect to the Redis server."""
-        self._conn_pool = redis.asyncio.ConnectionPool.from_url(
-            str(aiosettings.redis_url), max_connections=self._max_connections
+
+        # If you create a custom `ConnectionPool` to be used by a single `Redis` instance, use the `Redis.from_pool` class method. The Redis client will take ownership of the connection pool. This will cause the pool to be disconnected along with the Redis instance. Disconnecting the connection pool simply disconnects all connections hosted in the pool.
+        self._conn_pool: Union[redis.asyncio.AsyncConnectionPool, redis.asyncio.ConnectionPool] = (
+            redis.asyncio.ConnectionPool.from_url(
+                str(aiosettings.redis_url), max_connections=self._max_connections, single_connection_client=True
+            )
         )
+
+        # Create redis client now using the connection pool
+        self._client: Redis = redis.asyncio.Redis.from_pool(connection_pool=self._conn_pool)
+
+        # NOTE: We might need to override self._client
+        # self._client.client()
+
+        self._conn: Connection = await self._conn_pool.get_connection(":")
+
         # If you create a custom ConnectionPool to be used by a single Redis instance, use the Redis.from_pool class method. The Redis client will take ownership of the connection pool. This will cause the pool to be disconnected along with the Redis instance. Disconnecting the connection pool simply disconnects all connections hosted in the pool.
         self._pool: redis.asyncio.Redis = redis.asyncio.Redis.from_pool(self._conn_pool)
 
         # What delimiter do you use for your #Redis keys? Select Option 1 for colons(:), Option 2 for underscores(_), Option 3 for hyphens(-), or Option 4 if you use some other character as a delimiter or don't use a delimiter at all.
 
-        self._conn: Connection = await self._conn_pool.get_connection(":")
+        self.connection: Connection = redis.asyncio.StrictRedis(connection_pool=self._pool)
+        self._conn: Connection = redis.asyncio.StrictRedis(connection_pool=self._pool)
 
         self._pubsub_channels: dict[str, PubSub] = {}
         self.auto_close_connection_pool: bool = self._pool.auto_close_connection_pool
@@ -355,30 +374,55 @@ class GoobRedisClient:
         let Redis.auto_close_connection_pool decide whether to close the connection
         pool.
         """
-        conn = self._conn
+        conn: Connection | None = self._conn
         if conn:
             self._conn = None
-            await self._conn.release(conn)
+            await self._pool.release(conn)
         if close_connection_pool or (close_connection_pool is None and self.auto_close_connection_pool):
             await self._pool.disconnect()
 
-    # async def aclose(self, close_connection_pool: Optional[bool] = None) -> None:
-    #     """
-    #     Closes Redis client connection
 
-    #     :param close_connection_pool: decides whether to close the connection pool used
-    #     by this Redis client, overriding Redis.auto_close_connection_pool. By default,
-    #     let Redis.auto_close_connection_pool decide whether to close the connection
-    #     pool.
-    #     """
-    #     conn = self.connection
-    #     if conn:
-    #         self.connection = None
-    #         await self.connection_pool.release(conn)
-    #     if close_connection_pool or (
-    #         close_connection_pool is None and self.auto_close_connection_pool
-    #     ):
-    #         await self.connection_pool.disconnect()
+_DRIVER: Optional[GoobRedisClient] = GoobRedisClient(str(aiosettings.redis_url))
+
+
+async def get_driver() -> GoobRedisClient:
+    """
+    Get the Redis client driver.
+
+    Returns:
+        The Redis client driver.
+
+    Raises:
+        Exception: If the Redis client is not added to the applications.
+    """
+    global _DRIVER
+    if _DRIVER is None:
+        raise Exception("Not added goob_ai.contrib.redis on applications")
+    if not _DRIVER.initialized:
+        loop = asyncio.get_event_loop()
+        await _DRIVER.initialize(loop)
+    return _DRIVER
+
+
+# redis_client = await get_driver()
+
+# async def aclose(self, close_connection_pool: Optional[bool] = None) -> None:
+#     """
+#     Closes Redis client connection
+
+#     :param close_connection_pool: decides whether to close the connection pool used
+#     by this Redis client, overriding Redis.auto_close_connection_pool. By default,
+#     let Redis.auto_close_connection_pool decide whether to close the connection
+#     pool.
+#     """
+#     conn = self.connection
+#     if conn:
+#         self.connection = None
+#         await self.connection_pool.release(conn)
+#     if close_connection_pool or (
+#         close_connection_pool is None and self.auto_close_connection_pool
+#     ):
+#         await self.connection_pool.disconnect()
 
 
 #     def set(self, key, value, expiration=3600):
@@ -490,27 +534,3 @@ class GoobRedisClient:
 
 # # Example usage
 # redis_client = RedisClient(f"{aiosettings.redis_url}")
-
-_DRIVER: Optional[GoobRedisClient] = GoobRedisClient(str(aiosettings.redis_url))
-
-
-async def get_driver() -> GoobRedisClient:
-    """
-    Get the Redis client driver.
-
-    Returns:
-        The Redis client driver.
-
-    Raises:
-        Exception: If the Redis client is not added to the applications.
-    """
-    global _DRIVER
-    if _DRIVER is None:
-        raise Exception("Not added goob_ai.contrib.redis on applications")
-    if not _DRIVER.initialized:
-        loop = asyncio.get_event_loop()
-        await _DRIVER.initialize(loop)
-    return _DRIVER
-
-
-# redis_client = await get_driver()

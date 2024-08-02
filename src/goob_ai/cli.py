@@ -127,6 +127,7 @@ if aiosettings.enable_sentry:
         # We recommend adjusting this value in production.
         profiles_sample_rate=1.0,
     )
+    logging.getLogger("sentry_sdk").setLevel(logging.WARNING)
 
 
 global_log_config(
@@ -231,6 +232,8 @@ async def run_bot():
         if aiosettings.enable_redis:
             bot.pool = pool
         await bot.start()
+
+    await LOGGER.complete()
 
 
 # SOURCE: https://docs.pinecone.io/guides/getting-started/quickstart

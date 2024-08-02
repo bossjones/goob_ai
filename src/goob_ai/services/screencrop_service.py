@@ -214,6 +214,7 @@ class ImageService:
         )
         LOGGER.info(f"image_results: {image_results}")
         LOGGER.info(f"bboxes_results: {bboxes_results}")
+        await LOGGER.complete()
         return bboxes_results
 
     @staticmethod
