@@ -164,7 +164,7 @@ async def decoded_r(create_redis):
 
 # @pytest.mark.app_settings({"applications": ["guillotina", "guillotina.contrib.redis"]})
 async def test_redis_ops(caplog: LogCaptureFixture, create_redis, **kwargs):
-    # driver: GoobRedisClient = await get_driver()
+    # driver: GoobRedisClient = get_driver()
     driver = await create_redis(**kwargs)
     assert driver.initialized
     assert driver.pool is not None
@@ -214,7 +214,7 @@ async def test_redis_ops(caplog: LogCaptureFixture, create_redis, **kwargs):
 
 # @pytest.mark.app_settings({"applications": ["guillotina", "guillotina.contrib.redis"]})
 async def test_redis_pubsub(caplog: LogCaptureFixture):
-    driver = await get_driver()
+    driver = get_driver()
     assert driver.initialized
 
     channel = await driver.subscribe("test::pubsub")

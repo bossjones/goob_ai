@@ -62,6 +62,18 @@ from goob_ai.utils import repo_typing
 from goob_ai.utils.file_functions import fix_path
 
 
+Copied
+import sentry_sdk
+
+from sentry_sdk.integrations.argv import ArgvIntegration
+from sentry_sdk.integrations.atexit import AtexitIntegration
+from sentry_sdk.integrations.dedupe import DedupeIntegration
+from sentry_sdk.integrations.excepthook import ExcepthookIntegration
+from sentry_sdk.integrations.modules import ModulesIntegration
+from sentry_sdk.integrations.stdlib import StdlibIntegration
+from sentry_sdk.integrations.threading import ThreadingIntegration
+
+
 # # Use the following to enable the debugger
 # from IPython.terminal.debugger import TerminalPdb  # noqa
 # sys.excepthook = TerminalPdb(
@@ -126,6 +138,17 @@ if aiosettings.enable_sentry:
         # of sampled transactions.
         # We recommend adjusting this value in production.
         profiles_sample_rate=1.0,
+        # Turn off the default logging integration, but keep the rest.
+        default_integrations=False,
+        integrations=[
+            AtexitIntegration(),
+            ArgvIntegration(),
+            DedupeIntegration(),
+            ExcepthookIntegration(),
+            StdlibIntegration(),
+            ModulesIntegration(),
+            ThreadingIntegration(),
+        ],
     )
     logging.getLogger("sentry_sdk").setLevel(logging.WARNING)
 

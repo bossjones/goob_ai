@@ -405,7 +405,7 @@ async def get_driver() -> GoobRedisClient:
     return _DRIVER
 
 
-# redis_client = await get_driver()
+# redis_client = get_driver()
 
 # async def aclose(self, close_connection_pool: Optional[bool] = None) -> None:
 #     """
