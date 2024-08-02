@@ -111,6 +111,10 @@ def test_evals_goob_ai_tool_selection(caplog: LogCaptureFixture):
     # Use langsmith client to pull back the project results
     project_results: TracerSessionResult = ls_client.read_project(project_name=results.experiment_name)
 
+    # sometimes we try to grab the feedback stats before everything is ready, so we need to keep trying until we get them
+    if not project_results.feedback_stats:
+        project_results: TracerSessionResult = ls_client.read_project(project_name=results.experiment_name)
+
     assert project_results.feedback_stats, "Feedback stats are empty"
     # get the average of the project you just ran
     avg: float = project_results.feedback_stats["correct_tools"]["avg"]
