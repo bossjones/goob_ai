@@ -157,7 +157,12 @@ class AioSettings(BaseSettings):
     # pylint: disable=redundant-keyword-arg
     better_exceptions: bool = Field(env="BETTER_EXCEPTIONS", description="Enable better exceptions", default=1)
     pythonasynciodebug: bool = Field(
-        env="PYTHONASYNCIODEBUG", description="enable or disable asyncio debugging", default=1
+        env="PYTHONASYNCIODEBUG", description="enable or disable asyncio debugging", default=0
+    )
+    pythondevmode: bool = Field(
+        env="PYTHONDEVMODE",
+        description="The Python Development Mode introduces additional runtime checks that are too expensive to be enabled by default. It should not be more verbose than the default if the code is correct; new warnings are only emitted when an issue is detected.",
+        default=0,
     )
     langchain_debug_logs: bool = Field(
         env="LANGCHAIN_DEBUG_LOGS", description="enable or disable langchain debug logs", default=0
