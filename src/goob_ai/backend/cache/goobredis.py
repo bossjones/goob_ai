@@ -100,7 +100,8 @@ class GoobRedisClient:
         Args:
             loop: The event loop to use.
         """
-        self._loop = loop
+        if self._loop is None:
+            self._loop = loop
         async with self.init_lock:
             if not self.initialized:
                 while True:

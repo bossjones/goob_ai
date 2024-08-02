@@ -209,6 +209,8 @@ async def test_redis_ops(caplog: LogCaptureFixture, create_redis, **kwargs):
     # wait for logging to finish runnnig
     await LOGGER.complete()
 
+    caplog.clear()
+
 
 # @pytest.mark.app_settings({"applications": ["guillotina", "guillotina.contrib.redis"]})
 async def test_redis_pubsub(caplog: LogCaptureFixture):
