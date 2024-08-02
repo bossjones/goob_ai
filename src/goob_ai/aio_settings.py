@@ -236,7 +236,6 @@ class AioSettings(BaseSettings):
 
     anthropic_api_key: SecretStr = Field(env="ANTHROPIC_API_KEY", description="claude api key", default="")
     groq_api_key: SecretStr = Field(env="GROQ_API_KEY", description="groq api key", default="")
-    opencommit_api_key: SecretStr = Field(env="OCO_OPENAI_API_KEY", description="opencommit api key", default="")
 
     langchain_endpoint: str = Field(env="LANGCHAIN_ENDPOINT", description="langchain endpoint", default="")
     langchain_tracing_v2: bool = Field(
@@ -259,6 +258,18 @@ class AioSettings(BaseSettings):
         env="LOCAL_TEST_ENABLE_EVALS", description="enable local debug testing with evals", default=False
     )
     python_debug: bool = Field(env="PYTHON_DEBUG", description="enable bpdb on cli", default=False)
+    experimental_redis_memory: bool = Field(
+        env="EXPERIMENTAL_REDIS_MEMORY", description="enable experimental redis memory", default=False
+    )
+
+    oco_openai_api_key: SecretStr = Field(env="OCO_OPENAI_API_KEY", description="opencommit api key", default="")
+    oco_tokens_max_input: int = Field(env="OCO_TOKENS_MAX_INPUT", description="OCO_TOKENS_MAX_INPUT", default=4096)
+    oco_tokens_max_output: int = Field(env="OCO_TOKENS_MAX_OUTPUT", description="OCO_TOKENS_MAX_OUTPUT", default=500)
+    oco_model: str = Field(env="OCO_MODEL", description="OCO_MODEL", default="gpt-4o")
+    oco_language: str = Field(env="OCO_LANGUAGE", description="OCO_LANGUAGE", default="en")
+    oco_prompt_module: str = Field(
+        env="OCO_PROMPT_MODULE", description="OCO_PROMPT_MODULE", default="conventional-commit"
+    )
 
     @property
     def redis_url(self) -> URL:
