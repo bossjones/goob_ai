@@ -1077,7 +1077,7 @@ soupsieve==2.5
 sqlalchemy==2.0.31
     # via langchain
     # via langchain-community
-sse-starlette==1.8.2
+sse-starlette==2.1.3
     # via langserve
 stack-data==0.6.3
     # via ipython
