@@ -236,6 +236,7 @@ class AioSettings(BaseSettings):
 
     anthropic_api_key: SecretStr = Field(env="ANTHROPIC_API_KEY", description="claude api key", default="")
     groq_api_key: SecretStr = Field(env="GROQ_API_KEY", description="groq api key", default="")
+    opencommit_api_key: SecretStr = Field(env="OCO_OPENAI_API_KEY", description="opencommit api key", default="")
 
     langchain_endpoint: str = Field(env="LANGCHAIN_ENDPOINT", description="langchain endpoint", default="")
     langchain_tracing_v2: bool = Field(
