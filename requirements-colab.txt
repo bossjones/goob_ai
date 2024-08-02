@@ -1096,7 +1096,7 @@ tcolorpy==0.1.6
     # via pytablewriter
 telnetlib3==2.0.4
     # via goob-ai
-tenacity==8.5.0
+tenacity==9.0.0
     # via chromadb
     # via goob-ai
     # via langchain
