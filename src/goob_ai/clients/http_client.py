@@ -9,7 +9,6 @@ import typing
 
 from typing import Any, Dict, Optional, Union
 
-import aiohttp
 import httpx
 import requests
 import tenacity
@@ -192,115 +191,6 @@ class HttpClient(BaseModel):
         return headers
 
 
-class AsyncHttpClient(BaseModel):
-    """
-    A common asynchronous HTTP client to be used by all tools.
-
-    Sends x-request-id header with value from request_id_contextvar.
-    """
-
-    _session: aiohttp.ClientSession | None = None
-
-    def __init__(self):
-        """Initialize the AsyncHttpClient."""
-        super().__init__()
-        self._session = aiohttp.ClientSession()
-
-    async def post(self, url: str, data: Any) -> aiohttp.ClientResponse:
-        """
-        Perform an asynchronous HTTP POST request.
-
-        Args:
-        ----
-            url: The URL to call.
-            data: The request body data.
-
-        Returns:
-        -------
-            The response object. If an exception happened, reraise it.
-
-        """
-        try:
-            LOGGER.info(f"Calling post: {url}")
-            async with self._session.post(url, data=data, headers=self.__get_headers()) as resp:
-                LOGGER.info(f"Received response code {resp.status} from url {url}")
-                resp.raise_for_status()
-                return resp
-        except aiohttp.ClientProxyConnectionError as e:
-            LOGGER.error(f"Proxy Error connecting url: {url}")
-            raise e
-        except aiohttp.ClientConnectionError as e:
-            LOGGER.error(f"Unable to connect to url: {url}")
-            raise e
-        except aiohttp.ClientResponseError as e:
-            LOGGER.error(f"An error occurred, method: POST, response status: {e.status}, url: {url}, Exception: {e}")
-            raise e
-        except aiohttp.ClientError as e:
-            LOGGER.error(f"An error occurred, method: POST, url: {url}, Exception: {e}")
-            raise e
-
-    async def get(
-        self, url: str, urlparams: dict[str, str] | None = None, headers: Optional[dict[str, str]] = None
-    ) -> aiohttp.ClientResponse:
-        """
-        Perform an asynchronous HTTP GET request.
-
-        Args:
-        ----
-            url: The URL to call.
-            urlparams: The URL parameters.
-            headers: The headers to be passed in the request.
-
-        Returns:
-        -------
-            The response object. If an exception happened, reraise it.
-
-        """
-        try:
-            LOGGER.info(f"Calling get: {url}")
-            async with self._session.get(
-                url=url, params=urlparams, headers=self.__get_headers(additional_headers=headers)
-            ) as resp:
-                LOGGER.info(f"Received response code {resp.status} from url {url}")
-                resp.raise_for_status()
-                return resp
-        except aiohttp.ClientProxyConnectionError as e:
-            LOGGER.error(f"Proxy Error connecting url: {url}")
-            raise e
-        except aiohttp.ClientConnectionError as e:
-            LOGGER.error(f"Unable to connect to url: {url}")
-            raise e
-        except aiohttp.ClientResponseError as e:
-            LOGGER.error(f"An error occurred, method: GET, response status: {e.status}, url: {url}, Exception: {e}")
-            raise e
-        except aiohttp.ClientError as e:
-            LOGGER.error(f"An error occurred, method: GET, url: {url}, Exception: {e}")
-            raise e
-
-    def __get_headers(self, additional_headers: Optional[dict[str, str]] = None) -> dict[str, str]:
-        """
-        Get the headers for the request.
-
-        Args:
-        ----
-            additional_headers: Additional headers to be added to the request.
-
-        Returns:
-        -------
-            The headers dictionary.
-
-        """
-        headers = {
-            # "Content-Type": "application/json",
-            "goob-ai": "true",
-            # "x-request-id": REQUEST_ID_CONTEXTVAR.get(),
-        }
-        # Add additional headers if they are provided
-        if additional_headers is not None:
-            headers |= additional_headers
-        return headers
-
-
 class AsyncHttpxClient(BaseModel):
     """
     An asynchronous HTTP client using httpx to be used by all tools.
@@ -364,7 +254,7 @@ class AsyncHttpxClient(BaseModel):
         except httpx.HTTPError as e:
             exc_type, exc_value, _ = sys.exc_info()
             LOGGER.error(f"HTTP Error connecting url: {url}")
-            LOGGER.error(f"Error while requesting {e.request.url!r}.")
+            # LOGGER.error(f"Error while requesting {e.request.url!r}.")
             raise e
 
     async def get(
@@ -384,11 +274,13 @@ class AsyncHttpxClient(BaseModel):
         try:
             LOGGER.info(f"Calling get: {url}")
             if urlparams:
-                resp: Response = self._client.get(
+                resp: httpx.Response = await self._client.get(
                     url=url, params=urlparams, headers=self.__get_headers(additional_headers=headers)
                 )
             else:
-                resp = self._client.get(url=url, headers=self.__get_headers(additional_headers=headers))
+                resp: httpx.Response = await self._client.get(
+                    url=url, headers=self.__get_headers(additional_headers=headers)
+                )
             LOGGER.info(f"resp {resp.__dict__} from url {resp.url}")
             LOGGER.info(f"Received response code {resp.status_code} from url {url}")
             resp.raise_for_status()
@@ -410,6 +302,7 @@ class AsyncHttpxClient(BaseModel):
             # )
             raise e
         except httpx.HTTPStatusError as e:
+            exc_type, exc_value, _ = sys.exc_info()
             LOGGER.error(f"HTTP Status Error connecting url: {url}")
             LOGGER.error(f"Error response {e.response.status_code} while requesting {e.request.url!r}.")
             LOGGER.error(
@@ -419,7 +312,7 @@ class AsyncHttpxClient(BaseModel):
         except httpx.HTTPError as e:
             exc_type, exc_value, _ = sys.exc_info()
             LOGGER.error(f"HTTP Error connecting url: {url}")
-            LOGGER.error(f"Error while requesting {e.request.url!r}.")
+            # LOGGER.error(f"Error while requesting {e.request.url!r}.")
             # LOGGER.error(f"An error occurred, method: GET, response status: {e.response.status_code}, url: {url}, Exception: {e}")
             raise e
         # except httpx.HTTPError as e:

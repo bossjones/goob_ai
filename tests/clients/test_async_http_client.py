@@ -28,7 +28,6 @@ if TYPE_CHECKING:
     from _pytest.fixtures import FixtureRequest
     from _pytest.logging import LogCaptureFixture
     from _pytest.monkeypatch import MonkeyPatch
-    from goob_ai.backend.cache.goobredis import GoobRedisClient
 
     from pytest_mock.plugin import MockerFixture
 
@@ -36,7 +35,7 @@ if TYPE_CHECKING:
 @pytest.mark.unittest()
 @pytest.mark.httpclientonly()
 @pytest.mark.asyncio()
-async def test_post_success(respx_mock: respx.MockRouter):
+async def test_post_success(respx_mock: respx.MockRouter, caplog: LogCaptureFixture):
     """
     Test a successful POST request.
 
@@ -55,7 +54,7 @@ async def test_post_success(respx_mock: respx.MockRouter):
 @pytest.mark.unittest()
 @pytest.mark.httpclientonly()
 @pytest.mark.asyncio()
-async def test_post_bad_http_code(respx_mock: respx.MockRouter):
+async def test_post_bad_http_code(respx_mock: respx.MockRouter, caplog: LogCaptureFixture):
     """
     Test a POST request with a bad HTTP status code.
 
@@ -74,7 +73,7 @@ async def test_post_bad_http_code(respx_mock: respx.MockRouter):
 @pytest.mark.unittest()
 @pytest.mark.httpclientonly()
 @pytest.mark.asyncio()
-async def test_get_success(respx_mock: respx.MockRouter):
+async def test_get_success(respx_mock: respx.MockRouter, caplog: LogCaptureFixture):
     """
     Test a successful GET request.
 
@@ -93,7 +92,7 @@ async def test_get_success(respx_mock: respx.MockRouter):
 @pytest.mark.unittest()
 @pytest.mark.httpclientonly()
 @pytest.mark.asyncio()
-async def test_get_bad_http_code(respx_mock: respx.MockRouter):
+async def test_get_bad_http_code(respx_mock: respx.MockRouter, caplog: LogCaptureFixture):
     """
     Test a GET request with a bad HTTP status code.
 
