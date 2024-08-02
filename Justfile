@@ -251,5 +251,3 @@ get-ruff-config:
 ci:
 	rye run lint
 	rye run test
-	rye run docs_build
-	rye run docs_deploy

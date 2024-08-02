@@ -7,6 +7,8 @@ from __future__ import annotations
 
 import asyncio
 import pickle
+import sys
+import traceback
 
 from collections.abc import AsyncGenerator
 from typing import Any, Callable, Dict, List, Optional, Union
@@ -111,8 +113,18 @@ class GoobRedisClient:
                             assert await self._pool.ping() is True
                         self.initialized = True
                         break
-                    except Exception:  # pragma: no cover
+                    except Exception as ex:  # pragma: no cover
                         LOGGER.error("Error initializing pubsub", exc_info=True)
+                        print(f"{ex}")
+                        exc_type, exc_value, exc_traceback = sys.exc_info()
+                        print(f"Error Class: {ex.__class__}")
+                        output = f"[UNEXPECTED] {type(ex).__name__}: {ex}"
+                        print(output)
+                        print(f"exc_type: {exc_type}")
+                        print(f"exc_value: {exc_value}")
+                        traceback.print_tb(exc_traceback)
+                        # if aiosettings.dev_mode:
+                        #     bpdb.pm()
 
     @backoff.on_exception(backoff.expo, (OSError,), max_time=30, max_tries=4)
     async def _connect(self) -> None:
@@ -120,10 +132,9 @@ class GoobRedisClient:
 
         # If you create a custom `ConnectionPool` to be used by a single `Redis` instance, use the `Redis.from_pool` class method. The Redis client will take ownership of the connection pool. This will cause the pool to be disconnected along with the Redis instance. Disconnecting the connection pool simply disconnects all connections hosted in the pool.
         self._conn_pool: Union[redis.asyncio.AsyncConnectionPool, redis.asyncio.ConnectionPool] = (
-            redis.asyncio.ConnectionPool.from_url(
-                str(aiosettings.redis_url), max_connections=self._max_connections, single_connection_client=True
-            )
+            redis.asyncio.ConnectionPool.from_url(str(aiosettings.redis_url), max_connections=self._max_connections)
         )
+        # , single_connection_client=True
 
         # Create redis client now using the connection pool
         self._client: Redis = redis.asyncio.Redis.from_pool(connection_pool=self._conn_pool)
@@ -138,8 +149,8 @@ class GoobRedisClient:
 
         # What delimiter do you use for your #Redis keys? Select Option 1 for colons(:), Option 2 for underscores(_), Option 3 for hyphens(-), or Option 4 if you use some other character as a delimiter or don't use a delimiter at all.
 
-        self.connection: Connection = redis.asyncio.StrictRedis(connection_pool=self._pool)
-        self._conn: Connection = redis.asyncio.StrictRedis(connection_pool=self._pool)
+        # self.connection: Connection = redis.asyncio.StrictRedis(connection_pool=self._pool)
+        # self._conn: Connection = redis.asyncio.StrictRedis(connection_pool=self._pool)
 
         self._pubsub_channels: dict[str, PubSub] = {}
         self.auto_close_connection_pool: bool = self._pool.auto_close_connection_pool
@@ -378,9 +389,9 @@ class GoobRedisClient:
         conn: Connection | None = self._conn
         if conn:
             self._conn = None
-            await self._pool.release(conn)
+            await self._pool.connection_pool.release(conn)
         if close_connection_pool or (close_connection_pool is None and self.auto_close_connection_pool):
-            await self._pool.disconnect()
+            await self._pool.connection_pool.disconnect()
 
 
 _DRIVER: Optional[GoobRedisClient] = GoobRedisClient(str(aiosettings.redis_url))
@@ -405,7 +416,7 @@ async def get_driver() -> GoobRedisClient:
     return _DRIVER
 
 
-# redis_client = get_driver()
+# redis_client = await get_driver()
 
 # async def aclose(self, close_connection_pool: Optional[bool] = None) -> None:
 #     """
