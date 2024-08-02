@@ -931,7 +931,7 @@ pyzmq==26.0.3
     # via jupyter-server
 quantile-python==1.1
     # via aioprometheus
-questionary==1.10.0
+questionary==2.0.1
     # via pypi-command-line
 rapidfuzz==3.9.5
     # via levenshtein
