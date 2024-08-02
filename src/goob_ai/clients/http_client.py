@@ -5,9 +5,11 @@ from __future__ import annotations
 import http.client as http_client
 import logging
 import sys
+import traceback
 import typing
 
-from typing import Any, Dict, Optional, Union
+from types import TracebackType
+from typing import TYPE_CHECKING, Any, Dict, Literal, Optional, Type, Union
 
 import httpx
 import requests
@@ -205,6 +207,23 @@ class AsyncHttpxClient(BaseModel):
         super().__init__()
         self._client = httpx.AsyncClient()
 
+    # Async context-manager protocol.
+    # ----------------------------------------------------------------------------
+
+    async def __aenter__(self) -> AsyncHttpxClient:
+        """
+        Entry method of the async context manager.
+
+        """
+        return self
+
+    async def __aexit__(self, exc_type: type[BaseException], exc: BaseException, tb: TracebackType):
+        """
+        Exit method of the async context manager.
+
+        """
+        await self._http_client.aclose()
+
     @tenacity.retry(
         **retry.exponential_backoff_parameters(
             retry=(
@@ -237,24 +256,63 @@ class AsyncHttpxClient(BaseModel):
         except httpx.TimeoutException as e:
             exc_type, exc_value, _ = sys.exc_info()
             LOGGER.error(f"Timeout Error connecting url: {url}")
+            print(f"{e}")
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            print(f"Error Class: {e.__class__}")
+            output = f"[UNEXPECTED] {type(e).__name__}: {e}"
+            print(output)
+            print(f"exc_type: {exc_type}")
+            print(f"exc_value: {exc_value}")
+            traceback.print_tb(exc_traceback)
             raise e
         except httpx.ConnectError as e:
             exc_type, exc_value, _ = sys.exc_info()
             LOGGER.error(f"Connect Errorconnecting url: {url}")
+            print(f"{e}")
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            print(f"Error Class: {e.__class__}")
+            output = f"[UNEXPECTED] {type(e).__name__}: {e}"
+            print(output)
+            print(f"exc_type: {exc_type}")
+            print(f"exc_value: {exc_value}")
+            traceback.print_tb(exc_traceback)
             raise e
         except httpx.RequestError as e:
             exc_type, exc_value, _ = sys.exc_info()
             LOGGER.error(f"Request Error connecting url: {url}")
             LOGGER.error(f"An error occurred while requesting {e.request.url!r}.")
+            print(f"{e}")
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            print(f"Error Class: {e.__class__}")
+            output = f"[UNEXPECTED] {type(e).__name__}: {e}"
+            print(output)
+            print(f"exc_type: {exc_type}")
+            print(f"exc_value: {exc_value}")
+            traceback.print_tb(exc_traceback)
             raise e
         except httpx.HTTPStatusError as e:
             LOGGER.error(f"HTTP Status Error connecting url: {url}")
             LOGGER.error(f"Error response {e.response.status_code} while requesting {e.request.url!r}.")
+            print(f"{e}")
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            print(f"Error Class: {e.__class__}")
+            output = f"[UNEXPECTED] {type(e).__name__}: {e}"
+            print(output)
+            print(f"exc_type: {exc_type}")
+            print(f"exc_value: {exc_value}")
+            traceback.print_tb(exc_traceback)
             raise e
         except httpx.HTTPError as e:
             exc_type, exc_value, _ = sys.exc_info()
             LOGGER.error(f"HTTP Error connecting url: {url}")
-            # LOGGER.error(f"Error while requesting {e.request.url!r}.")
+            print(f"{e}")
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            print(f"Error Class: {e.__class__}")
+            output = f"[UNEXPECTED] {type(e).__name__}: {e}"
+            print(output)
+            print(f"exc_type: {exc_type}")
+            print(f"exc_value: {exc_value}")
+            traceback.print_tb(exc_traceback)
             raise e
 
     async def get(
@@ -288,18 +346,39 @@ class AsyncHttpxClient(BaseModel):
         except httpx.TimeoutException as e:
             exc_type, exc_value, _ = sys.exc_info()
             LOGGER.error(f"Timeout Error connecting url: {url}")
+            print(f"{e}")
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            print(f"Error Class: {e.__class__}")
+            output = f"[UNEXPECTED] {type(e).__name__}: {e}"
+            print(output)
+            print(f"exc_type: {exc_type}")
+            print(f"exc_value: {exc_value}")
+            traceback.print_tb(exc_traceback)
             raise e
         except httpx.ConnectError as e:
             exc_type, exc_value, _ = sys.exc_info()
             LOGGER.error(f"Connect Errorconnecting url: {url}")
+            print(f"{e}")
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            print(f"Error Class: {e.__class__}")
+            output = f"[UNEXPECTED] {type(e).__name__}: {e}"
+            print(output)
+            print(f"exc_type: {exc_type}")
+            print(f"exc_value: {exc_value}")
+            traceback.print_tb(exc_traceback)
             raise e
         except httpx.RequestError as e:
             exc_type, exc_value, _ = sys.exc_info()
             LOGGER.error(f"Request Error connecting url: {url}")
             LOGGER.error(f"An error occurred while requesting {e.request.url!r}.")
-            # LOGGER.error(
-            #     f"An error occurred, method: GET, response status: {e.response.status_code}, url: {url}, Exception Type: {exc_type}, Exception: <{exc_value}>, response headers: {dict(e.response.headers)}, response body: {e.response.content}"
-            # )
+            print(f"{e}")
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            print(f"Error Class: {e.__class__}")
+            output = f"[UNEXPECTED] {type(e).__name__}: {e}"
+            print(output)
+            print(f"exc_type: {exc_type}")
+            print(f"exc_value: {exc_value}")
+            traceback.print_tb(exc_traceback)
             raise e
         except httpx.HTTPStatusError as e:
             exc_type, exc_value, _ = sys.exc_info()
@@ -308,16 +387,27 @@ class AsyncHttpxClient(BaseModel):
             LOGGER.error(
                 f"An error occurred, method: GET, response status: {e.response.status_code}, url: {url}, Exception Type: {exc_type}, Exception: <{exc_value}>, response headers: {dict(e.response.headers)}, response body: {e.response.content}"
             )
+            print(f"{e}")
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            print(f"Error Class: {e.__class__}")
+            output = f"[UNEXPECTED] {type(e).__name__}: {e}"
+            print(output)
+            print(f"exc_type: {exc_type}")
+            print(f"exc_value: {exc_value}")
+            traceback.print_tb(exc_traceback)
             raise e
         except httpx.HTTPError as e:
             exc_type, exc_value, _ = sys.exc_info()
             LOGGER.error(f"HTTP Error connecting url: {url}")
-            # LOGGER.error(f"Error while requesting {e.request.url!r}.")
-            # LOGGER.error(f"An error occurred, method: GET, response status: {e.response.status_code}, url: {url}, Exception: {e}")
+            print(f"{e}")
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            print(f"Error Class: {e.__class__}")
+            output = f"[UNEXPECTED] {type(e).__name__}: {e}"
+            print(output)
+            print(f"exc_type: {exc_type}")
+            print(f"exc_value: {exc_value}")
+            traceback.print_tb(exc_traceback)
             raise e
-        # except httpx.HTTPError as e:
-        #     LOGGER.error(f"An error occurred, method: GET, response status: {e.response.status_code}, url: {url}, Exception: {e}")
-        #     raise e
 
     def __get_headers(self, additional_headers: Optional[dict[str, str]] = None) -> dict[str, str]:
         """
