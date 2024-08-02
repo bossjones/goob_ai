@@ -46,13 +46,17 @@ RAG_PROMPT: ChatPromptTemplate = hub.pull("rlm/rag-prompt")
 
 
 def format_docs(docs: list[Document]):
-    """_summary_
+    """
+    _summary_
 
     Args:
+    ----
         docs (List[Document]): _description_
 
     Returns:
+    -------
         _type_: _description_
+
     """
     return "\n\n".join(doc.page_content for doc in docs)
 
@@ -256,7 +260,9 @@ class ReadTheDocsQASchema(BaseModel):
     You must use this tool for any questions or queries related to opencv, rich, and Pillow or substrings of it. This will return documents that are related to the user's question. The documents may not be always relevant to the user's question. If you use any of the documents returned to provide a helpful answer to question, please make sure to also return a valid URL of the document you used.
 
     Args:
+    ----
         question: A question to ask about a readthedocs pdf. Cannot be empty. Must be a question abount opencv, rich, or Pillow.
+
     """
 
     question: str = Field(
@@ -287,9 +293,10 @@ class ReadTheDocsQATool(BaseChromaDBTool, BaseTool):
         You must use this tool for any questions or queries related to opencv, rich, and Pillow or substrings of it. This will return documents that are related to the user's question. The documents may not be always relevant to the user's question. If you use any of the documents returned to provide a helpful answer to question, please make sure to also return a valid URL of the document you used.
 
         Args:
+        ----
             question: A question to ask about a readthedocs pdf. Cannot be empty. Must be a question abount opencv, rich, or Pillow.
-        """
 
+        """
         try:
             qa = self._make_qa_chain()
             qa_chain_custom_name = qa.with_config({"run_name": "ReadTheDocsQATool"})
@@ -306,9 +313,10 @@ class ReadTheDocsQATool(BaseChromaDBTool, BaseTool):
         You must use this asynchronous tool for any questions or queries related to opencv, rich, and Pillow or substrings of it. This will return documents that are related to the user's question. The documents may not be always relevant to the user's question. If you use any of the documents returned to provide a helpful answer to question, please make sure to also return a valid URL of the document you used.
 
         Args:
+        ----
             question: A question to ask about a readthedocs pdf. Cannot be empty. Must be a question abount opencv, rich, or Pillow.
-        """
 
+        """
         # If the calculation is cheap, you can just delegate to the sync implementation
         # as shown below.
         # If the sync calculation is expensive, you should delete the entire _arun method.
@@ -324,7 +332,6 @@ class ReadTheDocsQATool(BaseChromaDBTool, BaseTool):
     @traceable
     def _make_qa_chain(self) -> RunnableSerializable[Any, str]:
         """Make a RetrievalQA chain which filters by this paper_id"""
-
         retriever = self.db.as_retriever()
 
         # NOTE: This looks like the future but we're going to use the old school way

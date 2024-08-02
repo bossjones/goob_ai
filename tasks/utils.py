@@ -59,19 +59,25 @@ def _check_exe(exe):
 
 # https://stackoverflow.com/questions/1871549/determine-if-python-is-running-inside-virtualenv
 def is_venv():
-    """Check to see if we are currently in a virtual environment
+    """
+    Check to see if we are currently in a virtual environment
 
-    Returns:
+    Returns
+    -------
         [type] -- [description]
+
     """
     return hasattr(sys, "real_prefix") or (hasattr(sys, "base_prefix") and sys.base_prefix != sys.prefix)
 
 
 def get_version():
-    """Get current version of cerebro-bot
+    """
+    Get current version of cerebro-bot
 
-    Returns:
+    Returns
+    -------
         Str -- Returns current version of application
+
     """
     from goob_ai import __version__
 

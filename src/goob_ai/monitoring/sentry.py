@@ -5,6 +5,8 @@ from __future__ import annotations
 from asyncio.exceptions import CancelledError
 from typing import Any, Optional
 
+import sentry_sdk
+
 from loguru import logger as LOGGER
 from redis.exceptions import ConnectionError as RedisConnectionError
 from redis.exceptions import RedisError, ResponseError
@@ -12,6 +14,7 @@ from sentry_sdk import HttpTransport
 from sentry_sdk import init as sentry_sdk_init
 from sentry_sdk.api import set_tag
 from sentry_sdk.integrations.argv import ArgvIntegration
+from sentry_sdk.integrations.asyncio import AsyncioIntegration
 from sentry_sdk.integrations.redis import RedisIntegration
 from sentry_sdk.integrations.socket import SocketIntegration
 from sentry_sdk.integrations.stdlib import StdlibIntegration
@@ -53,6 +56,9 @@ def sentry_init(**sentry_init_kwargs):
             RedisIntegration(),
             ThreadingIntegration(propagate_hub=True),
             SocketIntegration(),
+            # The asyncio integration is not enabled automatically
+            # and needs to be added manually.
+            AsyncioIntegration(),
         ],
         before_send=before_send,
         traces_sampler=traces_sampler,

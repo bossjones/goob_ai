@@ -1,6 +1,4 @@
-"""
-Global test fixtures definitions.
-"""
+"""Global test fixtures definitions."""
 
 # Taken from tedi and guid_tracker
 from __future__ import annotations
@@ -109,7 +107,6 @@ def user_homedir() -> str:
 
 def pytest_sessionfinish(session, exitstatus):
     """Code to execute after all tests."""
-
     # dat files are created when using attachements
     print("\n-------------------------\nClean dpytest_*.dat files")
     fileList = glob.glob("./dpytest_*.dat")

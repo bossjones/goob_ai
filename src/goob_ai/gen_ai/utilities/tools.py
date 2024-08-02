@@ -174,14 +174,21 @@ from loguru import logger as LOGGER
 def get_boolean_input(bot: AsyncGoobBot, prompt: str) -> bool:
     """
     Gets a boolean input from the user.
+
     Args:
+    ----
       bot (Bot): The bot object.
       prompt (str): The prompt to display to the user.
+
     Returns:
+    -------
       bool: The boolean input from the user.
+
     Examples:
+    --------
       >>> get_boolean_input(bot, "Would you like to download extra extensions? (y/n) ")
       True
+
     """
     while True:
         try:
@@ -205,14 +212,21 @@ def get_boolean_input(bot: AsyncGoobBot, prompt: str) -> bool:
 def make_filepaths(paths: dict):
     """
     Creates file paths from a dictionary.
+
     Args:
+    ----
       paths (dict): A dictionary of file paths.
+
     Returns:
+    -------
       None
     Side Effects:
       Creates the file paths in the dictionary.
+
     Examples:
+    --------
       >>> make_filepaths({"config": Path("config.json"), "cogs": Path("cogs")})
+
     """
     for path in paths.values():
         if path.suffix:
@@ -256,14 +270,21 @@ def make_filepaths(paths: dict):
 def split_chat(chat, max_chars=2000):
     """
     Splits a chat into chunks of a maximum length.
+
     Args:
+    ----
       chat (str): The chat string.
       max_chars (int, optional): The maximum length of each chunk. Defaults to 2000.
+
     Returns:
+    -------
       list: A list of chunks.
+
     Examples:
+    --------
       >>> split_chat("Hello world!", 5)
       ["Hello", " worl", "d!"]
+
     """
     lines = chat.split("\n")
     chunks = []
@@ -277,18 +298,25 @@ def split_chat(chat, max_chars=2000):
     def add_chunk(chunk):
         """
         Adds a chunk to a list of chunks.
+
         Args:
+        ----
           chunk (str): The chunk to add.
           chunks (list): The list of chunks.
+
         Returns:
+        -------
           None
         Side Effects:
           Adds the chunk to the list of chunks.
+
         Examples:
+        --------
           >>> chunks = []
           >>> add_chunk("Hello", chunks)
           >>> chunks
           ["Hello"]
+
         """
         if chunk:
             chunks.append(chunk)

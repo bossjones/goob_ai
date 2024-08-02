@@ -27,8 +27,10 @@ class PackageAlreadyLoaded(RedError):
 
 
 class CogLoadError(RedError):
-    """Raised by a cog when it cannot load itself.
-    The message will be sent to the user."""
+    """
+    Raised by a cog when it cannot load itself.
+    The message will be sent to the user.
+    """
 
 
 class BankError(RedError):
@@ -72,7 +74,8 @@ class ConfigError(RedError):
 
 
 class StoredTypeError(ConfigError, TypeError):
-    """A TypeError pertaining to stored Config data.
+    """
+    A TypeError pertaining to stored Config data.
 
     This error may arise when, for example, trying to increment a value
     which is not a number, or trying to toggle a value which is not a
@@ -81,7 +84,8 @@ class StoredTypeError(ConfigError, TypeError):
 
 
 class CannotSetSubfield(StoredTypeError):
-    """Tried to set sub-field of an invalid data structure.
+    """
+    Tried to set sub-field of an invalid data structure.
 
     This would occur in the following example::
 

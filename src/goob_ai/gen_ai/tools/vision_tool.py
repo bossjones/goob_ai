@@ -69,10 +69,12 @@ class VisionToolInput(BaseModel):
     Use this tool to get more information about an image given a URL to an image file. Use for all urls for image files including discord urls.
 
     Args:
+    ----
         image_path: The URL to the image file
         prompt: The prompt to use for the API call
 
     Returns: The response from the Vision API
+
     """
 
     image_path: str = Field(..., description="The URL to the image file.")
@@ -94,12 +96,13 @@ class VisionTool(BaseTool):
         Use this tool to get more information about an image given a URL to an image file. Use for all urls for image files including discord urls.
 
         Args:
+        ----
             image_path: The URL to the image file
             prompt: The prompt to use for the API call
 
         Returns: The response from the Vision API
-        """
 
+        """
         LOGGER.info(f"image_path = {image_path}")
         LOGGER.info(f"prompt = {prompt}")
         try:
@@ -177,12 +180,13 @@ class VisionTool(BaseTool):
         Use this tool asynchronously to get more information about an image given a URL to an image file. Use for all urls for image files including discord urls.
 
         Args:
+        ----
             image_path: The URL to the image file
             prompt: The prompt to use for the API call
 
         Returns: The response from the Vision API
-        """
 
+        """
         LOGGER.info(f"image_path = {image_path}")
         LOGGER.info(f"prompt = {prompt}")
         try:

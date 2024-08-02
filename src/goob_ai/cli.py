@@ -1,5 +1,6 @@
 """goob_ai.cli"""
 
+# pyright: reportMissingTypeStubs=false
 # pylint: disable=no-member
 # pylint: disable=no-value-for-parameter
 # SOURCE: https://github.com/tiangolo/typer/issues/88#issuecomment-1732469681
@@ -45,6 +46,13 @@ from rich.console import Console
 from rich.pretty import pprint
 from rich.prompt import Prompt
 from rich.table import Table
+from sentry_sdk.integrations.argv import ArgvIntegration
+from sentry_sdk.integrations.atexit import AtexitIntegration
+from sentry_sdk.integrations.dedupe import DedupeIntegration
+from sentry_sdk.integrations.excepthook import ExcepthookIntegration
+from sentry_sdk.integrations.modules import ModulesIntegration
+from sentry_sdk.integrations.stdlib import StdlibIntegration
+from sentry_sdk.integrations.threading import ThreadingIntegration
 from typer import Typer
 
 import goob_ai
@@ -117,6 +125,27 @@ if aiosettings.dev_mode:
 
 
 if aiosettings.enable_sentry:
+    # NOTE: DISABLED: Currently till I update sentry_init and start using it more.
+    # sentry_init(
+    #     # Set traces_sample_rate to 1.0 to capture 100%
+    #     # of transactions for performance monitoring.
+    #     traces_sample_rate=1.0,
+    #     # Set profiles_sample_rate to 1.0 to profile 100%
+    #     # of sampled transactions.
+    #     # We recommend adjusting this value in production.
+    #     profiles_sample_rate=1.0,
+    #     # Turn off the default logging integration, but keep the rest.
+    #     default_integrations=False,
+    #     integrations=[
+    #         AtexitIntegration(),
+    #         ArgvIntegration(),
+    #         DedupeIntegration(),
+    #         ExcepthookIntegration(),
+    #         StdlibIntegration(),
+    #         ModulesIntegration(),
+    #         ThreadingIntegration(),
+    #     ],
+    # )
     sentry_init(
         # Set traces_sample_rate to 1.0 to capture 100%
         # of transactions for performance monitoring.
@@ -126,6 +155,7 @@ if aiosettings.enable_sentry:
         # We recommend adjusting this value in production.
         profiles_sample_rate=1.0,
     )
+    logging.getLogger("sentry_sdk").setLevel(logging.WARNING)
 
 
 global_log_config(
@@ -169,13 +199,13 @@ def version_callback(version: bool) -> None:
 
 @APP.command()
 def version() -> None:
-    """version command"""
+    """Version command"""
     rich.print(f"goob_ai version: {goob_ai.__version__}")
 
 
 @APP.command()
 def deps() -> None:
-    """deps command"""
+    """Deps command"""
     rich.print(f"goob_ai version: {goob_ai.__version__}")
     rich.print(f"langchain_version: {importlib_metadata_version('langchain')}")
     rich.print(f"langchain_community_version: {importlib_metadata_version('langchain_community')}")
@@ -192,77 +222,16 @@ def deps() -> None:
 
 @APP.command()
 def about() -> None:
-    """about command"""
+    """About command"""
     typer.echo("This is GoobBot CLI")
 
 
 @APP.command()
 def show() -> None:
-    """show command"""
+    """Show command"""
     cprint("\nShow goob_ai", style="yellow")
 
 
-# @APP.async_command()
-# async def info() -> None:
-#     """Returns information about the bot."""
-#     result = await bot.get_me()
-#     print("Bot me information")
-#     print_json(result.to_json())
-#     result = await bot.get_webhook_info()
-#     print("Bot webhook information")
-#     print_json(
-#         json.dumps(
-#             {
-#                 "url": result.url,
-#                 "has_custom_certificate": result.has_custom_certificate,
-#                 "pending_update_count": result.pending_update_count,
-#                 "ip_address": result.ip_address,
-#                 "last_error_date": result.last_error_date,
-#                 "last_error_message": result.last_error_message,
-#                 "last_synchronization_error_date": result.last_synchronization_error_date,
-#                 "max_connections": result.max_connections,
-#                 "allowed_updates": result.allowed_updates,
-#             }
-#         )
-#     )
-#     await bot.close_session()
-
-
-# @APP.async_command()
-# async def install() -> None:
-#     """Install bot webhook"""
-#     # Remove webhook, it fails sometimes the set if there is a previous webhook
-#     await bot.remove_webhook()
-
-#     WEBHOOK_URL_BASE = f"https://{settings.webhook_host}:{443}"
-#     WEBHOOK_URL_PATH = f"/{settings.secret_token}/"
-
-#     # Set webhook
-#     result = await bot.set_webhook(url=WEBHOOK_URL_BASE + WEBHOOK_URL_PATH)
-
-#     print(f"Set webhook to {WEBHOOK_URL_BASE + WEBHOOK_URL_PATH}: {result}")
-
-#     await bot.close_session()
-
-
-# @APP.async_command()
-# async def serve() -> None:
-#     """Run polling bot version."""
-#     logging.info("Starting...")
-
-#     await bot.remove_webhook()
-#     await bot.infinity_polling(logger_level=logging.INFO)
-
-#     await bot.close_session()
-
-
-# # @APP.async_command()
-# # async def uninstall() -> None:
-# #     """Uninstall bot webhook."""
-# #     await bot.remove_webhook()
-
-
-# #     await bot.close_session()
 def main():
     APP()
     load_commands()
@@ -288,31 +257,11 @@ async def run_bot():
         if aiosettings.dev_mode:
             bpdb.pm()
     async with AsyncGoobBot() as bot:
-        # bot.typerCtx = ctx
-        # bot.typerCtx = ctx
         if aiosettings.enable_redis:
             bot.pool = pool
         await bot.start()
-    # log = logging.getLogger()
-    # try:
-    #     pool = await create_pool()
-    # except Exception:
-    #     click.echo('Could not set up PostgreSQL. Exiting.', file=sys.stderr)
-    #     log.exception('Could not set up PostgreSQL. Exiting.')
-    #     return
 
-    # async with RoboDanny() as bot:
-    #     bot.pool = pool
-    #     await bot.start()
-
-
-# @click.group(invoke_without_command=True, options_metavar='[options]')
-# @click.pass_context
-# def main(ctx):
-#     """Launches the bot."""
-#     if ctx.invoked_subcommand is None:
-#         with setup_logging():
-#             asyncio.run(run_bot())
+    await LOGGER.complete()
 
 
 # SOURCE: https://docs.pinecone.io/guides/getting-started/quickstart
@@ -419,8 +368,6 @@ def run_pyright() -> None:
 @APP.command()
 def run_screencrop() -> None:
     """Manually run screncrop service and get bounding boxes"""
-    # typer.echo("Generating type stubs for GoobAI")
-    # repo_typing.run_pyright()
     try:
         asyncio.run(
             ImageService.bindingbox_handler(
@@ -445,10 +392,8 @@ def run_download_and_predict(
     img_url: str = "/Users/malcolm/dev/bossjones/goob_ai/tests/fixtures/screenshot_image_larger00000.JPEG",
 ) -> None:
     """Manually run screencrop's download_and_predict service and get bounding boxes"""
-
     path_to_image_from_cli = fix_path(img_url)
     try:
-        # asyncio.run(ImageService.handle_predict_from_file(path_to_image_from_cli))
         ImageService.handle_predict_from_file(path_to_image_from_cli)
     except Exception as ex:
         print(f"{ex}")
@@ -522,7 +467,6 @@ def query_readthedocs() -> None:
 @APP.command()
 def run_predict_and_display(img_url: list[str] = None) -> None:
     """Manually run screencrop's download_and_predict service and get bounding boxes"""
-
     if img_url is None:
         img_url = [  # type: ignore
             # "/Users/malcolm/dev/bossjones/goob_ai/tests/fixtures/screenshot_image_larger.JPEG",
@@ -563,7 +507,6 @@ def run_predict_and_display(img_url: list[str] = None) -> None:
 @APP.command()
 def run_final() -> None:
     """Manually run screencrop's download_and_predict service and get bounding boxes"""
-
     img_path = "/Users/malcolm/dev/bossjones/goob_ai/tests/fixtures/screenshot_image_larger00013.PNG"
     path_to_image_from_cli = fix_path(img_path)
     try:
@@ -585,7 +528,6 @@ def run_final() -> None:
 @APP.command()
 def chroma(choices: ChromaChoices) -> None:
     """Interact w/ chroma local vectorstore"""
-
     try:
         if choices == ChromaChoices.load:
             ChromaService.load_documents()

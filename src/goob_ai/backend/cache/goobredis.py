@@ -7,16 +7,20 @@ from __future__ import annotations
 
 import asyncio
 import pickle
+import sys
+import traceback
 
-from typing import Any, Dict, List, Optional
+from collections.abc import AsyncGenerator
+from typing import Any, Callable, Dict, List, Optional, Union
 
 import backoff
 import redis
 import redis.asyncio
 
 from loguru import logger as LOGGER
-from redis.asyncio import ConnectionPool, Redis
+from redis.asyncio import Connection, Redis
 from redis.asyncio.client import PubSub
+from redis.asyncio.connection import ConnectionPool as AsyncConnectionPool
 from redis.backoff import ExponentialBackoff
 from redis.cluster import ClusterNode
 from redis.exceptions import ConnectionError
@@ -25,6 +29,16 @@ from redis.sentinel import Sentinel
 
 from goob_ai import metrics
 from goob_ai.aio_settings import AioSettings, aiosettings
+
+
+# from langchain.cache import RedisCache
+# from redis.asyncio.connection import (
+#     BlockingConnectionPool,
+#     Connection,
+#     ConnectionPool,
+#     SSLConnection,
+#     UnixDomainSocketConnection,
+# )
 
 
 try:
@@ -54,29 +68,44 @@ except ImportError:
 
 
 class NoRedisConfigured(Exception):
-    pass
+    """Exception raised when no Redis is configured."""
 
 
 class GoobRedisClient:
+    """
+    A Redis client class for Goob AI.
+
+    Args:
+        url: The URL of the Redis server.
+        max_connections: The maximum number of connections to the Redis server.
+    """
+
     def __init__(self, url: str, max_connections: int = 10):
-        self._pool: Redis | None = None  # pyright: ignore[reportAttributeAccessIssue]
-        self._pubsub = None
+        self._url: str = url
+        self._pool: Optional[Redis] = None
+        self._pubsub: Optional[PubSub] = None
         self._loop = None
-        self._receivers = {}
+        self._receivers: dict[str, Any] = {}
         self._pubsub_subscriptor = None
-        self._conn = None
+        self._conn: Optional[Connection] = None
+        self.connection: Optional[Connection] = None
         self.initialized = False
         self.init_lock = asyncio.Lock()
-        self._max_connections = max_connections
+        self._max_connections: int = max_connections
+        self.auto_close_connection_pool: Optional[bool] = None
+        self._client: Optional[Redis] = None
 
-        # self.pool: ConnectionPool = ConnectionPool.from_url(str(aiosettings.redis_url), max_connections=max_connections)
+    async def initialize(self, loop: asyncio.AbstractEventLoop) -> None:
+        """
+        Initialize the Redis client.
 
-        # self.connection: Redis = redis.asyncio.Redis(connection_pool=self.pool)
-
-    async def initialize(self, loop):
-        self._loop = loop
+        Args:
+            loop: The event loop to use.
+        """
+        if self._loop is None:
+            self._loop = loop
         async with self.init_lock:
-            if self.initialized is False:
+            if not self.initialized:
                 while True:
                     try:
                         await self._connect()
@@ -84,44 +113,106 @@ class GoobRedisClient:
                             assert await self._pool.ping() is True
                         self.initialized = True
                         break
-                    except Exception:  # pragma: no cover
+                    except Exception as ex:  # pragma: no cover
                         LOGGER.error("Error initializing pubsub", exc_info=True)
+                        print(f"{ex}")
+                        exc_type, exc_value, exc_traceback = sys.exc_info()
+                        print(f"Error Class: {ex.__class__}")
+                        output = f"[UNEXPECTED] {type(ex).__name__}: {ex}"
+                        print(output)
+                        print(f"exc_type: {exc_type}")
+                        print(f"exc_value: {exc_value}")
+                        traceback.print_tb(exc_traceback)
+                        # if aiosettings.dev_mode:
+                        #     bpdb.pm()
 
     @backoff.on_exception(backoff.expo, (OSError,), max_time=30, max_tries=4)
-    async def _connect(self):
-        # settings = app_settings["redis"]
-        self._conn_pool: ConnectionPool = redis.asyncio.ConnectionPool.from_url(
-            str(aiosettings.redis_url), max_connections=self._max_connections
-        )
-        self._pool: Redis = redis.asyncio.Redis(connection_pool=self._conn_pool)
-        self._pubsub_channels: dict[str, PubSub] = {}
+    async def _connect(self) -> None:
+        """Connect to the Redis server."""
 
-    async def finalize(self):
+        # If you create a custom `ConnectionPool` to be used by a single `Redis` instance, use the `Redis.from_pool` class method. The Redis client will take ownership of the connection pool. This will cause the pool to be disconnected along with the Redis instance. Disconnecting the connection pool simply disconnects all connections hosted in the pool.
+        self._conn_pool: Union[redis.asyncio.AsyncConnectionPool, redis.asyncio.ConnectionPool] = (
+            redis.asyncio.ConnectionPool.from_url(str(aiosettings.redis_url), max_connections=self._max_connections)
+        )
+        # , single_connection_client=True
+
+        # Create redis client now using the connection pool
+        self._client: Redis = redis.asyncio.Redis.from_pool(connection_pool=self._conn_pool)
+
+        # NOTE: We might need to override self._client
+        # self._client.client()
+
+        self._conn: Connection = await self._conn_pool.get_connection(":")
+
+        # If you create a custom ConnectionPool to be used by a single Redis instance, use the Redis.from_pool class method. The Redis client will take ownership of the connection pool. This will cause the pool to be disconnected along with the Redis instance. Disconnecting the connection pool simply disconnects all connections hosted in the pool.
+        self._pool: redis.asyncio.Redis = redis.asyncio.Redis.from_pool(self._conn_pool)
+
+        # What delimiter do you use for your #Redis keys? Select Option 1 for colons(:), Option 2 for underscores(_), Option 3 for hyphens(-), or Option 4 if you use some other character as a delimiter or don't use a delimiter at all.
+
+        # self.connection: Connection = redis.asyncio.StrictRedis(connection_pool=self._pool)
+        # self._conn: Connection = redis.asyncio.StrictRedis(connection_pool=self._pool)
+
+        self._pubsub_channels: dict[str, PubSub] = {}
+        self.auto_close_connection_pool: bool = self._pool.auto_close_connection_pool
+
+    async def finalize(self) -> None:
+        """Finalize the Redis client."""
         await self._conn_pool.disconnect()
         self.initialized = False
 
     @property
-    def pool(self):
+    def pool(self) -> Optional[Redis]:
+        """Get the Redis connection pool."""
         return self._pool
 
-    async def info(self):
+    async def info(self) -> dict[str, Any]:
+        """
+        Get information about the Redis server.
+
+        Returns:
+            A dictionary containing information about the Redis server.
+
+        Raises:
+            NoRedisConfigured: If no Redis is configured.
+        """
         if self._pool is None:
             raise NoRedisConfigured()
         return await self._pool.info("get")
 
-    # VALUE API
+    async def set(self, key: str, data: str, *, expire: Optional[int] = None) -> None:
+        """
+        Set a key-value pair in Redis.
 
-    async def set(self, key: str, data: str, *, expire: Optional[int] = None):
+        Args:
+            key: The key to set.
+            data: The value to set.
+            expire: The expiration time in seconds.
+
+        Raises:
+            NoRedisConfigured: If no Redis is configured.
+        """
         if self._pool is None:
             raise NoRedisConfigured()
         kwargs = {}
         if expire is not None:
             kwargs["ex"] = expire
         with watch("set"):
-            ok = await self._pool.set(key, data, **kwargs)  # mypy: disable-error-code="arg-type"
+            ok = await self._pool.set(key, data, **kwargs)  # type: ignore
         assert ok is True, ok
 
-    async def get(self, key: str) -> str | Any | None:
+    async def get(self, key: str) -> Optional[str]:
+        """
+        Get the value of a key from Redis.
+
+        Args:
+            key: The key to get.
+
+        Returns:
+            The value of the key, or None if the key does not exist.
+
+        Raises:
+            NoRedisConfigured: If no Redis is configured.
+        """
         if self._pool is None:
             raise NoRedisConfigured()
         with watch("get") as w:
@@ -130,23 +221,63 @@ class GoobRedisClient:
                 w.labels["type"] = "get_miss"
             return val
 
-    async def delete(self, key: str):
+    async def delete(self, key: str) -> None:
+        """
+        Delete a key from Redis.
+
+        Args:
+            key: The key to delete.
+
+        Raises:
+            NoRedisConfigured: If no Redis is configured.
+        """
         if self._pool is None:
             raise NoRedisConfigured()
         with watch("delete"):
             await self._pool.delete(key)
 
-    async def expire(self, key: str, expire: int):
+    async def expire(self, key: str, expire: int) -> None:
+        """
+        Set the expiration time for a key in Redis.
+
+        Args:
+            key: The key to set the expiration for.
+            expire: The expiration time in seconds.
+
+        Raises:
+            NoRedisConfigured: If no Redis is configured.
+        """
         if self._pool is None:
             raise NoRedisConfigured()
         await self._pool.expire(key, expire)
 
-    async def keys_startswith(self, key: str):
+    async def keys_startswith(self, key: str) -> list[str]:
+        """
+        Get all keys that start with a given prefix.
+
+        Args:
+            key: The prefix to search for.
+
+        Returns:
+            A list of keys that start with the given prefix.
+
+        Raises:
+            NoRedisConfigured: If no Redis is configured.
+        """
         if self._pool is None:
             raise NoRedisConfigured()
         return await self._pool.keys(f"{key}*")
 
-    async def delete_all(self, keys: list[str]):
+    async def delete_all(self, keys: list[str]) -> None:
+        """
+        Delete multiple keys from Redis.
+
+        Args:
+            keys: The list of keys to delete.
+
+        Raises:
+            NoRedisConfigured: If no Redis is configured.
+        """
         if self._pool is None:
             raise NoRedisConfigured()
         for key in keys:
@@ -157,22 +288,48 @@ class GoobRedisClient:
             except Exception:
                 LOGGER.warning(f"Error deleting cache keys {keys}", exc_info=True)
 
-    async def flushall(self, *, async_op: bool = False):
+    async def flushall(self, *, async_op: bool = False) -> None:
+        """
+        Flush all keys from Redis.
+
+        Args:
+            async_op: Whether to perform the operation asynchronously.
+
+        Raises:
+            NoRedisConfigured: If no Redis is configured.
+        """
         if self._pool is None:
             raise NoRedisConfigured()
         with watch("flush"):
             await self._pool.flushdb(asynchronous=async_op)
 
-    # PUBSUB API
+    async def publish(self, channel_name: str, data: str) -> None:
+        """
+        Publish a message to a Redis channel.
 
-    async def publish(self, channel_name: str, data: str):
+        Args:
+            channel_name: The name of the channel to publish to.
+            data: The message to publish.
+
+        Raises:
+            NoRedisConfigured: If no Redis is configured.
+        """
         if self._pool is None:
             raise NoRedisConfigured()
 
         with watch("publish"):
             await self._pool.publish(channel_name, data)
 
-    async def unsubscribe(self, channel_name: str):
+    async def unsubscribe(self, channel_name: str) -> None:
+        """
+        Unsubscribe from a Redis channel.
+
+        Args:
+            channel_name: The name of the channel to unsubscribe from.
+
+        Raises:
+            NoRedisConfigured: If no Redis is configured.
+        """
         if self._pool is None:
             raise NoRedisConfigured()
 
@@ -184,7 +341,19 @@ class GoobRedisClient:
             finally:
                 await p.__aexit__(None, None, None)
 
-    async def subscribe(self, channel_name: str):
+    async def subscribe(self, channel_name: str) -> AsyncGenerator[Any, None]:
+        """
+        Subscribe to a Redis channel.
+
+        Args:
+            channel_name: The name of the channel to subscribe to.
+
+        Yields:
+            Messages received from the subscribed channel.
+
+        Raises:
+            NoRedisConfigured: If no Redis is configured.
+        """
         if self._pool is None:
             raise NoRedisConfigured()
 
@@ -193,11 +362,79 @@ class GoobRedisClient:
         await p.subscribe(channel_name)
         return self._listener(p)
 
-    async def _listener(self, p: PubSub):
+    async def _listener(self, p: PubSub) -> AsyncGenerator[Any, None]:
+        """
+        Listen for messages on a Redis channel.
+
+        Args:
+            p: The PubSub object to listen on.
+
+        Yields:
+            Messages received from the subscribed channel.
+        """
         while True:
             message = await p.get_message(ignore_subscribe_messages=True, timeout=1)
             if message is not None:
                 yield message["data"]
+
+    async def aclose(self, close_connection_pool: Optional[bool] = None) -> None:
+        """
+        Closes Redis client connection
+
+        :param close_connection_pool: decides whether to close the connection pool used
+        by this Redis client, overriding Redis.auto_close_connection_pool. By default,
+        let Redis.auto_close_connection_pool decide whether to close the connection
+        pool.
+        """
+        conn: Connection | None = self._conn
+        if conn:
+            self._conn = None
+            await self._pool.connection_pool.release(conn)
+        if close_connection_pool or (close_connection_pool is None and self.auto_close_connection_pool):
+            await self._pool.connection_pool.disconnect()
+
+
+_DRIVER: Optional[GoobRedisClient] = GoobRedisClient(str(aiosettings.redis_url))
+
+
+async def get_driver() -> GoobRedisClient:
+    """
+    Get the Redis client driver.
+
+    Returns:
+        The Redis client driver.
+
+    Raises:
+        Exception: If the Redis client is not added to the applications.
+    """
+    global _DRIVER
+    if _DRIVER is None:
+        raise Exception("Not added goob_ai.contrib.redis on applications")
+    if not _DRIVER.initialized:
+        loop = asyncio.get_event_loop()
+        await _DRIVER.initialize(loop)
+    return _DRIVER
+
+
+# redis_client = await get_driver()
+
+# async def aclose(self, close_connection_pool: Optional[bool] = None) -> None:
+#     """
+#     Closes Redis client connection
+
+#     :param close_connection_pool: decides whether to close the connection pool used
+#     by this Redis client, overriding Redis.auto_close_connection_pool. By default,
+#     let Redis.auto_close_connection_pool decide whether to close the connection
+#     pool.
+#     """
+#     conn = self.connection
+#     if conn:
+#         self.connection = None
+#         await self.connection_pool.release(conn)
+#     if close_connection_pool or (
+#         close_connection_pool is None and self.auto_close_connection_pool
+#     ):
+#         await self.connection_pool.disconnect()
 
 
 #     def set(self, key, value, expiration=3600):
@@ -309,18 +546,3 @@ class GoobRedisClient:
 
 # # Example usage
 # redis_client = RedisClient(f"{aiosettings.redis_url}")
-
-_DRIVER = GoobRedisClient(str(aiosettings.redis_url))
-
-
-async def get_driver() -> GoobRedisClient:
-    global _driver
-    if _DRIVER is None:
-        raise Exception("Not added goob_ai.contrib.redis on applications")
-    if _DRIVER.initialized is False:
-        loop = asyncio.get_event_loop()
-        await _DRIVER.initialize(loop)
-    return _DRIVER
-
-
-# redis_client = await get_driver()

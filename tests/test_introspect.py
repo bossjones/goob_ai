@@ -1,4 +1,5 @@
-"""tests/test_input_format.py.
+"""
+tests/test_input_format.py.
 
 Tests that hugs built in introspection helper functions work as expected
 

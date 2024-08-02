@@ -29,7 +29,6 @@ def load_model_for_inference(save_path: str | PathLike, device: str) -> nn.Modul
     Explanation:
     This function loads a neural network model for inference from the provided path and device. It adjusts the state dictionary keys, loads the model parameters, and returns the loaded model for inference.
     """
-
     # LOGGER.info(f"model = {model}")
     LOGGER.info(f"device = {device}")
     LOGGER.info(f"type(device) = {type(device)}")
@@ -65,15 +64,19 @@ def run_get_model_for_inference(
     device: torch.device,
     path_to_model: pathlib.PosixPath | PathLike | str,
 ) -> torch.nn.Module:
-    """wrapper function to load model .pth file from disk
+    """
+    Wrapper function to load model .pth file from disk
 
     Args:
+    ----
         model (torch.nn.Module): _description_
         device (torch.device): _description_
         class_names (List[str]): _description_
 
     Returns:
+    -------
         Tuple[pathlib.PosixPath, torch.nn.Module]: _description_
+
     """
     LOGGER.info(f"model = {model}")
     LOGGER.info(f"device = {device}")
@@ -91,7 +94,6 @@ def load_model(device: torch.device, model_name: str = "ScreenNetV1.pth"):
     Explanation:
     This asynchronous function loads a model for inference on the provided device. It initializes the model, moves it to the specified device, loads weights, runs the model for inference, and returns the loaded model for further processing.
     """
-
     model = ScreenCropNet_ObjLocModel()
     model.name = "ObjLocModelV1"
 

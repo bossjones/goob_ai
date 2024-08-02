@@ -48,10 +48,14 @@ def dump_color(obj):
 
 # SOURCE: https://github.com/j0nnib0y/gtao_python_wrapper/blob/9cdae5ce40f9a41775e29754b51325652584cf25/debug.py
 def dump_magic(obj, magic=False):
-    """Dumps every attribute of an object to the console.
+    """
+    Dumps every attribute of an object to the console.
+
     Args:
+    ----
         obj (any object): object you want to dump
         magic (bool, optional): True if you want to output "magic" attributes (like __init__, ...)
+
     """
     for attr in dir(obj):
         if magic is not True and not attr.startswith("__") or magic is True:
@@ -113,10 +117,13 @@ def dump_all(obj):
 
 
 def run_inspect(obj: Any) -> None:
-    """_summary_
+    """
+    _summary_
 
     Args:
+    ----
         obj (Any): _description_
+
     """
     rich.inspect(obj, all=True)
 

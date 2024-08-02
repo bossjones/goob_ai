@@ -51,9 +51,7 @@ units = {
 
 
 def microseconds_from_duration_str(duration: str) -> float:
-    """
-    Parse a duration string into a microseconds float value.
-    """
+    """Parse a duration string into a microseconds float value."""
     if duration in {"0", "+0", "-0"}:
         return 0
 
@@ -117,7 +115,6 @@ def timedelta_to_duration_str(delta: timedelta, extended: bool = False) -> str:
         mm - month
         y  - year
     """
-
     total_seconds = delta.total_seconds()
     sign = "-" if total_seconds < 0 else ""
     nanoseconds = abs(total_seconds * _second_size)

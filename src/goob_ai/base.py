@@ -1,4 +1,5 @@
-# via gpt-discord-bot
+"""Base classes and utilities for the Goob AI system."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -19,10 +20,22 @@ SEPARATOR_TOKEN = "<|endoftext|>"
 
 @dataclass(frozen=True)
 class GoobMessage:
+    """Represents a message in a Goob conversation.
+
+    Attributes:
+        user: The user who sent the message.
+        text: The text content of the message.
+    """
+
     user: str
     text: Optional[str] = None
 
-    def render(self):
+    def render(self) -> str:
+        """Renders the message as a string.
+
+        Returns:
+            The rendered message string.
+        """
         result = self.user + ":"
         if self.text is not None:
             result += " " + self.text
@@ -31,18 +44,45 @@ class GoobMessage:
 
 @dataclass
 class GoobConversation:
+    """Represents a conversation in the Goob system.
+
+    Attributes:
+        messages: The list of messages in the conversation.
+    """
+
     messages: list[GoobMessage]
 
-    def prepend(self, message: GoobMessage):
+    def prepend(self, message: GoobMessage) -> GoobConversation:
+        """Prepends a message to the conversation.
+
+        Args:
+            message: The message to prepend.
+
+        Returns:
+            The updated conversation.
+        """
         self.messages.insert(0, message)
         return self
 
-    def render(self):
+    def render(self) -> str:
+        """Renders the conversation as a string.
+
+        Returns:
+            The rendered conversation string.
+        """
         return f"\n{SEPARATOR_TOKEN}".join([message.render() for message in self.messages])
 
 
 @dataclass(frozen=True)
 class GoobConfig:
+    """Configuration for a Goob AI instance.
+
+    Attributes:
+        name: The name of the Goob AI instance.
+        instructions: The instructions for the Goob AI.
+        example_conversations: Example conversations for the Goob AI.
+    """
+
     name: str
     instructions: str
     example_conversations: list[GoobConversation]
@@ -50,6 +90,14 @@ class GoobConfig:
 
 @dataclass(frozen=True)
 class GoobThreadConfig:
+    """Configuration for a Goob thread.
+
+    Attributes:
+        model: The name of the model to use.
+        max_tokens: The maximum number of tokens to generate.
+        temperature: The temperature for text generation.
+    """
+
     model: str
     max_tokens: int
     temperature: float
@@ -57,11 +105,27 @@ class GoobThreadConfig:
 
 @dataclass(frozen=True)
 class GoobPrompt:
+    """Represents a prompt for the Goob AI.
+
+    Attributes:
+        header: The header message of the prompt.
+        examples: Example conversations for the prompt.
+        convo: The current conversation for the prompt.
+    """
+
     header: GoobMessage
     examples: list[GoobConversation]
     convo: GoobConversation
 
-    def full_render(self, bot_name: str):
+    def full_render(self, bot_name: str) -> list[dict]:
+        """Renders the full prompt for the Goob AI.
+
+        Args:
+            bot_name: The name of the bot.
+
+        Returns:
+            The rendered prompt as a list of message dictionaries.
+        """
         messages = [
             {
                 "role": "system",
@@ -72,7 +136,12 @@ class GoobPrompt:
             messages.append(message)
         return messages
 
-    def render_system_prompt(self):
+    def render_system_prompt(self) -> str:
+        """Renders the system prompt for the Goob AI.
+
+        Returns:
+            The rendered system prompt string.
+        """
         return f"\n{SEPARATOR_TOKEN}".join(
             [self.header.render()]
             + [GoobMessage("System", "Example conversations:").render()]
@@ -80,7 +149,15 @@ class GoobPrompt:
             + [GoobMessage("System", "Now, you will work with the actual current conversation.").render()]
         )
 
-    def render_messages(self, bot_name: str):
+    def render_messages(self, bot_name: str) -> list[dict]:
+        """Renders the messages for the Goob AI.
+
+        Args:
+            bot_name: The name of the bot.
+
+        Yields:
+            The rendered messages as dictionaries.
+        """
         for message in self.convo.messages:
             if bot_name not in message.user:
                 yield {

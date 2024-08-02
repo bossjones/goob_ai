@@ -1,5 +1,10 @@
 """goob_ai.services.chroma_service"""
 
+# pyright: reportPrivateImportUsage=false
+# pyright: reportGeneralTypeIssues=false
+# pyright: reportCallInDefaultInitializer=false
+# pylint: disable=no-name-in-module
+
 # pylint: disable=no-member
 # LINK: https://github.com/mlsmall/RAG-Application-with-LangChain
 # SOURCE: https://www.linkedin.com/pulse/building-retrieval-augmented-generation-rag-app-langchain-tiwari-stpfc/
@@ -35,8 +40,6 @@ from goob_ai.aio_settings import aiosettings
 from goob_ai.utils import file_functions
 
 
-# from langchain_community.vectorstores import Chroma as ChromaVectorStore
-
 HERE = os.path.dirname(__file__)
 
 DATA_PATH = os.path.join(HERE, "..", "data", "chroma", "documents")
@@ -57,15 +60,14 @@ WEBBASE_LOADER_PATTERN = r"^https?://[a-zA-Z0-9.-]+\.github\.io(/.*)?$"
 
 
 def get_suffix(filename: str) -> str:
-    """_summary_
+    """Get the file extension from the given filename.
 
     Args:
-        filename (str): _description_
+        filename: The name of the file.
 
     Returns:
-        str: _description_
+        The file extension in lowercase without the leading period.
     """
-
     ext = pathlib.Path(f"{filename}").suffix.lower()
     ext_without_period = f"{ext.replace('.','')}"
     LOGGER.debug(f"ext: {ext}, ext_without_period: {ext_without_period}")
@@ -73,13 +75,13 @@ def get_suffix(filename: str) -> str:
 
 
 def is_pdf(filename: str) -> bool:
-    """_summary_
+    """Check if the given filename has a PDF extension.
 
     Args:
-        filename (str): _description_
+        filename: The name of the file.
 
     Returns:
-        bool: _description_
+        True if the file has a PDF extension, False otherwise.
     """
     suffix = get_suffix(filename)
     res = suffix in file_functions.PDF_EXTENSIONS
@@ -88,13 +90,13 @@ def is_pdf(filename: str) -> bool:
 
 
 def is_txt(filename: str) -> bool:
-    """_summary_
+    """Check if the given filename has a text extension.
 
     Args:
-        filename (str): _description_
+        filename: The name of the file.
 
     Returns:
-        bool: _description_
+        True if the file has a text extension, False otherwise.
     """
     suffix = get_suffix(filename)
     res = suffix in file_functions.TXT_EXTENSIONS
@@ -103,22 +105,16 @@ def is_txt(filename: str) -> bool:
 
 
 def get_rag_loader(filename: str) -> TextLoader | PyMuPDFLoader | WebBaseLoader | None:
-    """
-    Get the appropriate loader for the given filename.
-
-    This function determines the type of the given filename and returns the
-    appropriate loader for it. It supports loading from text files, PDF files,
-    and URLs matching the pattern for GitHub Pages.
+    """Get the appropriate loader for the given filename.
 
     Args:
-        filename (str): The name of the file to load.
+        filename: The name of the file.
 
     Returns:
-        TextLoader | PyMuPDFLoader | WebBaseLoader | None: The loader for the given file,
-        or None if the file type is not supported.
+        The loader for the given file type, or None if the file type is not supported.
     """
     if re.match(WEBBASE_LOADER_PATTERN, f"{filename}"):
-        # verfiy it is a uri as well
+        # verify it is a uri as well
         parts = uritools.urisplit(f"{filename}")
         assert parts.isuri()
         LOGGER.debug("selected filetype github.io url, using WebBaseLoader(filename)")
@@ -197,13 +193,10 @@ def get_rag_embedding_function(filename: str) -> SentenceTransformerEmbeddings |
 
 
 def get_client() -> chromadb.ClientAPI:
-    """_summary_
-
-    Args:
-        query_text (str): _description_
+    """Get the ChromaDB client.
 
     Returns:
-        str: _description_
+        The ChromaDB client.
     """
     return chromadb.HttpClient(
         host=aiosettings.chroma_host,
@@ -384,7 +377,6 @@ def save_to_chroma(chunks: list[Document]) -> None:
     LOGGER.info(embeddings)
     # Create a new DB from the documents.
     db = ChromaVectorStore.from_documents(chunks, embeddings, persist_directory=CHROMA_PATH)
-    db.persist()
     LOGGER.info(f"Saved {len(chunks)} chunks to {CHROMA_PATH}.")
 
 

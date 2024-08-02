@@ -24,13 +24,17 @@ HOME_PATH = os.environ.get("HOME")
 
 
 async def _aio_run_process_and_communicate(cmd: list[str], cwd: Union[str, None] = None):
-    """_summary_
+    """
+    _summary_
 
     Args:
+    ----
         cmd (List[str]): _description_
 
     Returns:
+    -------
         _type_: _description_
+
     """
     program = cmd
     process: Process = await asyncio.create_subprocess_exec(*program, stdout=asyncio.subprocess.PIPE, cwd=cwd)
@@ -65,18 +69,23 @@ def _stat_y_file(fname: str, env: dict = None, cwd: Union[str, None] = None) -> 
 
 
 def _popen(cmd_arg: tuple, env: dict = None, cwd: Union[str, None] = None):
-    """_summary_
+    """
+    _summary_
 
     Args:
+    ----
         cmd_arg (Tuple): _description_
         env (dict, optional): _description_. Defaults to None.
         cwd (Union[str, None], optional): _description_. Defaults to None.
 
     Raises:
+    ------
         RuntimeError: _description_
 
     Returns:
+    -------
         _type_: _description_
+
     """
     if env is None:
         env = {}
@@ -91,18 +100,23 @@ def _popen(cmd_arg: tuple, env: dict = None, cwd: Union[str, None] = None):
 
 
 def _popen_communicate(cmd_arg: tuple, env: dict = None, cwd: Union[str, None] = None):
-    """_summary_
+    """
+    _summary_
 
     Args:
+    ----
         cmd_arg (Tuple): _description_
         env (dict, optional): _description_. Defaults to None.
         cwd (Union[str, None], optional): _description_. Defaults to None.
 
     Raises:
+    ------
         RuntimeError: _description_
 
     Returns:
+    -------
         _type_: _description_
+
     """
     if env is None:
         env = {}
@@ -139,10 +153,13 @@ class ShellConsole:  # pylint: disable=too-few-public-methods
 
     @classmethod
     def message(cls, str_format, *args):
-        """_summary_
+        """
+        _summary_
 
         Args:
+        ----
             str_format (_type_): _description_
+
         """
         if cls.quiet:
             return
@@ -158,17 +175,22 @@ class ShellConsole:  # pylint: disable=too-few-public-methods
 
 
 def pquery(command: Union[str, list], stdin: bool = None, **kwargs):
-    """_summary_
+    """
+    _summary_
 
     Args:
+    ----
         command (Union[str, list]): _description_
         stdin (bool, optional): _description_. Defaults to None.
 
     Raises:
+    ------
         ProcessException: _description_
 
     Returns:
+    -------
         _type_: _description_
+
     """
     # SOURCE: https://github.com/ARMmbed/mbed-cli/blob/f168237fabd0e32edcb48e214fc6ce2250046ab3/test/util.py
     # Example:
@@ -191,11 +213,14 @@ def pquery(command: Union[str, list], stdin: bool = None, **kwargs):
 
 
 def _popen_stdout(cmd_arg: str, cwd: Union[str, None] = None):
-    """_summary_
+    """
+    _summary_
 
     Args:
+    ----
         cmd_arg (str): _description_
         cwd (Union[str, None], optional): _description_. Defaults to None.
+
     """
     # if passing a single string, either shell mut be True or else the string must simply name the program to be executed without specifying any arguments
     cmd = subprocess.Popen(
@@ -219,11 +244,14 @@ def _popen_stdout(cmd_arg: str, cwd: Union[str, None] = None):
 
 
 def _popen_stdout_lock(cmd_arg: str, cwd: Union[str, None] = None):
-    """_summary_
+    """
+    _summary_
 
     Args:
+    ----
         cmd_arg (str): _description_
         cwd (Union[str, None], optional): _description_. Defaults to None.
+
     """
     # if passing a single string, either shell mut be True or else the string must simply name the program to be executed without specifying any arguments
     with subprocess.Popen(
@@ -247,15 +275,19 @@ def _popen_stdout_lock(cmd_arg: str, cwd: Union[str, None] = None):
 
 
 async def run_coroutine_subprocess(cmd: str, uri: str, working_dir: str = f"{pathlib.Path('./').absolute()}"):
-    """_summary_
+    """
+    _summary_
 
     Args:
+    ----
         cmd (str): _description_
         uri (str): _description_
         working_dir (str, optional): _description_. Defaults to f"{pathlib.Path('./').absolute()}".
 
     Returns:
+    -------
         _type_: _description_
+
     """
     await asyncio.sleep(0.05)
 

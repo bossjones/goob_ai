@@ -97,10 +97,13 @@ def unlink_orig_file(a_filepath: str) -> str:
     It uses the `os.unlink` method to remove the file and logs the deletion using `rich.print`.
 
     Args:
+    ----
         a_filepath (str): The path to the file to be deleted.
 
     Returns:
+    -------
         str: The path of the deleted file.
+
     """
     rich.print(f"deleting ... {a_filepath}")
     os.unlink(f"{a_filepath}")
@@ -109,23 +112,28 @@ def unlink_orig_file(a_filepath: str) -> str:
 
 # https://github.com/discord-math/bot/blob/babb41b71a68b4b099684b3e1ed583f84083f971/plugins/log.py#L63
 def path_for(attm: discord.Attachment, basedir: str = "./") -> pathlib.Path:
-    """Generate a pathlib.Path object for an attachment with a specified base directory.
+    """
+    Generate a pathlib.Path object for an attachment with a specified base directory.
 
     This function constructs a pathlib.Path object for a given attachment 'attm' using the specified base directory 'basedir'.
     It logs the generated path for debugging purposes and returns the pathlib.Path object.
 
     Args:
+    ----
         attm (discord.Attachment): The attachment for which the path is generated.
         basedir (str): The base directory path where the attachment file will be located. Default is the current directory.
 
     Returns:
+    -------
         pathlib.Path: A pathlib.Path object representing the path for the attachment file.
 
     Example:
+    -------
         >>> attm = discord.Attachment(filename="example.png")
         >>> path = path_for(attm, basedir="/attachments")
         >>> print(path)
         /attachments/example.png
+
     """
     p = pathlib.Path(basedir, str(attm.filename))  # pyright: ignore[reportAttributeAccessIssue]
     LOGGER.debug(f"path_for: p -> {p}")
@@ -134,18 +142,22 @@ def path_for(attm: discord.Attachment, basedir: str = "./") -> pathlib.Path:
 
 # https://github.com/discord-math/bot/blob/babb41b71a68b4b099684b3e1ed583f84083f971/plugins/log.py#L63
 async def save_attachment(attm: discord.Attachment, basedir: str = "./") -> None:
-    """Save a Discord attachment to a specified directory.
+    """
+    Save a Discord attachment to a specified directory.
 
     This asynchronous function saves a Discord attachment to the specified base directory.
     It constructs the path for the attachment, creates the necessary directories, and saves the attachment
     to the generated path. If an HTTPException occurs during saving, it retries the save operation.
 
     Args:
+    ----
         attm (discord.Attachment): The attachment to be saved.
         basedir (str): The base directory path where the attachment file will be located. Default is the current directory.
 
     Returns:
+    -------
         None
+
     """
     path = path_for(attm, basedir=basedir)
     LOGGER.debug(f"save_attachment: path -> {path}")
@@ -158,7 +170,8 @@ async def save_attachment(attm: discord.Attachment, basedir: str = "./") -> None
 
 
 def attachment_to_dict(attm: discord.Attachment) -> dict[str, Any]:
-    """Convert a discord.Attachment object to a dictionary.
+    """
+    Convert a discord.Attachment object to a dictionary.
 
     This function takes a discord.Attachment object and converts it into a dictionary
     containing relevant information about the attachment.
@@ -176,10 +189,13 @@ def attachment_to_dict(attm: discord.Attachment) -> dict[str, Any]:
     - attachment_obj: The original attachment object.
 
     Args:
+    ----
         attm (discord.Attachment): The attachment object to be converted.
 
     Returns:
+    -------
         Dict[str, Any]: A dictionary containing information about the attachment.
+
     """
     result = {
         "filename": attm.filename,  # pyright: ignore[reportAttributeAccessIssue]
@@ -202,18 +218,22 @@ def attachment_to_dict(attm: discord.Attachment) -> dict[str, Any]:
 
 
 def file_to_local_data_dict(fname: str, dir_root: str) -> dict[str, Any]:
-    """Convert a file to a dictionary with metadata.
+    """
+    Convert a file to a dictionary with metadata.
 
     This function takes a file path and a root directory, and converts the file
     into a dictionary containing metadata such as filename, size, extension, and
     a pathlib.Path object representing the file.
 
     Args:
+    ----
         fname (str): The name of the file to be converted.
         dir_root (str): The root directory where the file is located.
 
     Returns:
+    -------
         Dict[str, Any]: A dictionary containing metadata about the file.
+
     """
     file_api = pathlib.Path(fname)
     return {
@@ -225,18 +245,22 @@ def file_to_local_data_dict(fname: str, dir_root: str) -> dict[str, Any]:
 
 
 async def handle_save_attachment_locally(attm_data_dict: dict[str, Any], dir_root: str) -> str:
-    """Save a Discord attachment locally.
+    """
+    Save a Discord attachment locally.
 
     This asynchronous function saves a Discord attachment to a specified directory.
     It constructs the file path for the attachment, saves the attachment to the generated path,
     and returns the path of the saved file.
 
     Args:
+    ----
         attm_data_dict (Dict[str, Any]): A dictionary containing information about the attachment.
         dir_root (str): The root directory where the attachment file will be saved.
 
     Returns:
+    -------
         str: The path of the saved attachment file.
+
     """
     fname = f"{dir_root}/orig_{attm_data_dict['id']}_{attm_data_dict['filename']}"
     rich.print(f"Saving to ... {fname}")
@@ -255,10 +279,13 @@ async def download_image(url: str) -> BytesIO:  # type: ignore
     response data and returns it as a BytesIO object.
 
     Args:
+    ----
         url (str): The URL of the image to download.
 
     Returns:
+    -------
         BytesIO: A BytesIO object containing the downloaded image data.
+
     """
     async with aiohttp.ClientSession() as session:
         async with session.get(url) as response:
@@ -269,16 +296,20 @@ async def download_image(url: str) -> BytesIO:  # type: ignore
 
 # SOURCE: https://github.com/CrosswaveOmega/NikkiBot/blob/7092ae6da21c86c7686549edd5c45335255b73ec/cogs/GlobalCog.py#L23
 async def file_to_data_uri(file: discord.File) -> str:
-    """Convert a discord.File object to a data URI.
+    """
+    Convert a discord.File object to a data URI.
 
     This asynchronous function reads the bytes from a discord.File object,
     base64 encodes the bytes, and constructs a data URI.
 
     Args:
+    ----
         file (discord.File): The discord.File object to be converted.
 
     Returns:
+    -------
         str: A data URI representing the file content.
+
     """
     with BytesIO(file.fp.read()) as f:  # pyright: ignore[reportAttributeAccessIssue]
         file_bytes = f.read()
@@ -288,17 +319,21 @@ async def file_to_data_uri(file: discord.File) -> str:
 
 # SOURCE: https://github.com/CrosswaveOmega/NikkiBot/blob/7092ae6da21c86c7686549edd5c45335255b73ec/cogs/GlobalCog.py#L23
 async def data_uri_to_file(data_uri: str, filename: str) -> discord.File:
-    """Convert a data URI to a discord.File object.
+    """
+    Convert a data URI to a discord.File object.
 
     This asynchronous function takes a data URI and a filename, decodes the base64 data,
     and creates a discord.File object with the decoded data.
 
     Args:
+    ----
         data_uri (str): The data URI to be converted.
         filename (str): The name of the file to be created.
 
     Returns:
+    -------
         discord.File: A discord.File object containing the decoded data.
+
     """
     # Split the data URI into its components
     metadata, base64_data = data_uri.split(",")
@@ -311,7 +346,8 @@ async def data_uri_to_file(data_uri: str, filename: str) -> discord.File:
 
 @async_.to_async
 def get_logger_tree_printout() -> None:
-    """Print the logger tree structure.
+    """
+    Print the logger tree structure.
 
     This function prints the logger tree structure using the `printout` function
     from the `logging_tree` module. It is decorated with `@async_.to_async` to
@@ -322,7 +358,8 @@ def get_logger_tree_printout() -> None:
 
 # SOURCE: https://realpython.com/how-to-make-a-discord-bot-python/#responding-to-messages
 def dump_logger_tree() -> None:
-    """Dump the logger tree structure.
+    """
+    Dump the logger tree structure.
 
     This function generates the logger tree structure using the `generate_tree` function
     and logs the tree structure using the `LOGGER.debug` method.
@@ -332,17 +369,21 @@ def dump_logger_tree() -> None:
 
 
 def dump_logger(logger_name: str) -> Any:
-    """Dump the logger tree structure for a specific logger.
+    """
+    Dump the logger tree structure for a specific logger.
 
     This function generates the logger tree structure using the `generate_tree` function
     and retrieves the logger metadata for the specified logger name using the `get_lm_from_tree` function.
     It logs the retrieval process using the `LOGGER.debug` method.
 
     Args:
+    ----
         logger_name (str): The name of the logger to retrieve the tree structure for.
 
     Returns:
+    -------
         Any: The logger metadata for the specified logger name.
+
     """
     LOGGER.debug(f"getting logger {logger_name}")
     rootm = generate_tree()
@@ -350,15 +391,19 @@ def dump_logger(logger_name: str) -> Any:
 
 
 def filter_empty_string(a_list: list[str]) -> list[str]:
-    """Filter out empty strings from a list of strings.
+    """
+    Filter out empty strings from a list of strings.
 
     This function takes a list of strings and returns a new list with all empty strings removed.
 
     Args:
+    ----
         a_list (List[str]): The list of strings to be filtered.
 
     Returns:
+    -------
         List[str]: A new list containing only non-empty strings from the input list.
+
     """
     filter_object = filter(lambda x: x != "", a_list)
     return list(filter_object)
@@ -366,18 +411,22 @@ def filter_empty_string(a_list: list[str]) -> list[str]:
 
 # SOURCE: https://docs.python.org/3/library/asyncio-queue.html
 async def worker(name: str, queue: asyncio.Queue) -> NoReturn:
-    """Process tasks from the queue.
+    """
+    Process tasks from the queue.
 
     This asynchronous function continuously processes tasks from the provided queue.
     Each task is executed using the COMMAND_RUNNER dictionary, and the function
     notifies the queue when a task is completed.
 
     Args:
+    ----
         name (str): The name of the worker.
         queue (asyncio.Queue): The queue from which tasks are retrieved.
 
     Returns:
+    -------
         NoReturn: This function runs indefinitely and does not return.
+
     """
     LOGGER.info(f"starting working ... {name}")
 
@@ -404,11 +453,14 @@ async def co_task(name: str, queue: asyncio.Queue) -> AsyncIterator[None]:
     This asynchronous function processes tasks from the provided queue. It uses a timer to measure the elapsed time for each task. The function yields control back to the event loop after processing each task.
 
     Args:
+    ----
         name (str): The name of the task.
         queue (asyncio.Queue): The queue from which tasks are retrieved.
 
     Yields:
+    ------
         None: This function yields control back to the event loop after processing each task.
+
     """
     LOGGER.info(f"starting working ... {name}")
 
@@ -434,11 +486,14 @@ async def get_prefix(_bot: AsyncGoobBot, message: discord.Message) -> Any:
     specific to that guild.
 
     Args:
+    ----
         _bot (AsyncGoobBot): The instance of the bot.
         message (discord.Message): The message object from Discord.
 
     Returns:
+    -------
         Any: The command prefix to be used for the bot.
+
     """
     LOGGER.info(f"inside get_prefix(_bot, message) - > get_prefix({_bot}, {message})")
     LOGGER.info(f"inside get_prefix(_bot, message) - > get_prefix({_bot}, {message})")
@@ -460,9 +515,11 @@ async def preload_guild_data() -> dict[int, dict[str, str]]:
     This function initializes and returns a dictionary containing guild data.
     Each guild is represented by its ID and contains a dictionary with the guild's prefix.
 
-    Returns:
+    Returns
+    -------
         Dict[int, Dict[str, str]]: A dictionary where the keys are guild IDs and the values are dictionaries
         containing guild-specific data, such as the prefix.
+
     """
     LOGGER.info("preload_guild_data ... ")
     guilds = [guild_factory.Guild()]
@@ -470,13 +527,16 @@ async def preload_guild_data() -> dict[int, dict[str, str]]:
 
 
 def extensions() -> Iterable[str]:
-    """Yield extension module paths.
+    """
+    Yield extension module paths.
 
     This function searches for Python files in the 'cogs' directory relative to the current file's directory.
     It constructs the module path for each file and yields it.
 
-    Yields:
+    Yields
+    ------
         str: The module path for each Python file in the 'cogs' directory.
+
     """
     module_dir = pathlib.Path(HERE)
     files = pathlib.Path(module_dir.stem, "cogs").rglob("*.py")
@@ -486,7 +546,8 @@ def extensions() -> Iterable[str]:
 
 
 def _prefix_callable(bot: AsyncGoobBot, msg: discord.Message) -> list[str]:
-    """Generate a list of command prefixes for the bot.
+    """
+    Generate a list of command prefixes for the bot.
 
     This function generates a list of command prefixes for the bot based on the message context.
     If the message is from a direct message (DM) channel, it includes the bot's user ID mentions
@@ -494,11 +555,14 @@ def _prefix_callable(bot: AsyncGoobBot, msg: discord.Message) -> list[str]:
     user ID mentions and the guild-specific prefixes.
 
     Args:
+    ----
         bot (AsyncGoobBot): The instance of the bot.
         msg (discord.Message): The message object from Discord.
 
     Returns:
+    -------
         List[str]: A list of command prefixes to be used for the bot.
+
     """
     user_id = bot.user.id
     base = [f"<@!{user_id}> ", f"<@{user_id}> "]
@@ -510,18 +574,22 @@ def _prefix_callable(bot: AsyncGoobBot, msg: discord.Message) -> list[str]:
 
 
 async def details_from_file(path_to_media_from_cli: str, cwd: typing.Union[str, None] = None) -> tuple[str, str, str]:
-    """Generate input and output file paths and retrieve the timestamp of the input file.
+    """
+    Generate input and output file paths and retrieve the timestamp of the input file.
 
     This function takes a file path and an optional current working directory (cwd),
     and returns the input file path, output file path, and the timestamp of the input file.
     The timestamp is retrieved using platform-specific commands.
 
     Args:
+    ----
         path_to_media_from_cli (str): The path to the media file provided via the command line.
         cwd (typing.Union[str, None], optional): The current working directory. Defaults to None.
 
     Returns:
+    -------
         Tuple[str, str, str]: A tuple containing the input file path, output file path, and the timestamp of the input file.
+
     """
     p = pathlib.Path(path_to_media_from_cli)
     full_path_input_file = f"{p.stem}{p.suffix}"
@@ -651,9 +719,11 @@ class AsyncGoobBot(commands.Bot):
 
         It also sets the intents for members and message content to True.
 
-        Raises:
+        Raises
+        ------
             Exception: If an extension fails to load, an exception is raised with
                        detailed error information.
+
         """
         self.session = aiohttp.ClientSession()
         self.prefixes: list[str] = [aiosettings.prefix]
@@ -688,8 +758,10 @@ class AsyncGoobBot(commands.Bot):
         This property returns the owner of the bot as a discord.User object.
         The owner information is retrieved from the bot's application info.
 
-        Returns:
+        Returns
+        -------
             discord.User: The owner of the bot.
+
         """
         return self.bot_app_info.owner  # pyright: ignore[reportAttributeAccessIssue]
 
@@ -701,8 +773,10 @@ class AsyncGoobBot(commands.Bot):
         that are older than one week. It iterates through each shard's list of dates
         and deletes the entries that are older than the specified time frame.
 
-        Returns:
+        Returns
+        -------
             None
+
         """
         one_week_ago = discord.utils.utcnow() - datetime.timedelta(days=7)
         for shard_id, dates in self.identifies.items():
@@ -724,11 +798,14 @@ class AsyncGoobBot(commands.Bot):
         for the given shard ID.
 
         Args:
+        ----
             shard_id (int): The ID of the shard that is about to identify.
             initial (bool): Whether this is the initial identification of the shard.
 
         Returns:
+        -------
             None
+
         """
         self._clear_gateway_data()
         self.identifies[shard_id].append(discord.utils.utcnow())
@@ -742,11 +819,14 @@ class AsyncGoobBot(commands.Bot):
         It handles different types of command errors and sends appropriate messages to the user.
 
         Args:
+        ----
             ctx (Context): The context in which the command was invoked.
             error (commands.CommandError): The error that was raised during command invocation.
 
         Returns:
+        -------
             None
+
         """
         if isinstance(error, commands.NoPrivateMessage):
             await ctx.author.send("This command cannot be used in private messages.")
@@ -768,11 +848,14 @@ class AsyncGoobBot(commands.Bot):
         to simulate a message from the guild and retrieves the prefixes using the local_inject function.
 
         Args:
+        ----
             guild (Optional[discord.abc.Snowflake]): The guild for which to retrieve the command prefixes.
             local_inject (Callable): A callable function to inject the local context for prefix retrieval.
 
         Returns:
+        -------
             list[str]: A list of command prefixes for the specified guild.
+
         """
         proxy_msg = ProxyObject(guild)
         return local_inject(self, proxy_msg)  # type: ignore  # lying
@@ -788,12 +871,15 @@ class AsyncGoobBot(commands.Bot):
         It can optionally cache the results of the query.
 
         Args:
+        ----
             guild (discord.Guild): The guild to query the member in.
             argument (str): The name, nickname, or name + discriminator combo to check.
             cache (bool): Whether to cache the results of the query. Defaults to False.
 
         Returns:
+        -------
             Optional[discord.Member]: The member matching the query or None if not found.
+
         """
         if len(argument) > 5 and argument[-5] == "#":
             username, _, discriminator = argument.rpartition("#")
@@ -814,13 +900,15 @@ class AsyncGoobBot(commands.Bot):
         handles rate limiting and returns the member if found, or None if not found.
 
         Args:
+        ----
             guild (discord.Guild): The guild to look in.
             member_id (int): The member ID to search for.
 
         Returns:
+        -------
             Optional[discord.Member]: The member if found, or None if not found.
-        """
 
+        """
         member = guild.get_member(member_id)
         if member is not None:
             return member
@@ -848,16 +936,19 @@ class AsyncGoobBot(commands.Bot):
         from the list. The function yields the resolved members lazily using an asynchronous iterator.
 
         Note:
+        ----
             The order of the resolved members is not guaranteed to be the same as the input order.
 
         Args:
+        ----
             guild (discord.Guild): The guild to resolve members from.
             member_ids (Iterable[int]): An iterable of member IDs to resolve.
 
         Yields:
+        ------
             discord.Member: The resolved members.
-        """
 
+        """
         needs_resolution = []
         for member_id in member_ids:
             member = guild.get_member(member_id)
@@ -902,8 +993,10 @@ class AsyncGoobBot(commands.Bot):
         and prints the invite link. Additionally, it preloads guild data and logs the
         logger tree structure.
 
-        Returns:
+        Returns
+        -------
             None
+
         """
         print(f"Logged in as {self.user} (ID: {self.user.id})")
         print("------")
@@ -934,29 +1027,35 @@ class AsyncGoobBot(commands.Bot):
         resume event.
 
         Args:
+        ----
             shard_id (int): The ID of the shard that resumed.
 
         Returns:
+        -------
             None
+
         """
         LOGGER.info("Shard ID %s has resumed...", shard_id)
         self.resumes[shard_id].append(discord.utils.utcnow())
 
     # SOURCE: https://github.com/aronweiler/assistant/blob/a8abd34c6973c21bc248f4782f1428a810daf899/src/discord/rag_bot.py#L90
     async def process_attachments(self, message: discord.Message) -> None:
-        """Process attachments in a Discord message.
+        """
+        Process attachments in a Discord message.
 
         This asynchronous function processes attachments in a Discord message by downloading each attached file,
         storing it in a temporary directory, and then loading and processing the files. It sends a message to indicate
         the start of processing and handles any errors that occur during the download process.
 
         Args:
+        ----
             message (discord.Message): The Discord message containing attachments to be processed.
 
         Returns:
+        -------
             None
-        """
 
+        """
         if len(message.attachments) <= 0:  # pyright: ignore[reportAttributeAccessIssue]
             return
         # await message.channel.send("Processing attachments... (this may take a minute)", delete_after=30.0)  # pyright: ignore[reportAttributeAccessIssue]
@@ -990,19 +1089,22 @@ class AsyncGoobBot(commands.Bot):
             # )
 
     async def check_for_attachments(self, message: discord.Message) -> str:
-        """Check a Discord message for attachments and process image URLs.
+        """
+        Check a Discord message for attachments and process image URLs.
 
         This asynchronous function examines a Discord message for attachments,
         processes Tenor GIF URLs, downloads and processes image URLs, and modifies
         the message content based on the extracted information.
 
         Args:
+        ----
             message (discord.Message): The Discord message to check for attachments and process.
 
         Returns:
+        -------
             str: The updated message content with extracted information.
-        """
 
+        """
         # Check if the message content is a URL
 
         message_content: str = message.content  # pyright: ignore[reportAttributeAccessIssue]
@@ -1045,24 +1147,27 @@ class AsyncGoobBot(commands.Bot):
     def get_attachments(
         self, message: discord.Message
     ) -> tuple[list[dict[str, Any]], list[str], list[dict[str, Any]], list[str]]:
-        """Retrieve attachment data from a Discord message.
+        """
+        Retrieve attachment data from a Discord message.
 
         This function processes the attachments in a Discord message and converts each attachment
         to a dictionary format. It returns a tuple containing lists of dictionaries and file paths
         for further processing.
 
         Args:
+        ----
             message (discord.Message): The Discord message containing attachments.
 
         Returns:
+        -------
             Tuple[List[Dict[str, Any]], List[str], List[Dict[str, Any]], List[str]]:
             A tuple containing:
                 - A list of dictionaries with attachment data.
                 - A list of local attachment file paths.
                 - A list of dictionaries with local attachment data.
                 - A list of media file paths.
-        """
 
+        """
         attachment_data_list_dicts = []
         local_attachment_file_list = []
         local_attachment_data_list_dicts = []
@@ -1075,17 +1180,21 @@ class AsyncGoobBot(commands.Bot):
         return attachment_data_list_dicts, local_attachment_file_list, local_attachment_data_list_dicts, media_filepaths
 
     async def write_attachments_to_disk(self, message: discord.Message) -> None:
-        """Save attachments from a Discord message to disk.
+        """
+        Save attachments from a Discord message to disk.
 
         This asynchronous function processes the attachments in a Discord message,
         saves them to a temporary directory, and logs the file paths. It also handles
         any errors that occur during the download process.
 
         Args:
+        ----
             message (discord.Message): The Discord message containing attachments to be saved.
 
         Returns:
+        -------
             None
+
         """
         ctx = await self.get_context(message)
         attachment_data_list_dicts, local_attachment_file_list, local_attachment_data_list_dicts, media_filepaths = (
@@ -1146,19 +1255,23 @@ class AsyncGoobBot(commands.Bot):
     def prepare_agent_input(
         self, message: Union[discord.Message, discord.Thread], user_real_name: str, surface_info: dict
     ) -> dict[str, Any]:
-        """Prepare the agent input from the incoming Discord message.
+        """
+        Prepare the agent input from the incoming Discord message.
 
         This function constructs the input dictionary to be sent to the agent based on the
         provided Discord message, user's real name, and surface information. It includes
         the message content, user name, and any attachments if present.
 
         Args:
+        ----
             message (discord.Message): The Discord message containing the user input.
             user_real_name (str): The real name of the user who sent the message.
             surface_info (Dict): The surface information related to the message.
 
         Returns:
+        -------
             Dict[str, Any]: The input dictionary to be sent to the agent.
+
         """
         # ctx: Context = await self.get_context(message)  # type: ignore
         if isinstance(message, discord.Thread):
@@ -1180,22 +1293,26 @@ class AsyncGoobBot(commands.Bot):
         return agent_input
 
     def get_session_id(self, message: Union[discord.Message, discord.Thread]) -> str:
-        """Generate a session ID for the given message.
+        """
+        Generate a session ID for the given message.
 
         This function generates a session ID based on the message context.
         The session ID is used as a key for the history session and as an identifier for logs.
 
         Args:
+        ----
             message (discord.Message): The message or event dictionary.
 
         Returns:
+        -------
             str: The generated session ID.
 
         Notes:
+        -----
             - If the message is a direct message (DM), the session ID is based on the user ID.
             - If the message is from a guild (server) channel, the session ID is based on the channel ID.
-        """
 
+        """
         # ctx: Context = await self.get_context(message)  # type: ignore
         if isinstance(message, discord.Thread):
             is_dm: bool = str(message.starter_message.channel.type) == "private"  # pyright: ignore[reportAttributeAccessIssue]
@@ -1219,13 +1336,17 @@ class AsyncGoobBot(commands.Bot):
         response in multiple messages if necessary.
 
         Args:
+        ----
             message (discord.Message): The Discord message object representing the direct message.
 
         Returns:
+        -------
             bool: True if the message was successfully processed, False otherwise.
 
         Example:
+        -------
             >>> await bot.handle_dm_from_user(message)
+
         """
         ctx: Context = await self.get_context(message)
         user_id = ctx.message.author.id  # pyright: ignore[reportAttributeAccessIssue]
@@ -1341,36 +1462,42 @@ class AsyncGoobBot(commands.Bot):
         return True
 
     async def get_context(self, origin: Union[discord.Interaction, discord.Message], /, *, cls=Context) -> Context:
-        """Retrieve the context for a Discord interaction or message.
+        """
+        Retrieve the context for a Discord interaction or message.
 
         This asynchronous method retrieves the context for a Discord interaction or message
         and returns a Context object. It calls the superclass method to get the context
         based on the provided origin and class type.
 
         Args:
+        ----
             origin (Union[discord.Interaction, discord.Message]): The Discord interaction or message to get the context from.
             cls (Context): The class type for the context object.
 
         Returns:
+        -------
             Context: The context object retrieved for the provided origin.
-        """
 
+        """
         return await super().get_context(origin, cls=cls)
 
     async def process_commands(self, message: discord.Message) -> None:
-        """Process commands based on the received Discord message.
+        """
+        Process commands based on the received Discord message.
 
         This asynchronous function processes commands based on the provided Discord message.
         It retrieves the context for the message, logs information, and then invokes the command handling.
         It includes commented-out sections for potential future functionality like spam control and blacklisting.
 
         Args:
+        ----
             message (discord.Message): The Discord message to process commands from.
 
         Returns:
+        -------
             None
-        """
 
+        """
         ctx = await self.get_context(message)
 
         # import bpdb
@@ -1523,7 +1650,8 @@ class AsyncGoobBot(commands.Bot):
         await self.invoke(ctx)
 
     async def handle_user_task(self, message: discord.Message) -> JSONResponse:
-        """Handle a user task received through a Discord message.
+        """
+        Handle a user task received through a Discord message.
 
         This asynchronous function processes a user task received as a Discord message.
         It determines the surface type of the message (DM or channel), creates a SurfaceInfo
@@ -1532,15 +1660,18 @@ class AsyncGoobBot(commands.Bot):
         processing fails.
 
         Args:
+        ----
             message (discord.Message): The Discord message containing the user task.
 
         Returns:
+        -------
             JSONResponse: A JSON response containing the agent's text response with a status code of 200 if successful.
 
         Raises:
+        ------
             Exception: If an error occurs during the processing of the user task.
-        """
 
+        """
         # Optional surface information
         surface = "discord"
         if isinstance(message.channel, discord.DMChannel):  # pyright: ignore[reportAttributeAccessIssue]
@@ -1581,16 +1712,20 @@ class AsyncGoobBot(commands.Bot):
         #     return HTTPException(status_code=500, detail=str(e))
 
     async def on_message(self, message: discord.Message) -> None:
-        """Handle incoming messages and process commands.
+        """
+        Handle incoming messages and process commands.
 
         This method is called whenever a message is received. It logs the message details,
         processes any attachments, and then processes the message content as a command if applicable.
 
         Args:
+        ----
             message (discord.Message): The message object received from Discord.
 
         Returns:
+        -------
             None
+
         """
         LOGGER.info(f"message = {message}")
         LOGGER.info("ITS THIS ONE BOSS")
@@ -1624,8 +1759,10 @@ class AsyncGoobBot(commands.Bot):
         before shutting down the bot. It closes the aiohttp session and
         calls the superclass's close method to ensure proper shutdown.
 
-        Returns:
+        Returns
+        -------
             None
+
         """
         await super().close()
         await self.session.close()
@@ -1641,8 +1778,10 @@ class AsyncGoobBot(commands.Bot):
         The method overrides the default `start` method from the `commands.Bot` class to
         include the bot's specific token and reconnection behavior.
 
-        Returns:
+        Returns
+        -------
             None
+
         """
         await super().start(aiosettings.discord_token.get_secret_value(), reconnect=True)
 
@@ -1657,10 +1796,13 @@ class AsyncGoobBot(commands.Bot):
         The method ensures that the task runs indefinitely until the bot is closed.
 
         Args:
+        ----
             None
 
         Returns:
+        -------
             None
+
         """
         await self.wait_until_ready()
         # """
@@ -1693,8 +1835,10 @@ class AsyncGoobBot(commands.Bot):
 
         The method ensures that the monitoring runs indefinitely until the bot is closed.
 
-        Returns:
+        Returns
+        -------
             None
+
         """
         await self.wait_until_ready()
         counter = 0
@@ -1721,21 +1865,24 @@ class AsyncGoobBot(commands.Bot):
 # SOURCE: https://github.com/darren-rose/DiscordDocChatBot/blob/63a2f25d2cb8aaace6c1a0af97d48f664588e94e/main.py#L28
 # TODO: maybe enable this
 async def send_long_message(channel: Any, message: discord.Message, max_length: int = 2000) -> None:
-    """Send a long message by splitting it into chunks and sending each chunk.
+    """
+    Send a long message by splitting it into chunks and sending each chunk.
 
     This asynchronous function takes a message and splits it into chunks of
     maximum length 'max_length'. It then sends each chunk as a separate message
     to the specified channel.
 
     Args:
+    ----
         channel (Any): The channel to send the message chunks to.
         message (discord.Message): The message to be split into chunks and sent.
         max_length (int): The maximum length of each message chunk. Default is 2000.
 
     Returns:
+    -------
         None
-    """
 
+    """
     chunks = [message[i : i + max_length] for i in range(0, len(message), max_length)]  # type: ignore
     for chunk in chunks:
         await channel.send(chunk)

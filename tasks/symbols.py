@@ -18,13 +18,15 @@ _FALLBACKS = {"info": "¡", "success": "v", "warning": "!!", "error": "×"}
 
 
 def is_supported():
-    """Check whether operating system supports main symbols or not.
+    """
+    Check whether operating system supports main symbols or not.
+
     Returns
     -------
     boolean
         Whether operating system supports main symbols or not
-    """
 
+    """
     os_arch = platform.system()
 
     return os_arch != "Windows"
@@ -34,7 +36,10 @@ _SYMBOLS = _MAIN if is_supported() else _FALLBACKS
 
 
 class LogSymbols(Enum):  # pylint: disable=too-few-public-methods
-    """LogSymbol enum class.
+
+    """
+    LogSymbol enum class.
+
     Attributes
     ----------
     ERROR : str
@@ -45,6 +50,7 @@ class LogSymbols(Enum):  # pylint: disable=too-few-public-methods
         Colored success symbol
     WARNING : str
         Colored warning symbol
+
     """
 
     INFO = Fore.BLUE + _SYMBOLS["info"] + Fore.RESET

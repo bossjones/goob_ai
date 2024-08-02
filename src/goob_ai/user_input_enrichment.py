@@ -47,12 +47,16 @@ class UserInputEnrichment:
     def input_classifier_tool(self, user_input: str) -> dict:
         """
         Determines how to classify incoming text.
-        Parameters:
-        user_input (str): The text to be analyzed.
-        Returns:
-        dict: A dictionary with a boolean value for the key 'classification'.
-        """
 
+        Parameters
+        ----------
+        user_input (str): The text to be analyzed.
+
+        Returns
+        -------
+        dict: A dictionary with a boolean value for the key 'classification'.
+
+        """
         if not user_input:
             raise ValueError("The report text cannot be empty.")
 

@@ -55,7 +55,9 @@ async def get_duration(input_file: Path) -> float:
     Get duration of a file using FFmpeg.
 
     Args:
+    ----
         input_file (Path): The path to the input audio file.
+
     """
     LOGGER.debug(f"Processing audio file: {input_file}")
 
@@ -81,11 +83,14 @@ def calculate_bitrate(duration: float, multiplier: int) -> int:
     Calculate bitrate based on duration and multiplier.
 
     Args:
+    ----
         duration (float): The duration of the media file in seconds.
         multiplier (int): A multiplier to adjust the bitrate calculation.
 
     Returns:
+    -------
         int: The calculated bitrate in kbps.
+
     """
     bitrate = int(multiplier * 8 * 1000 / duration)
     LOGGER.debug(f"bitrate = {bitrate}")
@@ -100,10 +105,13 @@ async def process_video(input_file: Path) -> None:
     then compresses the video using FFmpeg with the calculated bitrate.
 
     Args:
+    ----
         input_file (Path): The path to the input video file.
 
     Returns:
+    -------
         None
+
     """
     LOGGER.debug(f"Processing video file: {input_file}")
 
@@ -193,12 +201,14 @@ async def process_audio(input_file: Path) -> None:
     then compresses the audio using FFmpeg with the calculated bitrate.
 
     Args:
+    ----
         input_file (Path): The path to the input audio file.
 
     Returns:
+    -------
         None
-    """
 
+    """
     duration = await get_duration(input_file)
     bitrate = calculate_bitrate(duration, 25)
 
@@ -215,6 +225,7 @@ async def process_audio(input_file: Path) -> None:
     output_file = input_file.parent / f"25MB_{input_file.stem}.mp3"
     compress_cmd = [
         "ffmpeg",
+        "-y",
         "-hide_banner",
         "-loglevel",
         "warning",
@@ -239,17 +250,21 @@ async def process_audio(input_file: Path) -> None:
     await _aio_run_process_and_communicate(compress_cmd)
 
 
-async def aio_compress_video(tmpdirname: str, file_to_compress: str, bot: Any, ctx: Any) -> bool:
-    """_summary_
+async def aio_compress_video(tmpdirname: str, file_to_compress: str) -> bool:
+    """
+    _summary_
 
     Args:
+    ----
         tmpdirname (str): _description_
         file_to_compress (str): _description_
         bot (Any): _description_
         ctx (Any): _description_
 
     Returns:
+    -------
         List[str]: _description_
+
     """
     if (pathlib.Path(f"{file_to_compress}").is_file()) and pathlib.Path(
         f"{file_to_compress}"
@@ -262,6 +277,8 @@ async def aio_compress_video(tmpdirname: str, file_to_compress: str, bot: Any, c
             "./scripts/compress-discord.sh",
             f"{file_to_compress}",
         ]
+
+        loop = asyncio.get_running_loop()
 
         try:
             _ = await shell._aio_run_process_and_communicate(compress_command, cwd=f"{tmpdirname}")
@@ -281,7 +298,7 @@ async def aio_compress_video(tmpdirname: str, file_to_compress: str, bot: Any, c
 
             # 2. Run in a custom thread pool:
             with concurrent.futures.ThreadPoolExecutor() as pool:
-                unlink_result = await bot.loop.run_in_executor(pool, unlink_func)
+                unlink_result = await loop.run_in_executor(pool, unlink_func)
 
             return True
         except Exception as ex:
@@ -299,17 +316,21 @@ async def aio_compress_video(tmpdirname: str, file_to_compress: str, bot: Any, c
         return False
 
 
-def compress_video(tmpdirname: str, file_to_compress: str, bot: Any, ctx: Any) -> bool:
-    """_summary_
+def compress_video(tmpdirname: str, file_to_compress: str) -> bool:
+    """
+    _summary_
 
     Args:
+    ----
         tmpdirname (str): _description_
         file_to_compress (str): _description_
         bot (Any): _description_
         ctx (Any): _description_
 
     Returns:
+    -------
         List[str]: _description_
+
     """
     if (pathlib.Path(f"{file_to_compress}").is_file()) and pathlib.Path(
         f"{file_to_compress}"
@@ -324,16 +345,11 @@ def compress_video(tmpdirname: str, file_to_compress: str, bot: Any, ctx: Any) -
         ]
 
         try:
-            # _ = await shell._aio_run_process_and_communicate(compress_command, cwd=f"{tmpdirname}")
             _ = shell.pquery(compress_command, cwd=f"{tmpdirname}")
 
             LOGGER.debug(
                 f"compress_video: new file size for {file_to_compress} = {pathlib.Path(file_to_compress).stat().st_size}"
             )
-
-            ######################################################
-            # nuke the uncompressed version
-            ######################################################
 
             LOGGER.info(f"nuking uncompressed: {file_to_compress}")
 

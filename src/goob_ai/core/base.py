@@ -9,7 +9,8 @@ from goob_ai import aio_settings
 
 
 class GoobAIBase:
-    """Base class for all Mltemplate core classes.
+    """
+    Base class for all Mltemplate core classes.
 
     The MltemplateBase class adds default context manager and logging methods. All classes that derive from
     MltemplateBase can be used as context managers and will use a unified logging format.

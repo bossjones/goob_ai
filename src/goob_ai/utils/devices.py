@@ -11,9 +11,6 @@ import torch
 from goob_ai.core import errors
 
 
-# from icecream import ic
-
-
 def get_device() -> torch.device:
     """
     Summary:
@@ -100,14 +97,18 @@ def randn_without_seed(shape: int):
 
 # SOURCE: https://github.com/socialhourmobile/SD-hassan-ns/blob/3b6b266b17e0fd0a9b17374cd2afbf4c59b7c245/modules/shared.py#L42
 def autocast(disable=False, precision: str = "autocast"):
-    """_summary_
+    """
+    _summary_
 
     Args:
+    ----
         precision (str): Options include ["full", "autocast"]
         disable (bool, optional): _description_. Defaults to False.
 
     Returns:
+    -------
         _type_: _description_
+
     """
     # from modules import shared
 
@@ -122,14 +123,18 @@ def autocast(disable=False, precision: str = "autocast"):
 
 # MPS workaround for https://github.com/pytorch/pytorch/issues/79383
 def mps_contiguous(input_tensor: torch.Tensor, device: torch.device):
-    """Returns a contiguous in memory tensor containing the same data as self tensor. If self tensor is already in the specified memory format, this function returns the self tensor.
+    """
+    Returns a contiguous in memory tensor containing the same data as self tensor. If self tensor is already in the specified memory format, this function returns the self tensor.
 
     Args:
+    ----
         input_tensor (torch.Tensor): _description_
         device (torch.device): _description_
 
     Returns:
+    -------
         _type_: _description_
+
     """
     return input_tensor.contiguous() if device.type == "mps" else input_tensor
 

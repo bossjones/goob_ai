@@ -48,13 +48,17 @@ TEMP_DIR = Path(gettempdir())
 # NOTE: DIRTY HACK TO GET AROUND CIRCULAR IMPORTS
 # NOTE: There is a bug in pydantic that prevents us from using the `tilda` package and dealing with circular imports
 def tilda(obj):
-    """wrapper for linux ~/ shell notation
+    """
+    Wrapper for linux ~/ shell notation
 
     Args:
+    ----
         obj (_type_): _description_
 
     Returns:
+    -------
         _type_: _description_
+
     """
     if isinstance(obj, list):
         return [str(pathlib.Path(o).expanduser()) if isinstance(o, str) else o for o in obj]
@@ -65,13 +69,17 @@ def tilda(obj):
 
 
 def normalize_settings_path(file_path: str) -> str:
-    """field_validator used to detect shell tilda notation and expand field automatically
+    """
+    field_validator used to detect shell tilda notation and expand field automatically
 
     Args:
+    ----
         file_path (str): _description_
 
     Returns:
+    -------
         pathlib.PosixPath | str: _description_
+
     """
     # prevent circular import
     # from goob_ai.utils import file_functions
@@ -80,10 +88,13 @@ def normalize_settings_path(file_path: str) -> str:
 
 
 def get_rich_console() -> Console:
-    """_summary_
+    """
+    _summary_
 
-    Returns:
+    Returns
+    -------
         Console: _description_
+
     """
     return Console()
 
@@ -146,7 +157,12 @@ class AioSettings(BaseSettings):
     # pylint: disable=redundant-keyword-arg
     better_exceptions: bool = Field(env="BETTER_EXCEPTIONS", description="Enable better exceptions", default=1)
     pythonasynciodebug: bool = Field(
-        env="PYTHONASYNCIODEBUG", description="enable or disable asyncio debugging", default=1
+        env="PYTHONASYNCIODEBUG", description="enable or disable asyncio debugging", default=0
+    )
+    pythondevmode: bool = Field(
+        env="PYTHONDEVMODE",
+        description="The Python Development Mode introduces additional runtime checks that are too expensive to be enabled by default. It should not be more verbose than the default if the code is correct; new warnings are only emitted when an issue is detected.",
+        default=0,
     )
     langchain_debug_logs: bool = Field(
         env="LANGCHAIN_DEBUG_LOGS", description="enable or disable langchain debug logs", default=0

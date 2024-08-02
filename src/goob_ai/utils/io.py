@@ -21,15 +21,19 @@ from goob_ai.utils.misc import abspath_or_url
 
 # SOURCE: https://github.com/napari/napari/blob/5f96d5d814aad697c367bdadbb1a57750e2114ad/napari/utils/io.py
 def imread(filename: str) -> np.ndarray:
-    """Custom implementation of imread to avoid skimage dependency.
+    """
+    Custom implementation of imread to avoid skimage dependency.
+
     Parameters
     ----------
     filename : string
         The path from which to read the image.
+
     Returns
     -------
     data : np.ndarray
         The image data.
+
     """
     filename = abspath_or_url(filename)
 
@@ -39,7 +43,8 @@ def imread(filename: str) -> np.ndarray:
 
 
 def _alphanumeric_key(s):
-    """Convert string to list of strings and ints that gives intuitive sorting.
+    """
+    Convert string to list of strings and ints that gives intuitive sorting.
 
     Parameters
     ----------
@@ -58,13 +63,15 @@ def _alphanumeric_key(s):
     ['e10.png', 'f10.10.png', 'f10.9.png', 'f9.10.png', 'f9.9.png']
     >>> sorted(filenames, key=_alphanumeric_key)
     ['e10.png', 'f9.9.png', 'f9.10.png', 'f10.9.png', 'f10.10.png']
+
     """
     return [int(c) if c.isdigit() else c for c in re.split("([0-9]+)", s)]
 
 
 # SOURCE: https://github.com/napari/napari/blob/main/napari/plugins/io.py
 def magic_imread(filenames, *, use_dask=None, stack=True):
-    """Dispatch the appropriate reader given some files.
+    """
+    Dispatch the appropriate reader given some files.
 
     The files are assumed to all have the same shape.
 
@@ -86,6 +93,7 @@ def magic_imread(filenames, *, use_dask=None, stack=True):
     -------
     image : array-like
         Array or list of images
+
     """
     # cast Path to string
     if isinstance(filenames, Path):
@@ -208,7 +216,8 @@ def write_csv(
     data: Union[list, np.ndarray],
     column_names: Optional[list[str]] = None,
 ):
-    """Write a csv file.
+    """
+    Write a csv file.
 
     Parameters
     ----------
@@ -218,6 +227,7 @@ def write_csv(
         Table values, contained in a list of lists or an ndarray.
     column_names : list, optional
         List of column names for table data.
+
     """
     with open(filename, mode="w", newline="") as csvfile:
         writer = csv.writer(
@@ -235,7 +245,8 @@ def write_csv(
 def guess_layer_type_from_column_names(
     column_names: list[str],
 ) -> Optional[str]:
-    """Guess layer type based on column names from a csv file.
+    """
+    Guess layer type based on column names from a csv file.
 
     Parameters
     ----------
@@ -246,8 +257,8 @@ def guess_layer_type_from_column_names(
     -------
     str or None
         Layer type if recognized, otherwise None.
-    """
 
+    """
     if {"index", "shape-type", "vertex-index", "axis-0", "axis-1"}.issubset(column_names):
         return "shapes"
     elif {"axis-0", "axis-1"}.issubset(column_names):
@@ -257,7 +268,8 @@ def guess_layer_type_from_column_names(
 
 
 def read_csv(filename: str, require_type: str = None) -> tuple[np.array, list[str], Optional[str]]:
-    """Return CSV data only if column names match format for ``require_type``.
+    """
+    Return CSV data only if column names match format for ``require_type``.
 
     Reads only the first line of the CSV at first, then optionally raises an
     exception if the column names are not consistent with a known format, as
@@ -288,6 +300,7 @@ def read_csv(filename: str, require_type: str = None) -> tuple[np.array, list[st
     ValueError
         If the column names do not match the format requested by
         ``require_type``.
+
     """
     with open(filename, newline="") as csvfile:
         reader = csv.reader(csvfile, delimiter=",")

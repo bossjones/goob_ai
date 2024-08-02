@@ -492,7 +492,6 @@ def test_read_image_to_bgr(mocker):
 @pytest.mark.parametrize("return_percent_coords", [True, False])
 def test_resize_image_and_bbox(mocker, test_image, return_percent_coords):
     """Test resize_image_and_bbox function."""
-
     # Mock the device
     test_device = get_device()
 

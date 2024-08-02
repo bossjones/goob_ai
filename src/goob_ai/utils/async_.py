@@ -28,7 +28,8 @@ T = TypeVar("T")
 
 # https://stackoverflow.com/questions/33128325/how-to-set-class-attribute-with-await-in-init
 class aobject:
-    """Inheriting this class allows you to define an async __init__.
+    """
+    Inheriting this class allows you to define an async __init__.
 
     So you can create objects by doing something like `await MyClass(params)`
     """
@@ -43,7 +44,8 @@ class aobject:
 
 
 def fire_coroutine_threadsafe(coro: Coroutine, loop: AbstractEventLoop) -> None:
-    """Submit a coroutine object to a given event loop.
+    """
+    Submit a coroutine object to a given event loop.
 
     This method does not provide a way to retrieve the result and
     is intended for fire-and-forget use. This reduces the
@@ -66,7 +68,8 @@ def fire_coroutine_threadsafe(coro: Coroutine, loop: AbstractEventLoop) -> None:
 def run_callback_threadsafe(
     loop: AbstractEventLoop, callback: Callable[..., T], *args: Any
 ) -> concurrent.futures.Future[T]:  # pylint: disable=unsubscriptable-object
-    """Submit a callback object to a given event loop.
+    """
+    Submit a callback object to a given event loop.
 
     Return a concurrent.futures.Future to access the result.
     """
@@ -177,7 +180,8 @@ def protect_loop(func: Callable) -> Callable:
 
 
 async def gather_with_concurrency(limit: int, *tasks: Any, return_exceptions: bool = False) -> Any:
-    """Wrap asyncio.gather to limit the number of concurrent tasks.
+    """
+    Wrap asyncio.gather to limit the number of concurrent tasks.
 
     From: https://stackoverflow.com/a/61478547/9127614
     """
@@ -191,7 +195,8 @@ async def gather_with_concurrency(limit: int, *tasks: Any, return_exceptions: bo
 
 
 def shutdown_run_callback_threadsafe(loop: AbstractEventLoop) -> None:
-    """Call when run_callback_threadsafe should prevent creating new futures.
+    """
+    Call when run_callback_threadsafe should prevent creating new futures.
 
     We must finish all callbacks before the executor is shutdown
     or we can end up in a deadlock state where:
@@ -294,9 +299,7 @@ def to_sync(fn):
 
 
 def force_async(fn):
-    """
-    turns a sync function to async function using threads
-    """
+    """Turns a sync function to async function using threads"""
     import asyncio
 
     from concurrent.futures import ThreadPoolExecutor
@@ -312,9 +315,7 @@ def force_async(fn):
 
 
 def force_sync(fn):
-    """
-    turn an async function to sync function
-    """
+    """Turn an async function to sync function"""
     import asyncio
 
     @functools.wraps(fn)
