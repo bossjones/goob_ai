@@ -334,3 +334,5 @@ notebooks/chroma
 *.log
 25MB_song.mp4
 ruff_config.toml
+.virtual_documents/
+notebooks/e2e_evals.ipynb

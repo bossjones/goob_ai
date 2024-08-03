@@ -34,7 +34,7 @@ from loguru import logger as LOGGER
 from openai import Client
 from pydantic_settings import SettingsConfigDict
 
-from goob_ai import llm_manager
+from goob_ai import llm_manager, redis_memory
 from goob_ai.aio_settings import AioSettings, aiosettings
 from goob_ai.gen_ai.tools.vision_tool import VisionTool
 from goob_ai.llm_manager import LlmManager
@@ -139,7 +139,7 @@ class AiAgent:
         self.all_tools = self.custom_tools
 
     # # SOURCE: https://github.com/Haste171/langchain-chatbot/blob/main/handlers/base.py
-    @traceable
+    # @traceable
     def init_agent_executor(self) -> None:
         """Initalize agent executor."""
         llm_with_tools = LlmManager().llm.bind_tools(tools=[convert_to_openai_tool(t) for t in self.all_tools])
@@ -167,15 +167,21 @@ class AiAgent:
         LOGGER.debug(f"user_task = {user_task}")
         # ttl_in_seconds = self.settings.dynamodb_ttl_days * 24 * 60 * 60
         # FIXME: replace foo with a proper session_id later
-        message_history = RedisChatMessageHistory("foo", url=f"{aiosettings.redis_url}", key_prefix="goob:")
 
-        memory = ConversationBufferWindowMemory(
-            memory_key="chat_history",
-            chat_memory=message_history,
-            return_messages=True,
-            k=self.settings.chat_history_buffer,
-            output_key="output",
-        )
+        if aiosettings.experimental_redis_memory:
+            LOGGER.error("Using experimental redis memory")
+            memory = redis_memory.create_memory_instance(session_id=session_id, store_ai_answer=True)
+        else:
+            LOGGER.error("Using DEFAULT redis memory")
+            message_history = RedisChatMessageHistory("foo", url=f"{aiosettings.redis_url}", key_prefix="goob:")
+
+            memory = ConversationBufferWindowMemory(
+                memory_key="chat_history",
+                chat_memory=message_history,
+                return_messages=True,
+                k=self.settings.chat_history_buffer,
+                output_key="output",
+            )
 
         return AgentExecutor(
             agent=self.agent,
