@@ -136,6 +136,7 @@ dependencies = [
     "notebook>=7.2.1",
     "nbconvert>=7.16.4",
     "moviepy>=1.0.3",
+    "jedi-language-server>=0.41.4",
 ]
 
 readme = "README.md"
@@ -302,6 +303,7 @@ dev-dependencies = [
     "respx>=0.21.1",
     "memray>=1.13.4",
     "pytest-memray>=1.7.0",
+    "sentry-sdk[opentelemetry]>=2.12.0",
 ]
 
 [tool.rye.scripts]
