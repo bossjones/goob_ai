@@ -406,6 +406,12 @@ ci-with-evals-memray = {chain = [
     "coverage-html",
     "coverage-open",
 ]}
+gh-deploy = "mkdocs gh-deploy --force --message '[skip ci] Docs updates'"
+mkdir-site = "mkdir site"
+deploy-docs = {chain = [
+    "mkdir-site",
+    "gh-deploy",
+]}
 
 
 # Private tasks used for chaining (https://github.com/charbonnierg/pytest-broadcaster/blob/e98456b2f6db7f99a034795f162ac0013a8001d7/pyproject.toml#L157C1-L158C15)
