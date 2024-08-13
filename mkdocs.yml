@@ -6,74 +6,128 @@ site_description: POC langchain rag discord chatbot. Heavily inspired by Discord
 repo_name: bossjones/goob_ai
 site_name: GoobAI Documentation
 copyright: MIT License - Copyright (c) 2024 bossjones
+edit_uri: edit/main/docs
+watch:
+  - src/
+
+extra_css:
+  - css/mkdocstrings.css
 
 theme:
-    locale: en
-    name: material
-    features: [content.code.copy, content.code.select, navigation.footer]
-    palette:
+  locale: en
+  name: material
+    # features: [content.code.copy, content.code.select, navigation.footer]
+  features:
+    - content.action.edit
+    - content.action.view
+    - content.code.copy  # https://squidfunk.github.io/mkdocs-material/reference/code-blocks/#code-copy-button
+    - content.code.select  # https://squidfunk.github.io/mkdocs-material/reference/code-blocks/#code-selection-button
+    - content.tooltips
+    - navigation.footer
+    - search.share
+  palette:
     # Palette toggle for dark mode
-        - scheme: slate
-          toggle:
-              icon: material/brightness-4
-              name: Switch to light mode
+    - scheme: slate
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
     # Palette toggle for light mode
-        - scheme: default
-          toggle:
-              icon: material/brightness-7
-              name: Switch to dark mode
+    - scheme: default
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
 
-markdown_extensions:
-    - admonition
-    - pymdownx.superfences:
-          custom_fences:
-              - name: mermaid
-                class: mermaid
-                format: !!python/name:pymdownx.superfences.fence_code_format
-    - pymdownx.highlight:
-          anchor_linenums: true
-          line_spans: __span
-          pygments_lang_class: true
-    - pymdownx.inlinehilite
-    - pymdownx.snippets
+# markdown_extensions:
+#     - admonition
+#     - pymdownx.superfences:
+#           custom_fences:
+#               - name: mermaid
+#                 class: mermaid
+#                 format: !!python/name:pymdownx.superfences.fence_code_format
+#     - pymdownx.highlight:
+#           anchor_linenums: true
+#           line_spans: __span
+#           pygments_lang_class: true
+#     - pymdownx.inlinehilite
+#     - pymdownx.snippets
 
 plugins:
-    - mermaid2
-    - mkdocstrings # generate from docstrings
-    - search # search functionality
+  - autorefs    # recommended by mkdocstrings
+    # - awesome-pages  # https://github.com/lukasgeiter/mkdocs-awesome-pages-plugin
+    # - blog  # https://squidfunk.github.io/mkdocs-material/plugins/blog/
+    # - git-revision-date-localized:
+    #     enable_creation_date: true
+    #     type: datetime
+    # - git-authors
+    # - macros  # https://mkdocs-macros-plugin.readthedocs.io
+    # - mkdocs_apidoc  # https://ecurtin2.github.io/mkdocs-apidoc/
+  - mermaid2
+    # - mkdocstrings # generate from docstrings
+  - mkdocstrings:    # https://mkdocstrings.github.io/
+      handlers:
+        python:
+          import:
+            - https://docs.python.org/3/objects.inv
+            - https://installer.readthedocs.io/en/stable/objects.inv  # demonstration purpose in the docs
+            - https://mkdocstrings.github.io/autorefs/objects.inv
+            # paths: [src]
+          options:
+            docstring_options:
+              ignore_init_summary: true
+            docstring_section_style: list
+            filters:
+              - "!^_"
+            heading_level: 1
+            inherited_members: false
+            merge_init_into_class: true
+            separate_signature: true
+            show_root_heading: true
+            show_root_full_path: false
+            show_signature_annotations: true
+            show_symbol_type_heading: true
+            show_symbol_type_toc: true
+            signature_crossrefs: true
+            summary: true
+      default_handler: python
+  - search    # https://squidfunk.github.io/mkdocs-material/plugins/search/
+  - tags   # https://squidfunk.github.io/mkdocs-material/plugins/tags/
+    # Want to have ezlinks after macros
+    # because macros might return markup with ezlinks that we want expanded - e.g.: for people
+    # - ezlinks  # https://github.com/orbikm/mkdocs-ezlinks-plugin
+  - search   # search functionality
   # SOURCE: mkdocs-with-pdf
-    - with-pdf:
+  - with-pdf:
     # cover_title:
-      cover_subtitle: GoobAI
+    cover_subtitle: GoobAI
     # cover_logo: assets/images/banner.png
-      back_cover: true
-      toc_level: 2
-      excludes_children:
-          - 'releases/changelog/:upgrading'
+    back_cover: true
+    toc_level: 2
+    excludes_children:
+      - 'releases/changelog/:upgrading'
     # convert_iframe:
     #   - src: https://streamable.com/e/zmtb00
     #     img: https://cdn-cf-east.streamable.com/image/zmtb00-screenshot75403.jpg
-      two_columns_level: 3
-      render_js: true
+    two_columns_level: 3
+    render_js: true
     # headless_chrome_path: google-chrome
-      output_path: ../document.pdf
+    output_path: ../document.pdf
     # debug_html: true
     # verbose: true
     # show_anchors: true
     # enabled_if_env: ENABLE_PDF_EXPORT
 
 nav:
-    - Home: index.md
+  - Home: index.md
   # - Images: images.md
-    - Versioning: versioning.md
+  - Versioning: versioning.md
   # - Hardware: hardware.md
   # - Firmware: firmware.md
   # - Python Interface: controller.md
   # - GUI: gui.md
-    - Changelog: changelog.md
-    - Developer Guide: dev.md
-    - Acknowledgement: acknowledgement.md
-    - Utilities: utilities.md
+  - Changelog: changelog.md
+  - Developer Guide: dev.md
+  - Acknowledgement: acknowledgement.md
+  - Utilities: utilities.md
 # plugins:
 #     - with-pdf:
 #          # author: WHO
@@ -115,10 +169,40 @@ nav:
 
 # SOURCE: https://github.com/vinta/awesome-python/blob/master/mkdocs.yml
 extra:
-    social:
-        - type: github
-          link: https://github.com/bossjones
-        - type: twitter
-          link: https://twitter.com/bossjones
-        - type: linkedin
-          link: https://www.linkedin.com/in/bossjones
+  social:
+    - type: github
+      link: https://github.com/bossjones
+    - type: twitter
+      link: https://twitter.com/bossjones
+    - type: linkedin
+      link: https://www.linkedin.com/in/bossjones
+markdown_extensions:
+  # Python Markdown
+  - toc:
+      permalink: true
+
+  # Python Markdown Extensions
+  - abbr
+  - admonition
+  - attr_list
+  - pymdownx.details
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.magiclink  # Allows plain ol' URLs to be links
+  - pymdownx.snippets
+  - pymdownx.superfences:
+      # make exceptions to highlighting of code:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          # format: !!python/name:mermaid2.fence_mermaid_custom
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - tables

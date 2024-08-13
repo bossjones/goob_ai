@@ -5,6 +5,10 @@
 [![Documentation Status](https://readthedocs.org/projects/goob_ai/badge/?version=latest)](https://goob_ai.readthedocs.io/en/latest/?badge=latest)
 [![codecov](https://codecov.io/gh/bossjones/goob_ai/graph/badge.svg?token=hFV0Q3Sg2y)](https://codecov.io/gh/bossjones/goob_ai)
 [![tests](https://github.com/bossjones/goob_ai/actions/workflows/ci.yml/badge.svg)](https://github.com/bossjones/goob_ai/actions/workflows/ci.yml)
+[![Docs](https://img.shields.io/badge/Docs-mkdocs-purple.svg?style=flat)](https://github.com/pages/bossjones/goob_ai)
+[![github](https://img.shields.io/badge/git.corp-toolbox-purple.svg?style=flat)](https://github.com/bossjones/goob_ai)
+[![Code style: ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
+[![CircleCI](https://circle.ci.adobe.com/status-badge/img/gh/bossjones/goob_ai/tree/main.svg?style=svg)](https://circle.ci.adobe.com/status-badge/redirect/gh/bossjones/goob_ai/tree/main)
 
 ## Welcome!
 
@@ -42,6 +46,25 @@ Attempting to test using <https://dpytest.readthedocs.io/en/latest/>
     KoboldAI, and OpenAI. It can use local language models or OpenAI for generating responses.
 - **Modular Design (Cogs)**: The bot is designed with modularity in mind, allowing for the easy addition of new features
     (cogs).
+
+### Justfile(Common commands)
+
+#### ci
+
+```
+just ci
+```
+
+#### format
+
+```
+just fmt
+
+#### lint
+
+```
+just lint
+```
 
 ### .env File Setup
 

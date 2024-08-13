@@ -307,6 +307,7 @@ dev-dependencies = [
 ]
 
 [tool.rye.scripts]
+lint-markdown = "pymarkdownlnt --disable-rules=MD013,MD034 scan README.md"
 serve-docs = "mkdocs serve"
 pylint-to-ruff = "pylint-to-ruff"
 http = {cmd = ["python", "-mhttp.server", "8008"]}
