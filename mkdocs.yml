@@ -1,4 +1,5 @@
 ---
+dev_addr: 127.0.0.1:8888
 site_url: https://goob_ai.readthedocs.io
 repo_url: https://github.com/bossjones/goob_ai
 site_author: bossjones
@@ -94,27 +95,26 @@ plugins:
     # Want to have ezlinks after macros
     # because macros might return markup with ezlinks that we want expanded - e.g.: for people
     # - ezlinks  # https://github.com/orbikm/mkdocs-ezlinks-plugin
-  - search   # search functionality
-  # SOURCE: mkdocs-with-pdf
-  - with-pdf:
-    # cover_title:
-    cover_subtitle: GoobAI
-    # cover_logo: assets/images/banner.png
-    back_cover: true
-    toc_level: 2
-    excludes_children:
-      - 'releases/changelog/:upgrading'
-    # convert_iframe:
-    #   - src: https://streamable.com/e/zmtb00
-    #     img: https://cdn-cf-east.streamable.com/image/zmtb00-screenshot75403.jpg
-    two_columns_level: 3
-    render_js: true
-    # headless_chrome_path: google-chrome
-    output_path: ../document.pdf
-    # debug_html: true
-    # verbose: true
-    # show_anchors: true
-    # enabled_if_env: ENABLE_PDF_EXPORT
+  # # SOURCE: mkdocs-with-pdf
+  # - with-pdf:
+  #   # cover_title:
+  #   cover_subtitle: GoobAI
+  #   # cover_logo: assets/images/banner.png
+  #   back_cover: true
+  #   toc_level: 2
+  #   excludes_children:
+  #     - 'releases/changelog/:upgrading'
+  #   # convert_iframe:
+  #   #   - src: https://streamable.com/e/zmtb00
+  #   #     img: https://cdn-cf-east.streamable.com/image/zmtb00-screenshot75403.jpg
+  #   two_columns_level: 3
+  #   render_js: true
+  #   # headless_chrome_path: google-chrome
+  #   output_path: ../document.pdf
+  #   # debug_html: true
+  #   # verbose: true
+  #   # show_anchors: true
+  #   # enabled_if_env: ENABLE_PDF_EXPORT
 
 nav:
   - Home: index.md
@@ -128,54 +128,17 @@ nav:
   - Developer Guide: dev.md
   - Acknowledgement: acknowledgement.md
   - Utilities: utilities.md
-# plugins:
-#     - with-pdf:
-#          # author: WHO
-#          # copyright: ANY TEXT
-#         #
-#          # cover: false
-#          # back_cover: true
-#          # cover_title: TITLE TEXT
-#          # cover_subtitle: SUBTITLE TEXT
-#          # custom_template_path: TEMPLATES PATH
-#         #
-#          # toc_title: TOC TITLE TEXT
-#          # heading_shift: false
-#          # toc_level: 3
-#          # ordered_chapter_level: 2
-#          # excludes_children:
-#         #    - 'release-notes/:upgrading'
-#         #    - 'release-notes/:changelog'
-#         #
-#          # exclude_pages:
-#         #    - 'bugs/'
-#         #    - 'appendix/contribute/'
-#          # convert_iframe:
-#         #    - src: IFRAME SRC
-#         #      img: POSTER IMAGE URL
-#         #      text: ALTERNATE TEXT
-#         #    - src: ...
-#          # two_columns_level: 3
-#         #
-#          # render_js: true
-#          # headless_chrome_path: headless-chromium
-#         #
-#          # output_path: any-place/document.pdf
-#          # enabled_if_env: ENABLE_PDF_EXPORT
-#         #
-#          # debug_html: true
-#          # show_anchors: true
-#          # verbose: true
 
-# SOURCE: https://github.com/vinta/awesome-python/blob/master/mkdocs.yml
-extra:
-  social:
-    - type: github
-      link: https://github.com/bossjones
-    - type: twitter
-      link: https://twitter.com/bossjones
-    - type: linkedin
-      link: https://www.linkedin.com/in/bossjones
+# # SOURCE: https://github.com/vinta/awesome-python/blob/master/mkdocs.yml
+# extra:
+#   social:
+#     - type: github
+#       link: https://github.com/bossjones
+#     - type: twitter
+#       link: https://twitter.com/bossjones
+#     - type: linkedin
+#       link: https://www.linkedin.com/in/bossjones
+
 markdown_extensions:
   # Python Markdown
   - toc:

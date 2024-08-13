@@ -1,3 +1,3 @@
 # PyPackage
 
-::: src.utilities
+::: src.goob_ai.utils
