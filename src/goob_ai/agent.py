@@ -86,6 +86,15 @@ class AiAgent:
         """Define the chat prompt for the agent."""
         # We wouldn't typically know what the users prompt is beforehand, so we actually want to add this in. So rather than writing the prompt directly, we create a `PromptTemplate` with a single input variable `query`.
         # Define the chat prompt
+
+        # NOTE: Chat message types:
+        # ***************************************************
+        # HumanMessage: A message sent from the perspective of the human
+        # AIMessage: A message sent from the perspective of the AI the human is interacting with
+        # SystemMessage: A message setting the objectives the AI should follow
+        # ChatMessage: A message allowing for arbitrary setting of role. You won't be using this too much
+        # SOURCE: https://github.com/gkamradt/langchain-tutorials/blob/main/chatapi/ChatAPI%20%2B%20LangChain%20Basics.ipynb
+        # ***************************************************
         return ChatPromptTemplate.from_messages(
             [
                 (

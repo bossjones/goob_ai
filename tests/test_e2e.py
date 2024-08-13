@@ -15,6 +15,7 @@ from langchain_core.messages import AIMessage
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.pydantic_v1 import BaseModel, Field
 from langsmith.evaluation import EvaluationResults, LangChainStringEvaluator, evaluate
+from langsmith.run_trees import RunTree
 from langsmith.schemas import Example, Run
 from loguru import logger as LOGGER
 
@@ -57,6 +58,7 @@ examples = []
 all_traces = []
 
 all_inputs = []
+run_agent_inputs = []
 
 
 def evaluate_retrieval_recall(run: Run, example: Example) -> dict:
@@ -158,7 +160,8 @@ CONTEXT_QA_PROMPT = ChatPromptTemplate.from_messages(
 context_qa_chain = CONTEXT_QA_PROMPT | judge_llm.with_structured_output(GradeAnswer)
 
 
-def evaluate_qa_context(run: Run, example: Example) -> dict:
+def evaluate_qa_context(run: RunTree, example: Example) -> dict:
+    run_agent_inputs.append(run)
     data = {"evaluate_qa_context": {"runs": run, "examples": example}}
     all_traces.append(data)
     messages = run.outputs.get("messages") or []
@@ -269,7 +272,7 @@ def convert_single_example_results(evaluation_results: EvaluationResults):
     return converted
 
 
-@pytest.mark.skip(reason="This is a work in progress and it is currently expected to fail")
+# @pytest.mark.skip(reason="This is a work in progress and it is currently expected to fail")
 @pytest.mark.integration()
 @pytest.mark.evals()
 @pytest.mark.slow()
