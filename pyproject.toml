@@ -136,6 +136,7 @@ dependencies = [
     "notebook>=7.2.1",
     "nbconvert>=7.16.4",
     "moviepy>=1.0.3",
+    "jedi-language-server>=0.41.4",
 ]
 
 readme = "README.md"
@@ -300,9 +301,13 @@ dev-dependencies = [
     "yamllint>=1.35.1",
     "pymarkdownlnt>=0.9.21",
     "respx>=0.21.1",
+    "memray>=1.13.4",
+    "pytest-memray>=1.7.0",
+    "sentry-sdk[opentelemetry]>=2.12.0",
 ]
 
 [tool.rye.scripts]
+lint-markdown = "pymarkdownlnt --disable-rules=MD013,MD034 scan README.md"
 serve-docs = "mkdocs serve"
 pylint-to-ruff = "pylint-to-ruff"
 http = {cmd = ["python", "-mhttp.server", "8008"]}
@@ -346,6 +351,9 @@ coverage-html = {cmd = "python -m coverage html --skip-covered --skip-empty"}
 coverage-pytest = {cmd = "coverage run --rcfile=pyproject.toml -m pytest tests"}
 coverage-pytest-debug = {cmd = "coverage run --rcfile=pyproject.toml -m pytest --verbose -vvv --pdb --pdbcls bpdb:BPdb --showlocals --tb=short --capture=no tests"}
 coverage-pytest-evals-debug = {cmd = "coverage run --rcfile=pyproject.toml -m pytest --verbose -vv --pdb --pdbcls bpdb:BPdb --showlocals --tb=short --capture=no -m evals --slow tests"}
+
+memray-coverage-pytest-debug = {cmd = "coverage run --rcfile=pyproject.toml -m pytest --verbose -vvv --memray --pdb --pdbcls bpdb:BPdb --showlocals --tb=short --capture=no tests"}
+memray-coverage-pytest-evals-debug = {cmd = "coverage run --rcfile=pyproject.toml -m pytest --verbose --memray -vv --pdb --pdbcls bpdb:BPdb --showlocals --tb=short --capture=no -m evals --slow tests"}
 coverage-report = {chain = [
     "coverage-pytest",
     "coverage-combine",
@@ -389,6 +397,20 @@ ci-with-evals = {chain = [
     "coverage-show",
     "coverage-html",
     "coverage-open",
+]}
+ci-with-evals-memray = {chain = [
+    "memray-coverage-pytest-debug",
+    "memray-coverage-pytest-evals-debug",
+    "coverage-combine",
+    "coverage-show",
+    "coverage-html",
+    "coverage-open",
+]}
+gh-deploy = "mkdocs gh-deploy --force --message '[skip ci] Docs updates'"
+mkdir-site = "mkdir site"
+deploy-docs = {chain = [
+    "mkdir-site",
+    "gh-deploy",
 ]}
 
 

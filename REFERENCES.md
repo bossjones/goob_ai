@@ -156,3 +156,5 @@ source: <https://www.youtube.com/watch?v=AeASAsPp9LE>
 # aug 2024
 
 - [simonw/shot-scraper - A command-line utility for taking automated screenshots of websites](https://github.com/simonw/shot-scraper)
+- https://github.com/langchain-ai/langchain/blob/master/cookbook/tool_call_messages.ipynb?ref=blog.langchain.dev
+- https://github.com/langchain-ai/langchain/tree/master/cookbook

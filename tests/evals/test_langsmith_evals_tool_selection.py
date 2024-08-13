@@ -112,7 +112,8 @@ def test_evals_goob_ai_tool_selection(caplog: LogCaptureFixture):
     project_results: TracerSessionResult = ls_client.read_project(project_name=results.experiment_name)
 
     # sometimes we try to grab the feedback stats before everything is ready, so we need to keep trying until we get them
-    if not project_results.feedback_stats:
+    if project_results.feedback_stats == {}:
+        time.sleep(5)
         project_results: TracerSessionResult = ls_client.read_project(project_name=results.experiment_name)
 
     assert project_results.feedback_stats, "Feedback stats are empty"

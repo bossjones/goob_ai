@@ -5,6 +5,9 @@
 [![Documentation Status](https://readthedocs.org/projects/goob_ai/badge/?version=latest)](https://goob_ai.readthedocs.io/en/latest/?badge=latest)
 [![codecov](https://codecov.io/gh/bossjones/goob_ai/graph/badge.svg?token=hFV0Q3Sg2y)](https://codecov.io/gh/bossjones/goob_ai)
 [![tests](https://github.com/bossjones/goob_ai/actions/workflows/ci.yml/badge.svg)](https://github.com/bossjones/goob_ai/actions/workflows/ci.yml)
+[![Docs](https://img.shields.io/badge/Docs-mkdocs-purple.svg?style=flat)](https://github.com/pages/bossjones/goob_ai)
+[![github](https://img.shields.io/badge/git.corp-toolbox-purple.svg?style=flat)](https://github.com/bossjones/goob_ai)
+[![Code style: ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 
 ## Welcome!
 
@@ -43,6 +46,25 @@ Attempting to test using <https://dpytest.readthedocs.io/en/latest/>
 - **Modular Design (Cogs)**: The bot is designed with modularity in mind, allowing for the easy addition of new features
     (cogs).
 
+### Justfile(Common commands)
+
+#### ci
+
+```
+just ci
+```
+
+#### format
+
+```
+just fmt
+
+#### lint
+
+```
+just lint
+```
+
 ### .env File Setup
 
 The `.env` file is used to store environment variables for your project. These variables can include API keys, database
@@ -71,11 +93,3 @@ Here's a breakdown of each item in the `.env` file:
 All source code is available on [GitHub](https://github.com/bossjones/goob_ai). If you encounter any problems, would
 like to contribute, have feature requests, please get in contact by filing an
 [issue on GitHub](https://github.com/bossjones/goob_ai/issues).
-
-## License
-
-goob_ai is certified open source hardware.
-[![OSHW](img/certification-mark-CH000020-wide-sm.png)](https://certification.oshwa.org/ch000020.html)
-
-All software in this project is licensed under [MIT](LICENSE). All hardware designs, images, and documentation are
-licensed under [CC-BY-4.0](LICENSE_CC-BY-4.0). Copyright: 2021-2024, Reto Trappitsch

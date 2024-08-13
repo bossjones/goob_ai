@@ -34,7 +34,7 @@ from loguru import logger as LOGGER
 from openai import Client
 from pydantic_settings import SettingsConfigDict
 
-from goob_ai import llm_manager
+from goob_ai import llm_manager, redis_memory
 from goob_ai.aio_settings import AioSettings, aiosettings
 from goob_ai.gen_ai.tools.vision_tool import VisionTool
 from goob_ai.llm_manager import LlmManager
@@ -86,6 +86,15 @@ class AiAgent:
         """Define the chat prompt for the agent."""
         # We wouldn't typically know what the users prompt is beforehand, so we actually want to add this in. So rather than writing the prompt directly, we create a `PromptTemplate` with a single input variable `query`.
         # Define the chat prompt
+
+        # NOTE: Chat message types:
+        # ***************************************************
+        # HumanMessage: A message sent from the perspective of the human
+        # AIMessage: A message sent from the perspective of the AI the human is interacting with
+        # SystemMessage: A message setting the objectives the AI should follow
+        # ChatMessage: A message allowing for arbitrary setting of role. You won't be using this too much
+        # SOURCE: https://github.com/gkamradt/langchain-tutorials/blob/main/chatapi/ChatAPI%20%2B%20LangChain%20Basics.ipynb
+        # ***************************************************
         return ChatPromptTemplate.from_messages(
             [
                 (
@@ -139,7 +148,7 @@ class AiAgent:
         self.all_tools = self.custom_tools
 
     # # SOURCE: https://github.com/Haste171/langchain-chatbot/blob/main/handlers/base.py
-    @traceable
+    # @traceable
     def init_agent_executor(self) -> None:
         """Initalize agent executor."""
         llm_with_tools = LlmManager().llm.bind_tools(tools=[convert_to_openai_tool(t) for t in self.all_tools])
@@ -167,15 +176,21 @@ class AiAgent:
         LOGGER.debug(f"user_task = {user_task}")
         # ttl_in_seconds = self.settings.dynamodb_ttl_days * 24 * 60 * 60
         # FIXME: replace foo with a proper session_id later
-        message_history = RedisChatMessageHistory("foo", url=f"{aiosettings.redis_url}", key_prefix="goob:")
 
-        memory = ConversationBufferWindowMemory(
-            memory_key="chat_history",
-            chat_memory=message_history,
-            return_messages=True,
-            k=self.settings.chat_history_buffer,
-            output_key="output",
-        )
+        if aiosettings.experimental_redis_memory:
+            LOGGER.error("Using experimental redis memory")
+            memory = redis_memory.create_memory_instance(session_id=session_id, store_ai_answer=True)
+        else:
+            LOGGER.error("Using DEFAULT redis memory")
+            message_history = RedisChatMessageHistory("foo", url=f"{aiosettings.redis_url}", key_prefix="goob:")
+
+            memory = ConversationBufferWindowMemory(
+                memory_key="chat_history",
+                chat_memory=message_history,
+                return_messages=True,
+                k=self.settings.chat_history_buffer,
+                output_key="output",
+            )
 
         return AgentExecutor(
             agent=self.agent,

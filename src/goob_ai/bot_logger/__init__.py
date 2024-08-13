@@ -388,6 +388,8 @@ def global_log_config(log_level: Union[str, int] = logging.DEBUG, json: bool = F
     setup_uvicorn_logger()
     setup_gunicorn_logger()
 
+    # logger.disable("sentry_sdk")
+
     return logger
 
 

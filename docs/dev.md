@@ -120,13 +120,3 @@ However, if you are using an IDE, you can also run the `main.py` file directly.
 At the bottom of the `main.py` file, you can see that there are two actual ways to run the GUI: with `fbs` and without
 `fbs` installed. If you use either of the described methods to start the GUI, the `gui_start` method in the `main.py`
 file will be called. This method automatically detects whether `fbs` is installed or not.
-
-## Firmware
-
-The firmware is written in Arduino C++. Please see the [firmware documentation](firmware.md) for details on
-installation.
-
-## Hardware
-
-If you would like to contribute hardware designs, please get in touch with us by
-[raising an issue](https://github.com/bossjones/goob_ai/issues).
