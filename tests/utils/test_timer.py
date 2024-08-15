@@ -33,17 +33,6 @@ def test_timer_duration_running(mocker):
     assert timer.duration() == 2.0
 
 
-# def test_timer_collection_start_stop(mocker):
-#     tc = TimerCollection()
-#     mock_time = mocker.patch('time.time', side_effect=[1, 2, 3, 4])
-#     tc.start("Timer 1")
-#     tc.start("Timer 2")
-#     tc.stop("Timer 1")
-#     tc.stop("Timer 2")
-#     assert tc.duration("Timer 1") == 1.0
-#     assert tc.duration("Timer 2") == 2.0
-
-
 def test_timer_collection_reset(mocker):
     tc = TimerCollection()
     mock_time = mocker.patch("time.time", side_effect=[1, 2, 3, 4])

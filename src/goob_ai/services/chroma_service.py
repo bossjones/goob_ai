@@ -128,6 +128,36 @@ def is_txt(filename: str) -> bool:
     return res
 
 
+def is_valid_uri(uri: str) -> bool:
+    """
+    Check if the given URI is valid.
+
+    Args:
+        uri (str): The URI to check.
+
+    Returns:
+        bool: True if the URI is valid, False otherwise.
+    """
+    parts = uritools.urisplit(uri)
+    return parts.isuri()
+
+
+def is_github_io_url(filename: str) -> bool:
+    """
+    Check if the given filename is a valid GitHub Pages URL.
+
+    Args:
+        filename (str): The filename to check.
+
+    Returns:
+        bool: True if the filename is a valid GitHub Pages URL, False otherwise.
+    """
+    if re.match(WEBBASE_LOADER_PATTERN, filename) and is_valid_uri(filename):
+        LOGGER.debug("selected filetype github.io url, using WebBaseLoader(filename)")
+        return True
+    return False
+
+
 def get_rag_loader(filename: str) -> TextLoader | PyMuPDFLoader | WebBaseLoader | None:
     """Get the appropriate loader for the given filename.
 
@@ -137,11 +167,7 @@ def get_rag_loader(filename: str) -> TextLoader | PyMuPDFLoader | WebBaseLoader 
     Returns:
         The loader for the given file type, or None if the file type is not supported.
     """
-    if re.match(WEBBASE_LOADER_PATTERN, f"{filename}"):
-        # verify it is a uri as well
-        parts = uritools.urisplit(f"{filename}")
-        assert parts.isuri()
-        LOGGER.debug("selected filetype github.io url, using WebBaseLoader(filename)")
+    if is_github_io_url(f"{filename}"):
         return WebBaseLoader(
             web_paths=(f"{filename}",),
             bs_kwargs=dict(parse_only=bs4.SoupStrainer(class_=("post-content", "post-title", "post-header"))),
@@ -173,7 +199,7 @@ def get_rag_splitter(filename: str) -> CharacterTextSplitter | None:
         or None if the file type is not supported.
     """
 
-    if re.match(WEBBASE_LOADER_PATTERN, f"{filename}"):
+    if is_github_io_url(f"{filename}"):
         LOGGER.debug(
             "selected filetype github.io url, usingRecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)"
         )
@@ -202,7 +228,7 @@ def get_rag_embedding_function(filename: str) -> SentenceTransformerEmbeddings |
         or None if the file type is not supported.
     """
 
-    if re.match(WEBBASE_LOADER_PATTERN, f"{filename}"):
+    if is_github_io_url(f"{filename}"):
         LOGGER.debug("selected filetype github.io url, using OpenAIEmbeddings()")
         return OpenAIEmbeddings()
     elif is_txt(filename):

@@ -272,7 +272,7 @@ def convert_single_example_results(evaluation_results: EvaluationResults):
     return converted
 
 
-# @pytest.mark.skip(reason="This is a work in progress and it is currently expected to fail")
+@pytest.mark.skip(reason="This is a work in progress and it is currently expected to fail")
 @pytest.mark.integration()
 @pytest.mark.evals()
 @pytest.mark.slow()

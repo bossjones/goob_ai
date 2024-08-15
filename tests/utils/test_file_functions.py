@@ -284,34 +284,6 @@ def test_print_and_append(mocker):
     mock_print.assert_called_once_with("test_str")
 
 
-# def test_tree(mocker):
-#     mock_rglob = mocker.patch("pathlib.Path.rglob", return_value=[pathlib.Path("file1"), pathlib.Path("file2")])
-#     mock_getmtime = mocker.patch("os.path.getmtime", side_effect=[2, 1])
-#     result = tree(pathlib.Path("/Users/malcolm/dev/bossjones/goob_ai/test_dir"), silent=True)
-#     assert result == [pathlib.Path("file2"), pathlib.Path("file1")]
-
-
-# def test_format_size():
-#     result = format_size(1024)
-#     expected_result = "1 KB"
-#     assert result == expected_result, f"Expected: {expected_result}, but got: {result}"
-
-
-# @pytest.mark.asyncio
-# async def test_aiowrite_file(mocker):
-#     mock_open = mocker.patch("aiofiles.open", new_callable=mocker.AsyncMock)
-#     await aiowrite_file("data", dl_dir="test_dir", fname="test", ext="txt")
-#     mock_open.assert_called_once_with(pathlib.Path("test_dir/test.txt").absolute(), mode="w")
-
-
-# @pytest.mark.asyncio
-# async def test_airead_file(mocker):
-#     mock_open = mocker.patch("aiofiles.open", new_callable=mocker.AsyncMock)
-#     mock_open.return_value.__aenter__.return_value.read = mocker.AsyncMock(return_value="data")
-#     await aioread_file("data", dl_dir="test_dir", fname="test", ext="txt")
-#     mock_open.assert_called_once_with(pathlib.Path("test_dir/test.txt").absolute(), mode="r")
-
-
 def test_check_file_size(mocker):
     mock_stat = mocker.patch("pathlib.Path.stat", return_value=mocker.Mock(st_size=1024))
     result = check_file_size("/Users/malcolm/dev/bossjones/goob_ai/test_file")
