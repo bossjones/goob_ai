@@ -812,3 +812,74 @@ def test_is_github_io_url(filename: str, expected_result: bool) -> None:
     """
     result = is_github_io_url(filename)
     assert result == expected_result
+
+
+@pytest.mark.integration()
+def test_get_rag_splitter_txt(mock_txt_file: Path) -> None:
+    """
+    Test the get_rag_splitter function for txt files.
+
+    This test verifies that the `get_rag_splitter` function returns the correct splitter
+    class based on the file extension or URL of the given document path.
+
+    Args:
+        mock_txt_file (Path): The path to the mock txt file.
+    """
+    splitter_class = get_rag_splitter(str(mock_txt_file))
+    assert "CharacterTextSplitter" in str(splitter_class)
+
+
+@pytest.mark.integration()
+def test_get_rag_splitter_github_io_url(mock_github_io_url: str) -> None:
+    """
+    Test the get_rag_splitter function for github.io urls.
+
+    This test verifies that the `get_rag_splitter` function returns the correct splitter
+    class based on the file extension or URL of the given document path.
+
+    Args:
+        mock_github_io_url (str): The mock github.io url.
+    """
+    splitter_class = get_rag_splitter(mock_github_io_url)
+    assert "RecursiveCharacterTextSplitter" in str(splitter_class)
+
+
+@pytest.mark.integration()
+def test_get_rag_splitter_pdf(mock_pdf_file: Path) -> None:
+    """
+    Test the get_rag_splitter function for pdf files.
+
+    This test verifies that the `get_rag_splitter` function returns None
+    when given a pdf file path.
+
+    Args:
+        mock_pdf_file (Path): The path to the mock pdf file.
+    """
+    splitter_class = get_rag_splitter(str(mock_pdf_file))
+    assert splitter_class is None
+
+
+@pytest.mark.integration()
+def test_get_rag_splitter_empty_path() -> None:
+    """
+    Test the get_rag_splitter function with an empty path.
+
+    This test verifies that the `get_rag_splitter` function returns None
+    when given an empty path.
+    """
+    path_to_document = ""
+    splitter_class = get_rag_splitter(path_to_document)
+    assert splitter_class is None
+
+
+@pytest.mark.integration()
+def test_get_rag_splitter_unsupported_extension() -> None:
+    """
+    Test the get_rag_splitter function with an unsupported file extension.
+
+    This test verifies that the `get_rag_splitter` function returns None
+    when given a file with an unsupported extension.
+    """
+    path_to_document = "file.unsupported"
+    splitter_class = get_rag_splitter(path_to_document)
+    assert splitter_class is None
