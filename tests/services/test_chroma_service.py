@@ -883,3 +883,74 @@ def test_get_rag_splitter_unsupported_extension() -> None:
     path_to_document = "file.unsupported"
     splitter_class = get_rag_splitter(path_to_document)
     assert splitter_class is None
+
+
+@pytest.mark.integration()
+def test_get_rag_embedding_function_txt(mock_txt_file: Path) -> None:
+    """
+    Test the get_rag_embedding_function for txt files.
+
+    This test verifies that the `get_rag_embedding_function` returns the correct embedding
+    function based on the file extension or URL of the given document path.
+
+    Args:
+        mock_txt_file (Path): The path to the mock txt file.
+    """
+    embedding_function = get_rag_embedding_function(str(mock_txt_file))
+    assert "langchain_community.embeddings.huggingface.HuggingFaceEmbeddings" in str(type(embedding_function))
+
+
+@pytest.mark.integration()
+def test_get_rag_embedding_function_github_io_url(mock_github_io_url: str) -> None:
+    """
+    Test the get_rag_embedding_function for github.io urls.
+
+    This test verifies that the `get_rag_embedding_function` returns the correct embedding
+    function based on the file extension or URL of the given document path.
+
+    Args:
+        mock_github_io_url (str): The mock github.io url.
+    """
+    embedding_function = get_rag_embedding_function(mock_github_io_url)
+    assert "langchain_openai.embeddings.base.OpenAIEmbeddings" in str(type(embedding_function))
+
+
+@pytest.mark.integration()
+def test_get_rag_embedding_function_pdf(mock_pdf_file: Path) -> None:
+    """
+    Test the get_rag_embedding_function for pdf files.
+
+    This test verifies that the `get_rag_embedding_function` returns the correct embedding
+    function based on the file extension or URL of the given document path.
+
+    Args:
+        mock_pdf_file (Path): The path to the mock pdf file.
+    """
+    embedding_function = get_rag_embedding_function(str(mock_pdf_file))
+    assert "openai.resources.embeddings.Embeddings" in str(embedding_function)
+
+
+@pytest.mark.integration()
+def test_get_rag_embedding_function_empty_path() -> None:
+    """
+    Test the get_rag_embedding_function with an empty path.
+
+    This test verifies that the `get_rag_embedding_function` returns None
+    when given an empty path.
+    """
+    path_to_document = ""
+    embedding_function = get_rag_embedding_function(path_to_document)
+    assert embedding_function is None
+
+
+@pytest.mark.integration()
+def test_get_rag_embedding_function_unsupported_extension() -> None:
+    """
+    Test the get_rag_embedding_function with an unsupported file extension.
+
+    This test verifies that the `get_rag_embedding_function` returns None
+    when given a file with an unsupported extension.
+    """
+    path_to_document = "file.unsupported"
+    embedding_function = get_rag_embedding_function(path_to_document)
+    assert embedding_function is None
