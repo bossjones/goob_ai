@@ -117,7 +117,7 @@ jobs:
 
       - name: install tesseract and ffmpeg
         run: |
-          sudo apt-get install -y tesseract-ocr tesseract-ocr-por
+          sudo apt-get install -y tesseract-ocr tesseract-ocr-por libyaml-dev
           sudo apt install ffmpeg -y
 
       # Allow debugging with tmate

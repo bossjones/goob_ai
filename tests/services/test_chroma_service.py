@@ -12,6 +12,7 @@ from goob_ai.aio_settings import aiosettings
 from goob_ai.services.chroma_service import (
     CustomOpenAIEmbeddings,
     generate_data_store,
+    get_chroma_db,
     get_file_extension,
     get_rag_embedding_function,
     get_rag_loader,
@@ -23,9 +24,11 @@ from goob_ai.services.chroma_service import (
     is_txt,
     is_valid_uri,
     save_to_chroma,
+    search_db,
     split_text,
 )
 from langchain.schema import Document
+from langchain_chroma import Chroma
 from langchain_community.document_loaders import PyMuPDFLoader, PyPDFLoader, TextLoader, WebBaseLoader
 
 import pytest
@@ -954,3 +957,69 @@ def test_get_rag_embedding_function_unsupported_extension() -> None:
     path_to_document = "file.unsupported"
     embedding_function = get_rag_embedding_function(path_to_document)
     assert embedding_function is None
+
+
+@pytest.fixture()
+def dummy_chroma_db(mocker) -> Chroma:
+    """Fixture to create a mock Chroma database."""
+    db = get_chroma_db()
+    return db
+
+
+def test_search_db_returns_relevant_documents(dummy_chroma_db: Chroma):
+    """
+    Test that search_db returns relevant documents when found.
+
+    This test verifies that the `search_db` function returns a list of
+    relevant documents and their scores when a match is found in the database.
+    """
+    db = dummy_chroma_db
+    results = search_db(db, "test query")
+    query_text = "test query"
+    expected_results = [
+        (Document(page_content="doc1"), 0.8),
+        (Document(page_content="doc2"), 0.7),
+    ]
+    dummy_chroma_db.similarity_search_with_relevance_scores.return_value = expected_results
+
+    results = search_db(dummy_chroma_db, query_text)
+
+    assert results == expected_results
+    dummy_chroma_db.similarity_search_with_relevance_scores.assert_called_once_with(query_text, k=3)
+
+
+# def test_search_db_returns_none_when_no_relevant_documents(dummy_chroma_db):
+#     """
+#     Test that search_db returns None when no relevant documents are found.
+
+#     This test verifies that the `search_db` function returns None when no
+#     relevant documents are found in the database or the relevance score is
+#     below the threshold.
+#     """
+#     query_text = "test query"
+#     dummy_chroma_db.similarity_search_with_relevance_scores.return_value = []
+
+#     results = search_db(dummy_chroma_db, query_text)
+
+#     assert results is None
+#     dummy_chroma_db.similarity_search_with_relevance_scores.assert_called_once_with(query_text, k=3)
+
+
+# def test_search_db_returns_none_when_relevance_score_below_threshold(dummy_chroma_db):
+#     """
+#     Test that search_db returns None when relevance score is below threshold.
+
+#     This test verifies that the `search_db` function returns None when the
+#     relevance score of the top result is below the specified threshold of 0.7.
+#     """
+#     query_text = "test query"
+#     mock_results = [
+#         (Document(page_content="doc1"), 0.6),
+#         (Document(page_content="doc2"), 0.5),
+#     ]
+#     dummy_chroma_db.similarity_search_with_relevance_scores.return_value = mock_results
+
+#     results = search_db(dummy_chroma_db, query_text)
+
+#     assert results is None
+#     dummy_chroma_db.similarity_search_with_relevance_scores.assert_called_once_with(query_text, k=3)

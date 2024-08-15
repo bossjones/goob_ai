@@ -256,32 +256,141 @@ def get_client() -> chromadb.ClientAPI:
 
 
 # Function to perform the query and get the response
-def get_response(query_text: str) -> str:
+# def get_response(query_text: str) -> str:
+#     """Perform the query and get the response.
+
+#     Args:
+#         query_text (str): The query text to search in the database.
+
+#     Returns:
+#         str: The response text based on the query.
+#     """
+#     embedding_function = OpenAIEmbeddings()
+#     db = Chroma(persist_directory=CHROMA_PATH, embedding_function=embedding_function)
+
+#     # Search the DB
+#     results = db.similarity_search_with_relevance_scores(query_text, k=3)
+#     if len(results) == 0 or results[0][1] < 0.7:
+#         return "Unable to find matching results."
+
+#     context_text = "\n\n---\n\n".join([doc.page_content for doc, _score in results])
+#     prompt_template = ChatPromptTemplate.from_template(PROMPT_TEMPLATE)
+#     prompt = prompt_template.format(context=context_text, question=query_text)
+
+#     model = ChatOpenAI()
+#     response_text = model.predict(prompt)
+
+#     sources = [doc.metadata.get("source", None) for doc, _score in results]
+#     return f"Response: {response_text}\nSources: {sources}"
+
+
+def search_db(db: Chroma, query_text: str, k: int = 3) -> list[tuple[Document, float]] | None:
+    """Search the Chroma database for relevant documents.
+
+    Args:
+        db (Chroma): The Chroma database to search.
+        query_text (str): The query text to search for.
+        k (int): Number of nearest neighbours to return.
+
+    Returns:
+        list[tuple[Document, float]] | None: The list of relevant documents and their scores,
+        or None if no relevant documents are found.
+    """
+    results = db.similarity_search_with_relevance_scores(query_text, k=k)
+    if len(results) == 0 or results[0][1] < 0.7:
+        return None
+    return results
+
+
+def generate_context_text(results: list[tuple[Document, float]]) -> str:
+    """Generate the context text from the search results.
+
+    Args:
+        results (list[tuple[Document, float]]): The list of relevant documents and their scores.
+
+    Returns:
+        str: The generated context text.
+    """
+    return "\n\n---\n\n".join([doc.page_content for doc, _score in results])
+
+
+def generate_prompt(context_text: str, query_text: str) -> str:
+    """Generate the prompt for the model.
+
+    Args:
+        context_text (str): The context text generated from the search results.
+        query_text (str): The query text to search for.
+
+    Returns:
+        str: The generated prompt.
+    """
+    prompt_template = ChatPromptTemplate.from_template(PROMPT_TEMPLATE)
+    return prompt_template.format(context=context_text, question=query_text)
+
+
+def get_sources(results: list[tuple[Document, float]]) -> list[str | None]:
+    """Get the sources from the search results.
+
+    Args:
+        results (list[tuple[Document, float]]): The list of relevant documents and their scores.
+
+    Returns:
+        list[str | None]: The list of sources.
+    """
+    return [doc.metadata.get("source", None) for doc, _score in results]
+
+
+def get_response(
+    query_text: str,
+    persist_directory: str = CHROMA_PATH,
+    embedding_function: Any = OpenAIEmbeddings(),
+    model: Any = ChatOpenAI(),
+    k: int = 3,
+    **kwargs: Any,
+) -> str:
     """Perform the query and get the response.
 
     Args:
         query_text (str): The query text to search in the database.
+        persist_directory (str): The directory to persist the Chroma database.
+        embedding_function (Any): The embedding function to use.
+        **kwargs: Additional keyword arguments to override default values.
 
     Returns:
         str: The response text based on the query.
     """
-    embedding_function = OpenAIEmbeddings()
-    db = Chroma(persist_directory=CHROMA_PATH, embedding_function=embedding_function)
+    db = get_chroma_db(persist_directory, embedding_function)
 
     # Search the DB
-    results = db.similarity_search_with_relevance_scores(query_text, k=3)
-    if len(results) == 0 or results[0][1] < 0.7:
+    results = search_db(db, query_text)
+    if not results:
         return "Unable to find matching results."
 
-    context_text = "\n\n---\n\n".join([doc.page_content for doc, _score in results])
-    prompt_template = ChatPromptTemplate.from_template(PROMPT_TEMPLATE)
-    prompt = prompt_template.format(context=context_text, question=query_text)
+    context_text = generate_context_text(results)
+    prompt = generate_prompt(context_text, query_text)
 
-    model = ChatOpenAI()
     response_text = model.predict(prompt)
 
-    sources = [doc.metadata.get("source", None) for doc, _score in results]
+    sources = get_sources(results)
     return f"Response: {response_text}\nSources: {sources}"
+
+
+def get_chroma_db(
+    persist_directory: str = CHROMA_PATH,
+    embedding_function: Any = OpenAIEmbeddings(),
+    **kwargs: Any,
+) -> Chroma:
+    """Get the Chroma database.
+
+    Args:
+        persist_directory (str): The directory to persist the Chroma database.
+        embedding_function (Any): The embedding function to use.
+        **kwargs: Additional keyword arguments to override default values.
+
+    Returns:
+        Chroma: The Chroma database.
+    """
+    return Chroma(persist_directory=persist_directory, embedding_function=embedding_function)
 
 
 def main() -> None:
