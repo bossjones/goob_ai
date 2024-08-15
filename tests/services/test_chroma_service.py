@@ -9,7 +9,14 @@ from typing import TYPE_CHECKING
 
 from chromadb import Collection
 from goob_ai.aio_settings import aiosettings
-from goob_ai.services.chroma_service import CustomOpenAIEmbeddings, generate_data_store, get_response, save_to_chroma
+from goob_ai.services.chroma_service import (
+    CustomOpenAIEmbeddings,
+    generate_data_store,
+    get_file_extension,
+    get_response,
+    get_suffix,
+    save_to_chroma,
+)
 from langchain.schema import Document
 
 import pytest
@@ -62,21 +69,30 @@ def custom_embeddings(mock_openai_api_key: str) -> CustomOpenAIEmbeddings:
     return CustomOpenAIEmbeddings(openai_api_key=mock_openai_api_key)
 
 
-# def test_custom_openai_embeddings_init(mocker: MockerFixture, monkeypatch: MonkeyPatch) -> None:
-#     """
-#     Test the initialization of CustomOpenAIEmbeddings.
+@pytest.mark.parametrize(
+    "filename, expected_extension",
+    [
+        ("example.txt", ".txt"),
+        ("document.pdf", ".pdf"),
+        ("image.jpg", ".jpg"),
+        ("file.docx", ".docx"),
+        ("archive.tar.gz", ".gz"),
+        ("no_extension", ""),
+    ],
+)
+def test_get_file_extension(filename: str, expected_extension: str) -> None:
+    """
+    Test the get_file_extension function.
 
-#     This test verifies that the CustomOpenAIEmbeddings instance is initialized
-#     with the correct OpenAI API key.
+    This test verifies that the `get_file_extension` function correctly extracts
+    the file extension from the given filename.
 
-#     Args:
-#         mocker (MockerFixture): The mocker fixture for patching.
-#     """
-#     mock_openai_api_key = "test_api_key"
-#     monkeypatch.setattr(aiosettings, "openai_api_key", mock_openai_api_key)
-
-#     embeddings = CustomOpenAIEmbeddings(openai_api_key=mock_openai_api_key)
-#     assert embeddings.openai_api_key == "test_api_key"
+    Args:
+        filename (str): The filename to test.
+        expected_extension (str): The expected file extension.
+    """
+    extension = get_file_extension(filename)
+    assert extension == expected_extension
 
 
 def test_add_collection(mocker: MockerFixture) -> None:
@@ -280,10 +296,6 @@ def test_load_documents(mocker: MockerFixture, mock_pdf_file: Path) -> None:
     4. Asserts that the document is loaded, split, and saved correctly.
 
     """
-    # mocker.patch("os.listdir", return_value=["rich-readthedocs-io-en-latest.pdf"])
-    # mocker.patch("os.path.join", return_value=mock_pdf_file)
-    # mock_loader = mocker.patch("goob_ai.services.chroma_service.PyPDFLoader")
-    # mock_loader.return_value.load.return_value = [Document(page_content="Test content", metadata={})]
 
     from goob_ai.services.chroma_service import load_documents
 
@@ -291,24 +303,6 @@ def test_load_documents(mocker: MockerFixture, mock_pdf_file: Path) -> None:
 
     # this is a bad test, cause the data will change eventually. Need to find a way to test this.
     assert len(documents) == 680
-    # assert documents[0].page_content == "Test content"
-    # mock_loader.return_value.load.assert_called_once_with()
-    # mock_load_documents = mocker.patch(
-    #     "goob_ai.services.chroma_service.load_documents",
-    #     return_value=[Document(page_content="Test content", metadata={})],
-    # )
-    # mock_split_text = mocker.patch(
-    #     "goob_ai.services.chroma_service.split_text", return_value=[Document(page_content="Test chunk", metadata={})]
-    # )
-    # mock_save_to_chroma: MagicMock | AsyncMock | NonCallableMagicMock = mocker.patch(
-    #     "goob_ai.services.chroma_service.save_to_chroma"
-    # )
-
-    # generate_data_store()
-
-    # mock_load_documents.assert_called_once()
-    # mock_split_text.assert_called_once_with([Document(page_content="Test content", metadata={})])
-    # mock_save_to_chroma.assert_called_once_with([Document(page_content="Test chunk", metadata={})])
 
 
 @pytest.mark.slow()
@@ -464,3 +458,55 @@ def test_chroma_service_e2e_add_to_chroma_url(mocker: MockerFixture) -> None:
         docs[0].page_content
         == "Fig. 9. Comparison of MIPS algorithms, measured in recall@10. (Image source: Google Blog, 2020)\nCheck more MIPS algorithms and performance comparison in ann-benchmarks.com.\nComponent Three: Tool Use#\nTool use is a remarkable and distinguishing characteristic of human beings. We create, modify and utilize external objects to do things that go beyond our physical and cognitive limits. Equipping LLMs with external tools can significantly extend the model capabilities."
     )
+
+
+@pytest.mark.parametrize(
+    "filename, expected_suffix",
+    [
+        ("example.txt", ".txt"),
+        ("document.pdf", ".pdf"),
+        ("image.jpg", ".jpg"),
+        ("file.docx", ".docx"),
+        ("archive.tar.gz", ".gz"),
+        ("no_extension", ""),
+    ],
+)
+def test_get_suffix(filename: str, expected_suffix: str) -> None:
+    """
+    Test the get_suffix function.
+
+    This test verifies that the `get_suffix` function correctly extracts
+    the file extension from the given filename without the leading period.
+
+    Args:
+        filename (str): The filename to test.
+        expected_suffix (str): The expected file extension without the leading period.
+    """
+    suffix = get_suffix(filename)
+    assert suffix == expected_suffix
+
+
+def test_get_suffix_empty_filename() -> None:
+    """
+    Test the get_suffix function with an empty filename.
+
+    This test verifies that the `get_suffix` function returns an empty string
+    when given an empty filename.
+    """
+    filename = ""
+    expected_suffix = ""
+    suffix = get_suffix(filename)
+    assert suffix == expected_suffix
+
+
+def test_get_suffix_multiple_dots() -> None:
+    """
+    Test the get_suffix function with a filename containing multiple dots.
+
+    This test verifies that the `get_suffix` function correctly extracts
+    the file extension from a filename containing multiple dots.
+    """
+    filename = "file.name.with.multiple.dots.txt"
+    expected_suffix = ".txt"
+    suffix = get_suffix(filename)
+    assert suffix == expected_suffix

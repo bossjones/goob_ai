@@ -335,7 +335,9 @@ typecheck = {chain = [
 "sourcery:hub" = "sourcery hub"
 "docs:changelog" = "towncrier build --version main --draft"
 "ci:mypy" = "mypy  --config-file=pyproject.toml --html-report typingcov ."
-"open:mypy-coverage" = " open typingcov/index.html"
+"open:mypy-coverage" = "open typingcov/index.html"
+"open:chroma" = "open http://127.0.0.1:3000"
+"open:coverage" = "just local-open-coverage"
 unittests-debug = {cmd = "pytest -vv --diff-width=60 --diff-symbols --pdb --pdbcls bpdb:BPdb --showlocals --tb=short --cov-append --cov-report=term-missing --junitxml=junit/test-results.xml --cov-report=xml:cov.xml --cov-report=html:htmlcov --cov-report=annotate:cov_annotate --cov=."}
 unittests = {cmd = "pytest --verbose --showlocals --tb=short --cov-append --cov-report=term-missing --junitxml=junit/test-results.xml --cov-report=xml:cov.xml --cov-report=html:htmlcov --cov-report=annotate:cov_annotate --cov=."}
 test-simple = {cmd = "pytest -p no:warnings"}

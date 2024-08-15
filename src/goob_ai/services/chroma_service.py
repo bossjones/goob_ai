@@ -68,10 +68,34 @@ def get_suffix(filename: str) -> str:
     Returns:
         The file extension in lowercase without the leading period.
     """
-    ext = pathlib.Path(f"{filename}").suffix.lower()
-    ext_without_period = f"{ext.replace('.','')}"
+    ext = get_file_extension(filename)
+    ext_without_period = remove_leading_period(ext)
     LOGGER.debug(f"ext: {ext}, ext_without_period: {ext_without_period}")
     return ext
+
+
+def get_file_extension(filename: str) -> str:
+    """Get the file extension from the given filename.
+
+    Args:
+        filename: The name of the file.
+
+    Returns:
+        The file extension in lowercase.
+    """
+    return pathlib.Path(filename).suffix.lower()
+
+
+def remove_leading_period(ext: str) -> str:
+    """Remove the leading period from the file extension.
+
+    Args:
+        ext: The file extension.
+
+    Returns:
+        The file extension without the leading period.
+    """
+    return ext.replace(".", "")
 
 
 def is_pdf(filename: str) -> bool:
@@ -324,13 +348,6 @@ def load_documents() -> list[Document]:
         loader = PyPDFLoader(f"{filename}")
         LOGGER.info(f"Loader: {loader}")
         documents.extend(loader.load())
-    # for filename in os.listdir(DATA_PATH):
-    #     LOGGER.info(f"Loading document: {filename}")
-    #     if filename.endswith(".pdf"):
-    #         pdf_path = os.path.join(DATA_PATH, filename)
-    #         LOGGER.info(f"Loading PDF: {pdf_path}")
-    #         loader = PyPDFLoader(pdf_path)
-    #         documents.extend(loader.load())
     return documents
 
 
