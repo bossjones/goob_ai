@@ -62,6 +62,23 @@ def mock_openai_api_key(mocker: MockerFixture) -> str:
 
 
 @pytest.fixture()
+def mock_github_io_url(mocker: MockerFixture) -> str:
+    """
+    Fixture to github.io url for testing purposes.
+
+    Args:
+    ----
+        mocker (MockerFixture): The mocker fixture for patching.
+
+    Returns:
+    -------
+        str: github io url.
+
+    """
+    return "https://lilianweng.github.io/posts/2023-06-23-agent/"
+
+
+@pytest.fixture()
 def custom_embeddings(mock_openai_api_key: str) -> CustomOpenAIEmbeddings:
     """
     Create a CustomOpenAIEmbeddings instance with the provided API key.
@@ -637,7 +654,7 @@ def test_is_txt_no_extension() -> None:
 
 
 @pytest.mark.integration()
-def test_get_rag_loader(mock_pdf_file: Path) -> None:
+def test_get_rag_loader_real_pdf(mock_pdf_file: Path) -> None:
     """
     Test the get_rag_loader function.
 
@@ -651,6 +668,38 @@ def test_get_rag_loader(mock_pdf_file: Path) -> None:
     loader_class = get_rag_loader(mock_pdf_file)
     assert "PyMuPDFLoader" in str(loader_class)
     # isinstance(loader_class, PyPDFLoader)
+
+
+@pytest.mark.integration()
+def test_get_rag_loader_github_io_url(mock_github_io_url: FixtureRequest) -> None:
+    """
+    Test the get_rag_loader function for github.io urls.
+
+    This test verifies that the `get_rag_loader` function returns the correct loader
+    class based on the file extension or URL of the given document path.
+
+    Args:
+        path_to_document (str): The path or URL of the document.
+        expected_loader_class (type | None): The expected loader class or None if no suitable loader is found.
+    """
+    loader_class = get_rag_loader(mock_github_io_url)
+    assert "WebBaseLoader" in str(loader_class)
+
+
+@pytest.mark.integration()
+def test_get_rag_loader_txt(mock_txt_file: FixtureRequest) -> None:
+    """
+    Test the get_rag_loader function for txt files.
+
+    This test verifies that the `get_rag_loader` function returns the correct loader
+    class based on the file extension or URL of the given document path.
+
+    Args:
+        path_to_document (str): The path or URL of the document.
+        expected_loader_class (type | None): The expected loader class or None if no suitable loader is found.
+    """
+    loader_class = get_rag_loader(mock_txt_file)
+    assert "TextLoader" in str(loader_class)
 
 
 @pytest.mark.integration()
