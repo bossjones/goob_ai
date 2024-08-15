@@ -13,11 +13,18 @@ from goob_ai.services.chroma_service import (
     CustomOpenAIEmbeddings,
     generate_data_store,
     get_file_extension,
+    get_rag_embedding_function,
+    get_rag_loader,
+    get_rag_splitter,
     get_response,
     get_suffix,
+    is_pdf,
+    is_txt,
     save_to_chroma,
+    split_text,
 )
 from langchain.schema import Document
+from langchain_community.document_loaders import PyMuPDFLoader, PyPDFLoader, TextLoader, WebBaseLoader
 
 import pytest
 
@@ -460,6 +467,7 @@ def test_chroma_service_e2e_add_to_chroma_url(mocker: MockerFixture) -> None:
     )
 
 
+@pytest.mark.integration()
 @pytest.mark.parametrize(
     "filename, expected_suffix",
     [
@@ -486,6 +494,7 @@ def test_get_suffix(filename: str, expected_suffix: str) -> None:
     assert suffix == expected_suffix
 
 
+@pytest.mark.integration()
 def test_get_suffix_empty_filename() -> None:
     """
     Test the get_suffix function with an empty filename.
@@ -499,6 +508,7 @@ def test_get_suffix_empty_filename() -> None:
     assert suffix == expected_suffix
 
 
+@pytest.mark.integration()
 def test_get_suffix_multiple_dots() -> None:
     """
     Test the get_suffix function with a filename containing multiple dots.
@@ -510,3 +520,159 @@ def test_get_suffix_multiple_dots() -> None:
     expected_suffix = ".txt"
     suffix = get_suffix(filename)
     assert suffix == expected_suffix
+
+
+@pytest.mark.integration()
+@pytest.mark.parametrize(
+    "filename, expected_result",
+    [
+        ("example.pdf", True),
+        ("document.PDF", True),
+        ("file.pdf", True),
+        ("image.jpg", False),
+        ("text.txt", False),
+        ("archive.tar.gz", False),
+        ("no_extension", False),
+    ],
+)
+def test_is_pdf(filename: str, expected_result: bool) -> None:
+    """
+    Test the is_pdf function.
+
+    This test verifies that the `is_pdf` function correctly determines
+    whether a given filename has a PDF extension.
+
+    Args:
+        filename (str): The filename to test.
+        expected_result (bool): The expected result (True if PDF, False otherwise).
+    """
+    result = is_pdf(filename)
+    assert result == expected_result
+
+
+@pytest.mark.integration()
+def test_is_pdf_empty_filename() -> None:
+    """
+    Test the is_pdf function with an empty filename.
+
+    This test verifies that the `is_pdf` function returns False
+    when given an empty filename.
+    """
+    filename = ""
+    expected_result = False
+    result = is_pdf(filename)
+    assert result == expected_result
+
+
+@pytest.mark.integration()
+def test_is_pdf_no_extension() -> None:
+    """
+    Test the is_pdf function with a filename without an extension.
+
+    This test verifies that the `is_pdf` function returns False
+    when given a filename without an extension.
+    """
+    filename = "file_without_extension"
+    expected_result = False
+    result = is_pdf(filename)
+    assert result == expected_result
+
+
+@pytest.mark.integration()
+@pytest.mark.parametrize(
+    "filename, expected_result",
+    [
+        ("example.txt", True),
+        ("document.TXT", True),
+        ("file.txt", True),
+        ("image.jpg", False),
+        ("document.pdf", False),
+        ("archive.tar.gz", False),
+        ("no_extension", False),
+    ],
+)
+def test_is_txt(filename: str, expected_result: bool) -> None:
+    """
+    Test the is_txt function.
+
+    This test verifies that the `is_txt` function correctly determines
+    whether a given filename has a TXT extension.
+
+    Args:
+        filename (str): The filename to test.
+        expected_result (bool): The expected result (True if TXT, False otherwise).
+    """
+    result = is_txt(filename)
+    assert result == expected_result
+
+
+@pytest.mark.integration()
+def test_is_txt_empty_filename() -> None:
+    """
+    Test the is_txt function with an empty filename.
+
+    This test verifies that the `is_txt` function returns False
+    when given an empty filename.
+    """
+    filename = ""
+    expected_result = False
+    result = is_txt(filename)
+    assert result == expected_result
+
+
+@pytest.mark.integration()
+def test_is_txt_no_extension() -> None:
+    """
+    Test the is_txt function with a filename without an extension.
+
+    This test verifies that the `is_txt` function returns False
+    when given a filename without an extension.
+    """
+    filename = "file_without_extension"
+    expected_result = False
+    result = is_txt(filename)
+    assert result == expected_result
+
+
+@pytest.mark.integration()
+def test_get_rag_loader(mock_pdf_file: Path) -> None:
+    """
+    Test the get_rag_loader function.
+
+    This test verifies that the `get_rag_loader` function returns the correct loader
+    class based on the file extension or URL of the given document path.
+
+    Args:
+        path_to_document (str): The path or URL of the document.
+        expected_loader_class (type | None): The expected loader class or None if no suitable loader is found.
+    """
+    loader_class = get_rag_loader(mock_pdf_file)
+    assert isinstance(loader_class, PyPDFLoader)
+
+
+@pytest.mark.integration()
+def test_get_rag_loader_empty_path() -> None:
+    """
+    Test the get_rag_loader function with an empty path.
+
+    This test verifies that the `get_rag_loader` function returns None
+    when given an empty path.
+    """
+    path_to_document = ""
+    expected_loader_class = None
+    loader_class = get_rag_loader(path_to_document)
+    assert loader_class == expected_loader_class
+
+
+@pytest.mark.integration()
+def test_get_rag_loader_unsupported_extension() -> None:
+    """
+    Test the get_rag_loader function with an unsupported file extension.
+
+    This test verifies that the `get_rag_loader` function returns None
+    when given a file with an unsupported extension.
+    """
+    path_to_document = "file.unsupported"
+    expected_loader_class = None
+    loader_class = get_rag_loader(path_to_document)
+    assert loader_class == expected_loader_class
