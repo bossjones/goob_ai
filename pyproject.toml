@@ -305,6 +305,9 @@ dev-dependencies = [
     "pytest-memray>=1.7.0",
     "sentry-sdk[opentelemetry]>=2.12.0",
     "pytest-recording>=0.13.2",
+    "debugpy>=1.8.5",
+    "manhole>=1.8.1",
+    "pysnooper>=1.2.0",
 ]
 
 [tool.rye.scripts]
@@ -816,6 +819,7 @@ module = [
     "requests_toolbelt.multipart.decoder",
     'vcr',
     'vcr.*',
+    "pysnooper",
 ]
 ignore_missing_imports = true
 ignore_errors = true

@@ -669,34 +669,43 @@ class ChromaService:
             chunks (list[Document]): The list of document chunks to be saved.
         """
 
+        # Log the input parameters for debugging purposes
         LOGGER.debug(f"path_to_document = {path_to_document}")
         LOGGER.debug(f"collection_name = {collection_name}")
         LOGGER.debug(f"embedding_function = {embedding_function}")
 
-        client = ChromaService.client
+        # Get the Chroma client
+        client = ChromaService.get_client()
         # FIXME: We need to make embedding_function optional
+        # Add or retrieve the collection with the specified name
         collection: chromadb.Collection = ChromaService.add_collection(collection_name)
 
-        # load the document and split it into chunks
+        # Load the document using the appropriate loader based on the file type
         loader: TextLoader | PyMuPDFLoader | WebBaseLoader | None = get_rag_loader(path_to_document)
+        # Load the documents using the selected loader
         documents: list[Document] = loader.load()
 
-        # If filetype is txt, split it into chunks
+        # If the file type is txt, split the documents into chunks
         text_splitter = get_rag_splitter(path_to_document)
         if text_splitter:
+            # Split the documents into chunks using the text splitter
             docs: list[Document] = text_splitter.split_documents(documents)
         else:
+            # If no text splitter is available, use the original documents
             docs: list[Document] = documents  # type: ignore
 
         if embedding_function:
+            # If an embedding function is provided, use it
             embedding_function = embedding_function
         else:
-            # create the open-source embedding function
+            # If no embedding function is provided, create an open-source embedding function based on the file type
             embedding_function = get_rag_embedding_function(path_to_document)
 
-        # load it into Chroma
-        # db = Chroma.from_documents(docs, embedding=embedding_function, collection_name=collection_name, client=client, persist_directory=CHROMA_PATH)
-        db = Chroma.from_documents(docs, embedding=embedding_function, collection_name=collection_name, client=client)
+        # Load the document chunks into Chroma
+        db: ChromaVectorStore = Chroma.from_documents(
+            docs, embedding=embedding_function, collection_name=collection_name, client=client
+        )
+        # Return the Chroma database
         return db
 
     @staticmethod

@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import logging
 
-from typing import TYPE_CHECKING, Any, Dict, List, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 
 import openai
 
@@ -72,6 +72,27 @@ class AiAgent:
         if self.settings.langchain_debug_logs:
             set_debug(True)
 
+        self._vector_store: Optional[Chroma] = None
+        self._embeddings: Optional[OpenAIEmbeddings] = None
+
+    @property
+    def embeddings(self) -> Chroma:
+        if self._embeddings is None:
+            self._embeddings = OpenAIEmbeddings()
+            LOGGER.debug(f"Setting default embeddings: {self._embeddings}")
+        return self._embeddings
+
+    @property
+    def vector_store(self) -> Chroma:
+        if self._vector_store is None:
+            self._vector_store = Chroma(
+                client=ChromaService.client,
+                collection_name="readthedocs",
+                embedding_function=self._embeddings,
+            )
+            LOGGER.debug(f"Setting default vector store: {self._vector_store}")
+        return self._vector_store
+
     # FIXME: Implement meme personality as well. https://chatgptaihub.com/chatgpt-prompts-for-memes/
     def init_agent_name(self):
         # Initialize the agent name, purpose, created by and personality
@@ -125,11 +146,11 @@ class AiAgent:
 
     def init_tools(self):
         self.custom_tools: Union[list[BaseTool], list[Any]] | None = [VisionTool()]
-        embeddings = OpenAIEmbeddings()
-        db = Chroma(
+        self._embeddings = embeddings = OpenAIEmbeddings()
+        self._vector_store = db = Chroma(
             client=ChromaService.client,
             collection_name="readthedocs",
-            embedding_function=embeddings,
+            embedding_function=self._embeddings,
         )
         llm = llm_manager.LlmManager().llm
         rtd_tool = ReadTheDocsQATool(db=db, llm=llm)

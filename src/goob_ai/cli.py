@@ -11,6 +11,7 @@ import inspect
 import json
 import logging
 import os
+import signal
 import subprocess
 import sys
 import tempfile
@@ -34,6 +35,7 @@ import rich
 import sentry_sdk
 import typer
 
+from langchain_chroma import Chroma as ChromaVectorStore
 from loguru import logger as LOGGER
 from pinecone import Pinecone, ServerlessSpec  # pyright: ignore[reportAttributeAccessIssue]
 from pinecone.core.openapi.data.model.describe_index_stats_response import DescribeIndexStatsResponse
@@ -77,6 +79,10 @@ from goob_ai.utils.file_functions import fix_path
 # # sys.excepthook = TerminalPdb(
 # #     color_scheme="Linux", call_pdb=True, ostream=sys.__stdout__
 # # )
+
+# import manhole
+# # this will start the daemon thread
+# manhole.install()
 
 # if dev mode is enabled, set bpdb as the default debugger
 if aiosettings.dev_mode:
@@ -430,7 +436,7 @@ def query_readthedocs() -> None:
 
         for filename in result:
             LOGGER.info(f"Loading document: {filename}")
-            db = ChromaService.add_to_chroma(
+            db: ChromaVectorStore = ChromaService.add_to_chroma(
                 path_to_document=f"{filename}",
                 collection_name=test_collection_name,
                 embedding_function=None,
@@ -438,7 +444,7 @@ def query_readthedocs() -> None:
 
         embedding_function = OpenAIEmbeddings()
 
-        db = Chroma(
+        db: ChromaVectorStore = Chroma(
             client=client,
             collection_name=test_collection_name,
             embedding_function=embedding_function,
@@ -554,6 +560,12 @@ def go() -> None:
     typer.echo("Starting up GoobAI Bot")
     asyncio.run(run_bot())
 
+
+def handle_sigterm(signo, frame):
+    sys.exit(128 + signo)  # this will raise SystemExit and cause atexit to be called
+
+
+signal.signal(signal.SIGTERM, handle_sigterm)
 
 if __name__ == "__main__":
     APP()

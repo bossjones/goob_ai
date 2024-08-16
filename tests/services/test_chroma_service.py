@@ -46,6 +46,10 @@ if TYPE_CHECKING:
 
     from pytest_mock.plugin import MockerFixture
 
+# import manhole
+# # this will start the daemon thread
+# manhole.install()
+
 
 @pytest.fixture()
 def mock_openai_api_key(mocker: MockerFixture) -> str:
