@@ -211,6 +211,7 @@ def vcr_config():
     return {
         "filter_headers": [
             ("authorization", "DUMMY_AUTHORIZATION"),
+            # ("Set-Cookie", "DUMMY_COOKIE"),
             ("x-api-key", "DUMMY_API_KEY"),
             ("api-key", "DUMMY_API_KEY"),
         ],
@@ -222,6 +223,7 @@ def vcr_config():
         # We tried not matching on 'body' since a POST request - specifically a request to the extract service - appears
         # to have some differences in the body - but that didn't work. Then we didn't get a match at all. So left as is.
         # See https://vcrpy.readthedocs.io/en/latest/configuration.html#request-matching
+        # "match_on": ["method", "scheme", "port", "path", "query", "body", "uri"],
         "match_on": ["method", "scheme", "port", "path", "query", "body"],
     }
 
