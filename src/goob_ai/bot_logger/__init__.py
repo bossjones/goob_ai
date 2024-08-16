@@ -38,6 +38,7 @@ from typing import TYPE_CHECKING, Any, Deque, Dict, Literal, Optional, Union, ca
 
 import loguru
 import pysnooper
+import vcr
 
 from loguru import logger
 from loguru._defaults import LOGURU_FORMAT
