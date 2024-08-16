@@ -39,6 +39,7 @@ import pytest
 if TYPE_CHECKING:
     from unittest.mock import AsyncMock, MagicMock, NonCallableMagicMock
 
+    from _pytest.capture import CaptureFixture
     from _pytest.fixtures import FixtureRequest
     from _pytest.logging import LogCaptureFixture
     from _pytest.monkeypatch import MonkeyPatch
@@ -974,7 +975,9 @@ def dummy_chroma_db(mocker) -> Chroma:
 # @pytest.mark.vcr()
 # @pytest.mark.vcr(allow_playback_repeats=True)
 @pytest.mark.vcr(allow_playback_repeats=True, match_on=["request_matcher"], ignore_localhost=False)
-def test_search_db_returns_relevant_documents(dummy_chroma_db: Chroma, caplog: LogCaptureFixture):
+def test_search_db_returns_relevant_documents(
+    dummy_chroma_db: Chroma, caplog: LogCaptureFixture, capsys: CaptureFixture, vcr
+):
     """
     Test that search_db returns relevant documents when found.
 
@@ -982,6 +985,9 @@ def test_search_db_returns_relevant_documents(dummy_chroma_db: Chroma, caplog: L
     relevant documents and their scores when a match is found in the database.
     """
     caplog.set_level(logging.DEBUG)
+    # import bpdb
+
+    # bpdb.set_trace()
     db = dummy_chroma_db
     results = search_db(db, "test query")
     query_text = "test query"
@@ -992,6 +998,12 @@ def test_search_db_returns_relevant_documents(dummy_chroma_db: Chroma, caplog: L
 
     # FIXME: # assert results == expected_results
 
+    # out, err = capsys.readouterr()
+    # with capsys.disabled():
+    #     import rich
+    #     rich.inspect(vcr, all=True)
+
+    assert vcr.play_count == 1
     # assert results == expected_results
     # wait for logging to finish runnnig
     # await LOGGER.complete()
