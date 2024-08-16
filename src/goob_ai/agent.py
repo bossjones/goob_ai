@@ -75,28 +75,31 @@ class AiAgent:
         self._embeddings: Optional[OpenAIEmbeddings] = None
         self._collection_name: Optional[str] = None
 
+    # def __repr__(self):
+    #     return f'{self.__class__.__name__}("{self._data}")'
+
     @property
     def embeddings(self) -> Chroma:
         if self._embeddings is None:
             self._embeddings = OpenAIEmbeddings()
-            LOGGER.debug(f"Setting default embeddings: {self._embeddings}")
+        LOGGER.debug(f"Setting embeddings was accessed. Current value: {self._embeddings}")
         return self._embeddings
 
     @embeddings.setter
     def embeddings(self, value: Any):
-        LOGGER.debug(f"Setting embeddings: {value}")
+        LOGGER.debug(f"Setting embeddings was {self._embeddings}. Current value: {value}")
         self._embeddings = value
 
     @property
     def collection_name(self) -> Chroma:
         if self._collection_name is None:
             self._collection_name = "readthedocs"
-            LOGGER.debug(f"Setting default collection name: {self._collection_name}")
+        LOGGER.debug(f"Setting collection_name was accessed. Current value: {self._collection_name}")
         return self._collection_name
 
     @collection_name.setter
     def collection_name(self, value: str):
-        LOGGER.debug(f"Setting collection name: {value}")
+        LOGGER.debug(f"Setting collection_name was {self._collection_name}. Current value: {value}")
         self._collection_name = value
 
     @property
@@ -107,12 +110,12 @@ class AiAgent:
                 collection_name="readthedocs",
                 embedding_function=self._embeddings,
             )
-            LOGGER.debug(f"Setting default vector store: {self._vector_store}")
+        LOGGER.debug(f"Setting vector_store was accessed. Current value: {self._vector_store}")
         return self._vector_store
 
     @vector_store.setter
     def vector_store(self, value: Any):
-        LOGGER.debug(f"Setting vector_store: {value}")
+        LOGGER.debug(f"Setting vector_store was {self._vector_store}. Current value: {value}")
         self._vector_store = value
 
     # FIXME: Implement meme personality as well. https://chatgptaihub.com/chatgpt-prompts-for-memes/
