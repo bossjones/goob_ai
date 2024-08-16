@@ -336,3 +336,5 @@ notebooks/chroma
 ruff_config.toml
 .virtual_documents/
 notebooks/e2e_evals.ipynb
+tests/services/cassettes/.*
+src/goob_ai/data/chroma/vectorstorage/

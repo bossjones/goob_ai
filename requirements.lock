@@ -985,6 +985,7 @@ requests==2.32.3
     # via pypi-command-line
     # via requests-cache
     # via requests-oauthlib
+    # via requests-toolbelt
     # via simpletransformers
     # via streamlit
     # via tiktoken
@@ -999,6 +1000,8 @@ requests-cache==1.2.1
 requests-oauthlib==2.0.0
     # via google-auth-oauthlib
     # via kubernetes
+requests-toolbelt==1.0.0
+    # via goob-ai
 rfc3339-validator==0.1.4
     # via jsonschema
     # via jupyter-events

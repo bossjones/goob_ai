@@ -68,10 +68,34 @@ def get_suffix(filename: str) -> str:
     Returns:
         The file extension in lowercase without the leading period.
     """
-    ext = pathlib.Path(f"{filename}").suffix.lower()
-    ext_without_period = f"{ext.replace('.','')}"
+    ext = get_file_extension(filename)
+    ext_without_period = remove_leading_period(ext)
     LOGGER.debug(f"ext: {ext}, ext_without_period: {ext_without_period}")
     return ext
+
+
+def get_file_extension(filename: str) -> str:
+    """Get the file extension from the given filename.
+
+    Args:
+        filename: The name of the file.
+
+    Returns:
+        The file extension in lowercase.
+    """
+    return pathlib.Path(filename).suffix.lower()
+
+
+def remove_leading_period(ext: str) -> str:
+    """Remove the leading period from the file extension.
+
+    Args:
+        ext: The file extension.
+
+    Returns:
+        The file extension without the leading period.
+    """
+    return ext.replace(".", "")
 
 
 def is_pdf(filename: str) -> bool:
@@ -104,6 +128,36 @@ def is_txt(filename: str) -> bool:
     return res
 
 
+def is_valid_uri(uri: str) -> bool:
+    """
+    Check if the given URI is valid.
+
+    Args:
+        uri (str): The URI to check.
+
+    Returns:
+        bool: True if the URI is valid, False otherwise.
+    """
+    parts = uritools.urisplit(uri)
+    return parts.isuri()
+
+
+def is_github_io_url(filename: str) -> bool:
+    """
+    Check if the given filename is a valid GitHub Pages URL.
+
+    Args:
+        filename (str): The filename to check.
+
+    Returns:
+        bool: True if the filename is a valid GitHub Pages URL, False otherwise.
+    """
+    if re.match(WEBBASE_LOADER_PATTERN, filename) and is_valid_uri(filename):
+        LOGGER.debug("selected filetype github.io url, using WebBaseLoader(filename)")
+        return True
+    return False
+
+
 def get_rag_loader(filename: str) -> TextLoader | PyMuPDFLoader | WebBaseLoader | None:
     """Get the appropriate loader for the given filename.
 
@@ -113,11 +167,7 @@ def get_rag_loader(filename: str) -> TextLoader | PyMuPDFLoader | WebBaseLoader 
     Returns:
         The loader for the given file type, or None if the file type is not supported.
     """
-    if re.match(WEBBASE_LOADER_PATTERN, f"{filename}"):
-        # verify it is a uri as well
-        parts = uritools.urisplit(f"{filename}")
-        assert parts.isuri()
-        LOGGER.debug("selected filetype github.io url, using WebBaseLoader(filename)")
+    if is_github_io_url(f"{filename}"):
         return WebBaseLoader(
             web_paths=(f"{filename}",),
             bs_kwargs=dict(parse_only=bs4.SoupStrainer(class_=("post-content", "post-title", "post-header"))),
@@ -149,7 +199,7 @@ def get_rag_splitter(filename: str) -> CharacterTextSplitter | None:
         or None if the file type is not supported.
     """
 
-    if re.match(WEBBASE_LOADER_PATTERN, f"{filename}"):
+    if is_github_io_url(f"{filename}"):
         LOGGER.debug(
             "selected filetype github.io url, usingRecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)"
         )
@@ -178,7 +228,7 @@ def get_rag_embedding_function(filename: str) -> SentenceTransformerEmbeddings |
         or None if the file type is not supported.
     """
 
-    if re.match(WEBBASE_LOADER_PATTERN, f"{filename}"):
+    if is_github_io_url(f"{filename}"):
         LOGGER.debug("selected filetype github.io url, using OpenAIEmbeddings()")
         return OpenAIEmbeddings()
     elif is_txt(filename):
@@ -206,32 +256,142 @@ def get_client() -> chromadb.ClientAPI:
 
 
 # Function to perform the query and get the response
-def get_response(query_text: str) -> str:
+# def get_response(query_text: str) -> str:
+#     """Perform the query and get the response.
+
+#     Args:
+#         query_text (str): The query text to search in the database.
+
+#     Returns:
+#         str: The response text based on the query.
+#     """
+#     embedding_function = OpenAIEmbeddings()
+#     db = Chroma(persist_directory=CHROMA_PATH, embedding_function=embedding_function)
+
+#     # Search the DB
+#     results = db.similarity_search_with_relevance_scores(query_text, k=3)
+#     if len(results) == 0 or results[0][1] < 0.7:
+#         return "Unable to find matching results."
+
+#     context_text = "\n\n---\n\n".join([doc.page_content for doc, _score in results])
+#     prompt_template = ChatPromptTemplate.from_template(PROMPT_TEMPLATE)
+#     prompt = prompt_template.format(context=context_text, question=query_text)
+
+#     model = ChatOpenAI()
+#     response_text = model.predict(prompt)
+
+#     sources = [doc.metadata.get("source", None) for doc, _score in results]
+#     return f"Response: {response_text}\nSources: {sources}"
+
+
+def search_db(db: Chroma, query_text: str, k: int = 3) -> list[tuple[Document, float]] | None:
+    """Search the Chroma database for relevant documents.
+
+    Args:
+        db (Chroma): The Chroma database to search.
+        query_text (str): The query text to search for.
+        k (int): Number of nearest neighbours to return.
+
+    Returns:
+        list[tuple[Document, float]] | None: The list of relevant documents and their scores,
+        or None if no relevant documents are found.
+    """
+    results = db.similarity_search_with_relevance_scores(query_text, k=k)
+    LOGGER.debug(f"search_db results: {results}")
+    if len(results) == 0 or results[0][1] < 0.7:
+        return None
+    return results
+
+
+def generate_context_text(results: list[tuple[Document, float]]) -> str:
+    """Generate the context text from the search results.
+
+    Args:
+        results (list[tuple[Document, float]]): The list of relevant documents and their scores.
+
+    Returns:
+        str: The generated context text.
+    """
+    return "\n\n---\n\n".join([doc.page_content for doc, _score in results])
+
+
+def generate_prompt(context_text: str, query_text: str) -> str:
+    """Generate the prompt for the model.
+
+    Args:
+        context_text (str): The context text generated from the search results.
+        query_text (str): The query text to search for.
+
+    Returns:
+        str: The generated prompt.
+    """
+    prompt_template = ChatPromptTemplate.from_template(PROMPT_TEMPLATE)
+    return prompt_template.format(context=context_text, question=query_text)
+
+
+def get_sources(results: list[tuple[Document, float]]) -> list[str | None]:
+    """Get the sources from the search results.
+
+    Args:
+        results (list[tuple[Document, float]]): The list of relevant documents and their scores.
+
+    Returns:
+        list[str | None]: The list of sources.
+    """
+    return [doc.metadata.get("source", None) for doc, _score in results]
+
+
+def get_response(
+    query_text: str,
+    persist_directory: str = CHROMA_PATH,
+    embedding_function: Any = OpenAIEmbeddings(),
+    model: Any = ChatOpenAI(),
+    k: int = 3,
+    **kwargs: Any,
+) -> str:
     """Perform the query and get the response.
 
     Args:
         query_text (str): The query text to search in the database.
+        persist_directory (str): The directory to persist the Chroma database.
+        embedding_function (Any): The embedding function to use.
+        **kwargs: Additional keyword arguments to override default values.
 
     Returns:
         str: The response text based on the query.
     """
-    embedding_function = OpenAIEmbeddings()
-    db = Chroma(persist_directory=CHROMA_PATH, embedding_function=embedding_function)
+    db = get_chroma_db(persist_directory, embedding_function)
 
     # Search the DB
-    results = db.similarity_search_with_relevance_scores(query_text, k=3)
-    if len(results) == 0 or results[0][1] < 0.7:
+    results = search_db(db, query_text)
+    if not results:
         return "Unable to find matching results."
 
-    context_text = "\n\n---\n\n".join([doc.page_content for doc, _score in results])
-    prompt_template = ChatPromptTemplate.from_template(PROMPT_TEMPLATE)
-    prompt = prompt_template.format(context=context_text, question=query_text)
+    context_text = generate_context_text(results)
+    prompt = generate_prompt(context_text, query_text)
 
-    model = ChatOpenAI()
     response_text = model.predict(prompt)
 
-    sources = [doc.metadata.get("source", None) for doc, _score in results]
+    sources = get_sources(results)
     return f"Response: {response_text}\nSources: {sources}"
+
+
+def get_chroma_db(
+    persist_directory: str = CHROMA_PATH,
+    embedding_function: Any = OpenAIEmbeddings(),
+    **kwargs: Any,
+) -> Chroma:
+    """Get the Chroma database.
+
+    Args:
+        persist_directory (str): The directory to persist the Chroma database.
+        embedding_function (Any): The embedding function to use.
+        **kwargs: Additional keyword arguments to override default values.
+
+    Returns:
+        Chroma: The Chroma database.
+    """
+    return Chroma(persist_directory=persist_directory, embedding_function=embedding_function)
 
 
 def main() -> None:
@@ -324,13 +484,6 @@ def load_documents() -> list[Document]:
         loader = PyPDFLoader(f"{filename}")
         LOGGER.info(f"Loader: {loader}")
         documents.extend(loader.load())
-    # for filename in os.listdir(DATA_PATH):
-    #     LOGGER.info(f"Loading document: {filename}")
-    #     if filename.endswith(".pdf"):
-    #         pdf_path = os.path.join(DATA_PATH, filename)
-    #         LOGGER.info(f"Loading PDF: {pdf_path}")
-    #         loader = PyPDFLoader(pdf_path)
-    #         documents.extend(loader.load())
     return documents
 
 

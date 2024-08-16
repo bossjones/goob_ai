@@ -371,3 +371,4 @@ tests/fixtures/25MB_song.mp3
 ruff_config.toml
 .virtual_documents/
 notebooks/e2e_evals.ipynb
+src/goob_ai/data/chroma/vectorstorage/

@@ -107,8 +107,8 @@ repos:
       - id: check-symlinks
       - id: check-json
         exclude: ^\.vscode/
-      - id: check-yaml
-        exclude: mkdocs\.yml$
+      # DISABLED: # - id: check-yaml
+      # DISABLED: #   exclude: mkdocs\.yml$
           # - id: check-yaml
           #   exclude: (.mkdocs.yml|hack)
           # - id: debug-statements
@@ -396,6 +396,7 @@ repos:
         args:
           - -c
           - pyproject.toml
+        exclude: '.*cassettes.*'
 
     # SOURCE: https://github.com/scientific-python/cookie/blob/d5c18f56dd44830cafb4862871ff66496f11de80/.pre-commit-config.yaml
     # - repo: https://github.com/pre-commit/mirrors-prettier

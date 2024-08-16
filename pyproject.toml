@@ -137,6 +137,7 @@ dependencies = [
     "nbconvert>=7.16.4",
     "moviepy>=1.0.3",
     "jedi-language-server>=0.41.4",
+    "requests-toolbelt>=1.0.0",
 ]
 
 readme = "README.md"
@@ -271,7 +272,6 @@ dev-dependencies = [
     "types-contextvars>=2.4.7.3",
     "pytest-aiohttp>=1.0.5",
     "pytest-skip-slow>=0.0.5",
-    "pytest-vcr>=1.0.2",
     "pytest-clarity>=1.0.1",
     "pytest-retry>=1.6.3",
     "commitizen>=3.28.0",
@@ -304,6 +304,7 @@ dev-dependencies = [
     "memray>=1.13.4",
     "pytest-memray>=1.7.0",
     "sentry-sdk[opentelemetry]>=2.12.0",
+    "pytest-recording>=0.13.2",
 ]
 
 [tool.rye.scripts]
@@ -318,7 +319,7 @@ fmt = {cmd = "pre-commit run --all-files"}
 pylint = {cmd = "python -m invoke ci.pylint --everything"}
 pylint-error-only = {cmd = "pylint --output-format=colorized --generated-members=torch.*,numpy.*,cv2.* --disable=all --max-line-length=120 --enable=F,E --rcfile pyproject.toml src tests"}
 lint-all = {cmd = "python -m pylint -j4 --output-format=colorized --rcfile pyproject.toml tests src"}
-lint = {cmd = "python -m pylint --output-format=colorized --disable=C0111,E0401,C,W,R0402 --enable=F,E tests src"}
+lint = {cmd = "python -m pylint --output-format=colorized --disable=C0111,E0401,C,W,R0402,R6102 --enable=F,E tests src"}
 typecheck = {chain = [
     "typecheck:pyright",
     "typecheck:mypy",
@@ -335,9 +336,17 @@ typecheck = {chain = [
 "sourcery:hub" = "sourcery hub"
 "docs:changelog" = "towncrier build --version main --draft"
 "ci:mypy" = "mypy  --config-file=pyproject.toml --html-report typingcov ."
-"open:mypy-coverage" = " open typingcov/index.html"
+"open:mypy-coverage" = "open typingcov/index.html"
+"open:chroma" = "open http://127.0.0.1:3000"
+"open:coverage" = "just local-open-coverage"
 unittests-debug = {cmd = "pytest -vv --diff-width=60 --diff-symbols --pdb --pdbcls bpdb:BPdb --showlocals --tb=short --cov-append --cov-report=term-missing --junitxml=junit/test-results.xml --cov-report=xml:cov.xml --cov-report=html:htmlcov --cov-report=annotate:cov_annotate --cov=."}
 unittests = {cmd = "pytest --verbose --showlocals --tb=short --cov-append --cov-report=term-missing --junitxml=junit/test-results.xml --cov-report=xml:cov.xml --cov-report=html:htmlcov --cov-report=annotate:cov_annotate --cov=."}
+unittests-vcr-record = {cmd = "pytest --record-mode=all --verbose --showlocals --tb=short --cov-append --cov-report=term-missing --junitxml=junit/test-results.xml --cov-report=xml:cov.xml --cov-report=html:htmlcov --cov-report=annotate:cov_annotate --cov=."}
+unittests-vcr-record-rewrite = {cmd = "pytest --record-mode=rewrite --verbose --showlocals --tb=short --cov-append --cov-report=term-missing --junitxml=junit/test-results.xml --cov-report=xml:cov.xml --cov-report=html:htmlcov --cov-report=annotate:cov_annotate --cov=."}
+unittests-vcr-record-once = {cmd = "pytest --record-mode=once --verbose --showlocals --tb=short --cov-append --cov-report=term-missing --junitxml=junit/test-results.xml --cov-report=xml:cov.xml --cov-report=html:htmlcov --cov-report=annotate:cov_annotate --cov=."}
+unittests-vcr-record-all = {chain = [
+    "unittests-vcr-record",
+]}
 test-simple = {cmd = "pytest -p no:warnings"}
 simple-test = {cmd = "pytest -p no:warnings"}
 new-unittests-debug = {cmd = "pytest --verbose --pdb --pdbcls bpdb:BPdb --showlocals --tb=short"}
@@ -800,6 +809,13 @@ module = [
     # "loguru.*",
     "aiofiles.*",
     "passlib.*",
+    "orjson",
+    "sentence_transformers.*",
+    "requests_toolbelt",
+    "requests_toolbelt.multipart",
+    "requests_toolbelt.multipart.decoder",
+    'vcr',
+    'vcr.*',
 ]
 ignore_missing_imports = true
 ignore_errors = true
@@ -1355,6 +1371,7 @@ max-complexity = 31 # C901: Recommended goal is 10
 "demo/*" = ["D"]
 "docs/*" = ["D"]
 "test/*" = ["D"]
+"tests/conftest.py" = ["D"]
 "*.pyi" = ["D", "E501", "E701", "I002"]
 
 # ===========================[ ISORT ]========================
