@@ -1047,3 +1047,162 @@ def test_search_db_returns_relevant_documents(
 
 #     assert results is None
 #     dummy_chroma_db.similarity_search_with_relevance_scores.assert_called_once_with(query_text, k=3)
+
+
+@pytest.mark.integration()
+def test_generate_context_text() -> None:
+    """
+    Test the generate_context_text function.
+
+    This test verifies that the `generate_context_text` function correctly generates
+    the context text from the given search results.
+    """
+    from goob_ai.services.chroma_service import generate_context_text
+    from langchain.schema import Document
+
+    results = [
+        (Document(page_content="doc1"), 0.8),
+        (Document(page_content="doc2"), 0.7),
+        (Document(page_content="doc3"), 0.6),
+    ]
+
+    expected_context_text = "doc1\n\n---\n\ndoc2\n\n---\n\ndoc3"
+    context_text = generate_context_text(results)
+
+    assert context_text == expected_context_text
+
+
+@pytest.mark.integration()
+def test_generate_context_text_empty_results() -> None:
+    """
+    Test the generate_context_text function with empty search results.
+
+    This test verifies that the `generate_context_text` function returns an empty string
+    when given an empty list of search results.
+    """
+    from goob_ai.services.chroma_service import generate_context_text
+
+    results: list[tuple[Document, float]] = []
+
+    expected_context_text = ""
+    context_text = generate_context_text(results)
+
+    assert context_text == expected_context_text
+
+
+@pytest.mark.integration()
+def test_generate_context_text_single_result() -> None:
+    """
+    Test the generate_context_text function with a single search result.
+
+    This test verifies that the `generate_context_text` function correctly generates
+    the context text when given a single search result.
+    """
+    from goob_ai.services.chroma_service import generate_context_text
+    from langchain.schema import Document
+
+    results = [(Document(page_content="doc1"), 0.8)]
+
+    expected_context_text = "doc1"
+    context_text = generate_context_text(results)
+
+    assert context_text == expected_context_text
+
+
+@pytest.mark.integration()
+def test_generate_prompt(capsys: CaptureFixture, caplog: LogCaptureFixture) -> None:
+    """
+    Test the generate_prompt function.
+
+    This test verifies that the `generate_prompt` function correctly generates
+    the prompt using the given context and question.
+    """
+    from goob_ai.services.chroma_service import generate_prompt
+
+    context = "This is the context for the prompt."
+    question = "What is the question?"
+    # Human:
+    # Answer the question based only on the following context:
+
+    # This is the context for the prompt.
+
+    # ---
+
+    # Answer the question based on the above context: What is the question?
+
+    # expected_prompt = 'Human: \nAnswer the question based only on the following context:\n\nThis is the context for the prompt.\n\n---\n\nAnswer the question based on the above context: What is the question?'
+    expected_prompt = "Human: \nAnswer the question based only on the following context:\n\nThis is the context for the prompt.\n\n---\n\nAnswer the question based on the above context: What is the question?\n"
+
+    prompt = generate_prompt(context, question)
+
+    # out, err = capsys.readouterr()
+    # with capsys.disabled():
+    #     import rich
+    #     # rich.inspect(vcr, all=True)
+    #     rich.print("out, err:")
+    #     rich.print(out)
+    #     rich.print(err)
+    #     rich.print("prompt:")
+    #     rich.print(prompt)
+
+    assert prompt == str(expected_prompt)
+
+
+@pytest.mark.integration()
+def test_generate_prompt_empty_context() -> None:
+    """
+    Test the generate_prompt function with an empty context.
+
+    This test verifies that the `generate_prompt` function correctly generates
+    the prompt when the context is an empty string.
+    """
+    from goob_ai.services.chroma_service import generate_prompt
+
+    context = ""
+    question = "What is the question?"
+
+    expected_prompt = "Human: \nAnswer the question based only on the following context:\n\n\n\n---\n\nAnswer the question based on the above context: What is the question?\n"
+
+    prompt = generate_prompt(context, question)
+
+    assert prompt == str(expected_prompt)
+
+
+@pytest.mark.integration()
+def test_generate_prompt_empty_question() -> None:
+    """
+    Test the generate_prompt function with an empty question.
+
+    This test verifies that the `generate_prompt` function correctly generates
+    the prompt when the question is an empty string.
+    """
+    from goob_ai.services.chroma_service import generate_prompt
+
+    context = "This is the context for the prompt."
+    question = ""
+
+    expected_prompt = "Human: \nAnswer the question based only on the following context:\n\nThis is the context for the prompt.\n\n---\n\nAnswer the question based on the above context: \n"
+
+    prompt = generate_prompt(context, question)
+
+    assert prompt == str(expected_prompt)
+
+
+@pytest.mark.integration()
+def test_generate_prompt_multiline_context() -> None:
+    """
+    Test the generate_prompt function with a multiline context.
+
+    This test verifies that the `generate_prompt` function correctly generates
+    the prompt when the context contains multiple lines.
+    """
+    from goob_ai.services.chroma_service import generate_prompt
+
+    context = "This is the first line of the context.\nThis is the second line of the context."
+    question = "What is the question?"
+
+    expected_prompt = "Human: \nAnswer the question based only on the following context:\n\nThis is the first line of the context.\nThis is the second line of the context.\n\n---\n\nAnswer the question based on the above context: What is the question?\n"
+
+    prompt = generate_prompt(context, question)
+
+    assert prompt == str(expected_prompt)

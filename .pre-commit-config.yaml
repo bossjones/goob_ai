@@ -417,3 +417,9 @@ repos:
     #   rev: 2024.04.23
     #   hooks:
     #     - id: sp-repo-review
+
+  # SOURCE: https://github.com/kiwicom/pytest-recording/tree/master
+  - repo: https://github.com/codingjoe/relint
+    rev: 3.1.0
+    hooks:
+      - id: relint
