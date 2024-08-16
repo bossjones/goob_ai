@@ -82,6 +82,11 @@ class AiAgent:
             LOGGER.debug(f"Setting default embeddings: {self._embeddings}")
         return self._embeddings
 
+    @embeddings.setter
+    def embeddings(self, value: Any):
+        LOGGER.debug(f"Setting embeddings: {value}")
+        self._embeddings = value
+
     @property
     def collection_name(self) -> Chroma:
         if self._collection_name is None:
@@ -92,7 +97,7 @@ class AiAgent:
     @collection_name.setter
     def collection_name(self, value: str):
         LOGGER.debug(f"Setting collection name: {value}")
-        self.collection_name = value
+        self._collection_name = value
 
     @property
     def vector_store(self) -> Chroma:
@@ -104,6 +109,11 @@ class AiAgent:
             )
             LOGGER.debug(f"Setting default vector store: {self._vector_store}")
         return self._vector_store
+
+    @vector_store.setter
+    def vector_store(self, value: Any):
+        LOGGER.debug(f"Setting vector_store: {value}")
+        self._vector_store = value
 
     # FIXME: Implement meme personality as well. https://chatgptaihub.com/chatgpt-prompts-for-memes/
     def init_agent_name(self):

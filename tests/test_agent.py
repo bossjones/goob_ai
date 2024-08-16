@@ -4,27 +4,15 @@
 # pylint: disable=consider-using-from-import
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
-from goob_ai.agent import AiAgent
-
-import pytest
-
-
-if TYPE_CHECKING:
-    from _pytest.fixtures import FixtureRequest
-    from _pytest.monkeypatch import MonkeyPatch
-
-    from pytest_mock.plugin import MockerFixture
-
 import asyncio
+import logging
 import sys
 import uuid
 
 from collections.abc import AsyncIterator, Iterable, Iterator, Sequence
 from functools import partial
 from itertools import cycle
-from typing import Any, Dict, List, Optional, cast
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, cast
 
 from goob_ai.agent import AiAgent
 from langchain_core.callbacks import CallbackManagerForRetrieverRun, Callbacks
@@ -53,8 +41,20 @@ from langchain_core.runnables.utils import Input, Output
 from langchain_core.tools import tool
 from langchain_core.utils.aiter import aclosing
 from langchain_openai import OpenAIEmbeddings
+from loguru import logger as LOGGER
 
 import pytest
+
+
+if TYPE_CHECKING:
+    from unittest.mock import AsyncMock, MagicMock, NonCallableMagicMock
+
+    from _pytest.capture import CaptureFixture
+    from _pytest.fixtures import FixtureRequest
+    from _pytest.logging import LogCaptureFixture
+    from _pytest.monkeypatch import MonkeyPatch
+
+    from pytest_mock.plugin import MockerFixture
 
 
 class AnyStr(str):
@@ -139,3 +139,37 @@ def test_embeddings_caching(agent: AiAgent):
     embeddings1 = agent.embeddings
     embeddings2 = agent.embeddings
     assert embeddings1 is embeddings2
+
+
+def test_collection_name_default(agent: AiAgent):
+    """Test that the default collection name is set correctly."""
+    assert agent.collection_name == "readthedocs"
+
+
+def test_collection_name_custom(agent: AiAgent):
+    """Test that a custom collection name can be set."""
+    custom_collection_name = "custom_collection"
+    agent.collection_name = custom_collection_name
+    assert agent.collection_name == custom_collection_name
+
+
+def test_collection_name_lazy_loading(agent: AiAgent):
+    """Test that the collection name is lazily loaded."""
+    agent._collection_name = None
+    assert agent.collection_name == "readthedocs"
+
+
+def test_collection_name_caching(agent: AiAgent):
+    """Test that the collection name is cached after first access."""
+    agent._collection_name = None
+    collection_name1 = agent.collection_name
+    collection_name2 = agent.collection_name
+    assert collection_name1 == collection_name2
+
+
+def test_collection_name_setter(agent: AiAgent, caplog: LogCaptureFixture):
+    """Test that the collection name setter logs a debug message."""
+    custom_collection_name = "custom_collection"
+    with caplog.at_level(logging.DEBUG):
+        agent.collection_name = custom_collection_name
+    assert f"{custom_collection_name}" in caplog.text
