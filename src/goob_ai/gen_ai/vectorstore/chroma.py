@@ -21,29 +21,60 @@ industry_files: dict[str, str] = {
 
 
 class Document(BaseModel):
-    """Interface for interacting with a document."""
+    """Interface for interacting with a document.
+
+    Attributes:
+        page_content (str): The content of the document page.
+        metadata (Dict): Additional metadata associated with the document.
+    """
 
     page_content: str = None
     metadata: dict = Field(default_factory=dict)
 
     def __init__(self, page_content: str, metadata: dict, *args, **kwargs):
+        """Initialize the Document.
+
+        Args:
+            page_content (str): The content of the document page.
+            metadata (Dict): Additional metadata associated with the document.
+            *args: Additional positional arguments.
+            **kwargs: Additional keyword arguments.
+        """
         super().__init__(page_content=page_content, metadata=metadata, *args, **kwargs)
 
 
 class DocLoader:
-    """A class for loading documents."""
+    """A class for loading documents.
+
+    Attributes:
+        path (str): The path to the document file.
+        splitter (RecursiveCharacterTextSplitter): The text splitter used to split the document.
+    """
 
     def __init__(self, path: str):
+        """Initialize the DocLoader.
+
+        Args:
+            path (str): The path to the document file.
+        """
         self.path = path
         self.splitter = RecursiveCharacterTextSplitter(chunk_size=256, chunk_overlap=20)
 
     def load_document(self) -> list[Document]:
-        """Load a document."""
+        """Load a document.
+
+        Returns:
+            List[Document]: A list of loaded documents.
+        """
         if self.path.endswith(".pdf"):
             return self._load_pdf()
 
     def _load_pdf(self) -> list[Document]:
-        """Load a PDF document."""
+        """Load a PDF document.
+
+        Returns:
+            List[Document]: A list of loaded PDF documents.
+        """
         loader = PyMuPDFLoader(self.path)
         docs = loader.load_and_split(self.splitter)
         # Add document_id as metadata to all docs
@@ -53,7 +84,16 @@ class DocLoader:
 
 
 class ChromaDB:
+    """A class for interacting with the Chroma database.
+
+    Attributes:
+        embedding_function (SentenceTransformerEmbeddings): The embedding function used for vectorization.
+        vector_store_path (str): The path to the vector store directory.
+        chroma (Optional[Chroma]): The Chroma instance.
+    """
+
     def __init__(self):
+        """Initialize the ChromaDB."""
         self.embedding_function = SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2")
         self.vector_store_path = "data/chroma"
         self.chroma: Optional[Chroma] = None
@@ -71,6 +111,11 @@ class ChromaDB:
             self.index(docs)
 
     def index(self, docs: list[Document]) -> None:
+        """Index the documents in the Chroma database.
+
+        Args:
+            docs (List[Document]): The list of documents to index.
+        """
         self.chroma = Chroma.from_documents(
             docs,
             persist_directory=self.vector_store_path,
@@ -78,6 +123,15 @@ class ChromaDB:
         )
 
     def query(self, query: str, industry: Optional[str] = None) -> list[Document]:
+        """Query the Chroma database for similar documents.
+
+        Args:
+            query (str): The query string.
+            industry (Optional[str]): The industry filter (default: None).
+
+        Returns:
+            List[Document]: A list of similar documents.
+        """
         filter: dict[str, str] = {}
         if industry:
             industry_file = industry_files[industry]
