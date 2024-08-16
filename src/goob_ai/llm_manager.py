@@ -190,7 +190,7 @@ class VisionModel(BaseModel):
         super().__init__()
         self.vision_api = ChatOpenAI(
             model=aiosettings.vision_model,
-            max_retries=5,
+            max_retries=9,
             max_tokens=900,
             temperature=0.0,
         )
