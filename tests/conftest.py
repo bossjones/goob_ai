@@ -46,6 +46,7 @@ from _pytest.monkeypatch import MonkeyPatch
 from discord.client import _LoopSentinel
 from discord.ext import commands
 from goob_ai.goob_bot import AsyncGoobBot
+from requests_toolbelt.multipart import decoder
 from vcr import filters
 
 import pytest
@@ -117,7 +118,11 @@ def is_opensearch_uri(uri: str) -> bool:
 
 
 def is_llm_uri(uri: str) -> bool:
-    return any(x in uri for x in ["openai", "llm-proxy"])
+    return any(x in uri for x in ["openai", "llm-proxy", "anthropic", "localhost", "127.0.0.1"])
+
+
+def is_chroma_uri(uri: str) -> bool:
+    return any(x in uri for x in ["localhost", "127.0.0.1"])
 
 
 def request_matcher(r1, r2):
@@ -142,15 +147,23 @@ def request_matcher(r1, r2):
         return r1.body == r2.body
     elif is_llm_uri(r1.uri) and is_llm_uri(r2.uri):
         return r1.body == r2.body
+    elif is_chroma_uri(r1.uri) and is_chroma_uri(r2.uri):
+        return r1.body == r2.body
 
     return False
 
 
-@pytest.fixture(scope="module")
-def vcr(vcr):
+# @pytest.fixture(scope="module")
+# def vcr(vcr):
+#     # vcr.register_matcher("request_matcher", request_matcher)
+#     # vcr.match_on = ["request_matcher"]
+#     return vcr
+
+
+# SOURCE: https://github.com/kiwicom/pytest-recording/tree/master
+def pytest_recording_configure(config, vcr):
     vcr.register_matcher("request_matcher", request_matcher)
     vcr.match_on = ["request_matcher"]
-    return vcr
 
 
 def filter_response(response):
@@ -215,7 +228,10 @@ def vcr_config():
             ("x-api-key", "DUMMY_API_KEY"),
             ("api-key", "DUMMY_API_KEY"),
         ],
-        "filter_query_parameters": ["api-version", "client_id", "client_secret", "code"],
+        "ignore_localhost": False,
+        # "record_mode": "once",
+        # "filter_query_parameters": ["api-version", "client_id", "client_secret", "code"],
+        "filter_query_parameters": ["api-version", "client_id", "client_secret", "code", "api_key"],
         "before_record_request": filter_request,
         "before_record_response": filter_response,
         # !! DO NOT filter post data via a config here, but add it to the filter_data function above !!
@@ -228,6 +244,10 @@ def vcr_config():
     }
 
 
+# @pytest.fixture(scope='module')
+# def vcr_cassette_dir(request):
+#     # Put all cassettes in vhs/{module}/{test}.yaml
+#     return os.path.join('vhs', request.module.__name__)
 #######################################################################
 # only run slow tests when we want to
 #######################################################################

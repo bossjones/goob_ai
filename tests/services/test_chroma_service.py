@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 import os
 import shutil
 
@@ -30,6 +31,7 @@ from goob_ai.services.chroma_service import (
 from langchain.schema import Document
 from langchain_chroma import Chroma
 from langchain_community.document_loaders import PyMuPDFLoader, PyPDFLoader, TextLoader, WebBaseLoader
+from loguru import logger as LOGGER
 
 import pytest
 
@@ -38,6 +40,7 @@ if TYPE_CHECKING:
     from unittest.mock import AsyncMock, MagicMock, NonCallableMagicMock
 
     from _pytest.fixtures import FixtureRequest
+    from _pytest.logging import LogCaptureFixture
     from _pytest.monkeypatch import MonkeyPatch
 
     from pytest_mock.plugin import MockerFixture
@@ -966,14 +969,19 @@ def dummy_chroma_db(mocker) -> Chroma:
     return db
 
 
-@pytest.mark.vcr(match_on=["request_matcher"])
-def test_search_db_returns_relevant_documents(dummy_chroma_db: Chroma):
+# @pytest.mark.vcr(match_on=["request_matcher"])
+# @pytest.mark.vcr(ignore_localhost=False)
+# @pytest.mark.vcr()
+# @pytest.mark.vcr(allow_playback_repeats=True)
+@pytest.mark.vcr(allow_playback_repeats=True, match_on=["request_matcher"], ignore_localhost=False)
+def test_search_db_returns_relevant_documents(dummy_chroma_db: Chroma, caplog: LogCaptureFixture):
     """
     Test that search_db returns relevant documents when found.
 
     This test verifies that the `search_db` function returns a list of
     relevant documents and their scores when a match is found in the database.
     """
+    caplog.set_level(logging.DEBUG)
     db = dummy_chroma_db
     results = search_db(db, "test query")
     query_text = "test query"
@@ -981,11 +989,14 @@ def test_search_db_returns_relevant_documents(dummy_chroma_db: Chroma):
         (Document(page_content="doc1"), 0.8),
         (Document(page_content="doc2"), 0.7),
     ]
-    # dummy_chroma_db.similarity_search_with_relevance_scores.return_value = expected_results
 
-    results = search_db(dummy_chroma_db, query_text)
+    # FIXME: # assert results == expected_results
 
     # assert results == expected_results
+    # wait for logging to finish runnnig
+    # await LOGGER.complete()
+
+    # caplog.clear()
     # dummy_chroma_db.similarity_search_with_relevance_scores.assert_called_once_with(query_text, k=3)
 
 

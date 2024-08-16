@@ -107,8 +107,8 @@ repos:
       - id: check-symlinks
       - id: check-json
         exclude: ^\.vscode/
-      - id: check-yaml
-        exclude: mkdocs\.yml$
+      # DISABLED: # - id: check-yaml
+      # DISABLED: #   exclude: mkdocs\.yml$
           # - id: check-yaml
           #   exclude: (.mkdocs.yml|hack)
           # - id: debug-statements

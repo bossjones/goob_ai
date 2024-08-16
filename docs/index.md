@@ -62,7 +62,9 @@ just fmt
 #### lint
 
 ```
+
 just lint
+
 ```
 
 ### .env File Setup
@@ -93,3 +95,4 @@ Here's a breakdown of each item in the `.env` file:
 All source code is available on [GitHub](https://github.com/bossjones/goob_ai). If you encounter any problems, would
 like to contribute, have feature requests, please get in contact by filing an
 [issue on GitHub](https://github.com/bossjones/goob_ai/issues).
+```

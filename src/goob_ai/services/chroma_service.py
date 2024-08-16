@@ -297,6 +297,7 @@ def search_db(db: Chroma, query_text: str, k: int = 3) -> list[tuple[Document, f
         or None if no relevant documents are found.
     """
     results = db.similarity_search_with_relevance_scores(query_text, k=k)
+    LOGGER.debug(f"search_db results: {results}")
     if len(results) == 0 or results[0][1] < 0.7:
         return None
     return results
