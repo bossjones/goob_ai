@@ -26,6 +26,7 @@ from functools import partial
 from itertools import cycle
 from typing import Any, Dict, List, Optional, cast
 
+from goob_ai.agent import AiAgent
 from langchain_core.callbacks import CallbackManagerForRetrieverRun, Callbacks
 from langchain_core.chat_history import BaseChatMessageHistory
 from langchain_core.documents import Document
@@ -51,6 +52,9 @@ from langchain_core.runnables.schema import StreamEvent
 from langchain_core.runnables.utils import Input, Output
 from langchain_core.tools import tool
 from langchain_core.utils.aiter import aclosing
+from langchain_openai import OpenAIEmbeddings
+
+import pytest
 
 
 class AnyStr(str):
@@ -109,3 +113,29 @@ def agent(monkeypatch: MonkeyPatch, mocker: MockerFixture, request: FixtureReque
     monkeypatch.setenv("PINECONE_API_KEY", "fake_pinecone_key")
     monkeypatch.setenv("PINECONE_INDEX", "fake_test_index")
     return AiAgent()
+
+
+def test_embeddings_default(agent: AiAgent):
+    """Test that the default embeddings are set correctly."""
+    assert isinstance(agent.embeddings, OpenAIEmbeddings)
+
+
+def test_embeddings_custom(agent: AiAgent):
+    """Test that custom embeddings can be set."""
+    custom_embeddings = OpenAIEmbeddings(openai_api_key="custom_key")
+    agent._embeddings = custom_embeddings
+    assert agent.embeddings == custom_embeddings
+
+
+def test_embeddings_lazy_loading(agent: AiAgent):
+    """Test that embeddings are lazily loaded."""
+    agent._embeddings = None
+    assert isinstance(agent.embeddings, OpenAIEmbeddings)
+
+
+def test_embeddings_caching(agent: AiAgent):
+    """Test that embeddings are cached after first access."""
+    agent._embeddings = None
+    embeddings1 = agent.embeddings
+    embeddings2 = agent.embeddings
+    assert embeddings1 is embeddings2

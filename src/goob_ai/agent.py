@@ -10,7 +10,6 @@ from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 
 import openai
 
-from boto3.session import Session as boto3_Session
 from langchain.agents import AgentExecutor
 from langchain.agents.agent import BaseMultiActionAgent, BaseSingleActionAgent
 from langchain.agents.format_scratchpad.openai_tools import format_to_openai_tool_messages
@@ -52,7 +51,7 @@ class AiAgent:
     all_tools: list[BaseTool] | None = None
     agent: Union[BaseSingleActionAgent, BaseMultiActionAgent] | None = None
     settings: AioSettings | None = None
-    dynamodb_session: boto3_Session | None = None
+    # dynamodb_session: boto3_Session | None = None
     agent_name: str | None = None
     agent_created_by: str | None = None
     agent_purpose: str | None = None
@@ -74,6 +73,7 @@ class AiAgent:
 
         self._vector_store: Optional[Chroma] = None
         self._embeddings: Optional[OpenAIEmbeddings] = None
+        self._collection_name: Optional[str] = None
 
     @property
     def embeddings(self) -> Chroma:
@@ -81,6 +81,18 @@ class AiAgent:
             self._embeddings = OpenAIEmbeddings()
             LOGGER.debug(f"Setting default embeddings: {self._embeddings}")
         return self._embeddings
+
+    @property
+    def collection_name(self) -> Chroma:
+        if self._collection_name is None:
+            self._collection_name = "readthedocs"
+            LOGGER.debug(f"Setting default collection name: {self._collection_name}")
+        return self._collection_name
+
+    @collection_name.setter
+    def collection_name(self, value: str):
+        LOGGER.debug(f"Setting collection name: {value}")
+        self.collection_name = value
 
     @property
     def vector_store(self) -> Chroma:
@@ -152,6 +164,7 @@ class AiAgent:
             collection_name="readthedocs",
             embedding_function=self._embeddings,
         )
+        LOGGER.debug(f"Setting embedding and vector_store: {self._embeddings},{self._vector_store}")
         llm = llm_manager.LlmManager().llm
         rtd_tool = ReadTheDocsQATool(db=db, llm=llm)
         self.custom_tools.append(rtd_tool)
