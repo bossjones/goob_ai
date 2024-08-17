@@ -30,6 +30,7 @@ from langchain_core.runnables import (
     RunnableSerializable,
 )
 from langchain_core.tools import BaseTool, ToolException
+from langchain_core.vectorstores import VectorStoreRetriever
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 from langsmith import traceable
 from langsmith.wrappers import wrap_openai
@@ -328,6 +329,21 @@ class ReadTheDocsQATool(BaseChromaDBTool, BaseTool):
         answer = await qa_chain_custom_name.ainvoke(question)
 
         return answer
+
+    @traceable
+    def _get_retriever(self, **kwargs: Any) -> VectorStoreRetriever:
+        """
+        Get the vector store retriever.
+
+        This method retrieves the vector store retriever from the Chroma database.
+
+        Args:
+            **kwargs: Additional keyword arguments to pass to the `as_retriever` method.
+
+        Returns:
+            VectorStoreRetriever: The vector store retriever.
+        """
+        return self.db.as_retriever(**kwargs)
 
     @traceable
     def _make_qa_chain(self) -> RunnableSerializable[Any, str]:

@@ -129,6 +129,8 @@ class AioSettings(BaseSettings):
     monitor_host: str = "localhost"
     monitor_port: int = 50102
 
+    debug_langchain: bool | None = False
+
     # tweetpik_background_image = "510"  # a image that you want to use as background. you need to use this as a valid url like https://mysite.com/image.png and it should not be protected by cors
     audit_log_send_channel: str = ""
 

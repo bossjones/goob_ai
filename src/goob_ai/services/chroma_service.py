@@ -19,7 +19,7 @@ import shutil
 
 from collections.abc import Sequence
 from dataclasses import dataclass
-from typing import Any, List, Optional
+from typing import Any, Callable, List, Literal, Optional, Set, Union
 
 import bs4
 import chromadb
@@ -35,6 +35,7 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 from langchain_text_splitters import CharacterTextSplitter, RecursiveCharacterTextSplitter
 from loguru import logger as LOGGER
+from tqdm import tqdm
 
 from goob_ai.aio_settings import aiosettings
 from goob_ai.utils import file_functions
@@ -177,13 +178,13 @@ def get_rag_loader(filename: str) -> TextLoader | PyMuPDFLoader | WebBaseLoader 
         return TextLoader(filename)
     elif is_pdf(filename):
         LOGGER.debug("selected filetype pdf, using PyMuPDFLoader(filename)")
-        return PyMuPDFLoader(filename)
+        return PyMuPDFLoader(filename, extract_images=True)
     else:
         LOGGER.debug(f"selected filetype UNKNOWN, using None. uri: {filename}")
         return None
 
 
-def get_rag_splitter(filename: str) -> CharacterTextSplitter | None:
+def get_rag_splitter(filename: str, chunk_size: int = 1000, chunk_overlap: int = 200) -> CharacterTextSplitter | None:
     """
     Get the appropriate text splitter for the given filename.
 
@@ -198,21 +199,24 @@ def get_rag_splitter(filename: str) -> CharacterTextSplitter | None:
         CharacterTextSplitter | None: The text splitter for the given file,
         or None if the file type is not supported.
     """
+    LOGGER.debug(f"get_rag_splitter(filename={filename}, chunk_size={chunk_size}, chunk_overlap={chunk_overlap})")
 
     if is_github_io_url(f"{filename}"):
         LOGGER.debug(
-            "selected filetype github.io url, usingRecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)"
+            f"selected filetype github.io url, usingRecursiveCharacterTextSplitter(chunk_size={chunk_size}, chunk_overlap={chunk_overlap})"
         )
-        return RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
+        return RecursiveCharacterTextSplitter(chunk_size=chunk_size, chunk_overlap=chunk_overlap)
     elif is_txt(filename):
-        LOGGER.debug("selected filetype txt, using CharacterTextSplitter(chunk_size=1000, chunk_overlap=0)")
-        return CharacterTextSplitter(chunk_size=1000, chunk_overlap=0)
+        LOGGER.debug(f"selected filetype txt, using CharacterTextSplitter(chunk_size={chunk_size}, chunk_overlap=0)")
+        return CharacterTextSplitter(chunk_size=chunk_size, chunk_overlap=0)
     else:
         LOGGER.debug(f"selected filetype UNKNOWN, using None. uri: {filename}")
         return None
 
 
-def get_rag_embedding_function(filename: str) -> SentenceTransformerEmbeddings | OpenAIEmbeddings | None:
+def get_rag_embedding_function(
+    filename: str, disallowed_special: Union[Literal["all"], set[str], Sequence[str], None] = None
+) -> SentenceTransformerEmbeddings | OpenAIEmbeddings | None:
     """
     Get the appropriate embedding function for the given filename.
 
@@ -229,59 +233,34 @@ def get_rag_embedding_function(filename: str) -> SentenceTransformerEmbeddings |
     """
 
     if is_github_io_url(f"{filename}"):
-        LOGGER.debug("selected filetype github.io url, using OpenAIEmbeddings()")
-        return OpenAIEmbeddings()
+        LOGGER.debug(
+            f"selected filetype github.io url, using OpenAIEmbeddings(disallowed_special={disallowed_special})"
+        )
+        return OpenAIEmbeddings(disallowed_special=disallowed_special)
     elif is_txt(filename):
-        LOGGER.debug('selected filetype txt, using SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2")')
+        LOGGER.debug(
+            f'selected filetype txt, using SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2", disallowed_special={disallowed_special})'
+        )
         return SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2")
     elif is_pdf(filename):
-        LOGGER.debug("selected filetype pdf, using OpenAIEmbeddings()")
-        return OpenAIEmbeddings()
+        LOGGER.debug(f"selected filetype pdf, using OpenAIEmbeddings(disallowed_special={disallowed_special})")
+        return OpenAIEmbeddings(disallowed_special=disallowed_special)
     else:
         LOGGER.debug(f"selected filetype UNKNOWN, using None. uri: {filename}")
         return None
 
 
-def get_client() -> chromadb.ClientAPI:
+def get_client(host: str = aiosettings.chroma_host, port: int = aiosettings.chroma_port) -> chromadb.ClientAPI:
     """Get the ChromaDB client.
 
     Returns:
         The ChromaDB client.
     """
     return chromadb.HttpClient(
-        host=aiosettings.chroma_host,
-        port=aiosettings.chroma_port,
+        host=host,
+        port=port,
         settings=ChromaSettings(allow_reset=True, is_persistent=True),
     )
-
-
-# Function to perform the query and get the response
-# def get_response(query_text: str) -> str:
-#     """Perform the query and get the response.
-
-#     Args:
-#         query_text (str): The query text to search in the database.
-
-#     Returns:
-#         str: The response text based on the query.
-#     """
-#     embedding_function = OpenAIEmbeddings()
-#     db = Chroma(persist_directory=CHROMA_PATH, embedding_function=embedding_function)
-
-#     # Search the DB
-#     results = db.similarity_search_with_relevance_scores(query_text, k=3)
-#     if len(results) == 0 or results[0][1] < 0.7:
-#         return "Unable to find matching results."
-
-#     context_text = "\n\n---\n\n".join([doc.page_content for doc, _score in results])
-#     prompt_template = ChatPromptTemplate.from_template(PROMPT_TEMPLATE)
-#     prompt = prompt_template.format(context=context_text, question=query_text)
-
-#     model = ChatOpenAI()
-#     response_text = model.predict(prompt)
-
-#     sources = [doc.metadata.get("source", None) for doc, _score in results]
-#     return f"Response: {response_text}\nSources: {sources}"
 
 
 def search_db(db: Chroma, query_text: str, k: int = 3) -> list[tuple[Document, float]] | None:
@@ -391,7 +370,7 @@ def get_chroma_db(
     Returns:
         Chroma: The Chroma database.
     """
-    return Chroma(persist_directory=persist_directory, embedding_function=embedding_function)
+    return Chroma(persist_directory=persist_directory, embedding_function=embedding_function, **kwargs)
 
 
 def main() -> None:
@@ -415,13 +394,17 @@ class CustomOpenAIEmbeddings(OpenAIEmbeddings):
         openai_api_key (str): The API key for accessing OpenAI services.
     """
 
-    def __init__(self, openai_api_key: str = aiosettings.openai_api_key.get_secret_value()) -> None:
+    def __init__(
+        self,
+        openai_api_key: str = aiosettings.openai_api_key.get_secret_value(),
+        disallowed_special: Union[Literal["all"], set[str], Sequence[str], None] = None,
+    ) -> None:
         """Initialize the CustomOpenAIEmbeddings class.
 
         Args:
             openai_api_key (str): The API key for accessing OpenAI services.
         """
-        super().__init__(openai_api_key=openai_api_key)
+        super().__init__(openai_api_key=openai_api_key, disallowed_special=disallowed_special)
 
     def _embed_documents(self, texts: list[str]) -> list[list[float]]:
         """Embed a list of documents.
@@ -481,13 +464,20 @@ def load_documents() -> list[Document]:
 
     for filename in result:
         LOGGER.info(f"Loading document: {filename}")
-        loader = PyPDFLoader(f"{filename}")
+        # loader = PyPDFLoader(f"{filename}", extract_images=True)
+        loader = PyMuPDFLoader(f"{filename}", extract_images=True)
         LOGGER.info(f"Loader: {loader}")
         documents.extend(loader.load())
     return documents
 
 
-def split_text(documents: list[Document]) -> list[Document]:
+def split_text(
+    documents: list[Document],
+    chunk_size: int = 300,
+    chunk_overlap: int = 100,
+    length_function: Callable[[Document], int] = len,
+    add_start_index: bool = True,
+) -> list[Document]:
     """Split documents into smaller chunks.
 
     This function takes a list of documents and splits each document into smaller chunks
@@ -500,9 +490,13 @@ def split_text(documents: list[Document]) -> list[Document]:
     Returns:
         List[Document]: The list of document chunks.
     """
+    LOGGER.debug(
+        f"Split text with chunk size: {chunk_size}, chunk overlap: {chunk_overlap}, length function: {length_function}, add start index: {add_start_index}"
+    )
+
     text_splitter: RecursiveCharacterTextSplitter = RecursiveCharacterTextSplitter(
-        chunk_size=300,
-        chunk_overlap=100,
+        chunk_size=chunk_size,
+        chunk_overlap=chunk_overlap,
         length_function=len,
         add_start_index=True,
     )
@@ -511,7 +505,9 @@ def split_text(documents: list[Document]) -> list[Document]:
     return chunks
 
 
-def save_to_chroma(chunks: list[Document]) -> None:
+def save_to_chroma(
+    chunks: list[Document], disallowed_special: Union[Literal["all"], set[str], Sequence[str], None] = ()
+) -> None:
     """Save document chunks to a Chroma vector store.
 
     This function performs the following steps:
@@ -526,10 +522,12 @@ def save_to_chroma(chunks: list[Document]) -> None:
     # if os.path.exists(CHROMA_PATH):
     #     shutil.rmtree(CHROMA_PATH)
 
-    embeddings = CustomOpenAIEmbeddings(openai_api_key=aiosettings.openai_api_key.get_secret_value())
+    embeddings = CustomOpenAIEmbeddings(
+        openai_api_key=aiosettings.openai_api_key.get_secret_value(), disallowed_special=disallowed_special
+    )
     LOGGER.info(embeddings)
     # Create a new DB from the documents.
-    db = ChromaVectorStore.from_documents(chunks, embeddings, persist_directory=CHROMA_PATH)
+    db: ChromaVectorStore = ChromaVectorStore.from_documents(chunks, embeddings, persist_directory=CHROMA_PATH)
     LOGGER.info(f"Saved {len(chunks)} chunks to {CHROMA_PATH}.")
 
 
@@ -602,17 +600,22 @@ class ChromaService:
         return ChromaService.client
 
     @staticmethod
-    def get_or_create_collection(query_text: str) -> chromadb.ClientAPI:
+    def get_or_create_collection(collection_name: str, embedding_function: Any) -> chromadb.Collection:
         """
         Get or create a collection in ChromaDB.
 
         Args:
-            query_text (str): The query text to search in the database.
+            collection_name: Name of the collection.
+            embedding_function: Embedding function to use.
 
         Returns:
-            chromadb.ClientAPI: The ChromaDB client.
+            The created collection.
         """
-        return ChromaService.client
+        collection = ChromaService.client.get_or_create_collection(
+            name=collection_name, embedding_function=embedding_function
+        )
+        LOGGER.debug(f"Collection: {collection}")
+        return collection
 
     @staticmethod
     def get_response(query_text: str) -> str:
@@ -656,6 +659,26 @@ class ChromaService:
             List[Document]: The list of document chunks.
         """
         return split_text(documents)
+
+    @staticmethod
+    def get_vector_store_from_client(
+        collection_name: str | None = "",
+        embedding_function: Any | None = None,
+        client: chromadb.ClientAPI | None = None,
+    ) -> ChromaVectorStore:
+        """
+        Get a Chroma vector store from the ChromaDB client.
+
+        Args:
+            collection_name (str): The name of the collection to retrieve.
+            embedding_function (Any, optional): The embedding function to use. Defaults to None.
+
+        Returns:
+            ChromaVectorStore: The Chroma vector store.
+        """
+        # client = ChromaService.get_client()
+        collection = ChromaService.get_or_create_collection(collection_name, embedding_function)
+        return ChromaVectorStore(client=client, collection_name=collection_name, embedding_function=embedding_function)
 
     @staticmethod
     def add_to_chroma(
@@ -717,6 +740,39 @@ class ChromaService:
             chunks (list[Document]): The list of document chunks to be saved.
         """
         save_to_chroma(chunks)
+
+    # https://github.com/langchain-ai/langchain/blob/master/cookbook/img-to_img-search_CLIP_ChromaDB.ipynb
+    @staticmethod
+    def embed_images(chroma_client: chromadb.ClientAPI | None = None, uris: list[str] = [], metadatas: list[dict] = []):
+        """
+        Function to add images to Chroma client with progress bar.
+
+        Args:
+            chroma_client: The Chroma client object.
+            uris (List[str]): List of image file paths.
+            metadatas (List[dict]): List of metadata dictionaries.
+        """
+        if chroma_client is None:
+            chroma_client = ChromaService.get_client()
+
+        LOGGER.debug(f"chroma_client: {chroma_client}")
+        LOGGER.debug(f"uris: {uris}")
+
+        # Iterate through the uris with a progress bar
+        success_count = 0
+        for i in tqdm(range(len(uris)), desc="Adding images"):
+            uri = uris[i]
+            metadata = metadatas[i]
+
+            try:
+                chroma_client.add_images(uris=[uri], metadatas=[metadata])
+            except Exception as e:
+                LOGGER.error(f"Failed to add image {uri} with metadata {metadata}. Error: {e}")
+            else:
+                success_count += 1
+                # print(f"Successfully added image {uri} with metadata {metadata}")
+
+        return success_count
 
 
 if __name__ == "__main__":

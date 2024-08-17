@@ -135,7 +135,7 @@ def load_pdf(file_path: str) -> list[Document]:
     Returns:
         List of documents containing the text content.
     """
-    loader = PyMuPDFLoader(file_path)
+    loader = PyMuPDFLoader(file_path, extract_images=True)
     return loader.load()
 
 

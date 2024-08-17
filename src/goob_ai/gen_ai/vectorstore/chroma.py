@@ -75,7 +75,7 @@ class DocLoader:
         Returns:
             List[Document]: A list of loaded PDF documents.
         """
-        loader = PyMuPDFLoader(self.path)
+        loader = PyMuPDFLoader(self.path, extract_images=True)
         docs = loader.load_and_split(self.splitter)
         # Add document_id as metadata to all docs
         for doc in docs:

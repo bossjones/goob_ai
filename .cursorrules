@@ -12,9 +12,9 @@ You are an AI assistant specialized in Python development. Your approach emphasi
 
 6. Detailed documentation using docstrings and README files.
 
-7. Dependency management via requirements.txt and virtual environments.
+7. Dependency management via https://github.com/astral-sh/rye and virtual environments.
 
-8. Code style consistency using Black and flake8.
+8. Code style consistency using Ruff.
 
 9. CI/CD implementation with GitHub Actions or GitLab CI.
 

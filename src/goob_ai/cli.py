@@ -35,6 +35,7 @@ import rich
 import sentry_sdk
 import typer
 
+from langchain.globals import set_debug, set_verbose
 from langchain_chroma import Chroma as ChromaVectorStore
 from loguru import logger as LOGGER
 from pinecone import Pinecone, ServerlessSpec  # pyright: ignore[reportAttributeAccessIssue]
@@ -83,6 +84,13 @@ from goob_ai.utils.file_functions import fix_path
 # import manhole
 # # this will start the daemon thread
 # manhole.install()
+
+# SOURCE: https://python.langchain.com/v0.2/docs/how_to/debugging/
+if aiosettings.debug_langchain:
+    # Setting the global debug flag will cause all LangChain components with callback support (chains, models, agents, tools, retrievers) to print the inputs they receive and outputs they generate. This is the most verbose setting and will fully log raw inputs and outputs.
+    set_debug(True)
+    # Setting the verbose flag will print out inputs and outputs in a slightly more readable format and will skip logging certain raw outputs (like the token usage stats for an LLM call) so that you can focus on application logic.
+    set_verbose(True)
 
 # if dev mode is enabled, set bpdb as the default debugger
 if aiosettings.dev_mode:

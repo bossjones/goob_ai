@@ -103,6 +103,28 @@ def setup_model() -> torch.nn.Module:
 ###########################################################################3
 
 
+def split_image_text_types(docs):
+    """Split numpy array images and texts"""
+    images = []
+    text = []
+    for doc in docs:
+        doc = doc.page_content  # Extract Document contents
+        if is_base64(doc):
+            # Resize image to avoid OAI server error
+            images.append(resize_base64_image(doc, size=(250, 250)))  # base64 encoded str
+        else:
+            text.append(doc)
+    return {"images": images, "texts": text}
+
+
+def is_base64(s):
+    """Check if a string is Base64 encoded"""
+    try:
+        return base64.b64encode(base64.b64decode(s)) == s.encode()
+    except Exception:
+        return False
+
+
 def resize_base64_image(base64_string, size=(128, 128)):
     """
     Resize an image encoded as a Base64 string.
@@ -111,11 +133,17 @@ def resize_base64_image(base64_string, size=(128, 128)):
     :param size: A tuple representing the new size (width, height) for the image.
     :return: A Base64 encoded string of the resized image.
     """
+    # Decode the Base64 string
     img_data = base64.b64decode(base64_string)
     img = Image.open(io.BytesIO(img_data))
+
+    # Resize the image
     resized_img = img.resize(size, Image.LANCZOS)
+
+    # Save the resized image to a bytes buffer
     buffered = io.BytesIO()
     resized_img.save(buffered, format=img.format)
+
     return base64.b64encode(buffered.getvalue()).decod
 
 
