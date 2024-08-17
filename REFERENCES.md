@@ -160,3 +160,4 @@ source: <https://www.youtube.com/watch?v=AeASAsPp9LE>
 - https://github.com/langchain-ai/langchain/tree/master/cookbook
 - https://github.com/codingjoe/relint - `Write your own linting rules using regular expressions.`
 - https://github.com/ionelmc/python-manhole/ - `Debugging manhole for python applications.`
+- https://github.com/langchain-ai/langchain/blob/master/cookbook/Multi_modal_RAG.ipynb
