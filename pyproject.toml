@@ -352,7 +352,7 @@ open-all = {chain = [
     "open:zipkin",
     "open:otel",
 ]}
-unittests-debug = {cmd = "pytest -vv --diff-width=60 --diff-symbols --pdb --pdbcls bpdb:BPdb --showlocals --tb=short --cov-append --cov-report=term-missing --junitxml=junit/test-results.xml --cov-report=xml:cov.xml --cov-report=html:htmlcov --cov-report=annotate:cov_annotate --cov=."}
+unittests-debug = {cmd = "pytest -s -vv --diff-width=60 --diff-symbols --pdb --pdbcls bpdb:BPdb --showlocals --tb=short --cov-append --cov-report=term-missing --junitxml=junit/test-results.xml --cov-report=xml:cov.xml --cov-report=html:htmlcov --cov-report=annotate:cov_annotate --cov=."}
 unittests = {cmd = "pytest --verbose --showlocals --tb=short --cov-append --cov-report=term-missing --junitxml=junit/test-results.xml --cov-report=xml:cov.xml --cov-report=html:htmlcov --cov-report=annotate:cov_annotate --cov=."}
 unittests-vcr-record = {cmd = "pytest --record-mode=all --verbose --showlocals --tb=short --cov-append --cov-report=term-missing --junitxml=junit/test-results.xml --cov-report=xml:cov.xml --cov-report=html:htmlcov --cov-report=annotate:cov_annotate --cov=."}
 unittests-vcr-record-rewrite = {cmd = "pytest --record-mode=rewrite --verbose --showlocals --tb=short --cov-append --cov-report=term-missing --junitxml=junit/test-results.xml --cov-report=xml:cov.xml --cov-report=html:htmlcov --cov-report=annotate:cov_annotate --cov=."}
@@ -362,7 +362,7 @@ unittests-vcr-record-all = {chain = [
 ]}
 test-simple = {cmd = "pytest -p no:warnings"}
 simple-test = {cmd = "pytest -p no:warnings"}
-new-unittests-debug = {cmd = "pytest --verbose --pdb --pdbcls bpdb:BPdb --showlocals --tb=short"}
+new-unittests-debug = {cmd = "pytest -s --verbose --pdb --pdbcls bpdb:BPdb --showlocals --tb=short"}
 test = {chain = [
     "lint",
     "unittests",
@@ -568,6 +568,7 @@ markers = [
     "imgops: marks tests as imgops (run with '-m imgops')",
     "integration: marks tests dealing with integration testing (deselect with '-m \"not integration\"')",
     "onboardingonly: marks tests that run code that utilizes the new_dev_onboarding_tool module (deselect with '-m \"not onboardingonly\"')",
+    "utilsonly: marks tests that run code that utilizes any utils module (deselect with '-m \"not utilsonly\"')",
     "retryonly: marks tests that run code that utilizes the retry module (deselect with '-m \"not retryonly\"')",
     "skip_in_parallel: marks tests that should be run in serial only (deselect with '-m \"not skip_in_parallel\"')",
     "slow: marks tests as slow (run with '-m slow')",

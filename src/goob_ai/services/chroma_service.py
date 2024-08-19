@@ -23,6 +23,7 @@ from typing import Any, Callable, List, Literal, Optional, Set, Union
 
 import bs4
 import chromadb
+import pysnooper
 import uritools
 
 from chromadb.config import Settings as ChromaSettings
@@ -32,6 +33,7 @@ from langchain_community.document_loaders import PyMuPDFLoader, PyPDFLoader, Tex
 from langchain_community.embeddings.sentence_transformer import SentenceTransformerEmbeddings
 from langchain_core.documents import Document
 from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.vectorstores.base import VectorStoreRetriever
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 from langchain_text_splitters import CharacterTextSplitter, RecursiveCharacterTextSplitter
 from loguru import logger as LOGGER
@@ -326,6 +328,7 @@ def get_response(
     embedding_function: Any = OpenAIEmbeddings(),
     model: Any = ChatOpenAI(),
     k: int = 3,
+    collection_name: str = "",
     **kwargs: Any,
 ) -> str:
     """Perform the query and get the response.
@@ -339,10 +342,10 @@ def get_response(
     Returns:
         str: The response text based on the query.
     """
-    db = get_chroma_db(persist_directory, embedding_function)
+    db = get_chroma_db(persist_directory, embedding_function, collection_name=collection_name)
 
     # Search the DB
-    results = search_db(db, query_text)
+    results = search_db(db, query_text, k=k)
     if not results:
         return "Unable to find matching results."
 
@@ -435,7 +438,10 @@ class CustomOpenAIEmbeddings(OpenAIEmbeddings):
         return self._embed_documents(input)
 
 
-def generate_data_store() -> None:
+@pysnooper.snoop()
+def generate_data_store(
+    collection_name: str = "", embedding_function: Any = OpenAIEmbeddings()
+) -> VectorStoreRetriever:
     """Generate and store document embeddings in a Chroma vector store.
 
     This function performs the following steps:
@@ -445,9 +451,20 @@ def generate_data_store() -> None:
     """
     documents = load_documents()
     chunks = split_text(documents)
-    save_to_chroma(chunks)
+    retriever: VectorStoreRetriever = save_to_chroma(chunks, collection_name=collection_name)
+    return retriever
 
 
+def generate_and_query_data_store(
+    collection_name: str = "", embedding_function: Any = OpenAIEmbeddings()
+) -> VectorStoreRetriever:
+    retriever: VectorStoreRetriever = generate_data_store(
+        collection_name=collection_name, embedding_function=embedding_function
+    )
+    return retriever
+
+
+# @pysnooper.snoop()
 def load_documents() -> list[Document]:
     """Load documents from the specified data path.
 
@@ -471,6 +488,7 @@ def load_documents() -> list[Document]:
     return documents
 
 
+# @pysnooper.snoop()
 def split_text(
     documents: list[Document],
     chunk_size: int = 300,
@@ -498,16 +516,21 @@ def split_text(
         chunk_size=chunk_size,
         chunk_overlap=chunk_overlap,
         length_function=len,
-        add_start_index=True,
+        add_start_index=add_start_index,
     )
+    # aka chunks = all_splits
     chunks: list[Document] = text_splitter.split_documents(documents)
     LOGGER.info(f"Split {len(documents)} documents into {len(chunks)} chunks.")
     return chunks
 
 
+# @pysnooper.snoop()
 def save_to_chroma(
-    chunks: list[Document], disallowed_special: Union[Literal["all"], set[str], Sequence[str], None] = ()
-) -> None:
+    chunks: list[Document],
+    disallowed_special: Union[Literal["all"], set[str], Sequence[str], None] = (),
+    use_custom_openai_embeddings: bool = False,
+    collection_name: str = "",
+) -> VectorStoreRetriever:
     """Save document chunks to a Chroma vector store.
 
     This function performs the following steps:
@@ -522,13 +545,33 @@ def save_to_chroma(
     # if os.path.exists(CHROMA_PATH):
     #     shutil.rmtree(CHROMA_PATH)
 
-    embeddings = CustomOpenAIEmbeddings(
+    # default embeddings
+    LOGGER.error("default embeddings OpenAIEmbeddings")
+    embeddings = OpenAIEmbeddings(
         openai_api_key=aiosettings.openai_api_key.get_secret_value(), disallowed_special=disallowed_special
     )
+
+    # if flag set to use custom embeddings, override
+    if use_custom_openai_embeddings:
+        LOGGER.error("Using CustomOpenAIEmbeddings")
+        embeddings = CustomOpenAIEmbeddings(
+            openai_api_key=aiosettings.openai_api_key.get_secret_value(), disallowed_special=disallowed_special
+        )
+
     LOGGER.info(embeddings)
-    # Create a new DB from the documents.
-    db: ChromaVectorStore = ChromaVectorStore.from_documents(chunks, embeddings, persist_directory=CHROMA_PATH)
+
+    # Add to vectorDB
+    # from_documents = Create a Chroma vectorstore from a list of documents.
+    vectorstore: ChromaVectorStore = ChromaVectorStore.from_documents(
+        documents=chunks, embedding=embeddings, persist_directory=CHROMA_PATH, collection_name=collection_name
+    )
+    db = vectorstore
+
     LOGGER.info(f"Saved {len(chunks)} chunks to {CHROMA_PATH}.")
+
+    retriever: VectorStoreRetriever = vectorstore.as_retriever()
+
+    return retriever
 
 
 class ChromaService:
