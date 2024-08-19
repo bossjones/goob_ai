@@ -6,11 +6,10 @@ from __future__ import annotations
 
 import logging
 
-from typing import TYPE_CHECKING, Any, Dict, List, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 
 import openai
 
-from boto3.session import Session as boto3_Session
 from langchain.agents import AgentExecutor
 from langchain.agents.agent import BaseMultiActionAgent, BaseSingleActionAgent
 from langchain.agents.format_scratchpad.openai_tools import format_to_openai_tool_messages
@@ -52,7 +51,7 @@ class AiAgent:
     all_tools: list[BaseTool] | None = None
     agent: Union[BaseSingleActionAgent, BaseMultiActionAgent] | None = None
     settings: AioSettings | None = None
-    dynamodb_session: boto3_Session | None = None
+    # dynamodb_session: boto3_Session | None = None
     agent_name: str | None = None
     agent_created_by: str | None = None
     agent_purpose: str | None = None
@@ -71,6 +70,53 @@ class AiAgent:
         # global LangChain debugging:
         if self.settings.langchain_debug_logs:
             set_debug(True)
+
+        self._vector_store: Optional[Chroma] = None
+        self._embeddings: Optional[OpenAIEmbeddings] = None
+        self._collection_name: Optional[str] = None
+
+    # def __repr__(self):
+    #     return f'{self.__class__.__name__}("{self._data}")'
+
+    @property
+    def embeddings(self) -> Chroma:
+        if self._embeddings is None:
+            self._embeddings = OpenAIEmbeddings()
+        LOGGER.debug(f"Setting embeddings was accessed. Current value: {self._embeddings}")
+        return self._embeddings
+
+    @embeddings.setter
+    def embeddings(self, value: Any):
+        LOGGER.debug(f"Setting embeddings was {self._embeddings}. Current value: {value}")
+        self._embeddings = value
+
+    @property
+    def collection_name(self) -> Chroma:
+        if self._collection_name is None:
+            self._collection_name = "readthedocs"
+        LOGGER.debug(f"Setting collection_name was accessed. Current value: {self._collection_name}")
+        return self._collection_name
+
+    @collection_name.setter
+    def collection_name(self, value: str):
+        LOGGER.debug(f"Setting collection_name was {self._collection_name}. Current value: {value}")
+        self._collection_name = value
+
+    @property
+    def vector_store(self) -> Chroma:
+        if self._vector_store is None:
+            self._vector_store = Chroma(
+                client=ChromaService.client,
+                collection_name="readthedocs",
+                embedding_function=self._embeddings,
+            )
+        LOGGER.debug(f"Setting vector_store was accessed. Current value: {self._vector_store}")
+        return self._vector_store
+
+    @vector_store.setter
+    def vector_store(self, value: Any):
+        LOGGER.debug(f"Setting vector_store was {self._vector_store}. Current value: {value}")
+        self._vector_store = value
 
     # FIXME: Implement meme personality as well. https://chatgptaihub.com/chatgpt-prompts-for-memes/
     def init_agent_name(self):
@@ -125,12 +171,13 @@ class AiAgent:
 
     def init_tools(self):
         self.custom_tools: Union[list[BaseTool], list[Any]] | None = [VisionTool()]
-        embeddings = OpenAIEmbeddings()
-        db = Chroma(
+        self._embeddings = embeddings = OpenAIEmbeddings()
+        self._vector_store = db = Chroma(
             client=ChromaService.client,
             collection_name="readthedocs",
-            embedding_function=embeddings,
+            embedding_function=self._embeddings,
         )
+        LOGGER.debug(f"Setting embedding and vector_store: {self._embeddings},{self._vector_store}")
         llm = llm_manager.LlmManager().llm
         rtd_tool = ReadTheDocsQATool(db=db, llm=llm)
         self.custom_tools.append(rtd_tool)

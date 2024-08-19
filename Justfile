@@ -251,3 +251,6 @@ get-ruff-config:
 ci:
 	rye run lint
 	rye run test
+
+manhole-shell:
+	./scripts/manhole-shell

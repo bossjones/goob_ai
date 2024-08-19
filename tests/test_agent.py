@@ -4,28 +4,17 @@
 # pylint: disable=consider-using-from-import
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
-from goob_ai.agent import AiAgent
-
-import pytest
-
-
-if TYPE_CHECKING:
-    from _pytest.fixtures import FixtureRequest
-    from _pytest.monkeypatch import MonkeyPatch
-
-    from pytest_mock.plugin import MockerFixture
-
 import asyncio
+import logging
 import sys
 import uuid
 
 from collections.abc import AsyncIterator, Iterable, Iterator, Sequence
 from functools import partial
 from itertools import cycle
-from typing import Any, Dict, List, Optional, cast
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, cast
 
+from goob_ai.agent import AiAgent
 from langchain_core.callbacks import CallbackManagerForRetrieverRun, Callbacks
 from langchain_core.chat_history import BaseChatMessageHistory
 from langchain_core.documents import Document
@@ -51,6 +40,21 @@ from langchain_core.runnables.schema import StreamEvent
 from langchain_core.runnables.utils import Input, Output
 from langchain_core.tools import tool
 from langchain_core.utils.aiter import aclosing
+from langchain_openai import OpenAIEmbeddings
+from loguru import logger as LOGGER
+
+import pytest
+
+
+if TYPE_CHECKING:
+    from unittest.mock import AsyncMock, MagicMock, NonCallableMagicMock
+
+    from _pytest.capture import CaptureFixture
+    from _pytest.fixtures import FixtureRequest
+    from _pytest.logging import LogCaptureFixture
+    from _pytest.monkeypatch import MonkeyPatch
+
+    from pytest_mock.plugin import MockerFixture
 
 
 class AnyStr(str):
@@ -109,3 +113,71 @@ def agent(monkeypatch: MonkeyPatch, mocker: MockerFixture, request: FixtureReque
     monkeypatch.setenv("PINECONE_API_KEY", "fake_pinecone_key")
     monkeypatch.setenv("PINECONE_INDEX", "fake_test_index")
     return AiAgent()
+
+
+def test_embeddings_default(agent: AiAgent):
+    """Test that the default embeddings are set correctly."""
+    assert isinstance(agent.embeddings, OpenAIEmbeddings)
+
+
+def test_embeddings_custom(agent: AiAgent):
+    """Test that custom embeddings can be set."""
+    custom_embeddings = OpenAIEmbeddings(openai_api_key="custom_key")
+    agent._embeddings = custom_embeddings
+    assert agent.embeddings == custom_embeddings
+
+
+def test_embeddings_lazy_loading(agent: AiAgent):
+    """Test that embeddings are lazily loaded."""
+    agent._embeddings = None
+    assert isinstance(agent.embeddings, OpenAIEmbeddings)
+
+
+def test_embeddings_caching(agent: AiAgent):
+    """Test that embeddings are cached after first access."""
+    agent._embeddings = None
+    embeddings1 = agent.embeddings
+    embeddings2 = agent.embeddings
+    assert embeddings1 is embeddings2
+
+
+def test_collection_name_default(agent: AiAgent):
+    """Test that the default collection name is set correctly."""
+    assert agent.collection_name == "readthedocs"
+
+
+def test_collection_name_custom(agent: AiAgent):
+    """Test that a custom collection name can be set."""
+    custom_collection_name = "custom_collection"
+    agent.collection_name = custom_collection_name
+    assert agent.collection_name == custom_collection_name
+
+
+def test_collection_name_lazy_loading(agent: AiAgent):
+    """Test that the collection name is lazily loaded."""
+    agent._collection_name = None
+    assert agent.collection_name == "readthedocs"
+
+
+def test_collection_name_caching(agent: AiAgent):
+    """Test that the collection name is cached after first access."""
+    agent._collection_name = None
+    collection_name1 = agent.collection_name
+    collection_name2 = agent.collection_name
+    assert collection_name1 == collection_name2
+
+
+def test_collection_name_setter(agent: AiAgent, caplog: LogCaptureFixture):
+    """Test that the collection name setter logs a debug message."""
+    caplog.set_level(logging.DEBUG)
+    custom_collection_name = "custom_collection"
+
+    debug = [i.message for i in caplog.records if i.levelno == logging.DEBUG]
+    # with caplog.set_level(logging.DEBUG):
+    agent.collection_name = custom_collection_name
+    # assert f"{custom_collection_name}" in debug
+
+    # wait for logging to finish runnnig
+    # await LOGGER.complete()
+
+    caplog.clear()

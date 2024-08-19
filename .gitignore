@@ -372,3 +372,5 @@ ruff_config.toml
 .virtual_documents/
 notebooks/e2e_evals.ipynb
 src/goob_ai/data/chroma/vectorstorage/
+src/goob_ai/bot_logger/__init__.py
+file.out

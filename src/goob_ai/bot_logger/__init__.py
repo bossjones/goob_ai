@@ -37,6 +37,8 @@ from types import FrameType
 from typing import TYPE_CHECKING, Any, Deque, Dict, Literal, Optional, Union, cast
 
 import loguru
+import pysnooper
+import vcr
 
 from loguru import logger
 from loguru._defaults import LOGURU_FORMAT
@@ -289,6 +291,8 @@ def reset_logging(log_dir: str, *, console_log_level: LOG_LEVEL = "INFO", backup
     #     _old_backup_count = backup_count
 
 
+# @pysnooper.snoop()
+# @pysnooper.snoop(thread_info=True)
 # FIXME: https://github.com/abnerjacobsen/fastapi-mvc-loguru-demo/blob/main/mvc_demo/core/loguru_logs.py
 # SOURCE: https://loguru.readthedocs.io/en/stable/api/logger.html#loguru._logger.Logger
 def global_log_config(log_level: Union[str, int] = logging.DEBUG, json: bool = False) -> _Logger:

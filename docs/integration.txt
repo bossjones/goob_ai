@@ -1,5 +1,3 @@
-<!-- Please generate readme file contents. This readme will cover the details on how to author an integration  -->
-
 # Integrations
 
 This directory contains various integrations for Weave. As of this writing, there are 2 methods of patching: autopatching and manual integration. Furthermore, there are 2 styles of libraries we are interested in patching: model vendors and orchestration frameworks.
