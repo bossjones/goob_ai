@@ -544,6 +544,8 @@ jmespath==1.0.1
 joblib==1.4.2
     # via nltk
     # via scikit-learn
+jq==1.8.0
+    # via goob-ai
 jsbeautifier==1.15.1
     # via mkdocs-mermaid2-plugin
 json5==0.9.25

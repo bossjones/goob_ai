@@ -454,6 +454,8 @@ jmespath==1.0.1
 joblib==1.4.2
     # via nltk
     # via scikit-learn
+jq==1.8.0
+    # via goob-ai
 json5==0.9.25
     # via jupyterlab-server
 jsonpatch==1.33

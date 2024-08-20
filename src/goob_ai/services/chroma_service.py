@@ -12,34 +12,46 @@
 from __future__ import annotations
 
 import argparse
+import asyncio
+import hashlib
+import logging
 import os
 import pathlib
 import re
 import shutil
+import sys
+import tempfile
 
 from collections.abc import Sequence
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Any, Callable, List, Literal, Optional, Set, Union
 
 import bs4
 import chromadb
+import httpx
 import pysnooper
 import uritools
 
 from chromadb.config import Settings as ChromaSettings
+from langchain.document_loaders.directory import DirectoryLoader
 from langchain.evaluation import load_evaluator
+from langchain.vectorstores.chroma import Chroma
 from langchain_chroma import Chroma
 from langchain_chroma import Chroma as ChromaVectorStore
-from langchain_community.document_loaders import PyMuPDFLoader, PyPDFLoader, TextLoader, WebBaseLoader
+from langchain_community.document_loaders import JSONLoader, PyMuPDFLoader, PyPDFLoader, TextLoader, WebBaseLoader
 from langchain_community.embeddings.sentence_transformer import SentenceTransformerEmbeddings
 from langchain_core.documents import Document
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.vectorstores.base import VectorStoreRetriever
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
-from langchain_text_splitters import CharacterTextSplitter, RecursiveCharacterTextSplitter
+from langchain_openai.embeddings import OpenAIEmbeddings
+from langchain_text_splitters import CharacterTextSplitter, MarkdownTextSplitter, RecursiveCharacterTextSplitter
 from loguru import logger as LOGGER
+from pydantic.v1.types import SecretStr
 from tqdm import tqdm
 
+from goob_ai import llm_manager, redis_memory
 from goob_ai.aio_settings import aiosettings
 from goob_ai.utils import file_functions
 
@@ -48,6 +60,7 @@ HERE = os.path.dirname(__file__)
 
 DATA_PATH = os.path.join(HERE, "..", "data", "chroma", "documents")
 CHROMA_PATH = os.path.join(HERE, "..", "data", "chroma", "vectorstorage")
+CHROMA_PATH_API = Path(CHROMA_PATH)
 
 PROMPT_TEMPLATE = """
 Answer the question based only on the following context:
@@ -61,6 +74,254 @@ Answer the question based on the above context: {question}
 
 # Define the regex pattern to match a valid URL containing "github.io"
 WEBBASE_LOADER_PATTERN = r"^https?://[a-zA-Z0-9.-]+\.github\.io(/.*)?$"
+
+
+async def llm_query(
+    collection_name: str = "",
+    question: str = "",
+    threshold: float = 0.65,
+    count: int = 5,
+    disallowed_special: Union[Literal["all"], set[str], Sequence[str]] = (),
+) -> tuple[str | list | None, list[str | None]]:
+    LOGGER.debug(f"Querying chroma db. Count={count} Threshold={threshold}", collection_name=collection_name)
+
+    http_client = httpx.AsyncClient()
+
+    # Load DB
+    llm_db = Chroma(
+        collection_name=collection_name,
+        persist_directory=str(CHROMA_PATH),
+        embedding_function=OpenAIEmbeddings(
+            openai_api_key=aiosettings.openai_api_key.get_secret_value(),
+            disallowed_special=disallowed_special,
+            async_client=httpx.AsyncClient(),
+        ),
+    )
+
+    if not llm_db:
+        raise RuntimeError("Chroma DB does not exist")
+
+    # Search the DB.
+    similar = llm_db.similarity_search_with_relevance_scores(question, k=count)
+
+    if not similar:
+        LOGGER.debug("Unable to find matching results.", collection_name=collection_name)
+        return (None, [])
+
+    LOGGER.debug(f"Similar result count: {len(similar)}", collection_name=collection_name)
+
+    results: list[tuple[Document, float]] = []
+    for r in similar:
+        LOGGER.debug(f"Result Threshold: {r[1]:.4f}", collection_name=collection_name)
+        if r[1] > threshold and r not in results:
+            results.append(r)
+
+    if not results:
+        LOGGER.debug("Unable to find matching results.", collection_name=collection_name)
+        return (None, [])
+
+    LOGGER.debug(f"Final Result count: {len(results)}", collection_name=collection_name)
+
+    context_text = "\n\n---\n\n".join([doc.page_content for doc, _score in results])
+    prompt_template = ChatPromptTemplate.from_template(PROMPT_TEMPLATE)
+    prompt = prompt_template.format(context=context_text, question=question)
+    LOGGER.debug(prompt)
+
+    # FIXME: This is a hack to get the model to work. We need to fix this in the llm_manager.
+    # model: ChatOpenAI | None = llm_manager.LlmManager().llm
+    model = ChatOpenAI(
+        name="ChatOpenAI",
+        model=aiosettings.chat_model,
+        streaming=True,
+        temperature=aiosettings.llm_temperature,
+        async_client=http_client,
+    )
+    response_text = model.invoke(prompt)
+
+    await http_client.aclose()
+
+    sources: list[str | None] = [doc.metadata.get("source") for doc, _score in results]
+    if not response_text.content:
+        return (None, [])
+    LOGGER.debug(f"LLM Response: {response_text.content}", collection_name=collection_name)
+    if len(response_text.content) > 2000:
+        return ("Sorry that response is too long for me to put in discord.", [])
+
+    return (response_text.content, sources)
+
+
+# SOURCE: https://github.com/RSC-NA/rsc/blob/69f8ce29a6e38a960515564bf84fbd1d809468d8/rsc/llm/create_db.py#L176
+async def string_to_doc(text: str) -> Document:
+    """
+    Convert a string to a Document object.
+
+    Args:
+        text (str): The input string to convert.
+
+    Returns:
+        Document: The converted Document object.
+    """
+    return Document(page_content=text)
+
+
+# SOURCE: https://github.com/RSC-NA/rsc/blob/69f8ce29a6e38a960515564bf84fbd1d809468d8/rsc/llm/create_db.py#L176
+async def markdown_to_documents(docs: list[Document]) -> list[Document]:
+    """
+    Split Markdown documents into smaller chunks.
+
+    Args:
+        docs (list[Document]): The list of Markdown documents to split.
+
+    Returns:
+        list[Document]: The list of split document chunks.
+    """
+    md_splitter = MarkdownTextSplitter()
+    return md_splitter.split_documents(docs)
+
+
+# SOURCE: https://github.com/RSC-NA/rsc/blob/69f8ce29a6e38a960515564bf84fbd1d809468d8/rsc/llm/create_db.py#L176
+def franchise_metadata(record: dict, metadata: dict) -> dict:
+    """
+    Update the metadata dictionary with franchise-specific information.
+
+    Args:
+        record (dict): The record dictionary.
+        metadata (dict): The metadata dictionary to update.
+
+    Returns:
+        dict: The updated metadata dictionary.
+    """
+    LOGGER.debug(f"Metadata: {metadata}")
+    metadata["source"] = "API"
+    return metadata
+
+
+# # SOURCE: https://github.com/RSC-NA/rsc/blob/69f8ce29a6e38a960515564bf84fbd1d809468d8/rsc/llm/create_db.py#L176
+# async def json_to_docs(data: str, jq_schema: str, metadata_func: Callable | None) -> list[Document]:
+#     """
+#     Convert JSON data to a list of Document objects.
+
+#     Args:
+#         data (str): The JSON data as a string.
+#         jq_schema (str): The jq schema to apply to the JSON data.
+#         metadata_func (Callable | None): The function to apply to the metadata.
+
+#     Returns:
+#         list[Document]: The list of converted Document objects.
+#     """
+#     with tempfile.NamedTemporaryFile() as fd:
+#         if isinstance(data, str):
+#             fd.write(data.encode("utf-8"))
+#         elif isinstance(data, bytes):
+#             fd.write(data)
+#         else:
+#             raise TypeError("JSON data must be str or bytes")
+#         loader = JSONLoader(
+#             file_path=fd.name,
+#             jq_schema=jq_schema,
+#             text_content=False,
+#             metadata_func=franchise_metadata,
+#         )
+#         chunks = loader.load()
+
+#     return chunks
+
+
+# SOURCE: https://github.com/RSC-NA/rsc/blob/69f8ce29a6e38a960515564bf84fbd1d809468d8/rsc/llm/create_db.py#L176
+async def generate_document_hashes(docs: list[Document]) -> list[str]:
+    """
+    Generate hashes for a list of Document objects.
+
+    Args:
+        docs (list[Document]): The list of Document objects to generate hashes for.
+
+    Returns:
+        list[str]: The list of generated hashes.
+    """
+    hashes = []
+    for doc in docs:
+        source = doc.metadata.get("source")
+        api_id = doc.metadata.get("id")
+
+        if source and api_id:
+            ident = f"{source}/{api_id}"
+        elif source:
+            ident = f"{source}"
+        elif api_id:
+            LOGGER.warning(f"LLM Document has no source: {doc.page_content[:50]}")
+            ident = f"{api_id}"
+        else:
+            LOGGER.warning(f"LLM Document has no metadata: {doc.page_content[:50]}")
+            ident = doc.page_content
+
+        hash = hashlib.sha256(ident.encode("utf-8")).hexdigest()
+        hashes.append(hash)
+
+    return hashes
+
+
+# SOURCE: https://github.com/RSC-NA/rsc/blob/69f8ce29a6e38a960515564bf84fbd1d809468d8/rsc/llm/create_db.py#L176
+async def create_chroma_db(
+    collection_name: str,
+    docs: list[Document],
+    disallowed_special: Union[Literal["all"], set[str], Sequence[str]] = (),
+    reset: bool = False,
+) -> None:
+    """
+    Create a Chroma database with the given collection name and documents.
+
+    Args:
+        collection_name (str): The name of the collection.
+        org_name (str): The name of the organization.
+        api_key (str): The API key for authentication.
+        docs (list[Document]): The list of Document objects to add to the database.
+    """
+
+    if reset:
+        # Clear out the database first.
+        LOGGER.debug("Clear out the database first.")
+        await rm_chroma_db()
+
+    # Create directory if needed
+    if not CHROMA_PATH_API.absolute().exists():
+        # Create brand new DB if it doesn't exist
+        LOGGER.debug("Creating Chroma DB Directory", collection_name=collection_name)
+        CHROMA_PATH_API.absolute().mkdir(parents=True, exist_ok=True)
+        await asyncio.sleep(5)
+
+    LOGGER.debug("Saving Chroma DB.", collection_name=collection_name)
+    Chroma.from_documents(
+        documents=docs,
+        collection_name=collection_name,
+        embedding=OpenAIEmbeddings(
+            openai_api_key=aiosettings.openai_api_key.get_secret_value(),
+            disallowed_special=disallowed_special,
+            async_client=httpx.AsyncClient(),
+        ),
+        # embedding=OpenAIEmbeddings(
+        #     organization=org_name,
+        #     api_key=SecretStr(api_key),
+        #     async_client=httpx.AsyncClient(),
+        # ),
+        persist_directory=str(CHROMA_PATH_API.absolute()),
+    )
+    LOGGER.info(f"Saved {len(docs)} chunks to {CHROMA_PATH_API}.", collection_name=collection_name)
+
+
+# SOURCE: https://github.com/RSC-NA/rsc/blob/69f8ce29a6e38a960515564bf84fbd1d809468d8/rsc/llm/create_db.py#L176
+async def rm_chroma_db() -> None:
+    """
+    Remove the Chroma database directory if it exists.
+
+    This function checks if the Chroma database directory exists and is a directory
+    with the name "db". If the conditions are met, it deletes the directory and its
+    contents using `shutil.rmtree()`. After deleting the directory, it waits for 5
+    seconds using `asyncio.sleep()`.
+    """
+    if CHROMA_PATH_API.exists() and CHROMA_PATH_API.is_dir() and CHROMA_PATH_API.name == "vectorstorage":
+        LOGGER.debug(f"Deleting Chroma DB directory: {CHROMA_PATH_API.absolute()}")
+        shutil.rmtree(CHROMA_PATH_API.absolute())
+        await asyncio.sleep(5)
 
 
 # SOURCE: https://github.com/divyeg/meakuchatbot_project/blob/0c4483ce4bebce923233cf2a1139f089ac5d9e53/createVectorDB.ipynb#L203

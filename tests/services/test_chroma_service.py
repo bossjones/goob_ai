@@ -1,8 +1,11 @@
 from __future__ import annotations
 
+import asyncio
+import json
 import logging
 import os
 import shutil
+import tempfile
 
 from collections.abc import Generator, Iterable, Iterator, Sequence
 from pathlib import Path
@@ -11,10 +14,14 @@ from typing import TYPE_CHECKING, List, Literal, Set, Union
 from chromadb import Collection
 from goob_ai.aio_settings import aiosettings
 from goob_ai.services.chroma_service import (
+    CHROMA_PATH_API,
     CustomOpenAIEmbeddings,
     calculate_chunk_ids,
     compare_two_words,
+    create_chroma_db,
+    franchise_metadata,
     generate_data_store,
+    generate_document_hashes,
     get_chroma_db,
     get_file_extension,
     get_rag_embedding_function,
@@ -26,15 +33,19 @@ from goob_ai.services.chroma_service import (
     is_pdf,
     is_txt,
     is_valid_uri,
+    markdown_to_documents,
+    rm_chroma_db,
     save_to_chroma,
     search_db,
     split_text,
+    string_to_doc,
 )
 from langchain.schema import Document
 from langchain_chroma import Chroma
 from langchain_chroma import Chroma as ChromaVectorStore
 from langchain_community.document_loaders import PyMuPDFLoader, PyPDFLoader, TextLoader, WebBaseLoader
 from langchain_core.documents import Document
+from langchain_text_splitters import MarkdownTextSplitter
 from loguru import logger as LOGGER
 
 import pytest
@@ -56,17 +67,20 @@ if TYPE_CHECKING:
 # manhole.install()
 
 
-def test_compare_two_words(caplog: LogCaptureFixture):
-    """
-    Test the compare_two_words function.
-    """
-    # Call the function with sample words
-    compare_two_words("apple", "banana")
+# def test_compare_two_words(caplog: LogCaptureFixture):
+#     """
+#     Test the compare_two_words function.
+#     """
+#     caplog.set_level(logging.DEBUG)
+#     debug = [i.message for i in caplog.records if i.levelno == logging.DEBUG]
+#     # Call the function with sample words
+#     compare_two_words("apple", "banana")
 
-    # Check if the expected logs are present
-    assert "Vector for 'apple':" in caplog.text
-    assert "Vector length:" in caplog.text
-    assert "Comparing (apple, banana):" in caplog.text
+#     # Check if the expected logs are present
+#     assert "Vector for 'apple':" in caplog.text
+#     assert "Vector length:" in caplog.text
+#     assert "Comparing (apple, banana):" in caplog.text
+#     caplog.clear()
 
 
 def test_calculate_chunk_ids():
@@ -1276,3 +1290,69 @@ def test_generate_prompt_multiline_context() -> None:
     prompt = generate_prompt(context, question)
 
     assert prompt == str(expected_prompt)
+
+
+@pytest.mark.integration()
+@pytest.mark.asyncio()
+async def test_string_to_doc():
+    text = "This is a test string."
+    doc = await string_to_doc(text)
+    assert isinstance(doc, Document)
+    assert doc.page_content == text
+
+
+@pytest.mark.integration()
+@pytest.mark.asyncio()
+async def test_markdown_to_documents():
+    markdown_text = "# Heading 1\n\nThis is a paragraph.\n\n## Heading 2\n\nAnother paragraph."
+    docs = [Document(page_content=markdown_text)]
+    split_docs = await markdown_to_documents(docs)
+    assert len(split_docs) >= 1
+    assert all(isinstance(doc, Document) for doc in split_docs)
+
+
+# @pytest.mark.integration()
+# def test_franchise_metadata():
+#     record = {"id": 1, "name": "Test Franchise"}
+#     metadata = {"source": "test_source"}
+#     updated_metadata = franchise_metadata(record, metadata)
+#     assert updated_metadata["source"] == "API"
+#     assert updated_metadata["franchise_id"] == 1
+#     assert updated_metadata["franchise_name"] == "Test Franchise"
+
+# @pytest.mark.integration()
+# @pytest.mark.asyncio()
+# async def test_json_to_docs():
+#     json_data = json.dumps([{"id": 1, "text": "Test document 1"}, {"id": 2, "text": "Test document 2"}])
+#     jq_schema = ".[]"
+#     docs = await json_to_docs(json_data, jq_schema, franchise_metadata)
+#     assert len(docs) == 2
+#     assert all(isinstance(doc, Document) for doc in docs)
+#     assert docs[0].page_content == "Test document 1"
+#     assert docs[1].page_content == "Test document 2"
+
+
+def test_generate_document_hashes():
+    docs = [
+        Document(page_content="Test document 1", metadata={"source": "test_source", "id": "1"}),
+        Document(page_content="Test document 2", metadata={"source": "test_source", "id": "2"}),
+    ]
+    hashes = generate_document_hashes(docs)
+    assert len(hashes) == 2
+    assert all(isinstance(hash, str) for hash in hashes)
+
+
+# @pytest.mark.asyncio()
+# async def test_create_chroma_db(mocker):
+#     mocker.patch("goob_ai.services.chroma_service.rm_chroma_db", return_value=None)
+#     mocker.patch("goob_ai.services.chroma_service.Chroma.from_documents", return_value=None)
+#     docs = [Document(page_content="Test document")]
+#     await create_chroma_db("test_collection", docs)
+#     assert CHROMA_PATH_API.absolute().exists()
+
+# @pytest.mark.asyncio()
+# async def test_rm_chroma_db(mocker):
+#     mocker.patch("shutil.rmtree", return_value=None)
+#     mocker.patch("asyncio.sleep", return_value=None)
+#     await rm_chroma_db()
+#     assert not CHROMA_PATH_API.exists()

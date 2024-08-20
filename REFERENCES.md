@@ -161,3 +161,4 @@ source: <https://www.youtube.com/watch?v=AeASAsPp9LE>
 - https://github.com/codingjoe/relint - `Write your own linting rules using regular expressions.`
 - https://github.com/ionelmc/python-manhole/ - `Debugging manhole for python applications.`
 - https://github.com/langchain-ai/langchain/blob/master/cookbook/Multi_modal_RAG.ipynb
+- https://github.com/SAMAD101/Chino/blob/e38f3d9d38702beaed37229f66d79e86a7acab26/src/chino/query.py (write a query module maybe)

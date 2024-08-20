@@ -140,6 +140,7 @@ dependencies = [
     "requests-toolbelt>=1.0.0",
     "pdf2image>=1.17.0",
     "unstructured[all-docs]==0.10.19",
+    "jq>=1.8.0",
 ]
 
 readme = "README.md"
