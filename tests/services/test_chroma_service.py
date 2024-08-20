@@ -15,11 +15,13 @@ from chromadb import Collection
 from goob_ai.aio_settings import aiosettings
 from goob_ai.services.chroma_service import (
     CHROMA_PATH_API,
+    ChromaService,
     CustomOpenAIEmbeddings,
     calculate_chunk_ids,
     compare_two_words,
     create_chroma_db,
     franchise_metadata,
+    generate_and_query_data_store,
     generate_data_store,
     generate_document_hashes,
     get_chroma_db,
@@ -45,6 +47,7 @@ from langchain_chroma import Chroma
 from langchain_chroma import Chroma as ChromaVectorStore
 from langchain_community.document_loaders import PyMuPDFLoader, PyPDFLoader, TextLoader, WebBaseLoader
 from langchain_core.documents import Document
+from langchain_core.vectorstores.base import VectorStoreRetriever
 from langchain_text_splitters import MarkdownTextSplitter
 from loguru import logger as LOGGER
 
@@ -1332,12 +1335,14 @@ async def test_markdown_to_documents():
 #     assert docs[1].page_content == "Test document 2"
 
 
-def test_generate_document_hashes():
+@pytest.mark.integration()
+@pytest.mark.asyncio()
+async def test_generate_document_hashes():
     docs = [
         Document(page_content="Test document 1", metadata={"source": "test_source", "id": "1"}),
         Document(page_content="Test document 2", metadata={"source": "test_source", "id": "2"}),
     ]
-    hashes = generate_document_hashes(docs)
+    hashes = await generate_document_hashes(docs)
     assert len(hashes) == 2
     assert all(isinstance(hash, str) for hash in hashes)
 
@@ -1356,3 +1361,27 @@ def test_generate_document_hashes():
 #     mocker.patch("asyncio.sleep", return_value=None)
 #     await rm_chroma_db()
 #     assert not CHROMA_PATH_API.exists()
+
+
+@pytest.mark.unittest()
+@pytest.mark.asyncio()
+async def test_add_and_query_unittest(mocker: MockerFixture):
+    # Mock the generate_and_query_data_store function
+    # mock_generate_and_query_data_store = mocker.patch(
+    #     "goob_ai.services.chroma_service.generate_and_query_data_store",
+    #     return_value=VectorStoreRetriever()
+    # )
+
+    # Define test inputs
+    collection_name = "test_collection_intgr"
+    question = "What is the meaning of life?"
+    reset = True
+
+    # Call the add_and_query function
+    result = ChromaService.add_and_query(collection_name, question, reset)
+
+    # Assert that the generate_and_query_data_store function was called with the correct arguments
+    # mock_generate_and_query_data_store.assert_called_once_with(collection_name, question, reset=reset)
+
+    # Assert that the result is an instance of VectorStoreRetriever
+    assert isinstance(result, VectorStoreRetriever)

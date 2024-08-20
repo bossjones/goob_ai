@@ -21,19 +21,24 @@ import re
 import shutil
 import sys
 import tempfile
+import time
+import traceback
 
 from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Callable, List, Literal, Optional, Set, Union
 
+import bpdb
 import bs4
 import chromadb
 import httpx
 import pysnooper
 import uritools
 
+from chromadb.api import ClientAPI, ServerAPI
 from chromadb.config import Settings as ChromaSettings
+from httpx import ConnectError
 from langchain.document_loaders.directory import DirectoryLoader
 from langchain.evaluation import load_evaluator
 from langchain.vectorstores.chroma import Chroma
@@ -813,11 +818,38 @@ def generate_data_store(
     2. Splits the loaded documents into smaller chunks.
     3. Saves the chunks into a Chroma vector store for efficient retrieval.
     """
+    if reset:
+        _ = clean_chroma_db(collection_name=collection_name)
 
     documents = load_documents()
     chunks = split_text(documents)
     retriever: VectorStoreRetriever = save_to_chroma(chunks, collection_name=collection_name, reset=reset)
     return retriever
+
+
+def clean_chroma_db(collection_name: str = "") -> None:
+    LOGGER.info(f"Resetting ChromaDB at {CHROMA_PATH} ...")
+    client = get_client()
+    if os.path.exists(CHROMA_PATH):
+        shutil.rmtree(CHROMA_PATH)
+        # time.sleep(5)
+
+        client = get_client()
+        _await_server(api=client)
+        LOGGER.info("Resetting ChromaDB")
+        # client: chromadb.ClientAPI = get_client()
+        # client.reset()
+        # Create brand new DB if it doesn't exist
+        LOGGER.debug("Creating Chroma DB Directory", collection_name=collection_name)
+        CHROMA_PATH_API.absolute().mkdir(parents=True, exist_ok=True)
+        LOGGER.debug("sleeping for 5 seconds")
+        # time.sleep(5)
+        # await asyncio.sleep(5)
+        client = get_client()
+        col = client.get_or_create_collection(name=collection_name)
+        count = col.count()
+        LOGGER.info(f"Collection {collection_name} has {count} documents.")
+    return client
 
 
 def generate_and_query_data_store(
@@ -909,18 +941,30 @@ def save_to_chroma(
     """
     # Clear out the database first.
 
-    if reset:
-        LOGGER.info(f"Resetting ChromaDB at {CHROMA_PATH} ...")
-        if os.path.exists(CHROMA_PATH):
-            shutil.rmtree(CHROMA_PATH)
-        LOGGER.info("Resetting ChromaDB")
-        client: chromadb.ClientAPI = get_client()
-        client.reset()
-        col = client.get_or_create_collection(name=collection_name)
-        count = col.count()
-        LOGGER.info(f"Collection {collection_name} has {count} documents.")
-        # if os.path.exists(CHROMA_PATH):
-        #     shutil.rmtree(CHROMA_PATH)
+    # DISABLED: do this way before this step otherwise, race condition.
+    # if reset:
+    #     LOGGER.info(f"Resetting ChromaDB at {CHROMA_PATH} ...")
+    #     if os.path.exists(CHROMA_PATH):
+    #         shutil.rmtree(CHROMA_PATH)
+    #         # time.sleep(5)
+    #         client = get_client()
+    #         _await_server(api=client)
+    #         LOGGER.info("Resetting ChromaDB")
+    #         # client: chromadb.ClientAPI = get_client()
+    #         # client.reset()
+    #         # Create brand new DB if it doesn't exist
+    #         LOGGER.debug("Creating Chroma DB Directory", collection_name=collection_name)
+    #         CHROMA_PATH_API.absolute().mkdir(parents=True, exist_ok=True)
+    #         LOGGER.debug("sleeping for 5 seconds")
+    #         # time.sleep(5)
+    #         # await asyncio.sleep(5)
+    #         client = get_client()
+    #         col = client.get_or_create_collection(name=collection_name)
+    #         count = col.count()
+    #         LOGGER.info(f"Collection {collection_name} has {count} documents.")
+
+    # Create directory if needed
+    # if not CHROMA_PATH_API.absolute().exists():
 
     # default embeddings
     LOGGER.error("default embeddings OpenAIEmbeddings")
@@ -937,16 +981,29 @@ def save_to_chroma(
 
     LOGGER.info(embeddings)
 
-    # Add to vectorDB
-    # from_documents = Create a Chroma vectorstore from a list of documents.
-    vectorstore: ChromaVectorStore = ChromaVectorStore.from_documents(
-        documents=chunks, embedding=embeddings, persist_directory=CHROMA_PATH, collection_name=collection_name
-    )
-    db = vectorstore
+    try:
+        # Add to vectorDB
+        # from_documents = Create a Chroma vectorstore from a list of documents.
+        vectorstore: ChromaVectorStore = ChromaVectorStore.from_documents(
+            documents=chunks, embedding=embeddings, persist_directory=CHROMA_PATH, collection_name=collection_name
+        )
+        db = vectorstore
 
-    LOGGER.info(f"Saved {len(chunks)} chunks to {CHROMA_PATH}.")
+        LOGGER.info(f"Saved {len(chunks)} chunks to {CHROMA_PATH}.")
 
-    retriever: VectorStoreRetriever = vectorstore.as_retriever()
+        retriever: VectorStoreRetriever = vectorstore.as_retriever()
+
+    except Exception as ex:
+        print(f"{ex}")
+        exc_type, exc_value, exc_traceback = sys.exc_info()
+        print(f"Error Class: {ex.__class__}")
+        output = f"[UNEXPECTED] {type(ex).__name__}: {ex}"
+        print(output)
+        print(f"exc_type: {exc_type}")
+        print(f"exc_value: {exc_value}")
+        traceback.print_tb(exc_traceback)
+        if aiosettings.dev_mode:
+            bpdb.pm()
 
     return retriever
 
@@ -1224,6 +1281,20 @@ class ChromaService:
                 # print(f"Successfully added image {uri} with metadata {metadata}")
 
         return success_count
+
+
+def _await_server(api: Union[ServerAPI, ClientAPI] = get_client(), attempts: int = 0) -> None:
+    try:
+        api.heartbeat()
+    except ConnectError as e:
+        LOGGER.warning(
+            f"Error connecting to ChromaDB ... this is expected... retrying ... attempt {attempts} with client {api}: {e}"
+        )
+        if attempts > 15:
+            raise e
+        else:
+            time.sleep(4)
+            _await_server(api, attempts + 1)
 
 
 if __name__ == "__main__":
