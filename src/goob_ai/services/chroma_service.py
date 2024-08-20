@@ -27,6 +27,7 @@ import pysnooper
 import uritools
 
 from chromadb.config import Settings as ChromaSettings
+from langchain.evaluation import load_evaluator
 from langchain_chroma import Chroma
 from langchain_chroma import Chroma as ChromaVectorStore
 from langchain_community.document_loaders import PyMuPDFLoader, PyPDFLoader, TextLoader, WebBaseLoader
@@ -60,6 +61,108 @@ Answer the question based on the above context: {question}
 
 # Define the regex pattern to match a valid URL containing "github.io"
 WEBBASE_LOADER_PATTERN = r"^https?://[a-zA-Z0-9.-]+\.github\.io(/.*)?$"
+
+
+# SOURCE: https://github.com/divyeg/meakuchatbot_project/blob/0c4483ce4bebce923233cf2a1139f089ac5d9e53/createVectorDB.ipynb#L203
+def compare_two_words(w1: str, w2: str) -> None:
+    """
+    Compare the embeddings of two words.
+
+    Args:
+        w1 (str): The first word to compare.
+        w2 (str): The second word to compare.
+    """
+    # Get embedding for a word.
+    embedding_function = OpenAIEmbeddings()
+    vector = embedding_function.embed_query(w1)
+    LOGGER.info(f"Vector for '{w1}': {vector}")
+    LOGGER.info(f"Vector length: {len(vector)}")
+
+    # Compare vector of two words
+    evaluator = load_evaluator("pairwise_embedding_distance")
+    words = (w1, w2)
+    x = evaluator.evaluate_string_pairs(prediction=words[0], prediction_b=words[1])
+    LOGGER.info(f"Comparing ({words[0]}, {words[1]}): {x}")
+
+
+# SOURCE: https://github.com/divyeg/meakuchatbot_project/blob/0c4483ce4bebce923233cf2a1139f089ac5d9e53/createVectorDB.ipynb#L203
+def calculate_chunk_ids(chunks: list[Document]) -> list[Document]:
+    """
+    Calculate chunk IDs for a list of document chunks.
+
+    This function calculates chunk IDs in the format "data/monopoly.pdf:6:2",
+    where "data/monopoly.pdf" is the page source, "6" is the page number, and
+    "2" is the chunk index.
+
+    Args:
+        chunks (list[Document]): The list of document chunks.
+
+    Returns:
+        list[Document]: The list of document chunks with chunk IDs added to their metadata.
+    """
+    # This will create IDs like "data/monopoly.pdf:6:2"
+    # Page Source : Page Number : Chunk Index
+    # USAGE: chunks_with_ids = calculate_chunk_ids(chunks)
+
+    last_page_id = None
+    current_chunk_index = 0
+
+    for chunk in chunks:
+        source = chunk.metadata.get("source")
+        page = chunk.metadata.get("page")
+        current_page_id = f"{source}:{page}"
+
+        # If the page ID is the same as the last one, increment the index.
+        if current_page_id == last_page_id:
+            current_chunk_index += 1
+        else:
+            current_chunk_index = 0
+
+        # Calculate the chunk ID.
+        chunk_id = f"{current_page_id}:{current_chunk_index}"
+        last_page_id = current_page_id
+
+        # Add it to the page meta-data.
+        chunk.metadata["id"] = chunk_id
+
+    return chunks
+
+
+# SOURCE: https://github.com/divyeg/meakuchatbot_project/blob/0c4483ce4bebce923233cf2a1139f089ac5d9e53/createVectorDB.ipynb#L203
+# TODO: Enable and refactor this function
+# def add_or_update_documents(db: Chroma, documents: list[Document]) -> None:
+#     from langchain_community.embeddings import HuggingFaceEmbeddings
+
+#     embedder = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+
+#     db = Chroma(persist_directory=CHROMA_PATH, embedding_function=embedder)
+
+#     last_request_time = 0
+#     RATE_LIMIT_INTERVAL = 10
+
+#     chunks_with_ids = calculate_chunk_ids(chunks)
+
+#     # Add or Update the documents.
+#     existing_items = db.get(include=[])  # IDs are always included by default
+#     existing_ids = set(existing_items["ids"])
+#     print(f"Number of existing documents in DB: {len(existing_ids)}")
+
+#     # Only add documents that don't exist in the DB.
+#     new_chunks = []
+#     for chunk in chunks_with_ids:
+#         if chunk.metadata["id"] not in existing_ids:
+#             new_chunks.append(chunk)
+
+#     if len(new_chunks):
+#         print(f"Adding new documents: {len(new_chunks)}")
+#         new_chunk_ids = [chunk.metadata["id"] for chunk in new_chunks]
+#         db.add_documents(new_chunks, ids=new_chunk_ids)
+#         db.persist()
+#     else:
+#         print("No new documents to add")
+# Number of existing documents in DB: 0
+# Adding new documents: 10
+# Saved 10 chunks to input_data/chroma.
 
 
 def get_suffix(filename: str) -> str:
@@ -440,7 +543,7 @@ class CustomOpenAIEmbeddings(OpenAIEmbeddings):
 
 @pysnooper.snoop()
 def generate_data_store(
-    collection_name: str = "", embedding_function: Any = OpenAIEmbeddings()
+    collection_name: str = "", embedding_function: Any = OpenAIEmbeddings(), reset: bool = False
 ) -> VectorStoreRetriever:
     """Generate and store document embeddings in a Chroma vector store.
 
@@ -449,17 +552,18 @@ def generate_data_store(
     2. Splits the loaded documents into smaller chunks.
     3. Saves the chunks into a Chroma vector store for efficient retrieval.
     """
+
     documents = load_documents()
     chunks = split_text(documents)
-    retriever: VectorStoreRetriever = save_to_chroma(chunks, collection_name=collection_name)
+    retriever: VectorStoreRetriever = save_to_chroma(chunks, collection_name=collection_name, reset=reset)
     return retriever
 
 
 def generate_and_query_data_store(
-    collection_name: str = "", embedding_function: Any = OpenAIEmbeddings()
+    collection_name: str = "", embedding_function: Any = OpenAIEmbeddings(), reset: bool = False
 ) -> VectorStoreRetriever:
     retriever: VectorStoreRetriever = generate_data_store(
-        collection_name=collection_name, embedding_function=embedding_function
+        collection_name=collection_name, embedding_function=embedding_function, reset=reset
     )
     return retriever
 
@@ -530,6 +634,7 @@ def save_to_chroma(
     disallowed_special: Union[Literal["all"], set[str], Sequence[str], None] = (),
     use_custom_openai_embeddings: bool = False,
     collection_name: str = "",
+    reset: bool = False,
 ) -> VectorStoreRetriever:
     """Save document chunks to a Chroma vector store.
 
@@ -542,8 +647,19 @@ def save_to_chroma(
         chunks (list of Document): The list of document chunks to be saved.
     """
     # Clear out the database first.
-    # if os.path.exists(CHROMA_PATH):
-    #     shutil.rmtree(CHROMA_PATH)
+
+    if reset:
+        LOGGER.info(f"Resetting ChromaDB at {CHROMA_PATH} ...")
+        if os.path.exists(CHROMA_PATH):
+            shutil.rmtree(CHROMA_PATH)
+        LOGGER.info("Resetting ChromaDB")
+        client: chromadb.ClientAPI = get_client()
+        client.reset()
+        col = client.get_or_create_collection(name=collection_name)
+        count = col.count()
+        LOGGER.info(f"Collection {collection_name} has {count} documents.")
+        # if os.path.exists(CHROMA_PATH):
+        #     shutil.rmtree(CHROMA_PATH)
 
     # default embeddings
     LOGGER.error("default embeddings OpenAIEmbeddings")
@@ -689,6 +805,10 @@ class ChromaService:
             List[Document]: The list of loaded documents.
         """
         return load_documents()
+
+    @staticmethod
+    def add_and_query(collection_name: str = "", question: str = "", reset: bool = False) -> VectorStoreRetriever:
+        return generate_and_query_data_store(collection_name, question, reset=reset)
 
     @staticmethod
     def split_text(documents: list[Document]) -> list[Document]:

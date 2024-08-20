@@ -12,6 +12,8 @@ from chromadb import Collection
 from goob_ai.aio_settings import aiosettings
 from goob_ai.services.chroma_service import (
     CustomOpenAIEmbeddings,
+    calculate_chunk_ids,
+    compare_two_words,
     generate_data_store,
     get_chroma_db,
     get_file_extension,
@@ -32,12 +34,11 @@ from langchain.schema import Document
 from langchain_chroma import Chroma
 from langchain_chroma import Chroma as ChromaVectorStore
 from langchain_community.document_loaders import PyMuPDFLoader, PyPDFLoader, TextLoader, WebBaseLoader
+from langchain_core.documents import Document
 from loguru import logger as LOGGER
 
 import pytest
 
-
-# import pysnooper
 
 if TYPE_CHECKING:
     from unittest.mock import AsyncMock, MagicMock, NonCallableMagicMock
@@ -49,9 +50,45 @@ if TYPE_CHECKING:
 
     from pytest_mock.plugin import MockerFixture
 
+# import pysnooper
 # import manhole
 # # this will start the daemon thread
 # manhole.install()
+
+
+def test_compare_two_words(caplog: LogCaptureFixture):
+    """
+    Test the compare_two_words function.
+    """
+    # Call the function with sample words
+    compare_two_words("apple", "banana")
+
+    # Check if the expected logs are present
+    assert "Vector for 'apple':" in caplog.text
+    assert "Vector length:" in caplog.text
+    assert "Comparing (apple, banana):" in caplog.text
+
+
+def test_calculate_chunk_ids():
+    """
+    Test the calculate_chunk_ids function.
+    """
+    # Create sample document chunks
+    chunks = [
+        Document(page_content="Chunk 1", metadata={"source": "data/file1.pdf", "page": 1}),
+        Document(page_content="Chunk 2", metadata={"source": "data/file1.pdf", "page": 1}),
+        Document(page_content="Chunk 3", metadata={"source": "data/file1.pdf", "page": 2}),
+        Document(page_content="Chunk 4", metadata={"source": "data/file2.pdf", "page": 1}),
+    ]
+
+    # Call the function
+    result = calculate_chunk_ids(chunks)
+
+    # Check if the chunk IDs are correctly assigned
+    assert result[0].metadata["id"] == "data/file1.pdf:1:0"
+    assert result[1].metadata["id"] == "data/file1.pdf:1:1"
+    assert result[2].metadata["id"] == "data/file1.pdf:2:0"
+    assert result[3].metadata["id"] == "data/file2.pdf:1:0"
 
 
 @pytest.fixture()
