@@ -978,7 +978,7 @@ def generate_and_query_data_store(
     return retriever
 
 
-# @pysnooper.snoop()
+@pysnooper.snoop()
 def load_documents(data_path: str = DATA_PATH) -> list[Document]:
     """Load documents from the specified data path.
 

@@ -134,6 +134,11 @@ def request_matcher(r1, r2):
     - For openai, allow llm-proxy
     - For others, we match both uri and body
     """
+    import rich
+
+    rich.inspect(r1, all=True)
+    rich.inspect(r2, all=True)
+
     if r1.uri == r2.uri:
         if r1.body == r2.body:
             return True

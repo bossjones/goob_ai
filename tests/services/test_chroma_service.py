@@ -28,6 +28,7 @@ from goob_ai.services.chroma_service import (
     generate_data_store,
     generate_document_hashes,
     get_chroma_db,
+    get_client,
     get_file_extension,
     get_rag_embedding_function,
     get_rag_loader,
@@ -391,7 +392,8 @@ def mock_txt_file(tmp_path: Path) -> Path:
 
 
 @pytest.mark.services()
-def test_load_documents(mocker: MockerFixture, mock_pdf_file: Path) -> None:
+@pytest.mark.vcr(allow_playback_repeats=True, match_on=["request_matcher"], ignore_localhost=False)
+def test_load_documents(mocker: MockerFixture, mock_pdf_file: Path, vcr: Any) -> None:
     """
     Test the loading of documents from a PDF file.
 
@@ -418,6 +420,7 @@ def test_load_documents(mocker: MockerFixture, mock_pdf_file: Path) -> None:
 
     # this is a bad test, cause the data will change eventually. Need to find a way to test this.
     assert len(documents) == 680
+    assert vcr.play_count == 0
 
 
 @pytest.mark.services()
@@ -1497,7 +1500,18 @@ def test_add_to_chroma(
     """
     caplog.set_level(logging.DEBUG)
 
-    from goob_ai.services.chroma_service import ChromaService, load_documents
+    from goob_ai.services.chroma_service import ChromaService, _await_server, load_documents
+
+    collection_name = "hugo_johnson"
+    chroma_client = get_client()
+    _await_server(chroma_client, attempts=10)
+
+    collections = chroma_client.list_collections()
+
+    # Clean up the collection if it exists
+    if collection_name in collections:
+        chroma_client.delete_collection(collection_name)
+        chroma_client.create_collection(collection_name, get_or_create=True)
 
     # query it
     query = "What did the president say about Ketanji Brown Jackson"
@@ -1509,8 +1523,6 @@ def test_add_to_chroma(
     mock_get_chroma_db.return_value = mock_chroma_db
     mock_get_rag_loader.return_value = mock_loader
     mock_get_rag_splitter.return_value = mock_text_splitter
-
-    collection_name = generate_random_name()
 
     documents = load_documents()
     chunks = split_text(documents)
@@ -1551,7 +1563,7 @@ def test_add_or_update_documents_new_documents(
     mock_get_rag_loader.return_value = mock_loader
     mock_get_rag_splitter.return_value = mock_text_splitter
 
-    collection_name = generate_random_name()
+    collection_name = "daisy_johnson"
 
     documents = load_documents()
     chunks = split_text(documents)

@@ -361,6 +361,10 @@ unittests-vcr-record-once = {cmd = "pytest --record-mode=once --verbose --showlo
 unittests-vcr-record-all = {chain = [
     "unittests-vcr-record",
 ]}
+# NOTE: this is the only one that works
+unittests-vcr-record-final = {chain = [
+    "unittests-vcr-record",
+]}
 test-simple = {cmd = "pytest -p no:warnings"}
 simple-test = {cmd = "pytest -p no:warnings"}
 new-unittests-debug = {cmd = "pytest -s --verbose --pdb --pdbcls bpdb:BPdb --showlocals --tb=short"}
