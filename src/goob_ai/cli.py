@@ -568,9 +568,10 @@ def add_and_query(collection_name: str, question: str, reset: bool = False) -> N
     """Add and Query Chroma vectorstore"""
     try:
         retriever = ChromaService.add_and_query(collection_name=collection_name, question=question)
-        import bpdb
+        # import bpdb
 
-        bpdb.pm()
+        # bpdb.set_trace()
+        ChromaService.get_response(question, collection_name=collection_name)
     except Exception as ex:
         print(f"{ex}")
         exc_type, exc_value, exc_traceback = sys.exc_info()

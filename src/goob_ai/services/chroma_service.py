@@ -39,12 +39,17 @@ import uritools
 from chromadb.api import ClientAPI, ServerAPI
 from chromadb.config import Settings as ChromaSettings
 from httpx import ConnectError
-from langchain.document_loaders.directory import DirectoryLoader
 from langchain.evaluation import load_evaluator
-from langchain.vectorstores.chroma import Chroma
 from langchain_chroma import Chroma
 from langchain_chroma import Chroma as ChromaVectorStore
-from langchain_community.document_loaders import JSONLoader, PyMuPDFLoader, PyPDFLoader, TextLoader, WebBaseLoader
+from langchain_community.document_loaders import (
+    DirectoryLoader,
+    JSONLoader,
+    PyMuPDFLoader,
+    PyPDFLoader,
+    TextLoader,
+    WebBaseLoader,
+)
 from langchain_community.embeddings.sentence_transformer import SentenceTransformerEmbeddings
 from langchain_core.documents import Document
 from langchain_core.prompts import ChatPromptTemplate
@@ -60,6 +65,9 @@ from goob_ai import llm_manager, redis_memory
 from goob_ai.aio_settings import aiosettings
 from goob_ai.utils import file_functions
 
+
+# from langchain_community.vectorstores import Chroma
+# from langchain.vectorstores.chroma import Chroma
 
 HERE = os.path.dirname(__file__)
 
@@ -634,6 +642,7 @@ def get_client(host: str = aiosettings.chroma_host, port: int = aiosettings.chro
     )
 
 
+@pysnooper.snoop()
 def search_db(db: Chroma, query_text: str, k: int = 3) -> list[tuple[Document, float]] | None:
     """Search the Chroma database for relevant documents.
 
@@ -653,6 +662,7 @@ def search_db(db: Chroma, query_text: str, k: int = 3) -> list[tuple[Document, f
     return results
 
 
+# @pysnooper.snoop()
 def generate_context_text(results: list[tuple[Document, float]]) -> str:
     """Generate the context text from the search results.
 
@@ -679,6 +689,7 @@ def generate_prompt(context_text: str, query_text: str) -> str:
     return prompt_template.format(context=context_text, question=query_text)
 
 
+@pysnooper.snoop()
 def get_sources(results: list[tuple[Document, float]]) -> list[str | None]:
     """Get the sources from the search results.
 
@@ -691,6 +702,7 @@ def get_sources(results: list[tuple[Document, float]]) -> list[str | None]:
     return [doc.metadata.get("source", None) for doc, _score in results]
 
 
+@pysnooper.snoop()
 def get_response(
     query_text: str,
     persist_directory: str = CHROMA_PATH,
@@ -698,6 +710,7 @@ def get_response(
     model: Any = ChatOpenAI(),
     k: int = 3,
     collection_name: str = "",
+    reset: bool = False,
     **kwargs: Any,
 ) -> str:
     """Perform the query and get the response.
@@ -721,12 +734,14 @@ def get_response(
     context_text = generate_context_text(results)
     prompt = generate_prompt(context_text, query_text)
 
-    response_text = model.predict(prompt)
+    # response_text = model.predict(prompt)
+    response_text = model.invoke(prompt)
 
     sources = get_sources(results)
     return f"Response: {response_text}\nSources: {sources}"
 
 
+@pysnooper.snoop()
 def get_chroma_db(
     persist_directory: str = CHROMA_PATH,
     embedding_function: Any = OpenAIEmbeddings(),
@@ -921,7 +936,7 @@ def split_text(
     return chunks
 
 
-# @pysnooper.snoop()
+@pysnooper.snoop()
 def save_to_chroma(
     chunks: list[Document],
     disallowed_special: Union[Literal["all"], set[str], Sequence[str], None] = (),
@@ -981,9 +996,9 @@ def save_to_chroma(
 
     LOGGER.info(embeddings)
 
-    import bpdb
+    # import bpdb
 
-    bpdb.set_trace()
+    # bpdb.set_trace()
     try:
         # Add to vectorDB
         # from_documents = Create a Chroma vectorstore from a list of documents.
@@ -1098,7 +1113,7 @@ class ChromaService:
         return collection
 
     @staticmethod
-    def get_response(query_text: str) -> str:
+    def get_response(query_text: str, collection_name: str = "", reset: bool = False) -> str:
         """
         Get a response from ChromaDB based on the query text.
 
@@ -1108,7 +1123,7 @@ class ChromaService:
         Returns:
             str: The response text based on the query.
         """
-        return get_response(query_text)
+        return get_response(query_text, collection_name=collection_name, reset=reset)
 
     @staticmethod
     def generate_data_store() -> None:
