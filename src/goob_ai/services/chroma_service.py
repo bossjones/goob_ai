@@ -1069,6 +1069,33 @@ class ChromaService:
 
     @staticmethod
     def add_and_query(collection_name: str = "", question: str = "", reset: bool = False) -> VectorStoreRetriever:
+        """
+        Generate and query a data store for a given collection and question.
+
+        Args:
+            collection_name (str): The name of the collection to generate and query.
+            question (str): The question to query the data store with.
+            reset (bool): Whether to reset the data store before generating and querying.
+
+        Returns:
+            VectorStoreRetriever: The vector store retriever used to query the data store.
+
+        This function generates a data store for the specified collection name and queries it
+        with the provided question. If the `reset` flag is set to True, the existing data store
+        will be removed before generating a new one.
+
+        The function performs the following steps:
+        1. Generates a data store for the specified collection name using the `generate_data_store` function.
+        2. Queries the generated data store with the provided question using the `query_data_store` function.
+        3. Returns the vector store retriever used to query the data store.
+
+        Example usage:
+        ```python
+        collection_name = "my_collection"
+        question = "What is the meaning of life?"
+        retriever = ChromaService.add_and_query(collection_name, question, reset=True)
+        ```
+        """
         return generate_and_query_data_store(collection_name, question, reset=reset)
 
     @staticmethod
