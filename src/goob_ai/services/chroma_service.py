@@ -404,36 +404,97 @@ def calculate_chunk_ids(chunks: list[Document]) -> list[Document]:
 
 # SOURCE: https://github.com/divyeg/meakuchatbot_project/blob/0c4483ce4bebce923233cf2a1139f089ac5d9e53/createVectorDB.ipynb#L203
 # TODO: Enable and refactor this function
-# def add_or_update_documents(db: Chroma, documents: list[Document]) -> None:
-#     from langchain_community.embeddings import HuggingFaceEmbeddings
+@pysnooper.snoop()
+def add_or_update_documents(
+    persist_directory: str = CHROMA_PATH,
+    disallowed_special: Union[Literal["all"], set[str], Sequence[str], None] = (),
+    use_custom_openai_embeddings: bool = False,
+    collection_name: str = "",
+    path_to_document: str = "",
+    embedding_function: Any | None = OpenAIEmbeddings(),
+) -> None:
+    """
+    Add or update documents in a Chroma database.
 
-#     embedder = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+    This function loads documents from the specified path, splits them into chunks if necessary,
+    and adds or updates them in the Chroma database. It uses the appropriate loader and text splitter
+    based on the file type of the document.
 
-#     db = Chroma(persist_directory=CHROMA_PATH, embedding_function=embedder)
+    Args:
+        persist_directory (str): The directory where the Chroma database is persisted. Defaults to CHROMA_PATH.
+        disallowed_special (Union[Literal["all"], set[str], Sequence[str], None]): Special characters to disallow in the embeddings. Defaults to an empty tuple.
+        use_custom_openai_embeddings (bool): Whether to use custom OpenAI embeddings. Defaults to False.
+        collection_name (str): The name of the collection in the Chroma database. Defaults to an empty string.
+        path_to_document (str): The path to the document to be added or updated. Defaults to an empty string.
+        embedding_function (Any | None): The embedding function to use. Defaults to OpenAIEmbeddings().
 
-#     last_request_time = 0
-#     RATE_LIMIT_INTERVAL = 10
+    Returns:
+        None
+    """
 
-#     chunks_with_ids = calculate_chunk_ids(chunks)
+    # NOTE: orig code
+    # from langchain_community.embeddings import HuggingFaceEmbeddings
+    # embedder = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
 
-#     # Add or Update the documents.
-#     existing_items = db.get(include=[])  # IDs are always included by default
-#     existing_ids = set(existing_items["ids"])
-#     print(f"Number of existing documents in DB: {len(existing_ids)}")
+    # Log the input parameters for debugging purposes
+    LOGGER.debug(f"path_to_document = {path_to_document}")
+    LOGGER.debug(f"collection_name = {collection_name}")
+    LOGGER.debug(f"embedding_function = {embedding_function}")
 
-#     # Only add documents that don't exist in the DB.
-#     new_chunks = []
-#     for chunk in chunks_with_ids:
-#         if chunk.metadata["id"] not in existing_ids:
-#             new_chunks.append(chunk)
+    db = get_chroma_db(persist_directory, embedding_function, collection_name=collection_name)
 
-#     if len(new_chunks):
-#         print(f"Adding new documents: {len(new_chunks)}")
-#         new_chunk_ids = [chunk.metadata["id"] for chunk in new_chunks]
-#         db.add_documents(new_chunks, ids=new_chunk_ids)
-#         db.persist()
-#     else:
-#         print("No new documents to add")
+    # Get the Chroma client
+    client = ChromaService.get_client()
+    # FIXME: We need to make embedding_function optional
+    # Add or retrieve the collection with the specified name
+    collection: chromadb.Collection = ChromaService.add_collection(collection_name)
+
+    # Load the document using the appropriate loader based on the file type
+    loader: TextLoader | PyMuPDFLoader | WebBaseLoader | None = get_rag_loader(path_to_document)
+    # Load the documents using the selected loader
+    documents: list[Document] = loader.load()
+
+    # If the file type is txt, split the documents into chunks
+    text_splitter = get_rag_splitter(path_to_document)
+    if text_splitter:
+        # Split the documents into chunks using the text splitter
+        chunks: list[Document] = text_splitter.split_documents(documents)
+    else:
+        # If no text splitter is available, use the original documents
+        chunks: list[Document] = documents  # type: ignore
+
+    #################################
+
+    # embedder = OpenAIEmbeddings(openai_api_key=aiosettings.openai_api_key.get_secret_value())
+
+    # db = Chroma(persist_directory=CHROMA_PATH, embedding_function=embedder)
+
+    last_request_time = 0
+    RATE_LIMIT_INTERVAL = 10
+
+    chunks_with_ids: list[Document] = calculate_chunk_ids(chunks)
+
+    # Add or Update the documents.
+    existing_items = db.get(include=[])  # IDs are always included by default
+    existing_ids = set(existing_items["ids"])
+    LOGGER.info(f"Number of existing documents in DB: {len(existing_ids)}")
+
+    # Only add documents that don't exist in the DB.
+    new_chunks = []
+    for chunk in chunks_with_ids:
+        if chunk.metadata["id"] not in existing_ids:
+            new_chunks.append(chunk)
+
+    if len(new_chunks):
+        LOGGER.info(f"Adding new documents: {len(new_chunks)}")
+        new_chunk_ids = [chunk.metadata["id"] for chunk in new_chunks]
+        docs_added = db.add_documents(new_chunks, ids=new_chunk_ids)
+        LOGGER.info(f"Saved {len(docs_added)} chunks to {CHROMA_PATH}.")
+        # db.persist()
+    else:
+        LOGGER.info("No new documents to add")
+
+
 # Number of existing documents in DB: 0
 # Adding new documents: 10
 # Saved 10 chunks to input_data/chroma.
@@ -629,7 +690,9 @@ def get_rag_embedding_function(
         return None
 
 
-def get_client(host: str = aiosettings.chroma_host, port: int = aiosettings.chroma_port) -> chromadb.ClientAPI:
+def get_client(
+    host: str = aiosettings.chroma_host, port: int = aiosettings.chroma_port, **kwargs: Any
+) -> chromadb.ClientAPI:
     """Get the ChromaDB client.
 
     Returns:
@@ -638,7 +701,7 @@ def get_client(host: str = aiosettings.chroma_host, port: int = aiosettings.chro
     return chromadb.HttpClient(
         host=host,
         port=port,
-        settings=ChromaSettings(allow_reset=True, is_persistent=True),
+        settings=ChromaSettings(allow_reset=True, is_persistent=True, persist_directory=CHROMA_PATH, **kwargs),
     )
 
 
@@ -1007,7 +1070,13 @@ def save_to_chroma(
         )
         db = vectorstore
 
+        # vectorstore.persist()
+
         LOGGER.info(f"Saved {len(chunks)} chunks to {CHROMA_PATH}.")
+
+        # import bpdb
+
+        # bpdb.set_trace()
 
         retriever: VectorStoreRetriever = vectorstore.as_retriever()
 

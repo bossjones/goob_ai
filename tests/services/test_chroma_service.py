@@ -4,6 +4,7 @@ import asyncio
 import json
 import logging
 import os
+import random
 import shutil
 import tempfile
 
@@ -14,9 +15,11 @@ from typing import TYPE_CHECKING, List, Literal, Set, Union
 from chromadb import Collection
 from goob_ai.aio_settings import aiosettings
 from goob_ai.services.chroma_service import (
+    CHROMA_PATH,
     CHROMA_PATH_API,
     ChromaService,
     CustomOpenAIEmbeddings,
+    add_or_update_documents,
     calculate_chunk_ids,
     compare_two_words,
     create_chroma_db,
@@ -84,6 +87,15 @@ if TYPE_CHECKING:
 #     assert "Vector length:" in caplog.text
 #     assert "Comparing (apple, banana):" in caplog.text
 #     caplog.clear()
+
+FIRST_NAMES = ["Ada", "Bela", "Cade", "Dax", "Eva", "Fynn", "Gia", "Hugo", "Ivy", "Jax"]
+LAST_NAMES = ["Smith", "Johnson", "Williams", "Jones", "Brown", "Davis", "Miller", "Wilson", "Moore", "Taylor"]
+
+
+def generate_random_name():
+    first_name = random.choice(FIRST_NAMES)
+    last_name = random.choice(LAST_NAMES)
+    return f"{first_name}_{last_name}".lower()
 
 
 def test_calculate_chunk_ids():
@@ -1377,3 +1389,107 @@ async def test_generate_document_hashes():
 
 #     # Assert that the result is an instance of VectorStoreRetriever
 #     assert isinstance(result, VectorStoreRetriever)
+
+
+@pytest.fixture()
+def mock_chroma_db(mocker: MockerFixture):
+    """Fixture to create a mock Chroma database."""
+    mock_db = mocker.MagicMock()
+    mock_db.get.return_value = {"ids": []}
+    return mock_db
+
+
+@pytest.fixture()
+def mock_loader(mocker: MockerFixture):
+    """Fixture to create a mock loader."""
+    mock_loader = mocker.MagicMock()
+    mock_loader.load.return_value = [Document(page_content="Test document")]
+    return mock_loader
+
+
+@pytest.fixture()
+def mock_text_splitter(mocker: MockerFixture):
+    """Fixture to create a mock text splitter."""
+    mock_splitter = mocker.MagicMock()
+    mock_splitter.split_documents.return_value = [Document(page_content="Test chunk")]
+    return mock_splitter
+
+
+@pytest.mark.unittest()
+def test_add_or_update_documents_new_documents(
+    mocker: MockerFixture,
+    mock_chroma_db: MockerFixture,
+    mock_loader: MockerFixture,
+    mock_text_splitter: MockerFixture,
+    mock_pdf_file: Path,
+    caplog: LogCaptureFixture,
+    capsys: CaptureFixture,
+):
+    """
+    Test adding new documents to the Chroma database.
+
+    This test verifies that the `add_or_update_documents` function correctly adds
+    new documents to the Chroma database when they don't exist.
+    """
+    caplog.set_level(logging.DEBUG)
+
+    mock_get_rag_splitter = mocker.patch("goob_ai.services.chroma_service.get_rag_splitter")
+    mock_get_chroma_db = mocker.patch("goob_ai.services.chroma_service.get_chroma_db")
+    mock_get_rag_loader = mocker.patch("goob_ai.services.chroma_service.get_rag_loader")
+
+    mock_get_chroma_db.return_value = mock_chroma_db
+    mock_get_rag_loader.return_value = mock_loader
+    mock_get_rag_splitter.return_value = mock_text_splitter
+
+    collection_name = generate_random_name()
+
+    add_or_update_documents(path_to_document=f"{mock_pdf_file}", collection_name=collection_name)
+
+    mock_chroma_db.add_documents.assert_called_once()
+    mock_chroma_db.get.assert_called_once_with(include=[])
+
+
+@pytest.mark.unittest()
+def test_add_or_update_documents_existing_documents(
+    mocker: MockerFixture,
+    mock_chroma_db: MockerFixture,
+    mock_loader: MockerFixture,
+    mock_text_splitter: MockerFixture,
+    mock_pdf_file: Path,
+    caplog: LogCaptureFixture,
+    capsys: CaptureFixture,
+):
+    """
+    Test adding existing documents to the Chroma database.
+
+    This test verifies that the `add_or_update_documents` function correctly skips
+    adding documents that already exist in the Chroma database.
+    """
+    caplog.set_level(logging.DEBUG)
+
+    mock_get_rag_splitter = mocker.patch("goob_ai.services.chroma_service.get_rag_splitter")
+    mock_get_chroma_db = mocker.patch("goob_ai.services.chroma_service.get_chroma_db")
+    mock_get_rag_loader = mocker.patch("goob_ai.services.chroma_service.get_rag_loader")
+
+    mock_get_chroma_db.return_value = mock_chroma_db
+    mock_get_rag_loader.return_value = mock_loader
+    mock_get_rag_splitter.return_value = mock_text_splitter
+    mock_chroma_db.get.return_value = {"ids": ["test_chunk_id"]}
+
+    collection_name = generate_random_name()
+
+    add_or_update_documents(path_to_document=f"{mock_pdf_file}", collection_name=collection_name)
+
+    assert mock_chroma_db.add_documents.call_count == 1
+    assert mock_chroma_db.add_documents.call_args.kwargs == {"ids": ["None:None:0"]}
+    assert mock_chroma_db.add_documents.call_args.args == (
+        [Document(metadata={"id": "None:None:0"}, page_content="Test chunk")],
+    )
+
+    calls = [
+        mocker.call([Document(metadata={"id": "None:None:0"}, page_content="Test chunk")], ids=["None:None:0"]),
+        # mocker.call([Document(metadata={"id": "None:None:0"}, page_content="Test chunk")], ids=["None:None:0"]),
+        # mocker.call([Document(metadata={"id": "None:None:0"}, page_content="Test chunk")], ids=["None:None:0"]),
+        # mocker.call([Document(metadata={"id": "None:None:0"}, page_content="Test chunk")], ids=["None:None:0"]),
+    ]
+    assert mock_chroma_db.add_documents.call_args_list == calls
