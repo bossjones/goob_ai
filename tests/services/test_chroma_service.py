@@ -10,7 +10,7 @@ import tempfile
 
 from collections.abc import Generator, Iterable, Iterator, Sequence
 from pathlib import Path
-from typing import TYPE_CHECKING, List, Literal, Set, Union
+from typing import TYPE_CHECKING, Any, List, Literal, Set, Union
 
 from chromadb import Collection
 from goob_ai.aio_settings import aiosettings
@@ -532,7 +532,10 @@ def test_chroma_service_e2e(mocker: MockerFixture, mock_txt_file: Path) -> None:
 @pytest.mark.slow()
 @pytest.mark.integration()
 @pytest.mark.e2e()
-def test_chroma_service_e2e_add_to_chroma(mocker: MockerFixture, mock_txt_file: Path) -> None:
+def test_chroma_service_e2e_add_to_chroma(
+    mocker: MockerFixture, mock_txt_file: Path, caplog: pytest.LogCaptureFixture, capsys: pytest.CaptureFixture
+) -> None:
+    caplog.set_level(logging.DEBUG)
     from goob_ai.services.chroma_service import ChromaService
 
     client = ChromaService.client
@@ -550,6 +553,11 @@ def test_chroma_service_e2e_add_to_chroma(mocker: MockerFixture, mock_txt_file: 
         docs[0].page_content
         == "In state after state, new laws have been passed, not only to suppress the vote, but to subvert entire elections.\n\nWe cannot let this happen.\n\nTonight. I call on the Senate to: Pass the Freedom to Vote Act. Pass the John Lewis Voting Rights Act. And while you're at it, pass the Disclose Act so Americans can know who is funding our elections.\n\nTonight, I'd like to honor someone who has dedicated his life to serve this country: Justice Stephen Breyer-an Army veteran, Constitutional scholar, and retiring Justice of the United States Supreme Court. Justice Breyer, thank you for your service.\n\nOne of the most serious constitutional responsibilities a President has is nominating someone to serve on the United States Supreme Court.\n\nAnd I did that 4 days ago, when I nominated Circuit Court of Appeals Judge Ketanji Brown Jackson. One of our nation's top legal minds, who will continue Justice Breyer's legacy of excellence."
     )
+
+    logged_messages = [rec.message for rec in caplog.records]
+    assert f"path_to_document = {mock_txt_file}" in logged_messages
+    assert f"collection_name = {test_collection_name}" in logged_messages
+    assert "embedding_function = None" in logged_messages
 
 
 @pytest.mark.services()
@@ -1470,6 +1478,51 @@ def mock_text_splitter(mocker: MockerFixture):
 
 @pytest.mark.services()
 @pytest.mark.unittest()
+@pytest.mark.vcr(allow_playback_repeats=True, match_on=["request_matcher"], ignore_localhost=False)
+def test_add_to_chroma(
+    mocker: MockerFixture,
+    mock_chroma_db: MockerFixture,
+    mock_loader: MockerFixture,
+    mock_text_splitter: MockerFixture,
+    mock_pdf_file: Path,
+    caplog: LogCaptureFixture,
+    capsys: CaptureFixture,
+    vcr: Any,
+):
+    """
+    Test adding new documents to the Chroma database.
+
+    This test verifies that the `add_or_update_documents` function correctly adds
+    new documents to the Chroma database when they don't exist.
+    """
+    caplog.set_level(logging.DEBUG)
+
+    from goob_ai.services.chroma_service import ChromaService, load_documents
+
+    # query it
+    query = "What did the president say about Ketanji Brown Jackson"
+
+    mock_get_rag_splitter = mocker.patch("goob_ai.services.chroma_service.get_rag_splitter")
+    mock_get_chroma_db = mocker.patch("goob_ai.services.chroma_service.get_chroma_db")
+    mock_get_rag_loader = mocker.patch("goob_ai.services.chroma_service.get_rag_loader")
+
+    mock_get_chroma_db.return_value = mock_chroma_db
+    mock_get_rag_loader.return_value = mock_loader
+    mock_get_rag_splitter.return_value = mock_text_splitter
+
+    collection_name = generate_random_name()
+
+    documents = load_documents()
+    chunks = split_text(documents)
+
+    add_or_update_documents(chunks, collection_name=collection_name)
+
+    mock_chroma_db.add_documents.assert_called_once()
+    mock_chroma_db.get.assert_called_once_with(include=[])
+
+
+@pytest.mark.services()
+@pytest.mark.unittest()
 def test_add_or_update_documents_new_documents(
     mocker: MockerFixture,
     mock_chroma_db: MockerFixture,
@@ -1492,6 +1545,7 @@ def test_add_or_update_documents_new_documents(
     mock_get_rag_splitter = mocker.patch("goob_ai.services.chroma_service.get_rag_splitter")
     mock_get_chroma_db = mocker.patch("goob_ai.services.chroma_service.get_chroma_db")
     mock_get_rag_loader = mocker.patch("goob_ai.services.chroma_service.get_rag_loader")
+    mock_get_rag_embedding_function = mocker.patch("goob_ai.services.chroma_service.get_rag_embedding_function")
 
     mock_get_chroma_db.return_value = mock_chroma_db
     mock_get_rag_loader.return_value = mock_loader
