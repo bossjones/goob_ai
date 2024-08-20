@@ -981,6 +981,9 @@ def save_to_chroma(
 
     LOGGER.info(embeddings)
 
+    import bpdb
+
+    bpdb.set_trace()
     try:
         # Add to vectorDB
         # from_documents = Create a Chroma vectorstore from a list of documents.
