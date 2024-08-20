@@ -119,7 +119,7 @@ jobs:
         run: |
           sudo apt-get install -y tesseract-ocr tesseract-ocr-por libyaml-dev poppler-utils
           sudo apt install ffmpeg -y
-          sudo apt-get install autoconf automake build-essential libtool python-dev libsqlite3-dev -y
+          sudo apt-get install autoconf automake build-essential libtool python3-dev libsqlite3-dev -y
 
       # Allow debugging with tmate
       - name: Setup tmate session
