@@ -1479,9 +1479,13 @@ def mock_text_splitter(mocker: MockerFixture):
     return mock_splitter
 
 
+# @pytest.mark.skip(reason="This is a work in progress and it is currently expected to fail")
+# @pytest.mark.flaky()
 @pytest.mark.services()
 @pytest.mark.unittest()
-@pytest.mark.vcr(allow_playback_repeats=True, match_on=["request_matcher"], ignore_localhost=False)
+@pytest.mark.vcr(
+    allow_playback_repeats=True, match_on=["method", "scheme", "port", "path", "query"], ignore_localhost=False
+)
 def test_add_to_chroma(
     mocker: MockerFixture,
     mock_chroma_db: MockerFixture,

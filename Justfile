@@ -254,3 +254,14 @@ ci:
 
 manhole-shell:
 	./scripts/manhole-shell
+
+find-cassettes-dirs:
+	fd -td cassettes
+
+delete-cassettes:
+	fd -td cassettes -X rm -ri
+
+regenerate-cassettes:
+	fd -td cassettes -X rm -ri
+	rye run unittests-vcr-record-final
+	rye run unittests-debug
