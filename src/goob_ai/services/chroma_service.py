@@ -394,6 +394,7 @@ def calculate_chunk_ids(chunks: list[Document]) -> list[Document]:
 
         # Calculate the chunk ID.
         chunk_id = f"{current_page_id}:{current_chunk_index}"
+        # LOGGER.debug(f"chunk_id: {chunk_id}")
         last_page_id = current_page_id
 
         # Add it to the page meta-data.
@@ -406,11 +407,12 @@ def calculate_chunk_ids(chunks: list[Document]) -> list[Document]:
 # TODO: Enable and refactor this function
 @pysnooper.snoop()
 def add_or_update_documents(
+    chunks: list[Document],
     persist_directory: str = CHROMA_PATH,
     disallowed_special: Union[Literal["all"], set[str], Sequence[str], None] = (),
     use_custom_openai_embeddings: bool = False,
     collection_name: str = "",
-    path_to_document: str = "",
+    # path_to_document: str = "",
     embedding_function: Any | None = OpenAIEmbeddings(),
 ) -> None:
     """
@@ -437,7 +439,7 @@ def add_or_update_documents(
     # embedder = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
 
     # Log the input parameters for debugging purposes
-    LOGGER.debug(f"path_to_document = {path_to_document}")
+    # LOGGER.debug(f"path_to_document = {path_to_document}")
     LOGGER.debug(f"collection_name = {collection_name}")
     LOGGER.debug(f"embedding_function = {embedding_function}")
 
@@ -449,19 +451,19 @@ def add_or_update_documents(
     # Add or retrieve the collection with the specified name
     collection: chromadb.Collection = ChromaService.add_collection(collection_name)
 
-    # Load the document using the appropriate loader based on the file type
-    loader: TextLoader | PyMuPDFLoader | WebBaseLoader | None = get_rag_loader(path_to_document)
-    # Load the documents using the selected loader
-    documents: list[Document] = loader.load()
+    # # Load the document using the appropriate loader based on the file type
+    # loader: TextLoader | PyMuPDFLoader | WebBaseLoader | None = get_rag_loader(path_to_document)
+    # # Load the documents using the selected loader
+    # documents: list[Document] = loader.load()
 
-    # If the file type is txt, split the documents into chunks
-    text_splitter = get_rag_splitter(path_to_document)
-    if text_splitter:
-        # Split the documents into chunks using the text splitter
-        chunks: list[Document] = text_splitter.split_documents(documents)
-    else:
-        # If no text splitter is available, use the original documents
-        chunks: list[Document] = documents  # type: ignore
+    # # If the file type is txt, split the documents into chunks
+    # text_splitter = get_rag_splitter(path_to_document)
+    # if text_splitter:
+    #     # Split the documents into chunks using the text splitter
+    #     chunks: list[Document] = text_splitter.split_documents(documents)
+    # else:
+    #     # If no text splitter is available, use the original documents
+    #     chunks: list[Document] = documents  # type: ignore
 
     #################################
 
@@ -469,30 +471,49 @@ def add_or_update_documents(
 
     # db = Chroma(persist_directory=CHROMA_PATH, embedding_function=embedder)
 
-    last_request_time = 0
-    RATE_LIMIT_INTERVAL = 10
+    try:
+        last_request_time = 0
+        RATE_LIMIT_INTERVAL = 10
 
-    chunks_with_ids: list[Document] = calculate_chunk_ids(chunks)
+        chunks_with_ids: list[Document] = calculate_chunk_ids(chunks)
 
-    # Add or Update the documents.
-    existing_items = db.get(include=[])  # IDs are always included by default
-    existing_ids = set(existing_items["ids"])
-    LOGGER.info(f"Number of existing documents in DB: {len(existing_ids)}")
+        # Add or Update the documents.
+        existing_items = db.get(include=[])  # IDs are always included by default
+        LOGGER.debug(f"existing_items: {existing_items}")
+        existing_ids = set(existing_items["ids"])
+        LOGGER.debug(f"existing_ids: {existing_ids}")
+        LOGGER.info(f"Number of existing documents in DB: {len(existing_ids)}")
 
-    # Only add documents that don't exist in the DB.
-    new_chunks = []
-    for chunk in chunks_with_ids:
-        if chunk.metadata["id"] not in existing_ids:
-            new_chunks.append(chunk)
+        # Only add documents that don't exist in the DB.
+        new_chunks = []
+        for chunk in chunks_with_ids:
+            if chunk.metadata["id"] not in existing_ids:
+                new_chunks.append(chunk)
 
-    if len(new_chunks):
-        LOGGER.info(f"Adding new documents: {len(new_chunks)}")
-        new_chunk_ids = [chunk.metadata["id"] for chunk in new_chunks]
-        docs_added = db.add_documents(new_chunks, ids=new_chunk_ids)
-        LOGGER.info(f"Saved {len(docs_added)} chunks to {CHROMA_PATH}.")
-        # db.persist()
-    else:
-        LOGGER.info("No new documents to add")
+        if len(new_chunks):
+            LOGGER.info(f"Adding new documents: {len(new_chunks)}")
+            new_chunk_ids = [chunk.metadata["id"] for chunk in new_chunks]
+            docs_added = db.add_documents(new_chunks, ids=new_chunk_ids)
+            LOGGER.info(f"Saved {len(docs_added)} chunks to {CHROMA_PATH}.")
+            # db.persist()
+        else:
+            LOGGER.info("No new documents to add")
+
+    except Exception as ex:
+        print(f"{ex}")
+        exc_type, exc_value, exc_traceback = sys.exc_info()
+        print(f"Error Class: {ex.__class__}")
+        output = f"[UNEXPECTED] {type(ex).__name__}: {ex}"
+        print(output)
+        print(f"exc_type: {exc_type}")
+        print(f"exc_value: {exc_value}")
+        traceback.print_tb(exc_traceback)
+        if aiosettings.dev_mode:
+            bpdb.pm()
+
+    retriever: VectorStoreRetriever = db.as_retriever()
+
+    return retriever
 
 
 # Number of existing documents in DB: 0
@@ -905,6 +926,24 @@ def generate_data_store(
     return retriever
 
 
+@pysnooper.snoop()
+def do_generate_data_store_and_update(
+    collection_name: str = "",
+    embedding_function: Any = OpenAIEmbeddings(),
+    reset: bool = False,
+    disallowed_special: Union[Literal["all"], set[str], Sequence[str], None] = (),
+    use_custom_openai_embeddings: bool = False,
+) -> VectorStoreRetriever:
+    if reset:
+        _ = clean_chroma_db(collection_name=collection_name)
+
+    documents = load_documents()
+    chunks = split_text(documents)
+    # retriever: VectorStoreRetriever = save_to_chroma(chunks, collection_name=collection_name, reset=reset)
+    retriever: VectorStoreRetriever = add_or_update_documents(chunks, collection_name=collection_name)
+    return retriever
+
+
 def clean_chroma_db(collection_name: str = "") -> None:
     LOGGER.info(f"Resetting ChromaDB at {CHROMA_PATH} ...")
     client = get_client()
@@ -940,7 +979,7 @@ def generate_and_query_data_store(
 
 
 # @pysnooper.snoop()
-def load_documents() -> list[Document]:
+def load_documents(data_path: str = DATA_PATH) -> list[Document]:
     """Load documents from the specified data path.
 
     This function loads documents from the specified data path and returns them
@@ -951,13 +990,20 @@ def load_documents() -> list[Document]:
     """
     documents = []
 
-    d = file_functions.tree(DATA_PATH)
-    result = file_functions.filter_pdfs(d)
+    d = file_functions.tree(data_path)
+    result_pdfs = file_functions.filter_pdfs(d)
+    # TODO: add txt files via something like this:
+    # result_txts = file_functions.filter_txts(d)
+    # results = result_pdfs + result_txts
 
-    for filename in result:
+    # LOGGER.info(f"Found {len(results)} documents")
+    LOGGER.info(f"Found {len(result_pdfs)} documents")
+
+    # for filename in results:
+    for filename in result_pdfs:
         LOGGER.info(f"Loading document: {filename}")
-        # loader = PyPDFLoader(f"{filename}", extract_images=True)
-        loader = PyMuPDFLoader(f"{filename}", extract_images=True)
+        # loader = PyMuPDFLoader(f"{filename}", extract_images=True)
+        loader: TextLoader | PyMuPDFLoader | WebBaseLoader | None = get_rag_loader(filename)
         LOGGER.info(f"Loader: {loader}")
         documents.extend(loader.load())
     return documents

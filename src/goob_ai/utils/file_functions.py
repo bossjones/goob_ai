@@ -408,6 +408,26 @@ def filter_pdfs(working_dir: list[str]) -> list[pathlib.PosixPath]:
     ]
 
 
+def filter_txts(working_dir: list[str]) -> list[pathlib.PosixPath]:
+    """
+    Filter TXT files from a directory.
+
+    Args:
+    ----
+        working_dir (list[str]): List of file paths.
+
+    Returns:
+    -------
+        list[str]: List of TXT file paths.
+
+    """
+    return [
+        f
+        for f in working_dir
+        if (pathlib.Path(f"{f}").is_file()) and pathlib.Path(f"{f}").suffix.lower() in TXT_EXTENSIONS
+    ]
+
+
 def filter_media(working_dir: list[str]) -> list[str]:
     """
     Filter image and video files from a directory.
