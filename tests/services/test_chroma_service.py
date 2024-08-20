@@ -1363,25 +1363,17 @@ async def test_generate_document_hashes():
 #     assert not CHROMA_PATH_API.exists()
 
 
+# FIXME: This test is not working, racecondition eb tween ingesting data and writing to db.
 @pytest.mark.unittest()
 @pytest.mark.asyncio()
 async def test_add_and_query_unittest(mocker: MockerFixture):
-    # Mock the generate_and_query_data_store function
-    # mock_generate_and_query_data_store = mocker.patch(
-    #     "goob_ai.services.chroma_service.generate_and_query_data_store",
-    #     return_value=VectorStoreRetriever()
-    # )
-
     # Define test inputs
     collection_name = "test_collection_intgr"
     question = "What is the meaning of life?"
     reset = True
 
     # Call the add_and_query function
-    result = ChromaService.add_and_query(collection_name, question, reset)
-
-    # Assert that the generate_and_query_data_store function was called with the correct arguments
-    # mock_generate_and_query_data_store.assert_called_once_with(collection_name, question, reset=reset)
+    result: VectorStoreRetriever = ChromaService.add_and_query(collection_name, question, reset)
 
     # Assert that the result is an instance of VectorStoreRetriever
     assert isinstance(result, VectorStoreRetriever)
