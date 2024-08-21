@@ -2,6 +2,7 @@
 # pyright: reportGeneralTypeIssues=false
 # SOURCE: https://github.com/dataelement/bisheng/blob/main/src/backend/bisheng/cache/redis.py
 # SOURCE: https://github.com/plone/guillotina/tree/4bf16089dab1065fa39211b45d1a5101d6ea5e84
+# FIXME: Look at this and make sure you incorporate it into your code. https://github.com/CL-lau/SQL-GPT/blob/47c2e9434855ce699da556bbbc043cbee2ae3540/memory/redisHelper.py
 
 from __future__ import annotations
 

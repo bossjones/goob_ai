@@ -76,9 +76,10 @@ jobs:
       - name: Start Chroma
         id: chroma-docker-compose-up
         run: |
-          git clone --depth 1 --branch feature-boss-chroma https://github.com/bossjones/chroma.git vendored_chroma
-          cd vendored_chroma
-          docker compose up -d --build
+          mkdir -p ./src/goob_ai/data/chroma/vectorstorage || true
+          # git clone --depth 1 --branch feature-boss-chroma https://github.com/bossjones/chroma.git vendored_chroma
+          # cd vendored_chroma
+          docker compose up -d
           docker ps -a
         continue-on-error: true
 
@@ -119,6 +120,7 @@ jobs:
         run: |
           sudo apt-get install -y tesseract-ocr tesseract-ocr-por libyaml-dev poppler-utils
           sudo apt install ffmpeg -y
+          sudo apt-get install autoconf automake build-essential libtool python3-dev libsqlite3-dev -y
 
       # Allow debugging with tmate
       - name: Setup tmate session

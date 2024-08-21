@@ -140,6 +140,8 @@ dependencies = [
     "requests-toolbelt>=1.0.0",
     "pdf2image>=1.17.0",
     "unstructured[all-docs]==0.10.19",
+    "jq>=1.8.0",
+    "pyinstrument>=4.7.2",
 ]
 
 readme = "README.md"
@@ -352,7 +354,9 @@ open-all = {chain = [
     "open:zipkin",
     "open:otel",
 ]}
-unittests-debug = {cmd = "pytest -vv --diff-width=60 --diff-symbols --pdb --pdbcls bpdb:BPdb --showlocals --tb=short --cov-append --cov-report=term-missing --junitxml=junit/test-results.xml --cov-report=xml:cov.xml --cov-report=html:htmlcov --cov-report=annotate:cov_annotate --cov=."}
+unittests-debug = {cmd = "pytest -s -vv --diff-width=60 --diff-symbols --pdb --pdbcls bpdb:BPdb --showlocals --tb=short --cov-append --cov-report=term-missing --junitxml=junit/test-results.xml --cov-report=xml:cov.xml --cov-report=html:htmlcov --cov-report=annotate:cov_annotate --cov=."}
+profile-unittests-debug = {cmd = "pyinstrument -m pytest -s -vv --diff-width=60 --diff-symbols --pdb --pdbcls bpdb:BPdb --showlocals --tb=short --cov-append --cov-report=term-missing --junitxml=junit/test-results.xml --cov-report=xml:cov.xml --cov-report=html:htmlcov --cov-report=annotate:cov_annotate --cov=."}
+spy-unittests-debug = {cmd = "py-spy top -- python -m pytest -s -vv --diff-width=60 --diff-symbols --pdb --pdbcls bpdb:BPdb --showlocals --tb=short --cov-append --cov-report=term-missing --junitxml=junit/test-results.xml --cov-report=xml:cov.xml --cov-report=html:htmlcov --cov-report=annotate:cov_annotate --cov=."}
 unittests = {cmd = "pytest --verbose --showlocals --tb=short --cov-append --cov-report=term-missing --junitxml=junit/test-results.xml --cov-report=xml:cov.xml --cov-report=html:htmlcov --cov-report=annotate:cov_annotate --cov=."}
 unittests-vcr-record = {cmd = "pytest --record-mode=all --verbose --showlocals --tb=short --cov-append --cov-report=term-missing --junitxml=junit/test-results.xml --cov-report=xml:cov.xml --cov-report=html:htmlcov --cov-report=annotate:cov_annotate --cov=."}
 unittests-vcr-record-rewrite = {cmd = "pytest --record-mode=rewrite --verbose --showlocals --tb=short --cov-append --cov-report=term-missing --junitxml=junit/test-results.xml --cov-report=xml:cov.xml --cov-report=html:htmlcov --cov-report=annotate:cov_annotate --cov=."}
@@ -360,9 +364,13 @@ unittests-vcr-record-once = {cmd = "pytest --record-mode=once --verbose --showlo
 unittests-vcr-record-all = {chain = [
     "unittests-vcr-record",
 ]}
+# NOTE: this is the only one that works
+unittests-vcr-record-final = {chain = [
+    "unittests-vcr-record",
+]}
 test-simple = {cmd = "pytest -p no:warnings"}
 simple-test = {cmd = "pytest -p no:warnings"}
-new-unittests-debug = {cmd = "pytest --verbose --pdb --pdbcls bpdb:BPdb --showlocals --tb=short"}
+new-unittests-debug = {cmd = "pytest -s --verbose --pdb --pdbcls bpdb:BPdb --showlocals --tb=short"}
 test = {chain = [
     "lint",
     "unittests",
@@ -568,6 +576,7 @@ markers = [
     "imgops: marks tests as imgops (run with '-m imgops')",
     "integration: marks tests dealing with integration testing (deselect with '-m \"not integration\"')",
     "onboardingonly: marks tests that run code that utilizes the new_dev_onboarding_tool module (deselect with '-m \"not onboardingonly\"')",
+    "utilsonly: marks tests that run code that utilizes any utils module (deselect with '-m \"not utilsonly\"')",
     "retryonly: marks tests that run code that utilizes the retry module (deselect with '-m \"not retryonly\"')",
     "skip_in_parallel: marks tests that should be run in serial only (deselect with '-m \"not skip_in_parallel\"')",
     "slow: marks tests as slow (run with '-m slow')",
@@ -577,6 +586,7 @@ markers = [
     "vectorstoronly: marks tests that run code that utilizes the flex_vector_store_tool module (deselect with '-m \"not vectorstoronly\"')",
     "visiontoolonly: marks tests that run code that utilizes vision_tool.py (deselect with '-m \"not visiontoolonly\"')",
     "webpagetoolonly: marks tests that run code that utilizes the fetch_webpage_tool module (deselect with '-m \"not webpagetoolonly\"')",
+    "services: marks tests that run code that belongs to the services module  (deselect with '-m \"not services\"')",
 ]
 # filterwarnings = [
 #     "error",

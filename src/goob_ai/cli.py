@@ -69,6 +69,7 @@ from goob_ai.monitoring.sentry import sentry_init
 from goob_ai.services.chroma_service import ChromaService
 from goob_ai.services.screencrop_service import ImageService
 from goob_ai.utils import repo_typing
+from goob_ai.utils.base import print_line_seperator
 from goob_ai.utils.file_functions import fix_path
 
 
@@ -549,6 +550,50 @@ def chroma(choices: ChromaChoices) -> None:
             ChromaService.generate_data_store()
         elif choices == ChromaChoices.get_response:
             ChromaService.get_response("hello")
+    except Exception as ex:
+        print(f"{ex}")
+        exc_type, exc_value, exc_traceback = sys.exc_info()
+        print(f"Error Class: {ex.__class__}")
+        output = f"[UNEXPECTED] {type(ex).__name__}: {ex}"
+        print(output)
+        print(f"exc_type: {exc_type}")
+        print(f"exc_value: {exc_value}")
+        traceback.print_tb(exc_traceback)
+        if aiosettings.dev_mode:
+            bpdb.pm()
+
+
+# THIS SHOULD BE THE FINAL ONE THAT PRODUCES THE PROPER CROP
+@APP.command()
+def add_and_query(collection_name: str, question: str, reset: bool = False) -> None:
+    """Add and Query Chroma vectorstore"""
+    try:
+        retriever = ChromaService.add_and_query(collection_name=collection_name, question=question)
+        # import bpdb
+
+        # bpdb.set_trace()
+        resp = ChromaService.get_response(question, collection_name=collection_name)
+        print_line_seperator("test")
+        rich.print(resp)
+    except Exception as ex:
+        print(f"{ex}")
+        exc_type, exc_value, exc_traceback = sys.exc_info()
+        print(f"Error Class: {ex.__class__}")
+        output = f"[UNEXPECTED] {type(ex).__name__}: {ex}"
+        print(output)
+        print(f"exc_type: {exc_type}")
+        print(f"exc_value: {exc_value}")
+        traceback.print_tb(exc_traceback)
+        if aiosettings.dev_mode:
+            bpdb.pm()
+
+
+@APP.command()
+def ask(collection_name: str, question: str) -> None:
+    """Ask vectorstore"""
+    try:
+        resp = ChromaService.get_response(question, collection_name=collection_name)
+        rich.print(resp)
     except Exception as ex:
         print(f"{ex}")
         exc_type, exc_value, exc_traceback = sys.exc_info()

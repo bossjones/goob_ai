@@ -168,6 +168,8 @@ async def save_attachment(attm: discord.Attachment, basedir: str = "./") -> None
     except discord.HTTPException:
         await attm.save(path)
 
+    await LOGGER.complete()
+
 
 def attachment_to_dict(attm: discord.Attachment) -> dict[str, Any]:
     """
@@ -472,6 +474,7 @@ async def co_task(name: str, queue: asyncio.Queue) -> AsyncIterator[None]:
         await COMMAND_RUNNER[co_cmd_task.name](cmd=co_cmd_task.cmd, uri=co_cmd_task.uri)
         timer.stop()
         yield
+        await LOGGER.complete()
 
 
 # SOURCE: https://github.com/makupi/cookiecutter-discord.py-postgres/blob/master/%7B%7Bcookiecutter.bot_slug%7D%7D/bot/__init__.py
@@ -504,6 +507,7 @@ async def get_prefix(_bot: AsyncGoobBot, message: discord.Message) -> Any:
         else [utils.get_guild_prefix(_bot, message.guild.id)]  # type: ignore
     )
     LOGGER.info(f"prefix -> {prefix}")
+    await LOGGER.complete()
     return commands.when_mentioned_or(*prefix)(_bot, message)
 
 
@@ -523,6 +527,7 @@ async def preload_guild_data() -> dict[int, dict[str, str]]:
     """
     LOGGER.info("preload_guild_data ... ")
     guilds = [guild_factory.Guild()]
+    await LOGGER.complete()
     return {guild.id: {"prefix": guild.prefix} for guild in guilds}
 
 
@@ -750,6 +755,8 @@ class AsyncGoobBot(commands.Bot):
                 traceback.print_tb(exc_traceback)
                 raise
 
+        await LOGGER.complete()
+
     @property
     def owner(self) -> discord.User:
         """
@@ -838,6 +845,8 @@ class AsyncGoobBot(commands.Bot):
                 LOGGER.exception("In %s:", ctx.command.qualified_name, exc_info=original)
         elif isinstance(error, commands.ArgumentParsingError):
             await ctx.send(str(error))
+
+        await LOGGER.complete()
 
     def get_guild_prefixes(self, guild: Optional[discord.abc.Snowflake], *, local_inject=_prefix_callable) -> list[str]:
         """
@@ -1016,6 +1025,7 @@ class AsyncGoobBot(commands.Bot):
         LOGGER.info(f"Ready: {self.user} (ID: {self.user.id})")
 
         LOGGER.info("LOGGING TREE:")
+        await LOGGER.complete()
         await get_logger_tree_printout()
 
     async def on_shard_resumed(self, shard_id: int) -> None:
@@ -1037,6 +1047,7 @@ class AsyncGoobBot(commands.Bot):
         """
         LOGGER.info("Shard ID %s has resumed...", shard_id)
         self.resumes[shard_id].append(discord.utils.utcnow())
+        await LOGGER.complete()
 
     # SOURCE: https://github.com/aronweiler/assistant/blob/a8abd34c6973c21bc248f4782f1428a810daf899/src/discord/rag_bot.py#L90
     async def process_attachments(self, message: discord.Message) -> None:
@@ -1063,7 +1074,7 @@ class AsyncGoobBot(commands.Bot):
         root_temp_dir = f"temp/{str(uuid.uuid4())}"
         uploaded_file_paths = []
         for attachment in message.attachments:  # pyright: ignore[reportAttributeAccessIssue]
-            logging.debug(f"Downloading file from {attachment.url}")
+            LOGGER.debug(f"Downloading file from {attachment.url}")
             # Download the file
             file_path = os.path.join(root_temp_dir, attachment.filename)
             os.makedirs(os.path.dirname(file_path), exist_ok=True)
@@ -1142,6 +1153,7 @@ class AsyncGoobBot(commands.Bot):
         # # Generate the image caption
         # caption = self.caption_image(image)
         # message_content = f"{message_content} [{message.author.display_name} posts a picture of {caption}]"
+        await LOGGER.complete()
         return message_content
 
     def get_attachments(
@@ -1251,6 +1263,7 @@ class AsyncGoobBot(commands.Bot):
             file_to_upload_list = [f"{p}" for p in tree_list]
             LOGGER.debug(f"{type(self).__name__} -> file_to_upload_list = {file_to_upload_list}")
             rich.print(file_to_upload_list)
+            await LOGGER.complete()
 
     def prepare_agent_input(
         self, message: Union[discord.Message, discord.Thread], user_real_name: str, surface_info: dict
@@ -1404,6 +1417,7 @@ class AsyncGoobBot(commands.Bot):
         eval_result = Evaluator().evaluate_prediction(agent_input, agent_response_text)
         # Log the evaluation result
         LOGGER.info(f"session_id: {session_id} Evaluation Result: {eval_result}")
+        await LOGGER.complete()
         return True
 
     async def handle_message_from_channel(self, message: Union[discord.Message, discord.Thread]) -> bool:
@@ -1459,6 +1473,7 @@ class AsyncGoobBot(commands.Bot):
         eval_result = Evaluator().evaluate_prediction(agent_input, agent_response_text)
         # Log the evaluation result
         LOGGER.info(f"session_id: {session_id} Evaluation Result: {eval_result}")
+        await LOGGER.complete()
         return True
 
     async def get_context(self, origin: Union[discord.Interaction, discord.Message], /, *, cls=Context) -> Context:
@@ -1648,6 +1663,7 @@ class AsyncGoobBot(commands.Bot):
                     bpdb.pm()
 
         await self.invoke(ctx)
+        await LOGGER.complete()
 
     async def handle_user_task(self, message: discord.Message) -> JSONResponse:
         """
@@ -1710,6 +1726,7 @@ class AsyncGoobBot(commands.Bot):
         # except Exception as e:
         #     LOGGER.exception(f"Failed to process user task: {e}")
         #     return HTTPException(status_code=500, detail=str(e))
+        await LOGGER.complete()
 
     async def on_message(self, message: discord.Message) -> None:
         """
@@ -1750,6 +1767,7 @@ class AsyncGoobBot(commands.Bot):
             # NOTE: dptest doesn't like this, disable so we can keep tests # async with message.channel.typing():  # pyright: ignore[reportAttributeAccessIssue]
             # Send everything to AI bot
             await self.process_commands(message)
+        await LOGGER.complete()
 
     async def close(self) -> None:
         """

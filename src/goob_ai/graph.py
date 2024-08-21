@@ -9,7 +9,6 @@ from collections import defaultdict
 from collections.abc import Sequence
 from typing import TYPE_CHECKING, Annotated, Any, Dict, List, Literal, Optional, TypedDict, Union
 
-from boto3.session import Session as boto3_Session
 from bs4 import BeautifulSoup, SoupStrainer
 from langchain.agents import AgentExecutor
 from langchain.agents.agent import BaseMultiActionAgent, BaseSingleActionAgent
@@ -49,6 +48,7 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_groq import ChatGroq
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 from langgraph.graph import END, StateGraph, add_messages
+from langgraph.graph.state import CompiledStateGraph
 from langsmith import Client as LangsmithClient
 from langsmith import traceable
 from langsmith.wrappers import wrap_openai
@@ -155,6 +155,15 @@ def update_documents(_: list[Document], right: list[Document] | list[dict]) -> l
 
 
 class AgentState(TypedDict):
+    """
+    Represents the state of our graph.
+
+    Attributes:
+        query: question
+        generation: LLM generation
+        documents: list of documents
+    """
+
     query: str
     documents: Annotated[list[Document], update_documents]
     messages: Annotated[list[AnyMessage], add_messages]
@@ -169,7 +178,8 @@ claude_3_haiku = ChatAnthropic(
     model="claude-3-haiku-20240307",
     temperature=0,
     max_tokens=4096,
-    anthropic_api_key=os.environ.get("ANTHROPIC_API_KEY", "not_provided"),
+    anthropic_api_key=aiosettings.anthropic_api_key.get_secret_value(),  # pylint: disable=no-member
+    # anthropic_api_key=os.environ.get("ANTHROPIC_API_KEY", "not_provided"),
 )
 
 # Not exposed in the UI
@@ -177,6 +187,7 @@ gpt_4o = ChatOpenAI(model="gpt-4o-2024-08-06", temperature=0.3, streaming=True)
 claude_35_sonnet = ChatAnthropic(
     model="claude-3-5-sonnet-20240620",
     temperature=0.7,
+    anthropic_api_key=aiosettings.anthropic_api_key.get_secret_value(),  # pylint: disable=no-member
 )
 
 llm = gpt_4o_mini.configurable_alternatives(
@@ -205,7 +216,8 @@ def get_retriever(k: Optional[int] = None) -> BaseRetriever:
         embedding_function=embeddings,
     )
 
-    retriever = db.as_retriever()
+    k = k or 6
+    retriever = db.as_retriever(search_kwargs=dict(k=k))
     return retriever
 
     # weaviate_client = weaviate.connect_to_wcs(
@@ -281,7 +293,7 @@ def get_chat_history(messages: Sequence[BaseMessage]) -> Sequence[BaseMessage]:
 
 
 def get_feedback_urls(config: RunnableConfig) -> dict[str, list[str]]:
-    ls_client = LangsmithClient()
+    ls_client = LangsmithClient(api_key=aiosettings.langsmith_api_key.get_secret_value())
     run_id = config["configurable"].get("run_id")
     if run_id is None:
         return {}
@@ -351,23 +363,51 @@ class InputSchema(TypedDict):
     messages: list[AnyMessage]
 
 
-workflow = StateGraph(AgentState, Configuration, input=InputSchema)
+def build_graph() -> CompiledStateGraph:
+    workflow = StateGraph(AgentState, Configuration, input=InputSchema)
 
-# define nodes
-workflow.add_node("retriever", retrieve_documents)
-workflow.add_node("retriever_with_chat_history", retrieve_documents_with_chat_history)
-workflow.add_node("response_synthesizer", synthesize_response_default)
-# workflow.add_node("response_synthesizer_cohere", synthesize_response_cohere)
+    # define nodes
+    workflow.add_node("retriever", retrieve_documents)
+    workflow.add_node("retriever_with_chat_history", retrieve_documents_with_chat_history)
+    workflow.add_node("response_synthesizer", synthesize_response_default)
+    # workflow.add_node("response_synthesizer_cohere", synthesize_response_cohere)
 
-# set entry point to retrievers
-workflow.set_conditional_entry_point(route_to_retriever)
+    # set entry point to retrievers
+    workflow.set_conditional_entry_point(route_to_retriever)
 
-# connect retrievers and response synthesizers
-workflow.add_conditional_edges("retriever", route_to_response_synthesizer)
-workflow.add_conditional_edges("retriever_with_chat_history", route_to_response_synthesizer)
+    # connect retrievers and response synthesizers
+    workflow.add_conditional_edges("retriever", route_to_response_synthesizer)
+    workflow.add_conditional_edges("retriever_with_chat_history", route_to_response_synthesizer)
 
-# connect synthesizers to terminal node
-workflow.add_edge("response_synthesizer", END)
-workflow.add_edge("response_synthesizer_cohere", END)
+    # connect synthesizers to terminal node
+    workflow.add_edge("response_synthesizer", END)
+    workflow.add_edge("response_synthesizer_cohere", END)
 
-graph = workflow.compile()
+    graph: CompiledStateGraph = workflow.compile()
+
+    return graph
+
+
+# workflow = StateGraph(AgentState, Configuration, input=InputSchema)
+
+# # define nodes
+# workflow.add_node("retriever", retrieve_documents)
+# workflow.add_node("retriever_with_chat_history", retrieve_documents_with_chat_history)
+# workflow.add_node("response_synthesizer", synthesize_response_default)
+# # workflow.add_node("response_synthesizer_cohere", synthesize_response_cohere)
+
+# # set entry point to retrievers
+# workflow.set_conditional_entry_point(route_to_retriever)
+
+# # connect retrievers and response synthesizers
+# workflow.add_conditional_edges("retriever", route_to_response_synthesizer)
+# workflow.add_conditional_edges("retriever_with_chat_history", route_to_response_synthesizer)
+
+# # connect synthesizers to terminal node
+# workflow.add_edge("response_synthesizer", END)
+# workflow.add_edge("response_synthesizer_cohere", END)
+
+# graph: CompiledStateGraph = workflow.compile()
+
+
+graph: CompiledStateGraph = build_graph()

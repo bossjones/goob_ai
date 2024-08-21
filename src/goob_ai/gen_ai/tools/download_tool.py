@@ -315,3 +315,7 @@ class DownloadTool(BaseTool):
             LOGGER.error(f"Args: url='{url}'")
             traceback.print_tb(exc_traceback)
             raise ToolException(err_msg) from e
+
+        finally:
+            # Code that always executes, regardless of whether an exception occurred or not
+            await LOGGER.complete()

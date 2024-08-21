@@ -75,6 +75,7 @@ async def get_duration(input_file: Path) -> float:
     LOGGER.debug(f"duration_cmd = {duration_cmd}")
     duration = float(await _aio_run_process_and_communicate(duration_cmd))
     LOGGER.debug(f"duration = {duration}")
+    await LOGGER.complete()
     return duration
 
 
@@ -136,6 +137,7 @@ async def process_video(input_file: Path) -> None:
     if bitrate < 150:
         LOGGER.debug("Target bitrate is under 150kbps.")
         LOGGER.debug("Unable to compress.")
+        await LOGGER.complete()
         return
 
     video_bitrate = int(bitrate * 90 / 100)
@@ -148,12 +150,14 @@ async def process_video(input_file: Path) -> None:
     if video_bitrate < 125:
         LOGGER.debug("Target video bitrate is under 125kbps.")
         LOGGER.debug("Unable to compress.")
+        await LOGGER.complete()
         return
 
     # Exit if target audio bitrate is under 32kbps
     if audio_bitrate < 32:
         LOGGER.debug("Target audio bitrate is under 32.")
         LOGGER.debug("Unable to compress.")
+        await LOGGER.complete()
         return
 
     LOGGER.debug("Compressing video file using FFmpeg...")
@@ -191,6 +195,7 @@ async def process_video(input_file: Path) -> None:
     ]
     LOGGER.debug(f"compress_cmd = {compress_cmd}")
     await _aio_run_process_and_communicate(compress_cmd)
+    await LOGGER.complete()
 
 
 async def process_audio(input_file: Path) -> None:
@@ -219,6 +224,7 @@ async def process_audio(input_file: Path) -> None:
     if bitrate < 32:
         LOGGER.debug("Target bitrate is under 32kbps.")
         LOGGER.debug("Unable to compress.")
+        await LOGGER.complete()
         return
 
     LOGGER.debug("Compressing audio file using FFmpeg...")
@@ -248,6 +254,7 @@ async def process_audio(input_file: Path) -> None:
     ]
     LOGGER.debug(f"compress_cmd = {compress_cmd}")
     await _aio_run_process_and_communicate(compress_cmd)
+    await LOGGER.complete()
 
 
 async def aio_compress_video(tmpdirname: str, file_to_compress: str) -> bool:
@@ -300,6 +307,7 @@ async def aio_compress_video(tmpdirname: str, file_to_compress: str) -> bool:
             with concurrent.futures.ThreadPoolExecutor() as pool:
                 unlink_result = await loop.run_in_executor(pool, unlink_func)
 
+            await LOGGER.complete()
             return True
         except Exception as ex:
             print(ex)
@@ -310,9 +318,11 @@ async def aio_compress_video(tmpdirname: str, file_to_compress: str) -> bool:
             LOGGER.error(f"exc_type: {exc_type}")
             LOGGER.error(f"exc_value: {exc_value}")
             traceback.print_tb(exc_traceback)
+            await LOGGER.complete()
 
     else:
         LOGGER.debug(f"no videos to process in {tmpdirname}")
+        await LOGGER.complete()
         return False
 
 
@@ -355,7 +365,7 @@ def compress_video(tmpdirname: str, file_to_compress: str) -> bool:
 
             # nuke the originals
             unlink_orig_file(f"{file_to_compress}")
-
+            LOGGER.complete()
             return True
         except Exception as ex:
             print(ex)
@@ -366,7 +376,9 @@ def compress_video(tmpdirname: str, file_to_compress: str) -> bool:
             LOGGER.error(f"exc_type: {exc_type}")
             LOGGER.error(f"exc_value: {exc_value}")
             traceback.print_tb(exc_traceback)
+            LOGGER.complete()
 
     else:
         LOGGER.debug(f"no videos to process in {tmpdirname}")
+        LOGGER.complete()
         return False

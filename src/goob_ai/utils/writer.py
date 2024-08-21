@@ -26,4 +26,6 @@ async def write_file(fname: str, body: bytes, filetype: str, directory: str):
             await f.close()
     except Exception as e:
         LOGGER.error(f"Unexpected error while writing from `{fname}`: {e}")
+    finally:
+        await LOGGER.complete()
     return filename

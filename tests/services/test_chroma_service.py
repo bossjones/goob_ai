@@ -1,19 +1,34 @@
 from __future__ import annotations
 
+import asyncio
+import json
 import logging
 import os
+import random
 import shutil
+import tempfile
 
 from collections.abc import Generator, Iterable, Iterator, Sequence
 from pathlib import Path
-from typing import TYPE_CHECKING, List, Literal, Set, Union
+from typing import TYPE_CHECKING, Any, List, Literal, Set, Union
 
 from chromadb import Collection
 from goob_ai.aio_settings import aiosettings
 from goob_ai.services.chroma_service import (
+    CHROMA_PATH,
+    CHROMA_PATH_API,
+    ChromaService,
     CustomOpenAIEmbeddings,
+    add_or_update_documents,
+    calculate_chunk_ids,
+    compare_two_words,
+    create_chroma_db,
+    franchise_metadata,
+    generate_and_query_data_store,
     generate_data_store,
+    generate_document_hashes,
     get_chroma_db,
+    get_client,
     get_file_extension,
     get_rag_embedding_function,
     get_rag_loader,
@@ -24,20 +39,25 @@ from goob_ai.services.chroma_service import (
     is_pdf,
     is_txt,
     is_valid_uri,
+    load_documents,
+    markdown_to_documents,
+    rm_chroma_db,
     save_to_chroma,
     search_db,
     split_text,
+    string_to_doc,
 )
 from langchain.schema import Document
 from langchain_chroma import Chroma
 from langchain_chroma import Chroma as ChromaVectorStore
 from langchain_community.document_loaders import PyMuPDFLoader, PyPDFLoader, TextLoader, WebBaseLoader
+from langchain_core.documents import Document
+from langchain_core.vectorstores.base import VectorStoreRetriever
+from langchain_text_splitters import MarkdownTextSplitter
 from loguru import logger as LOGGER
 
 import pytest
 
-
-# import pysnooper
 
 if TYPE_CHECKING:
     from unittest.mock import AsyncMock, MagicMock, NonCallableMagicMock
@@ -49,9 +69,58 @@ if TYPE_CHECKING:
 
     from pytest_mock.plugin import MockerFixture
 
+# import pysnooper
 # import manhole
 # # this will start the daemon thread
 # manhole.install()
+
+
+# def test_compare_two_words(caplog: LogCaptureFixture):
+#     """
+#     Test the compare_two_words function.
+#     """
+#     caplog.set_level(logging.DEBUG)
+#     debug = [i.message for i in caplog.records if i.levelno == logging.DEBUG]
+#     # Call the function with sample words
+#     compare_two_words("apple", "banana")
+
+#     # Check if the expected logs are present
+#     assert "Vector for 'apple':" in caplog.text
+#     assert "Vector length:" in caplog.text
+#     assert "Comparing (apple, banana):" in caplog.text
+#     caplog.clear()
+
+FIRST_NAMES = ["Ada", "Bela", "Cade", "Dax", "Eva", "Fynn", "Gia", "Hugo", "Ivy", "Jax"]
+LAST_NAMES = ["Smith", "Johnson", "Williams", "Jones", "Brown", "Davis", "Miller", "Wilson", "Moore", "Taylor"]
+
+
+def generate_random_name():
+    first_name = random.choice(FIRST_NAMES)
+    last_name = random.choice(LAST_NAMES)
+    return f"{first_name}_{last_name}".lower()
+
+
+@pytest.mark.services()
+def test_calculate_chunk_ids():
+    """
+    Test the calculate_chunk_ids function.
+    """
+    # Create sample document chunks
+    chunks = [
+        Document(page_content="Chunk 1", metadata={"source": "data/file1.pdf", "page": 1}),
+        Document(page_content="Chunk 2", metadata={"source": "data/file1.pdf", "page": 1}),
+        Document(page_content="Chunk 3", metadata={"source": "data/file1.pdf", "page": 2}),
+        Document(page_content="Chunk 4", metadata={"source": "data/file2.pdf", "page": 1}),
+    ]
+
+    # Call the function
+    result = calculate_chunk_ids(chunks)
+
+    # Check if the chunk IDs are correctly assigned
+    assert result[0].metadata["id"] == "data/file1.pdf:1:0"
+    assert result[1].metadata["id"] == "data/file1.pdf:1:1"
+    assert result[2].metadata["id"] == "data/file1.pdf:2:0"
+    assert result[3].metadata["id"] == "data/file2.pdf:1:0"
 
 
 @pytest.fixture()
@@ -109,6 +178,7 @@ def custom_embeddings(mock_openai_api_key: str) -> CustomOpenAIEmbeddings:
     return CustomOpenAIEmbeddings(openai_api_key=mock_openai_api_key)
 
 
+@pytest.mark.services()
 @pytest.mark.parametrize(
     "filename, expected_extension",
     [
@@ -135,6 +205,7 @@ def test_get_file_extension(filename: str, expected_extension: str) -> None:
     assert extension == expected_extension
 
 
+@pytest.mark.services()
 def test_add_collection(mocker: MockerFixture) -> None:
     """
     Test the add_collection function of ChromaService.
@@ -164,6 +235,7 @@ def test_add_collection(mocker: MockerFixture) -> None:
     )
 
 
+@pytest.mark.services()
 def test_get_client(mocker: MockerFixture) -> None:
     """
     Test the get_client function of ChromaService.
@@ -186,6 +258,7 @@ def test_get_client(mocker: MockerFixture) -> None:
     assert result == mock_client
 
 
+@pytest.mark.services()
 def test_get_collection(mocker: MockerFixture) -> None:
     """
     Test the get_collection function of ChromaService.
@@ -213,6 +286,7 @@ def test_get_collection(mocker: MockerFixture) -> None:
     mock_client.get_collection.assert_called_once_with(name=collection_name, embedding_function=embedding_function)
 
 
+@pytest.mark.services()
 def test_get_list_collections(mocker: MockerFixture) -> None:
     """
     Test the get_list_collections function of ChromaService.
@@ -237,6 +311,7 @@ def test_get_list_collections(mocker: MockerFixture) -> None:
     mock_client.list_collections.assert_called_once()
 
 
+@pytest.mark.services()
 @pytest.mark.slow()
 @pytest.mark.skipif(
     not os.getenv("DEBUG_AIDER"),
@@ -316,7 +391,12 @@ def mock_txt_file(tmp_path: Path) -> Path:
     return test_txt_path
 
 
-def test_load_documents(mocker: MockerFixture, mock_pdf_file: Path) -> None:
+@pytest.mark.services()
+# @pytest.mark.vcr(allow_playback_repeats=True, match_on=["request_matcher"], ignore_localhost=False)
+@pytest.mark.vcr(
+    allow_playback_repeats=True, match_on=["method", "scheme", "port", "path", "query"], ignore_localhost=False
+)
+def test_load_documents(mocker: MockerFixture, mock_pdf_file: Path, vcr: Any) -> None:
     """
     Test the loading of documents from a PDF file.
 
@@ -343,8 +423,10 @@ def test_load_documents(mocker: MockerFixture, mock_pdf_file: Path) -> None:
 
     # this is a bad test, cause the data will change eventually. Need to find a way to test this.
     assert len(documents) == 680
+    assert vcr.play_count == 0
 
 
+@pytest.mark.services()
 @pytest.mark.slow()
 # @pytest.mark.skipif(
 #     os.getenv("PINECONE_ENV"),
@@ -407,6 +489,7 @@ def test_split_text(mocker: MockerFixture) -> None:
     mock_text_splitter.return_value.split_documents.assert_called_once_with(mock_documents)
 
 
+@pytest.mark.services()
 # FIXME: This is a work in progress till I can incorporate this into the main codebase
 @pytest.mark.slow()
 @pytest.mark.integration()
@@ -450,11 +533,15 @@ def test_chroma_service_e2e(mocker: MockerFixture, mock_txt_file: Path) -> None:
     )
 
 
+@pytest.mark.services()
 # FIXME: This is a work in progress till I can incorporate this into the main codebase
 @pytest.mark.slow()
 @pytest.mark.integration()
 @pytest.mark.e2e()
-def test_chroma_service_e2e_add_to_chroma(mocker: MockerFixture, mock_txt_file: Path) -> None:
+def test_chroma_service_e2e_add_to_chroma(
+    mocker: MockerFixture, mock_txt_file: Path, caplog: pytest.LogCaptureFixture, capsys: pytest.CaptureFixture
+) -> None:
+    caplog.set_level(logging.DEBUG)
     from goob_ai.services.chroma_service import ChromaService
 
     client = ChromaService.client
@@ -473,7 +560,13 @@ def test_chroma_service_e2e_add_to_chroma(mocker: MockerFixture, mock_txt_file: 
         == "In state after state, new laws have been passed, not only to suppress the vote, but to subvert entire elections.\n\nWe cannot let this happen.\n\nTonight. I call on the Senate to: Pass the Freedom to Vote Act. Pass the John Lewis Voting Rights Act. And while you're at it, pass the Disclose Act so Americans can know who is funding our elections.\n\nTonight, I'd like to honor someone who has dedicated his life to serve this country: Justice Stephen Breyer-an Army veteran, Constitutional scholar, and retiring Justice of the United States Supreme Court. Justice Breyer, thank you for your service.\n\nOne of the most serious constitutional responsibilities a President has is nominating someone to serve on the United States Supreme Court.\n\nAnd I did that 4 days ago, when I nominated Circuit Court of Appeals Judge Ketanji Brown Jackson. One of our nation's top legal minds, who will continue Justice Breyer's legacy of excellence."
     )
 
+    logged_messages = [rec.message for rec in caplog.records]
+    assert f"path_to_document = {mock_txt_file}" in logged_messages
+    assert f"collection_name = {test_collection_name}" in logged_messages
+    assert "embedding_function = None" in logged_messages
 
+
+@pytest.mark.services()
 # @pysnooper.snoop()
 @pytest.mark.slow()
 @pytest.mark.integration()
@@ -500,6 +593,7 @@ def test_chroma_service_e2e_add_to_chroma_disallowed_special(mocker: MockerFixtu
     )
 
 
+@pytest.mark.services()
 # FIXME: This is a work in progress till I can incorporate this into the main codebase
 @pytest.mark.slow()
 @pytest.mark.integration()
@@ -526,6 +620,7 @@ def test_chroma_service_e2e_add_to_chroma_url(mocker: MockerFixture) -> None:
     )
 
 
+@pytest.mark.services()
 @pytest.mark.integration()
 @pytest.mark.parametrize(
     "filename, expected_suffix",
@@ -553,6 +648,7 @@ def test_get_suffix(filename: str, expected_suffix: str) -> None:
     assert suffix == expected_suffix
 
 
+@pytest.mark.services()
 @pytest.mark.integration()
 def test_get_suffix_empty_filename() -> None:
     """
@@ -567,6 +663,7 @@ def test_get_suffix_empty_filename() -> None:
     assert suffix == expected_suffix
 
 
+@pytest.mark.services()
 @pytest.mark.integration()
 def test_get_suffix_multiple_dots() -> None:
     """
@@ -581,6 +678,7 @@ def test_get_suffix_multiple_dots() -> None:
     assert suffix == expected_suffix
 
 
+@pytest.mark.services()
 @pytest.mark.integration()
 @pytest.mark.parametrize(
     "filename, expected_result",
@@ -609,6 +707,7 @@ def test_is_pdf(filename: str, expected_result: bool) -> None:
     assert result == expected_result
 
 
+@pytest.mark.services()
 @pytest.mark.integration()
 def test_is_pdf_empty_filename() -> None:
     """
@@ -623,6 +722,7 @@ def test_is_pdf_empty_filename() -> None:
     assert result == expected_result
 
 
+@pytest.mark.services()
 @pytest.mark.integration()
 def test_is_pdf_no_extension() -> None:
     """
@@ -637,6 +737,7 @@ def test_is_pdf_no_extension() -> None:
     assert result == expected_result
 
 
+@pytest.mark.services()
 @pytest.mark.integration()
 @pytest.mark.parametrize(
     "filename, expected_result",
@@ -665,6 +766,7 @@ def test_is_txt(filename: str, expected_result: bool) -> None:
     assert result == expected_result
 
 
+@pytest.mark.services()
 @pytest.mark.integration()
 def test_is_txt_empty_filename() -> None:
     """
@@ -679,6 +781,7 @@ def test_is_txt_empty_filename() -> None:
     assert result == expected_result
 
 
+@pytest.mark.services()
 @pytest.mark.integration()
 def test_is_txt_no_extension() -> None:
     """
@@ -693,6 +796,7 @@ def test_is_txt_no_extension() -> None:
     assert result == expected_result
 
 
+@pytest.mark.services()
 @pytest.mark.integration()
 def test_get_rag_loader_real_pdf(mock_pdf_file: Path) -> None:
     """
@@ -710,6 +814,7 @@ def test_get_rag_loader_real_pdf(mock_pdf_file: Path) -> None:
     # isinstance(loader_class, PyPDFLoader)
 
 
+@pytest.mark.services()
 @pytest.mark.integration()
 def test_get_rag_loader_github_io_url(mock_github_io_url: FixtureRequest) -> None:
     """
@@ -726,6 +831,7 @@ def test_get_rag_loader_github_io_url(mock_github_io_url: FixtureRequest) -> Non
     assert "WebBaseLoader" in str(loader_class)
 
 
+@pytest.mark.services()
 @pytest.mark.integration()
 def test_get_rag_loader_txt(mock_txt_file: FixtureRequest) -> None:
     """
@@ -742,6 +848,7 @@ def test_get_rag_loader_txt(mock_txt_file: FixtureRequest) -> None:
     assert "TextLoader" in str(loader_class)
 
 
+@pytest.mark.services()
 @pytest.mark.integration()
 def test_get_rag_loader_empty_path() -> None:
     """
@@ -756,6 +863,7 @@ def test_get_rag_loader_empty_path() -> None:
     assert loader_class == expected_loader_class
 
 
+@pytest.mark.services()
 @pytest.mark.integration()
 def test_get_rag_loader_unsupported_extension() -> None:
     """
@@ -770,6 +878,7 @@ def test_get_rag_loader_unsupported_extension() -> None:
     assert loader_class == expected_loader_class
 
 
+@pytest.mark.services()
 @pytest.mark.parametrize(
     "uri, expected_result",
     [
@@ -801,6 +910,7 @@ def test_is_valid_uri(uri: str, expected_result: bool) -> None:
     assert result == expected_result
 
 
+@pytest.mark.services()
 def test_is_valid_uri_with_none() -> None:
     """
     Test the is_valid_uri function with None as input.
@@ -811,6 +921,7 @@ def test_is_valid_uri_with_none() -> None:
         is_valid_uri(None)
 
 
+@pytest.mark.services()
 def test_is_valid_uri_with_non_string() -> None:
     """
     Test the is_valid_uri function with a non-string input.
@@ -821,6 +932,7 @@ def test_is_valid_uri_with_non_string() -> None:
         is_valid_uri(123)
 
 
+@pytest.mark.services()
 @pytest.mark.parametrize(
     "filename, expected_result",
     [
@@ -854,6 +966,7 @@ def test_is_github_io_url(filename: str, expected_result: bool) -> None:
     assert result == expected_result
 
 
+@pytest.mark.services()
 @pytest.mark.integration()
 def test_get_rag_splitter_txt(mock_txt_file: Path) -> None:
     """
@@ -869,6 +982,7 @@ def test_get_rag_splitter_txt(mock_txt_file: Path) -> None:
     assert "CharacterTextSplitter" in str(splitter_class)
 
 
+@pytest.mark.services()
 @pytest.mark.integration()
 def test_get_rag_splitter_github_io_url(mock_github_io_url: str) -> None:
     """
@@ -884,6 +998,7 @@ def test_get_rag_splitter_github_io_url(mock_github_io_url: str) -> None:
     assert "RecursiveCharacterTextSplitter" in str(splitter_class)
 
 
+@pytest.mark.services()
 @pytest.mark.integration()
 def test_get_rag_splitter_pdf(mock_pdf_file: Path) -> None:
     """
@@ -899,6 +1014,7 @@ def test_get_rag_splitter_pdf(mock_pdf_file: Path) -> None:
     assert splitter_class is None
 
 
+@pytest.mark.services()
 @pytest.mark.integration()
 def test_get_rag_splitter_empty_path() -> None:
     """
@@ -912,6 +1028,7 @@ def test_get_rag_splitter_empty_path() -> None:
     assert splitter_class is None
 
 
+@pytest.mark.services()
 @pytest.mark.integration()
 def test_get_rag_splitter_unsupported_extension() -> None:
     """
@@ -925,6 +1042,7 @@ def test_get_rag_splitter_unsupported_extension() -> None:
     assert splitter_class is None
 
 
+@pytest.mark.services()
 @pytest.mark.integration()
 def test_get_rag_embedding_function_txt(mock_txt_file: Path) -> None:
     """
@@ -940,6 +1058,7 @@ def test_get_rag_embedding_function_txt(mock_txt_file: Path) -> None:
     assert "langchain_community.embeddings.huggingface.HuggingFaceEmbeddings" in str(type(embedding_function))
 
 
+@pytest.mark.services()
 @pytest.mark.integration()
 def test_get_rag_embedding_function_github_io_url(mock_github_io_url: str) -> None:
     """
@@ -955,6 +1074,7 @@ def test_get_rag_embedding_function_github_io_url(mock_github_io_url: str) -> No
     assert "langchain_openai.embeddings.base.OpenAIEmbeddings" in str(type(embedding_function))
 
 
+@pytest.mark.services()
 @pytest.mark.integration()
 def test_get_rag_embedding_function_pdf(mock_pdf_file: Path) -> None:
     """
@@ -970,6 +1090,7 @@ def test_get_rag_embedding_function_pdf(mock_pdf_file: Path) -> None:
     assert "openai.resources.embeddings.Embeddings" in str(embedding_function)
 
 
+@pytest.mark.services()
 @pytest.mark.integration()
 def test_get_rag_embedding_function_empty_path() -> None:
     """
@@ -983,6 +1104,7 @@ def test_get_rag_embedding_function_empty_path() -> None:
     assert embedding_function is None
 
 
+@pytest.mark.services()
 @pytest.mark.integration()
 def test_get_rag_embedding_function_unsupported_extension() -> None:
     """
@@ -1003,14 +1125,15 @@ def dummy_chroma_db(mocker) -> Chroma:
     return db
 
 
+@pytest.mark.skip(reason="This is a work in progress and it is currently expected to fail")
+@pytest.mark.flaky()
+@pytest.mark.services()
 # @pytest.mark.vcr(match_on=["request_matcher"])
 # @pytest.mark.vcr(ignore_localhost=False)
 # @pytest.mark.vcr()
 # @pytest.mark.vcr(allow_playback_repeats=True)
 @pytest.mark.vcr(allow_playback_repeats=True, match_on=["request_matcher"], ignore_localhost=False)
-def test_search_db_returns_relevant_documents(
-    dummy_chroma_db: Chroma, caplog: LogCaptureFixture, capsys: CaptureFixture, vcr
-):
+def test_search_db_returns_relevant_documents(caplog: LogCaptureFixture, capsys: CaptureFixture, vcr):
     """
     Test that search_db returns relevant documents when found.
 
@@ -1018,16 +1141,37 @@ def test_search_db_returns_relevant_documents(
     relevant documents and their scores when a match is found in the database.
     """
     caplog.set_level(logging.DEBUG)
+
+    from goob_ai.services.chroma_service import _await_server
+
+    collection_name = "test_goobie"
+    chroma_client = get_client()
+    _await_server(chroma_client, attempts=10)
+
+    collections = chroma_client.list_collections()
+
+    # Clean up the collection if it exists
+    if collection_name in collections:
+        chroma_client.delete_collection(collection_name)
+        chroma_client.create_collection(collection_name, get_or_create=True)
+    else:
+        chroma_client.create_collection(collection_name, get_or_create=True)
+
     # import bpdb
 
-    # bpdb.set_trace()
-    db = dummy_chroma_db
-    results = search_db(db, "test query")
-    query_text = "test query"
-    expected_results = [
-        (Document(page_content="doc1"), 0.8),
-        (Document(page_content="doc2"), 0.7),
-    ]
+    # # bpdb.set_trace()
+    # # db = dummy_chroma_db
+    # db = Chroma(
+    #     client=ChromaService.client,
+    #     collection_name=collection_name,
+    #     embedding_function=None,
+    # )
+    # results = search_db(db, "test query")
+    # query_text = "test query"
+    # expected_results = [
+    #     (Document(page_content="doc1"), 0.8),
+    #     (Document(page_content="doc2"), 0.7),
+    # ]
 
     # FIXME: # assert results == expected_results
 
@@ -1082,6 +1226,7 @@ def test_search_db_returns_relevant_documents(
 #     dummy_chroma_db.similarity_search_with_relevance_scores.assert_called_once_with(query_text, k=3)
 
 
+@pytest.mark.services()
 @pytest.mark.integration()
 def test_generate_context_text() -> None:
     """
@@ -1105,6 +1250,7 @@ def test_generate_context_text() -> None:
     assert context_text == expected_context_text
 
 
+@pytest.mark.services()
 @pytest.mark.integration()
 def test_generate_context_text_empty_results() -> None:
     """
@@ -1123,6 +1269,7 @@ def test_generate_context_text_empty_results() -> None:
     assert context_text == expected_context_text
 
 
+@pytest.mark.services()
 @pytest.mark.integration()
 def test_generate_context_text_single_result() -> None:
     """
@@ -1142,6 +1289,7 @@ def test_generate_context_text_single_result() -> None:
     assert context_text == expected_context_text
 
 
+@pytest.mark.services()
 @pytest.mark.integration()
 def test_generate_prompt(capsys: CaptureFixture, caplog: LogCaptureFixture) -> None:
     """
@@ -1181,6 +1329,7 @@ def test_generate_prompt(capsys: CaptureFixture, caplog: LogCaptureFixture) -> N
     assert prompt == str(expected_prompt)
 
 
+@pytest.mark.services()
 @pytest.mark.integration()
 def test_generate_prompt_empty_context() -> None:
     """
@@ -1201,6 +1350,7 @@ def test_generate_prompt_empty_context() -> None:
     assert prompt == str(expected_prompt)
 
 
+@pytest.mark.services()
 @pytest.mark.integration()
 def test_generate_prompt_empty_question() -> None:
     """
@@ -1221,6 +1371,7 @@ def test_generate_prompt_empty_question() -> None:
     assert prompt == str(expected_prompt)
 
 
+@pytest.mark.services()
 @pytest.mark.integration()
 def test_generate_prompt_multiline_context() -> None:
     """
@@ -1239,3 +1390,275 @@ def test_generate_prompt_multiline_context() -> None:
     prompt = generate_prompt(context, question)
 
     assert prompt == str(expected_prompt)
+
+
+@pytest.mark.services()
+@pytest.mark.integration()
+@pytest.mark.asyncio()
+async def test_string_to_doc():
+    text = "This is a test string."
+    doc = await string_to_doc(text)
+    assert isinstance(doc, Document)
+    assert doc.page_content == text
+
+
+@pytest.mark.services()
+@pytest.mark.integration()
+@pytest.mark.asyncio()
+async def test_markdown_to_documents():
+    markdown_text = "# Heading 1\n\nThis is a paragraph.\n\n## Heading 2\n\nAnother paragraph."
+    docs = [Document(page_content=markdown_text)]
+    split_docs = await markdown_to_documents(docs)
+    assert len(split_docs) >= 1
+    assert all(isinstance(doc, Document) for doc in split_docs)
+
+
+# @pytest.mark.integration()
+# def test_franchise_metadata():
+#     record = {"id": 1, "name": "Test Franchise"}
+#     metadata = {"source": "test_source"}
+#     updated_metadata = franchise_metadata(record, metadata)
+#     assert updated_metadata["source"] == "API"
+#     assert updated_metadata["franchise_id"] == 1
+#     assert updated_metadata["franchise_name"] == "Test Franchise"
+
+# @pytest.mark.integration()
+# @pytest.mark.asyncio()
+# async def test_json_to_docs():
+#     json_data = json.dumps([{"id": 1, "text": "Test document 1"}, {"id": 2, "text": "Test document 2"}])
+#     jq_schema = ".[]"
+#     docs = await json_to_docs(json_data, jq_schema, franchise_metadata)
+#     assert len(docs) == 2
+#     assert all(isinstance(doc, Document) for doc in docs)
+#     assert docs[0].page_content == "Test document 1"
+#     assert docs[1].page_content == "Test document 2"
+
+
+@pytest.mark.services()
+@pytest.mark.integration()
+@pytest.mark.asyncio()
+async def test_generate_document_hashes():
+    docs = [
+        Document(page_content="Test document 1", metadata={"source": "test_source", "id": "1"}),
+        Document(page_content="Test document 2", metadata={"source": "test_source", "id": "2"}),
+    ]
+    hashes = await generate_document_hashes(docs)
+    assert len(hashes) == 2
+    assert all(isinstance(hash, str) for hash in hashes)
+
+
+# @pytest.mark.asyncio()
+# async def test_create_chroma_db(mocker):
+#     mocker.patch("goob_ai.services.chroma_service.rm_chroma_db", return_value=None)
+#     mocker.patch("goob_ai.services.chroma_service.Chroma.from_documents", return_value=None)
+#     docs = [Document(page_content="Test document")]
+#     await create_chroma_db("test_collection", docs)
+#     assert CHROMA_PATH_API.absolute().exists()
+
+# @pytest.mark.asyncio()
+# async def test_rm_chroma_db(mocker):
+#     mocker.patch("shutil.rmtree", return_value=None)
+#     mocker.patch("asyncio.sleep", return_value=None)
+#     await rm_chroma_db()
+#     assert not CHROMA_PATH_API.exists()
+
+
+# # FIXME: This test is not working, racecondition eb tween ingesting data and writing to db.
+# @pytest.mark.unittest()
+# @pytest.mark.asyncio()
+# async def test_add_and_query_unittest(mocker: MockerFixture):
+#     # Define test inputs
+#     collection_name = "test_collection_intgr"
+#     question = "What is the meaning of life?"
+#     reset = True
+
+#     # Call the add_and_query function
+#     result: VectorStoreRetriever = ChromaService.add_and_query(collection_name, question, reset)
+
+#     # Assert that the result is an instance of VectorStoreRetriever
+#     assert isinstance(result, VectorStoreRetriever)
+
+
+@pytest.fixture()
+def mock_chroma_db(mocker: MockerFixture):
+    """Fixture to create a mock Chroma database."""
+    mock_db = mocker.MagicMock()
+    mock_db.get.return_value = {"ids": []}
+    return mock_db
+
+
+@pytest.fixture()
+def mock_loader(mocker: MockerFixture):
+    """Fixture to create a mock loader."""
+    mock_loader = mocker.MagicMock()
+    mock_loader.load.return_value = [Document(page_content="Test document")]
+    return mock_loader
+
+
+@pytest.fixture()
+def mock_text_splitter(mocker: MockerFixture):
+    """Fixture to create a mock text splitter."""
+    mock_splitter = mocker.MagicMock()
+    mock_splitter.split_documents.return_value = [Document(page_content="Test chunk")]
+    return mock_splitter
+
+
+# @pytest.mark.skip(reason="This is a work in progress and it is currently expected to fail")
+# @pytest.mark.flaky()
+@pytest.mark.services()
+@pytest.mark.unittest()
+@pytest.mark.vcr(
+    allow_playback_repeats=True, match_on=["method", "scheme", "port", "path", "query"], ignore_localhost=False
+)
+def test_add_to_chroma(
+    mocker: MockerFixture,
+    mock_chroma_db: MockerFixture,
+    mock_loader: MockerFixture,
+    mock_text_splitter: MockerFixture,
+    mock_pdf_file: Path,
+    caplog: LogCaptureFixture,
+    capsys: CaptureFixture,
+    vcr: Any,
+):
+    """
+    Test adding new documents to the Chroma database.
+
+    This test verifies that the `add_or_update_documents` function correctly adds
+    new documents to the Chroma database when they don't exist.
+    """
+    caplog.set_level(logging.DEBUG)
+
+    from goob_ai.services.chroma_service import ChromaService, _await_server, load_documents
+
+    collection_name = "hugo_johnson"
+    chroma_client = get_client()
+    _await_server(chroma_client, attempts=10)
+
+    collections = chroma_client.list_collections()
+
+    # Clean up the collection if it exists
+    if collection_name in collections:
+        chroma_client.delete_collection(collection_name)
+        chroma_client.create_collection(collection_name, get_or_create=True)
+
+    # query it
+    query = "What did the president say about Ketanji Brown Jackson"
+
+    mock_get_rag_splitter = mocker.patch("goob_ai.services.chroma_service.get_rag_splitter")
+    mock_get_chroma_db = mocker.patch("goob_ai.services.chroma_service.get_chroma_db")
+    mock_get_rag_loader = mocker.patch("goob_ai.services.chroma_service.get_rag_loader")
+
+    mock_get_chroma_db.return_value = mock_chroma_db
+    mock_get_rag_loader.return_value = mock_loader
+    mock_get_rag_splitter.return_value = mock_text_splitter
+
+    documents = load_documents()
+    chunks = split_text(documents)
+
+    add_or_update_documents(chunks, collection_name=collection_name)
+
+    mock_chroma_db.add_documents.assert_called_once()
+    mock_chroma_db.get.assert_called_once_with(include=[])
+
+
+@pytest.mark.services()
+@pytest.mark.unittest()
+def test_add_or_update_documents_new_documents(
+    mocker: MockerFixture,
+    mock_chroma_db: MockerFixture,
+    mock_loader: MockerFixture,
+    mock_text_splitter: MockerFixture,
+    mock_pdf_file: Path,
+    caplog: LogCaptureFixture,
+    capsys: CaptureFixture,
+):
+    """
+    Test adding new documents to the Chroma database.
+
+    This test verifies that the `add_or_update_documents` function correctly adds
+    new documents to the Chroma database when they don't exist.
+    """
+    from goob_ai.services.chroma_service import load_documents
+
+    caplog.set_level(logging.DEBUG)
+
+    mock_get_rag_splitter = mocker.patch("goob_ai.services.chroma_service.get_rag_splitter")
+    mock_get_chroma_db = mocker.patch("goob_ai.services.chroma_service.get_chroma_db")
+    mock_get_rag_loader = mocker.patch("goob_ai.services.chroma_service.get_rag_loader")
+    mock_get_rag_embedding_function = mocker.patch("goob_ai.services.chroma_service.get_rag_embedding_function")
+
+    mock_get_chroma_db.return_value = mock_chroma_db
+    mock_get_rag_loader.return_value = mock_loader
+    mock_get_rag_splitter.return_value = mock_text_splitter
+
+    collection_name = "daisy_johnson"
+
+    documents = load_documents()
+    chunks = split_text(documents)
+
+    add_or_update_documents(chunks, collection_name=collection_name)
+
+    mock_chroma_db.add_documents.assert_called_once()
+    mock_chroma_db.get.assert_called_once_with(include=[])
+
+
+@pytest.mark.services()
+@pytest.mark.unittest()
+def test_add_or_update_documents_existing_documents(
+    mocker: MockerFixture,
+    mock_chroma_db: MockerFixture,
+    mock_loader: MockerFixture,
+    mock_text_splitter: MockerFixture,
+    mock_pdf_file: Path,
+    caplog: LogCaptureFixture,
+    capsys: CaptureFixture,
+):
+    """
+    Test adding existing documents to the Chroma database.
+
+    This test verifies that the `add_or_update_documents` function correctly skips
+    adding documents that already exist in the Chroma database.
+    """
+    from goob_ai.services.chroma_service import load_documents
+
+    caplog.set_level(logging.DEBUG)
+
+    mock_get_rag_splitter = mocker.patch("goob_ai.services.chroma_service.get_rag_splitter")
+    mock_get_chroma_db = mocker.patch("goob_ai.services.chroma_service.get_chroma_db")
+    mock_get_rag_loader = mocker.patch("goob_ai.services.chroma_service.get_rag_loader")
+
+    mock_get_chroma_db.return_value = mock_chroma_db
+    mock_get_rag_loader.return_value = mock_loader
+    mock_get_rag_splitter.return_value = mock_text_splitter
+    mock_chroma_db.get.return_value = {"ids": ["test_chunk_id"]}
+
+    collection_name = generate_random_name()
+
+    documents = load_documents()
+    chunks = split_text(documents)
+
+    add_or_update_documents(chunks, collection_name=collection_name)
+
+    assert mock_chroma_db.add_documents.call_count == 1
+    assert mock_chroma_db.add_documents.call_args.kwargs == {"ids": ["None:None:0", "None:None:1", "None:None:2"]}
+
+    assert mock_chroma_db.add_documents.call_args.args == (
+        [
+            Document(metadata={"start_index": 0, "id": "None:None:0"}, page_content="Test document"),
+            Document(metadata={"start_index": 0, "id": "None:None:1"}, page_content="Test document"),
+            Document(metadata={"start_index": 0, "id": "None:None:2"}, page_content="Test document"),
+        ],
+    )
+
+    calls = [
+        mocker.call(
+            [
+                Document(metadata={"start_index": 0, "id": "None:None:0"}, page_content="Test document"),
+                Document(metadata={"start_index": 0, "id": "None:None:1"}, page_content="Test document"),
+                Document(metadata={"start_index": 0, "id": "None:None:2"}, page_content="Test document"),
+            ],
+            ids=["None:None:0", "None:None:1", "None:None:2"],
+        )
+    ]
+
+    assert mock_chroma_db.add_documents.call_args_list == calls

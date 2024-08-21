@@ -12,39 +12,68 @@
 from __future__ import annotations
 
 import argparse
+import asyncio
+import hashlib
+import logging
 import os
 import pathlib
 import re
 import shutil
+import sys
+import tempfile
+import time
+import traceback
 
 from collections.abc import Sequence
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Any, Callable, List, Literal, Optional, Set, Union
 
+import bpdb
 import bs4
 import chromadb
+import httpx
+import pysnooper
 import uritools
 
+from chromadb.api import ClientAPI, ServerAPI
 from chromadb.config import Settings as ChromaSettings
+from httpx import ConnectError
+from langchain.evaluation import load_evaluator
 from langchain_chroma import Chroma
 from langchain_chroma import Chroma as ChromaVectorStore
-from langchain_community.document_loaders import PyMuPDFLoader, PyPDFLoader, TextLoader, WebBaseLoader
+from langchain_community.document_loaders import (
+    DirectoryLoader,
+    JSONLoader,
+    PyMuPDFLoader,
+    PyPDFLoader,
+    TextLoader,
+    WebBaseLoader,
+)
 from langchain_community.embeddings.sentence_transformer import SentenceTransformerEmbeddings
 from langchain_core.documents import Document
 from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.vectorstores.base import VectorStoreRetriever
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
-from langchain_text_splitters import CharacterTextSplitter, RecursiveCharacterTextSplitter
+from langchain_openai.embeddings import OpenAIEmbeddings
+from langchain_text_splitters import CharacterTextSplitter, MarkdownTextSplitter, RecursiveCharacterTextSplitter
 from loguru import logger as LOGGER
+from pydantic.v1.types import SecretStr
 from tqdm import tqdm
 
+from goob_ai import llm_manager, redis_memory
 from goob_ai.aio_settings import aiosettings
 from goob_ai.utils import file_functions
 
+
+# from langchain_community.vectorstores import Chroma
+# from langchain.vectorstores.chroma import Chroma
 
 HERE = os.path.dirname(__file__)
 
 DATA_PATH = os.path.join(HERE, "..", "data", "chroma", "documents")
 CHROMA_PATH = os.path.join(HERE, "..", "data", "chroma", "vectorstorage")
+CHROMA_PATH_API = Path(CHROMA_PATH)
 
 PROMPT_TEMPLATE = """
 Answer the question based only on the following context:
@@ -58,6 +87,442 @@ Answer the question based on the above context: {question}
 
 # Define the regex pattern to match a valid URL containing "github.io"
 WEBBASE_LOADER_PATTERN = r"^https?://[a-zA-Z0-9.-]+\.github\.io(/.*)?$"
+
+
+async def llm_query(
+    collection_name: str = "",
+    question: str = "",
+    threshold: float = 0.65,
+    count: int = 5,
+    disallowed_special: Union[Literal["all"], set[str], Sequence[str]] = (),
+) -> tuple[str | list | None, list[str | None]]:
+    LOGGER.debug(f"Querying chroma db. Count={count} Threshold={threshold}", collection_name=collection_name)
+
+    http_client = httpx.AsyncClient()
+
+    # Load DB
+    llm_db = Chroma(
+        collection_name=collection_name,
+        persist_directory=str(CHROMA_PATH),
+        embedding_function=OpenAIEmbeddings(
+            openai_api_key=aiosettings.openai_api_key.get_secret_value(),
+            disallowed_special=disallowed_special,
+            async_client=httpx.AsyncClient(),
+        ),
+    )
+
+    if not llm_db:
+        raise RuntimeError("Chroma DB does not exist")
+
+    # Search the DB.
+    similar = llm_db.similarity_search_with_relevance_scores(question, k=count)
+
+    if not similar:
+        LOGGER.debug("Unable to find matching results.", collection_name=collection_name)
+        return (None, [])
+
+    LOGGER.debug(f"Similar result count: {len(similar)}", collection_name=collection_name)
+
+    results: list[tuple[Document, float]] = []
+    for r in similar:
+        LOGGER.debug(f"Result Threshold: {r[1]:.4f}", collection_name=collection_name)
+        if r[1] > threshold and r not in results:
+            results.append(r)
+
+    if not results:
+        LOGGER.debug("Unable to find matching results.", collection_name=collection_name)
+        return (None, [])
+
+    LOGGER.debug(f"Final Result count: {len(results)}", collection_name=collection_name)
+
+    context_text = "\n\n---\n\n".join([doc.page_content for doc, _score in results])
+    prompt_template = ChatPromptTemplate.from_template(PROMPT_TEMPLATE)
+    prompt = prompt_template.format(context=context_text, question=question)
+    LOGGER.debug(prompt)
+
+    # FIXME: This is a hack to get the model to work. We need to fix this in the llm_manager.
+    # model: ChatOpenAI | None = llm_manager.LlmManager().llm
+    model = ChatOpenAI(
+        name="ChatOpenAI",
+        model=aiosettings.chat_model,
+        streaming=True,
+        temperature=aiosettings.llm_temperature,
+        async_client=http_client,
+    )
+    response_text = model.invoke(prompt)
+
+    await http_client.aclose()
+
+    sources: list[str | None] = [doc.metadata.get("source") for doc, _score in results]
+    if not response_text.content:
+        return (None, [])
+    LOGGER.debug(f"LLM Response: {response_text.content}", collection_name=collection_name)
+    if len(response_text.content) > 2000:
+        return ("Sorry that response is too long for me to put in discord.", [])
+
+    await LOGGER.complete()
+    return (response_text.content, sources)
+
+
+# SOURCE: https://github.com/RSC-NA/rsc/blob/69f8ce29a6e38a960515564bf84fbd1d809468d8/rsc/llm/create_db.py#L176
+async def string_to_doc(text: str) -> Document:
+    """
+    Convert a string to a Document object.
+
+    Args:
+        text (str): The input string to convert.
+
+    Returns:
+        Document: The converted Document object.
+    """
+    return Document(page_content=text)
+
+
+# SOURCE: https://github.com/RSC-NA/rsc/blob/69f8ce29a6e38a960515564bf84fbd1d809468d8/rsc/llm/create_db.py#L176
+async def markdown_to_documents(docs: list[Document]) -> list[Document]:
+    """
+    Split Markdown documents into smaller chunks.
+
+    Args:
+        docs (list[Document]): The list of Markdown documents to split.
+
+    Returns:
+        list[Document]: The list of split document chunks.
+    """
+    md_splitter = MarkdownTextSplitter()
+    return md_splitter.split_documents(docs)
+
+
+# SOURCE: https://github.com/RSC-NA/rsc/blob/69f8ce29a6e38a960515564bf84fbd1d809468d8/rsc/llm/create_db.py#L176
+def franchise_metadata(record: dict, metadata: dict) -> dict:
+    """
+    Update the metadata dictionary with franchise-specific information.
+
+    Args:
+        record (dict): The record dictionary.
+        metadata (dict): The metadata dictionary to update.
+
+    Returns:
+        dict: The updated metadata dictionary.
+    """
+    LOGGER.debug(f"Metadata: {metadata}")
+    metadata["source"] = "API"
+    return metadata
+
+
+# # SOURCE: https://github.com/RSC-NA/rsc/blob/69f8ce29a6e38a960515564bf84fbd1d809468d8/rsc/llm/create_db.py#L176
+# async def json_to_docs(data: str, jq_schema: str, metadata_func: Callable | None) -> list[Document]:
+#     """
+#     Convert JSON data to a list of Document objects.
+
+#     Args:
+#         data (str): The JSON data as a string.
+#         jq_schema (str): The jq schema to apply to the JSON data.
+#         metadata_func (Callable | None): The function to apply to the metadata.
+
+#     Returns:
+#         list[Document]: The list of converted Document objects.
+#     """
+#     with tempfile.NamedTemporaryFile() as fd:
+#         if isinstance(data, str):
+#             fd.write(data.encode("utf-8"))
+#         elif isinstance(data, bytes):
+#             fd.write(data)
+#         else:
+#             raise TypeError("JSON data must be str or bytes")
+#         loader = JSONLoader(
+#             file_path=fd.name,
+#             jq_schema=jq_schema,
+#             text_content=False,
+#             metadata_func=franchise_metadata,
+#         )
+#         chunks = loader.load()
+
+#     return chunks
+
+
+# SOURCE: https://github.com/RSC-NA/rsc/blob/69f8ce29a6e38a960515564bf84fbd1d809468d8/rsc/llm/create_db.py#L176
+async def generate_document_hashes(docs: list[Document]) -> list[str]:
+    """
+    Generate hashes for a list of Document objects.
+
+    Args:
+        docs (list[Document]): The list of Document objects to generate hashes for.
+
+    Returns:
+        list[str]: The list of generated hashes.
+    """
+    hashes = []
+    for doc in docs:
+        source = doc.metadata.get("source")
+        api_id = doc.metadata.get("id")
+
+        if source and api_id:
+            ident = f"{source}/{api_id}"
+        elif source:
+            ident = f"{source}"
+        elif api_id:
+            LOGGER.warning(f"LLM Document has no source: {doc.page_content[:50]}")
+            ident = f"{api_id}"
+        else:
+            LOGGER.warning(f"LLM Document has no metadata: {doc.page_content[:50]}")
+            ident = doc.page_content
+
+        hash = hashlib.sha256(ident.encode("utf-8")).hexdigest()
+        hashes.append(hash)
+
+    await LOGGER.complete()
+    return hashes
+
+
+# SOURCE: https://github.com/RSC-NA/rsc/blob/69f8ce29a6e38a960515564bf84fbd1d809468d8/rsc/llm/create_db.py#L176
+async def create_chroma_db(
+    collection_name: str,
+    docs: list[Document],
+    disallowed_special: Union[Literal["all"], set[str], Sequence[str]] = (),
+    reset: bool = False,
+) -> None:
+    """
+    Create a Chroma database with the given collection name and documents.
+
+    Args:
+        collection_name (str): The name of the collection.
+        org_name (str): The name of the organization.
+        api_key (str): The API key for authentication.
+        docs (list[Document]): The list of Document objects to add to the database.
+    """
+
+    if reset:
+        # Clear out the database first.
+        LOGGER.debug("Clear out the database first.")
+        await rm_chroma_db()
+
+    # Create directory if needed
+    if not CHROMA_PATH_API.absolute().exists():
+        # Create brand new DB if it doesn't exist
+        LOGGER.debug("Creating Chroma DB Directory", collection_name=collection_name)
+        CHROMA_PATH_API.absolute().mkdir(parents=True, exist_ok=True)
+        await asyncio.sleep(5)
+
+    LOGGER.debug("Saving Chroma DB.", collection_name=collection_name)
+    Chroma.from_documents(
+        documents=docs,
+        collection_name=collection_name,
+        embedding=OpenAIEmbeddings(
+            openai_api_key=aiosettings.openai_api_key.get_secret_value(),
+            disallowed_special=disallowed_special,
+            async_client=httpx.AsyncClient(),
+        ),
+        # embedding=OpenAIEmbeddings(
+        #     organization=org_name,
+        #     api_key=SecretStr(api_key),
+        #     async_client=httpx.AsyncClient(),
+        # ),
+        persist_directory=str(CHROMA_PATH_API.absolute()),
+    )
+    LOGGER.info(f"Saved {len(docs)} chunks to {CHROMA_PATH_API}.", collection_name=collection_name)
+    await LOGGER.complete()
+
+
+# SOURCE: https://github.com/RSC-NA/rsc/blob/69f8ce29a6e38a960515564bf84fbd1d809468d8/rsc/llm/create_db.py#L176
+async def rm_chroma_db() -> None:
+    """
+    Remove the Chroma database directory if it exists.
+
+    This function checks if the Chroma database directory exists and is a directory
+    with the name "db". If the conditions are met, it deletes the directory and its
+    contents using `shutil.rmtree()`. After deleting the directory, it waits for 5
+    seconds using `asyncio.sleep()`.
+    """
+    if CHROMA_PATH_API.exists() and CHROMA_PATH_API.is_dir() and CHROMA_PATH_API.name == "vectorstorage":
+        LOGGER.debug(f"Deleting Chroma DB directory: {CHROMA_PATH_API.absolute()}")
+        shutil.rmtree(CHROMA_PATH_API.absolute())
+        await asyncio.sleep(5)
+    await LOGGER.complete()
+
+
+# SOURCE: https://github.com/divyeg/meakuchatbot_project/blob/0c4483ce4bebce923233cf2a1139f089ac5d9e53/createVectorDB.ipynb#L203
+def compare_two_words(w1: str, w2: str) -> None:
+    """
+    Compare the embeddings of two words.
+
+    Args:
+        w1 (str): The first word to compare.
+        w2 (str): The second word to compare.
+    """
+    # Get embedding for a word.
+    embedding_function = OpenAIEmbeddings()
+    vector = embedding_function.embed_query(w1)
+    LOGGER.info(f"Vector for '{w1}': {vector}")
+    LOGGER.info(f"Vector length: {len(vector)}")
+
+    # Compare vector of two words
+    evaluator = load_evaluator("pairwise_embedding_distance")
+    words = (w1, w2)
+    x = evaluator.evaluate_string_pairs(prediction=words[0], prediction_b=words[1])
+    LOGGER.info(f"Comparing ({words[0]}, {words[1]}): {x}")
+
+
+# SOURCE: https://github.com/divyeg/meakuchatbot_project/blob/0c4483ce4bebce923233cf2a1139f089ac5d9e53/createVectorDB.ipynb#L203
+def calculate_chunk_ids(chunks: list[Document]) -> list[Document]:
+    """
+    Calculate chunk IDs for a list of document chunks.
+
+    This function calculates chunk IDs in the format "data/monopoly.pdf:6:2",
+    where "data/monopoly.pdf" is the page source, "6" is the page number, and
+    "2" is the chunk index.
+
+    Args:
+        chunks (list[Document]): The list of document chunks.
+
+    Returns:
+        list[Document]: The list of document chunks with chunk IDs added to their metadata.
+    """
+    # This will create IDs like "data/monopoly.pdf:6:2"
+    # Page Source : Page Number : Chunk Index
+    # USAGE: chunks_with_ids = calculate_chunk_ids(chunks)
+
+    last_page_id = None
+    current_chunk_index = 0
+
+    for chunk in chunks:
+        source = chunk.metadata.get("source")
+        page = chunk.metadata.get("page")
+        current_page_id = f"{source}:{page}"
+
+        # If the page ID is the same as the last one, increment the index.
+        if current_page_id == last_page_id:
+            current_chunk_index += 1
+        else:
+            current_chunk_index = 0
+
+        # Calculate the chunk ID.
+        chunk_id = f"{current_page_id}:{current_chunk_index}"
+        # LOGGER.debug(f"chunk_id: {chunk_id}")
+        last_page_id = current_page_id
+
+        # Add it to the page meta-data.
+        chunk.metadata["id"] = chunk_id
+
+    return chunks
+
+
+# SOURCE: https://github.com/divyeg/meakuchatbot_project/blob/0c4483ce4bebce923233cf2a1139f089ac5d9e53/createVectorDB.ipynb#L203
+# TODO: Enable and refactor this function
+@pysnooper.snoop()
+def add_or_update_documents(
+    chunks: list[Document],
+    persist_directory: str = CHROMA_PATH,
+    disallowed_special: Union[Literal["all"], set[str], Sequence[str], None] = (),
+    use_custom_openai_embeddings: bool = False,
+    collection_name: str = "",
+    # path_to_document: str = "",
+    embedding_function: Any | None = OpenAIEmbeddings(),
+) -> None:
+    """
+    Add or update documents in a Chroma database.
+
+    This function loads documents from the specified path, splits them into chunks if necessary,
+    and adds or updates them in the Chroma database. It uses the appropriate loader and text splitter
+    based on the file type of the document.
+
+    Args:
+        persist_directory (str): The directory where the Chroma database is persisted. Defaults to CHROMA_PATH.
+        disallowed_special (Union[Literal["all"], set[str], Sequence[str], None]): Special characters to disallow in the embeddings. Defaults to an empty tuple.
+        use_custom_openai_embeddings (bool): Whether to use custom OpenAI embeddings. Defaults to False.
+        collection_name (str): The name of the collection in the Chroma database. Defaults to an empty string.
+        path_to_document (str): The path to the document to be added or updated. Defaults to an empty string.
+        embedding_function (Any | None): The embedding function to use. Defaults to OpenAIEmbeddings().
+
+    Returns:
+        None
+    """
+
+    # NOTE: orig code
+    # from langchain_community.embeddings import HuggingFaceEmbeddings
+    # embedder = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+
+    # Log the input parameters for debugging purposes
+    # LOGGER.debug(f"path_to_document = {path_to_document}")
+    LOGGER.debug(f"collection_name = {collection_name}")
+    LOGGER.debug(f"embedding_function = {embedding_function}")
+
+    db = get_chroma_db(persist_directory, embedding_function, collection_name=collection_name)
+
+    # Get the Chroma client
+    client = ChromaService.get_client()
+    # FIXME: We need to make embedding_function optional
+    # Add or retrieve the collection with the specified name
+    collection: chromadb.Collection = ChromaService.add_collection(collection_name)
+
+    # # Load the document using the appropriate loader based on the file type
+    # loader: TextLoader | PyMuPDFLoader | WebBaseLoader | None = get_rag_loader(path_to_document)
+    # # Load the documents using the selected loader
+    # documents: list[Document] = loader.load()
+
+    # # If the file type is txt, split the documents into chunks
+    # text_splitter = get_rag_splitter(path_to_document)
+    # if text_splitter:
+    #     # Split the documents into chunks using the text splitter
+    #     chunks: list[Document] = text_splitter.split_documents(documents)
+    # else:
+    #     # If no text splitter is available, use the original documents
+    #     chunks: list[Document] = documents  # type: ignore
+
+    #################################
+
+    # embedder = OpenAIEmbeddings(openai_api_key=aiosettings.openai_api_key.get_secret_value())
+
+    # db = Chroma(persist_directory=CHROMA_PATH, embedding_function=embedder)
+
+    try:
+        last_request_time = 0
+        RATE_LIMIT_INTERVAL = 10
+
+        chunks_with_ids: list[Document] = calculate_chunk_ids(chunks)
+
+        # Add or Update the documents.
+        existing_items = db.get(include=[])  # IDs are always included by default
+        LOGGER.debug(f"existing_items: {existing_items}")
+        existing_ids = set(existing_items["ids"])
+        LOGGER.debug(f"existing_ids: {existing_ids}")
+        LOGGER.info(f"Number of existing documents in DB: {len(existing_ids)}")
+
+        # Only add documents that don't exist in the DB.
+        new_chunks = []
+        for chunk in chunks_with_ids:
+            if chunk.metadata["id"] not in existing_ids:
+                new_chunks.append(chunk)
+
+        if len(new_chunks):
+            LOGGER.info(f"Adding new documents: {len(new_chunks)}")
+            new_chunk_ids = [chunk.metadata["id"] for chunk in new_chunks]
+            docs_added = db.add_documents(new_chunks, ids=new_chunk_ids)
+            LOGGER.info(f"Saved {len(docs_added)} chunks to {CHROMA_PATH}.")
+            # db.persist()
+        else:
+            LOGGER.info("No new documents to add")
+
+    except Exception as ex:
+        print(f"{ex}")
+        exc_type, exc_value, exc_traceback = sys.exc_info()
+        print(f"Error Class: {ex.__class__}")
+        output = f"[UNEXPECTED] {type(ex).__name__}: {ex}"
+        print(output)
+        print(f"exc_type: {exc_type}")
+        print(f"exc_value: {exc_value}")
+        traceback.print_tb(exc_traceback)
+        if aiosettings.dev_mode:
+            bpdb.pm()
+
+    retriever: VectorStoreRetriever = db.as_retriever()
+
+    return retriever
+
+
+# Number of existing documents in DB: 0
+# Adding new documents: 10
+# Saved 10 chunks to input_data/chroma.
 
 
 def get_suffix(filename: str) -> str:
@@ -250,7 +715,9 @@ def get_rag_embedding_function(
         return None
 
 
-def get_client(host: str = aiosettings.chroma_host, port: int = aiosettings.chroma_port) -> chromadb.ClientAPI:
+def get_client(
+    host: str = aiosettings.chroma_host, port: int = aiosettings.chroma_port, **kwargs: Any
+) -> chromadb.ClientAPI:
     """Get the ChromaDB client.
 
     Returns:
@@ -259,10 +726,11 @@ def get_client(host: str = aiosettings.chroma_host, port: int = aiosettings.chro
     return chromadb.HttpClient(
         host=host,
         port=port,
-        settings=ChromaSettings(allow_reset=True, is_persistent=True),
+        settings=ChromaSettings(allow_reset=True, is_persistent=True, persist_directory=CHROMA_PATH, **kwargs),
     )
 
 
+@pysnooper.snoop()
 def search_db(db: Chroma, query_text: str, k: int = 3) -> list[tuple[Document, float]] | None:
     """Search the Chroma database for relevant documents.
 
@@ -282,6 +750,7 @@ def search_db(db: Chroma, query_text: str, k: int = 3) -> list[tuple[Document, f
     return results
 
 
+# @pysnooper.snoop()
 def generate_context_text(results: list[tuple[Document, float]]) -> str:
     """Generate the context text from the search results.
 
@@ -308,6 +777,7 @@ def generate_prompt(context_text: str, query_text: str) -> str:
     return prompt_template.format(context=context_text, question=query_text)
 
 
+@pysnooper.snoop()
 def get_sources(results: list[tuple[Document, float]]) -> list[str | None]:
     """Get the sources from the search results.
 
@@ -320,12 +790,15 @@ def get_sources(results: list[tuple[Document, float]]) -> list[str | None]:
     return [doc.metadata.get("source", None) for doc, _score in results]
 
 
+@pysnooper.snoop()
 def get_response(
     query_text: str,
     persist_directory: str = CHROMA_PATH,
     embedding_function: Any = OpenAIEmbeddings(),
     model: Any = ChatOpenAI(),
     k: int = 3,
+    collection_name: str = "",
+    reset: bool = False,
     **kwargs: Any,
 ) -> str:
     """Perform the query and get the response.
@@ -339,22 +812,24 @@ def get_response(
     Returns:
         str: The response text based on the query.
     """
-    db = get_chroma_db(persist_directory, embedding_function)
+    db = get_chroma_db(persist_directory, embedding_function, collection_name=collection_name)
 
     # Search the DB
-    results = search_db(db, query_text)
+    results = search_db(db, query_text, k=k)
     if not results:
         return "Unable to find matching results."
 
     context_text = generate_context_text(results)
     prompt = generate_prompt(context_text, query_text)
 
-    response_text = model.predict(prompt)
+    # response_text = model.predict(prompt)
+    response_text = model.invoke(prompt)
 
     sources = get_sources(results)
     return f"Response: {response_text}\nSources: {sources}"
 
 
+@pysnooper.snoop()
 def get_chroma_db(
     persist_directory: str = CHROMA_PATH,
     embedding_function: Any = OpenAIEmbeddings(),
@@ -435,7 +910,10 @@ class CustomOpenAIEmbeddings(OpenAIEmbeddings):
         return self._embed_documents(input)
 
 
-def generate_data_store() -> None:
+@pysnooper.snoop()
+def generate_data_store(
+    collection_name: str = "", embedding_function: Any = OpenAIEmbeddings(), reset: bool = False
+) -> VectorStoreRetriever:
     """Generate and store document embeddings in a Chroma vector store.
 
     This function performs the following steps:
@@ -443,12 +921,69 @@ def generate_data_store() -> None:
     2. Splits the loaded documents into smaller chunks.
     3. Saves the chunks into a Chroma vector store for efficient retrieval.
     """
+    if reset:
+        _ = clean_chroma_db(collection_name=collection_name)
+
     documents = load_documents()
     chunks = split_text(documents)
-    save_to_chroma(chunks)
+    retriever: VectorStoreRetriever = save_to_chroma(chunks, collection_name=collection_name, reset=reset)
+    return retriever
 
 
-def load_documents() -> list[Document]:
+@pysnooper.snoop()
+def do_generate_data_store_and_update(
+    collection_name: str = "",
+    embedding_function: Any = OpenAIEmbeddings(),
+    reset: bool = False,
+    disallowed_special: Union[Literal["all"], set[str], Sequence[str], None] = (),
+    use_custom_openai_embeddings: bool = False,
+) -> VectorStoreRetriever:
+    if reset:
+        _ = clean_chroma_db(collection_name=collection_name)
+
+    documents = load_documents()
+    chunks = split_text(documents)
+    # retriever: VectorStoreRetriever = save_to_chroma(chunks, collection_name=collection_name, reset=reset)
+    retriever: VectorStoreRetriever = add_or_update_documents(chunks, collection_name=collection_name)
+    return retriever
+
+
+def clean_chroma_db(collection_name: str = "") -> None:
+    LOGGER.info(f"Resetting ChromaDB at {CHROMA_PATH} ...")
+    client = get_client()
+    if os.path.exists(CHROMA_PATH):
+        shutil.rmtree(CHROMA_PATH)
+        # time.sleep(5)
+
+        client = get_client()
+        _await_server(api=client)
+        LOGGER.info("Resetting ChromaDB")
+        # client: chromadb.ClientAPI = get_client()
+        # client.reset()
+        # Create brand new DB if it doesn't exist
+        LOGGER.debug("Creating Chroma DB Directory", collection_name=collection_name)
+        CHROMA_PATH_API.absolute().mkdir(parents=True, exist_ok=True)
+        LOGGER.debug("sleeping for 5 seconds")
+        # time.sleep(5)
+        # await asyncio.sleep(5)
+        client = get_client()
+        col = client.get_or_create_collection(name=collection_name)
+        count = col.count()
+        LOGGER.info(f"Collection {collection_name} has {count} documents.")
+    return client
+
+
+def generate_and_query_data_store(
+    collection_name: str = "", embedding_function: Any = OpenAIEmbeddings(), reset: bool = False
+) -> VectorStoreRetriever:
+    retriever: VectorStoreRetriever = generate_data_store(
+        collection_name=collection_name, embedding_function=embedding_function, reset=reset
+    )
+    return retriever
+
+
+@pysnooper.snoop()
+def load_documents(data_path: str = DATA_PATH) -> list[Document]:
     """Load documents from the specified data path.
 
     This function loads documents from the specified data path and returns them
@@ -459,18 +994,26 @@ def load_documents() -> list[Document]:
     """
     documents = []
 
-    d = file_functions.tree(DATA_PATH)
-    result = file_functions.filter_pdfs(d)
+    d = file_functions.tree(data_path)
+    result_pdfs = file_functions.filter_pdfs(d)
+    # TODO: add txt files via something like this:
+    # result_txts = file_functions.filter_txts(d)
+    # results = result_pdfs + result_txts
 
-    for filename in result:
+    # LOGGER.info(f"Found {len(results)} documents")
+    LOGGER.info(f"Found {len(result_pdfs)} documents")
+
+    # for filename in results:
+    for filename in result_pdfs:
         LOGGER.info(f"Loading document: {filename}")
-        # loader = PyPDFLoader(f"{filename}", extract_images=True)
-        loader = PyMuPDFLoader(f"{filename}", extract_images=True)
+        # loader = PyMuPDFLoader(f"{filename}", extract_images=True)
+        loader: TextLoader | PyMuPDFLoader | WebBaseLoader | None = get_rag_loader(filename)
         LOGGER.info(f"Loader: {loader}")
         documents.extend(loader.load())
     return documents
 
 
+# @pysnooper.snoop()
 def split_text(
     documents: list[Document],
     chunk_size: int = 300,
@@ -498,16 +1041,22 @@ def split_text(
         chunk_size=chunk_size,
         chunk_overlap=chunk_overlap,
         length_function=len,
-        add_start_index=True,
+        add_start_index=add_start_index,
     )
+    # aka chunks = all_splits
     chunks: list[Document] = text_splitter.split_documents(documents)
     LOGGER.info(f"Split {len(documents)} documents into {len(chunks)} chunks.")
     return chunks
 
 
+@pysnooper.snoop()
 def save_to_chroma(
-    chunks: list[Document], disallowed_special: Union[Literal["all"], set[str], Sequence[str], None] = ()
-) -> None:
+    chunks: list[Document],
+    disallowed_special: Union[Literal["all"], set[str], Sequence[str], None] = (),
+    use_custom_openai_embeddings: bool = False,
+    collection_name: str = "",
+    reset: bool = False,
+) -> VectorStoreRetriever:
     """Save document chunks to a Chroma vector store.
 
     This function performs the following steps:
@@ -519,16 +1068,81 @@ def save_to_chroma(
         chunks (list of Document): The list of document chunks to be saved.
     """
     # Clear out the database first.
-    # if os.path.exists(CHROMA_PATH):
-    #     shutil.rmtree(CHROMA_PATH)
 
-    embeddings = CustomOpenAIEmbeddings(
+    # DISABLED: do this way before this step otherwise, race condition.
+    # if reset:
+    #     LOGGER.info(f"Resetting ChromaDB at {CHROMA_PATH} ...")
+    #     if os.path.exists(CHROMA_PATH):
+    #         shutil.rmtree(CHROMA_PATH)
+    #         # time.sleep(5)
+    #         client = get_client()
+    #         _await_server(api=client)
+    #         LOGGER.info("Resetting ChromaDB")
+    #         # client: chromadb.ClientAPI = get_client()
+    #         # client.reset()
+    #         # Create brand new DB if it doesn't exist
+    #         LOGGER.debug("Creating Chroma DB Directory", collection_name=collection_name)
+    #         CHROMA_PATH_API.absolute().mkdir(parents=True, exist_ok=True)
+    #         LOGGER.debug("sleeping for 5 seconds")
+    #         # time.sleep(5)
+    #         # await asyncio.sleep(5)
+    #         client = get_client()
+    #         col = client.get_or_create_collection(name=collection_name)
+    #         count = col.count()
+    #         LOGGER.info(f"Collection {collection_name} has {count} documents.")
+
+    # Create directory if needed
+    # if not CHROMA_PATH_API.absolute().exists():
+
+    # default embeddings
+    LOGGER.error("default embeddings OpenAIEmbeddings")
+    embeddings = OpenAIEmbeddings(
         openai_api_key=aiosettings.openai_api_key.get_secret_value(), disallowed_special=disallowed_special
     )
+
+    # if flag set to use custom embeddings, override
+    if use_custom_openai_embeddings:
+        LOGGER.error("Using CustomOpenAIEmbeddings")
+        embeddings = CustomOpenAIEmbeddings(
+            openai_api_key=aiosettings.openai_api_key.get_secret_value(), disallowed_special=disallowed_special
+        )
+
     LOGGER.info(embeddings)
-    # Create a new DB from the documents.
-    db: ChromaVectorStore = ChromaVectorStore.from_documents(chunks, embeddings, persist_directory=CHROMA_PATH)
-    LOGGER.info(f"Saved {len(chunks)} chunks to {CHROMA_PATH}.")
+
+    # import bpdb
+
+    # bpdb.set_trace()
+    try:
+        # Add to vectorDB
+        # from_documents = Create a Chroma vectorstore from a list of documents.
+        vectorstore: ChromaVectorStore = ChromaVectorStore.from_documents(
+            documents=chunks, embedding=embeddings, persist_directory=CHROMA_PATH, collection_name=collection_name
+        )
+        db = vectorstore
+
+        # vectorstore.persist()
+
+        LOGGER.info(f"Saved {len(chunks)} chunks to {CHROMA_PATH}.")
+
+        # import bpdb
+
+        # bpdb.set_trace()
+
+        retriever: VectorStoreRetriever = vectorstore.as_retriever()
+
+    except Exception as ex:
+        print(f"{ex}")
+        exc_type, exc_value, exc_traceback = sys.exc_info()
+        print(f"Error Class: {ex.__class__}")
+        output = f"[UNEXPECTED] {type(ex).__name__}: {ex}"
+        print(output)
+        print(f"exc_type: {exc_type}")
+        print(f"exc_value: {exc_value}")
+        traceback.print_tb(exc_traceback)
+        if aiosettings.dev_mode:
+            bpdb.pm()
+
+    return retriever
 
 
 class ChromaService:
@@ -618,7 +1232,7 @@ class ChromaService:
         return collection
 
     @staticmethod
-    def get_response(query_text: str) -> str:
+    def get_response(query_text: str, collection_name: str = "", reset: bool = False) -> str:
         """
         Get a response from ChromaDB based on the query text.
 
@@ -628,7 +1242,7 @@ class ChromaService:
         Returns:
             str: The response text based on the query.
         """
-        return get_response(query_text)
+        return get_response(query_text, collection_name=collection_name, reset=reset)
 
     @staticmethod
     def generate_data_store() -> None:
@@ -646,6 +1260,37 @@ class ChromaService:
             List[Document]: The list of loaded documents.
         """
         return load_documents()
+
+    @staticmethod
+    def add_and_query(collection_name: str = "", question: str = "", reset: bool = False) -> VectorStoreRetriever:
+        """
+        Generate and query a data store for a given collection and question.
+
+        Args:
+            collection_name (str): The name of the collection to generate and query.
+            question (str): The question to query the data store with.
+            reset (bool): Whether to reset the data store before generating and querying.
+
+        Returns:
+            VectorStoreRetriever: The vector store retriever used to query the data store.
+
+        This function generates a data store for the specified collection name and queries it
+        with the provided question. If the `reset` flag is set to True, the existing data store
+        will be removed before generating a new one.
+
+        The function performs the following steps:
+        1. Generates a data store for the specified collection name using the `generate_data_store` function.
+        2. Queries the generated data store with the provided question using the `query_data_store` function.
+        3. Returns the vector store retriever used to query the data store.
+
+        Example usage:
+        ```python
+        collection_name = "my_collection"
+        question = "What is the meaning of life?"
+        retriever = ChromaService.add_and_query(collection_name, question, reset=True)
+        ```
+        """
+        return generate_and_query_data_store(collection_name, question, reset=reset)
 
     @staticmethod
     def split_text(documents: list[Document]) -> list[Document]:
@@ -773,6 +1418,20 @@ class ChromaService:
                 # print(f"Successfully added image {uri} with metadata {metadata}")
 
         return success_count
+
+
+def _await_server(api: Union[ServerAPI, ClientAPI] = get_client(), attempts: int = 0) -> None:
+    try:
+        api.heartbeat()
+    except ConnectError as e:
+        LOGGER.warning(
+            f"Error connecting to ChromaDB ... this is expected... retrying ... attempt {attempts} with client {api}: {e}"
+        )
+        if attempts > 15:
+            raise e
+        else:
+            time.sleep(4)
+            _await_server(api, attempts + 1)
 
 
 if __name__ == "__main__":

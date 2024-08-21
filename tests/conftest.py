@@ -21,6 +21,7 @@ import pytest
 if TYPE_CHECKING:
     from _pytest.fixtures import FixtureRequest
     from _pytest.monkeypatch import MonkeyPatch
+    from vcr.request import Request as VCRRequest
 
 
 import concurrent.futures.thread
@@ -125,7 +126,7 @@ def is_chroma_uri(uri: str) -> bool:
     return any(x in uri for x in ["localhost", "127.0.0.1"])
 
 
-def request_matcher(r1, r2):
+def request_matcher(r1: VCRRequest, r2: VCRRequest) -> bool:
     """
     Custom matcher to determine if the requests are the same
     - For sensei requests, we match the parts of the multipart request. This is needed as we can't compare the body
@@ -134,6 +135,11 @@ def request_matcher(r1, r2):
     - For openai, allow llm-proxy
     - For others, we match both uri and body
     """
+    import rich
+
+    rich.inspect(r1, all=True)
+    rich.inspect(r2, all=True)
+
     if r1.uri == r2.uri:
         if r1.body == r2.body:
             return True
