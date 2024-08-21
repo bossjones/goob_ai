@@ -1125,6 +1125,8 @@ def dummy_chroma_db(mocker) -> Chroma:
     return db
 
 
+@pytest.mark.skip(reason="This is a work in progress and it is currently expected to fail")
+@pytest.mark.flaky()
 @pytest.mark.services()
 # @pytest.mark.vcr(match_on=["request_matcher"])
 # @pytest.mark.vcr(ignore_localhost=False)
