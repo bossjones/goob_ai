@@ -170,7 +170,7 @@ myenv/
 venv/
 
 # local dev
-docker/
+# docker/
 
 # Unit test / coverage reports
 .cache
