@@ -1193,6 +1193,8 @@ pygments==2.18.0
     # via rich
 pyinspect==0.1.0
     # via goob-ai
+pyinstrument==4.7.2
+    # via goob-ai
 pyinvoke==1.0.4
     # via goob-ai
 pylint==3.2.6
