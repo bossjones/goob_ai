@@ -314,6 +314,9 @@ class AsyncHttpxClient(BaseModel):
             print(f"exc_value: {exc_value}")
             traceback.print_tb(exc_traceback)
             raise e
+        finally:
+            # Code that always executes, regardless of whether an exception occurred or not
+            await LOGGER.complete()
 
     async def get(
         self, url: str, urlparams: dict[str, str] | None = None, headers: Optional[dict[str, str]] = None
@@ -408,6 +411,9 @@ class AsyncHttpxClient(BaseModel):
             print(f"exc_value: {exc_value}")
             traceback.print_tb(exc_traceback)
             raise e
+        finally:
+            # Code that always executes, regardless of whether an exception occurred or not
+            await LOGGER.complete()
 
     def __get_headers(self, additional_headers: Optional[dict[str, str]] = None) -> dict[str, str]:
         """

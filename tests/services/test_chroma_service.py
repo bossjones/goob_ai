@@ -392,7 +392,10 @@ def mock_txt_file(tmp_path: Path) -> Path:
 
 
 @pytest.mark.services()
-@pytest.mark.vcr(allow_playback_repeats=True, match_on=["request_matcher"], ignore_localhost=False)
+# @pytest.mark.vcr(allow_playback_repeats=True, match_on=["request_matcher"], ignore_localhost=False)
+@pytest.mark.vcr(
+    allow_playback_repeats=True, match_on=["method", "scheme", "port", "path", "query"], ignore_localhost=False
+)
 def test_load_documents(mocker: MockerFixture, mock_pdf_file: Path, vcr: Any) -> None:
     """
     Test the loading of documents from a PDF file.
@@ -1128,9 +1131,7 @@ def dummy_chroma_db(mocker) -> Chroma:
 # @pytest.mark.vcr()
 # @pytest.mark.vcr(allow_playback_repeats=True)
 @pytest.mark.vcr(allow_playback_repeats=True, match_on=["request_matcher"], ignore_localhost=False)
-def test_search_db_returns_relevant_documents(
-    dummy_chroma_db: Chroma, caplog: LogCaptureFixture, capsys: CaptureFixture, vcr
-):
+def test_search_db_returns_relevant_documents(caplog: LogCaptureFixture, capsys: CaptureFixture, vcr):
     """
     Test that search_db returns relevant documents when found.
 
@@ -1138,16 +1139,37 @@ def test_search_db_returns_relevant_documents(
     relevant documents and their scores when a match is found in the database.
     """
     caplog.set_level(logging.DEBUG)
+
+    from goob_ai.services.chroma_service import _await_server
+
+    collection_name = "test_search_db_returns_relevant_documents"
+    chroma_client = get_client()
+    _await_server(chroma_client, attempts=10)
+
+    collections = chroma_client.list_collections()
+
+    # Clean up the collection if it exists
+    if collection_name in collections:
+        chroma_client.delete_collection(collection_name)
+        chroma_client.create_collection(collection_name, get_or_create=True)
+    else:
+        chroma_client.create_collection(collection_name, get_or_create=True)
+
     # import bpdb
 
-    # bpdb.set_trace()
-    db = dummy_chroma_db
-    results = search_db(db, "test query")
-    query_text = "test query"
-    expected_results = [
-        (Document(page_content="doc1"), 0.8),
-        (Document(page_content="doc2"), 0.7),
-    ]
+    # # bpdb.set_trace()
+    # # db = dummy_chroma_db
+    # db = Chroma(
+    #     client=ChromaService.client,
+    #     collection_name=collection_name,
+    #     embedding_function=None,
+    # )
+    # results = search_db(db, "test query")
+    # query_text = "test query"
+    # expected_results = [
+    #     (Document(page_content="doc1"), 0.8),
+    #     (Document(page_content="doc2"), 0.7),
+    # ]
 
     # FIXME: # assert results == expected_results
 

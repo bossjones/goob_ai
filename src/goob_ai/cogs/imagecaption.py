@@ -28,6 +28,8 @@ class ImageCaptionCog(commands.Cog, name="image_caption"):
         LOGGER.info(f" self.processor = {self.processor}")
         LOGGER.info(f" type(self.processor) = {type(self.processor)}")
 
+        LOGGER.complete()
+
     @commands.Cog.listener()
     async def on_ready(self) -> None:
         print(f"{type(self).__name__} Cog ready.")

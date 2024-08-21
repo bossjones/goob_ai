@@ -829,6 +829,7 @@ async def aiowrite_file(data: str, dl_dir: str = "./", fname: str = "", ext: str
     async with aiofiles.open(p_new.absolute(), mode="w") as f:
         await f.write(data)
         await f.write(data)
+    await LOGGER.complete()
 
 
 async def aioread_file(data: str, dl_dir: str = "./", fname: str = "", ext: str = "") -> None:
@@ -850,6 +851,7 @@ async def aioread_file(data: str, dl_dir: str = "./", fname: str = "", ext: str 
     async with aiofiles.open(p_new.absolute(), mode="r") as f:
         await f.read(data)
         await f.read(data)
+    await LOGGER.complete()
 
 
 def check_file_size(a_file: str) -> tuple[bool, str]:

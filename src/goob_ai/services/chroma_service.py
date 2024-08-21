@@ -160,6 +160,7 @@ async def llm_query(
     if len(response_text.content) > 2000:
         return ("Sorry that response is too long for me to put in discord.", [])
 
+    await LOGGER.complete()
     return (response_text.content, sources)
 
 
@@ -270,6 +271,7 @@ async def generate_document_hashes(docs: list[Document]) -> list[str]:
         hash = hashlib.sha256(ident.encode("utf-8")).hexdigest()
         hashes.append(hash)
 
+    await LOGGER.complete()
     return hashes
 
 
@@ -319,6 +321,7 @@ async def create_chroma_db(
         persist_directory=str(CHROMA_PATH_API.absolute()),
     )
     LOGGER.info(f"Saved {len(docs)} chunks to {CHROMA_PATH_API}.", collection_name=collection_name)
+    await LOGGER.complete()
 
 
 # SOURCE: https://github.com/RSC-NA/rsc/blob/69f8ce29a6e38a960515564bf84fbd1d809468d8/rsc/llm/create_db.py#L176
@@ -335,6 +338,7 @@ async def rm_chroma_db() -> None:
         LOGGER.debug(f"Deleting Chroma DB directory: {CHROMA_PATH_API.absolute()}")
         shutil.rmtree(CHROMA_PATH_API.absolute())
         await asyncio.sleep(5)
+    await LOGGER.complete()
 
 
 # SOURCE: https://github.com/divyeg/meakuchatbot_project/blob/0c4483ce4bebce923233cf2a1139f089ac5d9e53/createVectorDB.ipynb#L203

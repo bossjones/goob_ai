@@ -68,6 +68,7 @@ class RedisSessionManagerUtility:
         session_key = f"{self._prefix}:{ident}:{session}"
         LOGGER.debug(f"Creating new session: session_key={session_key}")
         await self._driver.set(session_key, data, expire=self._ttl)
+        await LOGGER.complete()
         return session
 
     async def exist_session(self, ident: Optional[str], session: Optional[str]) -> bool:
@@ -86,6 +87,7 @@ class RedisSessionManagerUtility:
         session_key = f"{self._prefix}:{ident}:{session}"
         LOGGER.debug(f"Existing session: session_key={session_key}")
         value = await self._driver.get(session_key)
+        await LOGGER.complete()
         return value is not None
 
     async def drop_session(self, ident: str, session: str) -> None:
@@ -106,6 +108,7 @@ class RedisSessionManagerUtility:
             await self._driver.delete(session_key)
         else:
             raise KeyError("Invalid session")
+        await LOGGER.complete()
 
     async def refresh_session(self, ident: str, session: str) -> str:
         """
@@ -131,6 +134,7 @@ class RedisSessionManagerUtility:
             return session
         else:
             raise KeyError("Invalid session")
+        await LOGGER.complete()
 
     async def list_sessions(self, ident: Optional[str]) -> list[str]:
         """
@@ -148,6 +152,7 @@ class RedisSessionManagerUtility:
         LOGGER.debug(f"List session: session_key={session_key}")
         value = await self._driver.keys_startswith(session_key)
         LOGGER.debug(f"List session: value={value}")
+        await LOGGER.complete()
         return [x.split(b":")[2].decode("utf-8") for x in value]
 
     async def get_session(self, ident: Optional[str], session: Optional[str]) -> str:
@@ -166,4 +171,5 @@ class RedisSessionManagerUtility:
         session_key = f"{self._prefix}:{ident}:{session}"
         LOGGER.debug(f"Get session: session_key={session_key}")
         value = await self._driver.get(session_key)
+        await LOGGER.complete()
         return value.decode("utf-8") if value else ""

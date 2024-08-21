@@ -142,6 +142,7 @@ example prompt:
 
 source: <https://www.youtube.com/watch?v=AeASAsPp9LE>
 
+
 # july 2024
 
 - <https://medium.com/langchain-0-2-insights/langchain-0-2-insights-building-a-versatile-cli-assistant-with-langchain-and-langgraph-bc81a4570ba2>

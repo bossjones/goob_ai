@@ -77,6 +77,24 @@ LOGURU_FILE_FORMAT = (
     "<level>{message}</level>"
 )
 
+# NOTE: this is the default format for loguru
+_LOGURU_FORMAT = (
+    "LOGURU_FORMAT",
+    str,
+    "<green>{time:YYYY-MM-DD HH:mm:ss.SSS}</green> | "
+    "<level>{level: <8}</level> | "
+    "<cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> - <level>{message}</level>",
+)
+
+# NOTE: this is the new format for loguru
+NEW_LOGGER_FORMAT = (
+    "<green>{time:YYYY-MM-DD HH:mm:ss.SSS}</green> | "
+    "<level>{level: <8}</level> | "
+    "<cyan>{name}</cyan>:<cyan>{function}</cyan> - "
+    "<magenta>{file}:{line}</magenta> | "
+    "<level>{message}</level> | {extra}"
+)
+
 
 LOG_LEVEL = Literal[
     "TRACE",
@@ -175,7 +193,7 @@ def format_record(record: dict[str, Any]) -> str:
     # >>>                      {'age': 27, 'is_active': True, 'name': 'Alex'}]}]
 
     # """
-    format_string = LOGURU_FORMAT
+    format_string = NEW_LOGGER_FORMAT
     if record["extra"].get("payload") is not None:
         record["extra"]["payload"] = pformat(record["extra"]["payload"], indent=4, compact=True, width=88)
         format_string += "\n<level>{extra[payload]}</level>"
@@ -387,7 +405,7 @@ def global_log_config(log_level: Union[str, int] = logging.DEBUG, json: bool = F
     # logger.add(sys.stderr, format="{extra[serialized]}")
     # logger.add("file.log", format="{extra[serialized]}")
 
-    logger.debug(f"Logger set up with log level: {log_level}")
+    print(f"Logger set up with log level: {log_level}")
 
     setup_uvicorn_logger()
     setup_gunicorn_logger()

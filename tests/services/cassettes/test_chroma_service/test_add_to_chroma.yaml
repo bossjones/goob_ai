@@ -141,4 +141,146 @@ interactions:
     status:
       code: 200
       message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate, br
+      Connection:
+      - keep-alive
+      User-Agent:
+      - python-requests/2.32.3
+    method: GET
+    uri: http://localhost:8010/api/v1/tenants/default_tenant
+  response:
+    body:
+      string: '{"name":"default_tenant"}'
+    headers:
+      content-length:
+      - '25'
+      content-type:
+      - application/json
+      date:
+      - Wed, 21 Aug 2024 01:50:55 GMT
+      server:
+      - uvicorn
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate, br
+      Connection:
+      - keep-alive
+      User-Agent:
+      - python-requests/2.32.3
+    method: GET
+    uri: http://localhost:8010/api/v1/databases/default_database?tenant=default_tenant
+  response:
+    body:
+      string: '{"id":"00000000-0000-0000-0000-000000000000","name":"default_database","tenant":"default_tenant"}'
+    headers:
+      content-length:
+      - '97'
+      content-type:
+      - application/json
+      date:
+      - Wed, 21 Aug 2024 01:50:55 GMT
+      server:
+      - uvicorn
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate, br
+      Connection:
+      - keep-alive
+      User-Agent:
+      - python-requests/2.32.3
+    method: GET
+    uri: http://localhost:8010/api/v1
+  response:
+    body:
+      string: '{"nanosecond heartbeat":1724205056293057918}'
+    headers:
+      content-length:
+      - '44'
+      content-type:
+      - application/json
+      date:
+      - Wed, 21 Aug 2024 01:50:56 GMT
+      server:
+      - uvicorn
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate, br
+      Connection:
+      - keep-alive
+      User-Agent:
+      - python-requests/2.32.3
+    method: GET
+    uri: http://localhost:8010/api/v1/collections?database=default_database&tenant=default_tenant
+  response:
+    body:
+      string: '[{"id":"711d9578-05d0-4767-8ce7-165c94e21add","name":"readthedocs","configuration_json":{"hnsw_configuration":{"space":"l2","ef_construction":100,"ef_search":10,"num_threads":8,"M":16,"resize_factor":1.2,"batch_size":100,"sync_threshold":1000,"_type":"HNSWConfigurationInternal"},"_type":"CollectionConfigurationInternal"},"metadata":null,"dimension":1536,"tenant":"default_tenant","database":"default_database","version":0},{"id":"86fcd5d4-3ff9-44d9-8e7f-0259fca5ea24","name":"langchain","configuration_json":{"hnsw_configuration":{"space":"l2","ef_construction":100,"ef_search":10,"num_threads":8,"M":16,"resize_factor":1.2,"batch_size":100,"sync_threshold":1000,"_type":"HNSWConfigurationInternal"},"_type":"CollectionConfigurationInternal"},"metadata":null,"dimension":null,"tenant":"default_tenant","database":"default_database","version":0},{"id":"d016dedb-fec7-458c-ba9e-9077fed8ca1a","name":"test_search_db_returns_relevant_documents","configuration_json":{"hnsw_configuration":{"space":"l2","ef_construction":100,"ef_search":10,"num_threads":8,"M":16,"resize_factor":1.2,"batch_size":100,"sync_threshold":1000,"_type":"HNSWConfigurationInternal"},"_type":"CollectionConfigurationInternal"},"metadata":null,"dimension":null,"tenant":"default_tenant","database":"default_database","version":0}]'
+    headers:
+      content-length:
+      - '1301'
+      content-type:
+      - application/json
+      date:
+      - Wed, 21 Aug 2024 01:50:56 GMT
+      server:
+      - uvicorn
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"name":"hugo_johnson","metadata":null,"get_or_create":true}'
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate, br
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '60'
+      User-Agent:
+      - python-requests/2.32.3
+    method: POST
+    uri: http://localhost:8010/api/v1/collections?database=default_database&tenant=default_tenant
+  response:
+    body:
+      string: '{"id":"2775e6eb-47f3-4b7f-8583-b35fd0cb0d9f","name":"hugo_johnson","configuration_json":{"hnsw_configuration":{"space":"l2","ef_construction":100,"ef_search":10,"num_threads":8,"M":16,"resize_factor":1.2,"batch_size":100,"sync_threshold":1000,"_type":"HNSWConfigurationInternal"},"_type":"CollectionConfigurationInternal"},"metadata":null,"dimension":null,"tenant":"default_tenant","database":"default_database","version":0}'
+    headers:
+      content-length:
+      - '424'
+      content-type:
+      - application/json
+      date:
+      - Wed, 21 Aug 2024 01:50:56 GMT
+      server:
+      - uvicorn
+    status:
+      code: 200
+      message: OK
 version: 1

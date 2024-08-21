@@ -46,4 +46,5 @@ async def download_and_save(url: str, dest_override=False):
                 except asyncio.TimeoutError:
                     LOGGER.error(f"A timeout ocurred while downloading '{filename}'")
 
+                await LOGGER.complete()
                 return filename, size

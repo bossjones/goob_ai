@@ -313,6 +313,8 @@ class AiAgent:
             LOGGER.exception(f"Error in process_user_task_streaming: {e}")
             yield "An error occurred while processing the task."
 
+        await LOGGER.complete()
+
     @traceable
     def summarize(self, user_input: str) -> str:
         """

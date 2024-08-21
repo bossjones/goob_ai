@@ -257,3 +257,6 @@ class VisionTool(BaseTool):
             LOGGER.error(f"Args: image_path={image_path}, prompt={prompt}")
             traceback.print_tb(exc_traceback)
             raise ToolException(err_msg) from e
+        finally:
+            # Code that always executes, regardless of whether an exception occurred or not
+            await LOGGER.complete()
