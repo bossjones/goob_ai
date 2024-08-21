@@ -1142,7 +1142,7 @@ def test_search_db_returns_relevant_documents(caplog: LogCaptureFixture, capsys:
 
     from goob_ai.services.chroma_service import _await_server
 
-    collection_name = "test_search_db_returns_relevant_documents"
+    collection_name = "test_goobie"
     chroma_client = get_client()
     _await_server(chroma_client, attempts=10)
 
