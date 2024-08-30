@@ -9,8 +9,36 @@ x-default-logging:
 networks:
   net:
     driver: bridge
-
 services:
+# docker run --name pgvector-container -e POSTGRES_USER=langchain -e POSTGRES_PASSWORD=langchain -e POSTGRES_DB=langchain -p 6024:5432 -d pgvector/pgvector:pg16
+  db:
+    image: pgvector/pgvector:pg14
+    container_name: pgvector-container
+    ports:
+      - 5432:5432
+    volumes:
+      # This script initialises the DB for integration tests
+      - ./docker/pgvector/scripts:/docker-entrypoint-initdb.d
+      - db:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=langchain
+      - POSTGRES_USER=langchain
+      - POSTGRES_DB=langchain
+
+    restart: unless-stopped
+    # logging: *logging
+    networks:
+      - net
+    command: |
+      postgres -c log_statement=all
+    # healthcheck:
+    #   test:
+    #     [
+    #       "CMD-SHELL",
+    #       "psql postgresql://langchain:langchain@localhost/langchain --command 'SELECT 1;' || exit 1",
+    #     ]
+    #   interval: 5s
+    #   retries: 60
 
   # postgres:
   #   image: postgres:14-alpine
@@ -281,3 +309,4 @@ services:
 volumes:
   goob_redis_data:
     driver: local
+  db:

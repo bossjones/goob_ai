@@ -265,3 +265,10 @@ regenerate-cassettes:
 	fd -td cassettes -X rm -ri
 	rye run unittests-vcr-record-final
 	rye run unittests-debug
+
+brew-deps:
+	brew install libmagic poppler tesseract pandoc qpdf tesseract-lang
+	brew install --cask libreoffice
+
+db-create:
+	rye run psql -d langchain -c 'CREATE EXTENSION vector'

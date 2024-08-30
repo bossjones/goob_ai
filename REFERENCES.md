@@ -163,3 +163,16 @@ source: <https://www.youtube.com/watch?v=AeASAsPp9LE>
 - https://github.com/ionelmc/python-manhole/ - `Debugging manhole for python applications.`
 - https://github.com/langchain-ai/langchain/blob/master/cookbook/Multi_modal_RAG.ipynb
 - https://github.com/SAMAD101/Chino/blob/e38f3d9d38702beaed37229f66d79e86a7acab26/src/chino/query.py (write a query module maybe)
+
+
+--------------------------
+
+# Advanced rag suggestions
+
+> https://www.reddit.com/r/LangChain/comments/1cyjfap/best_stack_for_rag/
+
+### Quotes
+
+- If I had to do it over again, I'd just put everything in Postgres with pgvector turned on.
+- 100%. It's extremely powerful and it's nice when you have it mixed in with conventional database tables. You can do joins across relational and vector data. The performance of the vector indexing database engine will never be a significant performance bottleneck. Performance is mostly affected by the embedding model, LLM, and how many tokens the agent library (e.g. langchain) uses. Besides, Postgres is no slouch when it comes to performance and is easy to scale.
+-

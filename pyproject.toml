@@ -139,9 +139,10 @@ dependencies = [
     "jedi-language-server>=0.41.4",
     "requests-toolbelt>=1.0.0",
     "pdf2image>=1.17.0",
-    "unstructured[all-docs]==0.10.19",
+    "unstructured[all-docs]==0.15.8",
     "jq>=1.8.0",
     "pyinstrument>=4.7.2",
+    "langchain-postgres>=0.0.9",
 ]
 
 readme = "README.md"
@@ -1206,6 +1207,7 @@ select = [
 # SOURCE: https://github.com/ansible-collections/cloud-content-handbook/blob/9be137d78af4d1cc140b210f3058977164021c9d/proposals/ruff_transition.md - end
 # Conflicts with the formatter
 ignore = [
+    "N815",
     "PLW0603",
     "D",
     "COM812",
