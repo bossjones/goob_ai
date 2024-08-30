@@ -1,42 +1,28 @@
 """Global test fixtures definitions."""
 
+# pylint: disable=no-member
 # Taken from tedi and guid_tracker
 from __future__ import annotations
 
 import asyncio
-import datetime
-import os
-import posixpath
-import typing
-
-from collections.abc import Iterable, Iterator
-from pathlib import Path, PosixPath
-from typing import TYPE_CHECKING
-
-from _pytest.monkeypatch import MonkeyPatch
-
-import pytest
-
-
-if TYPE_CHECKING:
-    from _pytest.fixtures import FixtureRequest
-    from _pytest.monkeypatch import MonkeyPatch
-    from vcr.request import Request as VCRRequest
-
-
 import concurrent.futures.thread
 import copy
+import datetime
 import functools
 import glob
 import os
+import posixpath
 import re
 import shutil
 import sys
+import time
+import typing
 
+from collections.abc import Generator, Iterable, Iterator
 from concurrent.futures import Executor, Future
 from dataclasses import dataclass
-from pathlib import Path
-from typing import Optional
+from pathlib import Path, PosixPath
+from typing import TYPE_CHECKING, Optional, TypeVar
 
 import discord as dc
 import discord.ext.test as dpytest
@@ -46,12 +32,33 @@ from _pytest.logging import LogCaptureFixture
 from _pytest.monkeypatch import MonkeyPatch
 from discord.client import _LoopSentinel
 from discord.ext import commands
+from goob_ai.gen_ai.vectorstore import ChromaDatabase, PGVectorDatabase, PineconeDatabase
 from goob_ai.goob_bot import AsyncGoobBot
+from goob_ai.models.vectorstores import ChromaIntegration, EmbeddingsProvider, PgvectorIntegration, PineconeIntegration
+from goob_ai.services.pgvector_service import PgvectorService
+from langchain.document_loaders import TextLoader
+from langchain.embeddings.openai import OpenAIEmbeddings
+from langchain.text_splitter import CharacterTextSplitter
+from langchain.vectorstores import Pinecone
+from langchain.vectorstores.pgvector import PGVector
+from langchain_core.documents import Document
+from langchain_openai.embeddings import OpenAIEmbeddings
 from requests_toolbelt.multipart import decoder
 from vcr import filters
 
 import pytest
 
+
+if TYPE_CHECKING:
+    from _pytest.fixtures import FixtureRequest
+    from _pytest.monkeypatch import MonkeyPatch
+    from vcr.request import Request as VCRRequest
+
+INDEX_NAME = "goobaiunittest"
+
+T = TypeVar("T")
+
+YieldFixture = Generator[T, None, None]
 
 # """
 # Log levels
@@ -177,8 +184,8 @@ def filter_response(response):
     If the response has a 'retry-after' header, we set it to 0 to avoid waiting for the retry time
     """
 
-    if "retry-after" in response["headers"]:
-        response["headers"]["retry-after"] = "0"
+    if "retry-after" in response["headers"]:  # type: ignore
+        response["headers"]["retry-after"] = "0"  # type: ignore
 
     return response
 
@@ -315,3 +322,104 @@ def pytest_sessionfinish(session, exitstatus):
             os.remove(filePath)
         except Exception:
             print("Error while deleting file : ", filePath)
+
+
+@pytest.fixture()
+def mock_ebook_txt_file(tmp_path: Path) -> Path:
+    """
+    Fixture to create a mock text file for testing purposes.
+
+    This fixture creates a temporary directory and copies a test text file into it.
+    The path to the mock text file is then returned for use in tests.
+
+    Args:
+    ----
+        tmp_path (Path): The temporary path provided by pytest.
+
+    Returns:
+    -------
+        Path: A Path object of the path to the mock text file.
+
+    """
+    test_ebook_txt_path: Path = (
+        tmp_path / "The Project Gutenberg eBook of A Christmas Carol in Prose; Being a Ghost Story of Christmas.txt"
+    )
+    shutil.copy(
+        "src/goob_ai/data/chroma/documents/The Project Gutenberg eBook of A Christmas Carol in Prose; Being a Ghost Story of Christmas.txt",
+        test_ebook_txt_path,
+    )
+    return test_ebook_txt_path
+
+
+@pytest.fixture()
+def mock_text_documents(mock_ebook_txt_file: FixtureRequest) -> list[Document]:
+    loader = TextLoader(f"{mock_ebook_txt_file}")
+    documents = loader.load()
+    text_splitter = CharacterTextSplitter(chunk_size=2000, chunk_overlap=0)
+    docs = text_splitter.split_documents(documents)
+
+    # Create a unique ID for each document
+    # SOURCE: https://github.com/theonemule/azure-rag-sample/blob/1e37de31678ffbbe5361a8ef3acdb770194f462a/import.py#L4
+    for idx, doc in enumerate(docs):
+        doc.metadata["id"] = str(idx)
+
+    return docs
+
+
+@pytest.fixture()
+def db_pgvector(mock_text_documents: list[Document]) -> YieldFixture[PGVectorDatabase]:
+    # VIA: https://github.com/apify/actor-vector-database-integrations/blob/877b8b45d600eebd400a01533d29160cad348001/code/src/vector_stores/base.py
+    from goob_ai.aio_settings import aiosettings
+
+    # embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
+    embeddings = OpenAIEmbeddings(openai_api_key=aiosettings.openai_api_key.get_secret_value())
+    db = PGVectorDatabase(
+        actor_input=PgvectorIntegration(
+            postgresSqlConnectionStr=str(aiosettings.postgres_url),
+            postgresCollectionName=INDEX_NAME,
+            embeddingsProvider=EmbeddingsProvider.OpenAI.value,
+            embeddingsApiKey=aiosettings.openai_api_key.get_secret_value(),
+            datasetFields=["text"],
+        ),
+        embeddings=embeddings,
+    )
+
+    db.unit_test_wait_for_index = 0
+
+    db.delete_all()
+    # Insert initially crawled objects
+    db.add_documents(documents=mock_text_documents, ids=[d.metadata["chunk_id"] for d in mock_text_documents])
+
+    yield db
+
+    db.delete_all()
+
+
+@pytest.fixture()
+def db_pinecone(mock_text_documents: list[Document]) -> YieldFixture[PineconeDatabase]:
+    from goob_ai.aio_settings import aiosettings
+
+    # embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
+    embeddings = OpenAIEmbeddings(openai_api_key=aiosettings.openai_api_key.get_secret_value())
+    db = PineconeDatabase(
+        actor_input=PineconeIntegration(
+            pineconeIndexName=INDEX_NAME,
+            pineconeApiKey=aiosettings.pinecone_api_key.get_secret_value(),
+            embeddingsProvider=EmbeddingsProvider.OpenAI,
+            embeddingsApiKey=aiosettings.openai_api_key.get_secret_value(),
+            datasetFields=["text"],
+        ),
+        embeddings=embeddings,
+    )
+    # Data freshness - Pinecone is eventually consistent, so there can be a slight delay before new or changed records are visible to queries.
+    db.unit_test_wait_for_index = 10
+
+    db.delete_all()
+    # Insert initially crawled objects
+    db.add_documents(documents=mock_text_documents, ids=[d.metadata["chunk_id"] for d in mock_text_documents])
+    time.sleep(db.unit_test_wait_for_index)
+
+    yield db
+
+    db.delete_all()
+    time.sleep(db.unit_test_wait_for_index)
