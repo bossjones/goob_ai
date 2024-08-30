@@ -144,6 +144,7 @@ dependencies = [
     "pyinstrument>=4.7.2",
     "langchain-postgres>=0.0.9",
     "langchain-pinecone>=0.1.3",
+    "rank-bm25>=0.2.2",
 ]
 
 readme = "README.md"

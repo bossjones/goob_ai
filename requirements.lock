@@ -706,6 +706,7 @@ numpy==1.26.4
     # via pycocotools
     # via pydeck
     # via pyinspect
+    # via rank-bm25
     # via rapidocr-onnxruntime
     # via scenedetect
     # via scikit-learn
@@ -1096,6 +1097,8 @@ quantile-python==1.1
     # via aioprometheus
 questionary==1.10.0
     # via pypi-command-line
+rank-bm25==0.2.2
+    # via goob-ai
 rapidfuzz==3.9.5
     # via levenshtein
     # via pypi-command-line
