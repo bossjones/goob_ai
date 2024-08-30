@@ -5,7 +5,7 @@ import asyncio
 import random
 import textwrap
 
-from typing import List
+from typing import Any, List, Tuple
 
 import numpy as np
 import pymupdf
@@ -13,15 +13,29 @@ import pymupdf
 from langchain.document_loaders import PyPDFLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.vectorstores import FAISS
+from langchain_core.documents import Document
 from langchain_core.prompts import PromptTemplate
 from langchain_core.pydantic_v1 import BaseModel, Field
-from langchain_openai import OpenAIEmbeddings
+from langchain_core.runnables import (
+    ConfigurableField,
+    Runnable,
+    RunnableBranch,
+    RunnableConfig,
+    RunnableLambda,
+    RunnableMap,
+    RunnableSerializable,
+    ensure_config,
+)
+from langchain_core.vectorstores.base import VectorStoreRetriever
+from langchain_openai import ChatOpenAI, OpenAIEmbeddings
+from loguru import logger as LOGGER
 from rank_bm25 import BM25Okapi
 
+from goob_ai import llm_manager
 
-def replace_t_with_space(list_of_documents):
-    """
-    Replaces all tab characters ('\t') with spaces in the page content of each document.
+
+def replace_t_with_space(list_of_documents: list[Document]) -> list[str]:
+    """Replace all tab characters with spaces in the page content of each document.
 
     Args:
         list_of_documents: A list of document objects, each with a 'page_content' attribute.
@@ -29,39 +43,35 @@ def replace_t_with_space(list_of_documents):
     Returns:
         The modified list of documents with tab characters replaced by spaces.
     """
-
     for doc in list_of_documents:
         doc.page_content = doc.page_content.replace("\t", " ")  # Replace tabs with spaces
     return list_of_documents
 
 
-def text_wrap(text, width=120):
-    """
-    Wraps the input text to the specified width.
+def text_wrap(text: str, width: int = 120) -> str:
+    """Wrap the input text to the specified width.
 
     Args:
-        text (str): The input text to wrap.
-        width (int): The width at which to wrap the text.
+        text: The input text to wrap.
+        width: The width at which to wrap the text. Defaults to 120.
 
     Returns:
-        str: The wrapped text.
+        The wrapped text.
     """
     return textwrap.fill(text, width=width)
 
 
-def encode_pdf(path, chunk_size=1000, chunk_overlap=200):
-    """
-    Encodes a PDF book into a vector store using OpenAI embeddings.
+def encode_pdf(path: str, chunk_size: int = 1000, chunk_overlap: int = 200) -> FAISS:
+    """Encode a PDF book into a vector store using OpenAI embeddings.
 
     Args:
         path: The path to the PDF file.
-        chunk_size: The desired size of each text chunk.
-        chunk_overlap: The amount of overlap between consecutive chunks.
+        chunk_size: The desired size of each text chunk. Defaults to 1000.
+        chunk_overlap: The amount of overlap between consecutive chunks. Defaults to 200.
 
     Returns:
         A FAISS vector store containing the encoded book content.
     """
-
     # Load PDF documents
     loader = PyPDFLoader(path)
     documents = loader.load()
@@ -80,23 +90,21 @@ def encode_pdf(path, chunk_size=1000, chunk_overlap=200):
     return vectorstore
 
 
-def encode_from_string(content, chunk_size=1000, chunk_overlap=200):
-    """
-    Encodes a string into a vector store using OpenAI embeddings.
+def encode_from_string(content: str, chunk_size: int = 1000, chunk_overlap: int = 200) -> FAISS:
+    """Encode a string into a vector store using OpenAI embeddings.
 
     Args:
-        content (str): The text content to be encoded.
-        chunk_size (int): The size of each chunk of text.
-        chunk_overlap (int): The overlap between chunks.
+        content: The text content to be encoded.
+        chunk_size: The size of each chunk of text. Defaults to 1000.
+        chunk_overlap: The overlap between chunks. Defaults to 200.
 
     Returns:
-        FAISS: A vector store containing the encoded content.
+        A vector store containing the encoded content.
 
     Raises:
         ValueError: If the input content is not valid.
         RuntimeError: If there is an error during the encoding process.
     """
-
     if not isinstance(content, str) or not content.strip():
         raise ValueError("Content must be a non-empty string.")
 
@@ -130,43 +138,50 @@ def encode_from_string(content, chunk_size=1000, chunk_overlap=200):
     return vectorstore
 
 
-def retrieve_context_per_question(question, chunks_query_retriever):
-    """
-    Retrieves relevant context and unique URLs for a given question using the chunks query retriever.
+def retrieve_context_per_question(question: str, chunks_query_retriever: VectorStoreRetriever) -> list[str]:
+    """Retrieve relevant context for a given question using the chunks query retriever.
 
     Args:
-        question: The question for which to retrieve context and URLs.
+        question: The question for which to retrieve context.
+        chunks_query_retriever: The FAISS index used to retrieve relevant chunks.
 
     Returns:
-        A tuple containing:
-        - A string with the concatenated content of relevant documents.
-        - A list of unique URLs from the metadata of the relevant documents.
+        A list of relevant context strings.
     """
-
     # Retrieve relevant documents for the given question
     docs = chunks_query_retriever.get_relevant_documents(question)
 
-    # Concatenate document content
-    # context = " ".join(doc.page_content for doc in docs)
+    # Extract document content
     context = [doc.page_content for doc in docs]
 
     return context
 
 
 class QuestionAnswerFromContext(BaseModel):
-    """
-    Model to generate an answer to a query based on a given context.
+    """Model to generate an answer to a query based on a given context.
 
     Attributes:
-        answer_based_on_content (str): The generated answer based on the context.
+        answer_based_on_content: The generated answer based on the context.
     """
 
     answer_based_on_content: str = Field(description="Generates an answer to a query based on a given context.")
 
 
-def create_question_answer_from_context_chain(llm):
-    # Initialize the ChatOpenAI model with specific parameters
-    question_answer_from_context_llm = llm
+def create_question_answer_from_context_chain(llm: ChatOpenAI | None) -> BaseModel:
+    """Create a chain for answering questions based on context using the provided language model.
+
+    Args:
+        llm: The language model to use for generating answers.
+
+    Returns:
+        The created question-answer chain.
+    """
+    if llm is None:
+        llm = llm_manager.LlmManager().llm
+        question_answer_from_context_llm = llm
+    else:
+        # Initialize the ChatOpenAI model with specific parameters
+        question_answer_from_context_llm = llm
 
     # Define the prompt template for chain-of-thought reasoning
     question_answer_prompt_template = """
@@ -190,52 +205,49 @@ def create_question_answer_from_context_chain(llm):
     return question_answer_from_context_cot_chain
 
 
-def answer_question_from_context(question, context, question_answer_from_context_chain):
-    """
-    Answer a question using the given context by invoking a chain of reasoning.
+def answer_question_from_context(
+    question: str, context: list[str], question_answer_from_context_chain: RunnableSerializable | Any
+) -> dict:
+    """Answer a question using the given context by invoking a chain of reasoning.
 
     Args:
         question: The question to be answered.
         context: The context to be used for answering the question.
+        question_answer_from_context_chain: The chain to use for generating the answer.
 
     Returns:
         A dictionary containing the answer, context, and question.
     """
     input_data = {"question": question, "context": context}
-    print("Answering the question from the retrieved context...")
+    LOGGER.info("Answering the question from the retrieved context...")
 
     output = question_answer_from_context_chain.invoke(input_data)
     answer = output.answer_based_on_content
     return {"answer": answer, "context": context, "question": question}
 
 
-def show_context(context):
-    """
-    Display the contents of the provided context list.
+def show_context(context: list[str]) -> None:
+    """Display the contents of the provided context list.
 
     Args:
-        context (list): A list of context items to be displayed.
+        context: A list of context items to be displayed.
 
-    Prints each context item in the list with a heading indicating its position.
+    LOGGER.infos each context item in the list with a heading indicating its position.
     """
     for i, c in enumerate(context):
-        print(f"Context {i+1}:")
-        print(c)
-        print("\n")
+        LOGGER.info(f"Context {i+1}:")
+        LOGGER.info(c)
+        LOGGER.info("\n")
 
 
-def read_pdf_to_string(path):
-    """
-    Read a PDF document from the specified path and return its content as a string.
+def read_pdf_to_string(path: str) -> str:
+    """Read a PDF document from the specified path and return its content as a string.
 
     Args:
-        path (str): The file path to the PDF document.
+        path: The file path to the PDF document.
 
     Returns:
-        str: The concatenated text content of all pages in the PDF document.
-
-    The function uses the 'fitz' library (PyMuPDF) to open the PDF document, iterate over each page,
-    extract the text content from each page, and append it to a single string.
+        The concatenated text content of all pages in the PDF document.
     """
     # Open the PDF document located at the specified path
     doc = pymupdf.open(path)
@@ -250,17 +262,16 @@ def read_pdf_to_string(path):
 
 
 def bm25_retrieval(bm25: BM25Okapi, cleaned_texts: list[str], query: str, k: int = 5) -> list[str]:
-    """
-    Perform BM25 retrieval and return the top k cleaned text chunks.
+    """Perform BM25 retrieval and return the top k cleaned text chunks.
 
     Args:
-    bm25 (BM25Okapi): Pre-computed BM25 index.
-    cleaned_texts (List[str]): List of cleaned text chunks corresponding to the BM25 index.
-    query (str): The query string.
-    k (int): The number of text chunks to retrieve.
+        bm25: Pre-computed BM25 index.
+        cleaned_texts: List of cleaned text chunks corresponding to the BM25 index.
+        query: The query string.
+        k: The number of text chunks to retrieve. Defaults to 5.
 
     Returns:
-    List[str]: The top k cleaned text chunks based on BM25 scores.
+        The top k cleaned text chunks based on BM25 scores.
     """
     # Tokenize the query
     query_tokens = query.split()
@@ -275,51 +286,3 @@ def bm25_retrieval(bm25: BM25Okapi, cleaned_texts: list[str], query: str, k: int
     top_k_texts = [cleaned_texts[i] for i in top_k_indices]
 
     return top_k_texts
-
-
-async def exponential_backoff(attempt):
-    """
-    Implements exponential backoff with a jitter.
-
-    Args:
-        attempt: The current retry attempt number.
-
-    Waits for a period of time before retrying the operation.
-    The wait time is calculated as (2^attempt) + a random fraction of a second.
-    """
-    # Calculate the wait time with exponential backoff and jitter
-    wait_time = (2**attempt) + random.uniform(0, 1)
-    print(f"Rate limit hit. Retrying in {wait_time:.2f} seconds...")
-
-    # Asynchronously sleep for the calculated wait time
-    await asyncio.sleep(wait_time)
-
-
-async def retry_with_exponential_backoff(coroutine, max_retries=5):
-    """
-    Retries a coroutine using exponential backoff upon encountering a RateLimitError.
-
-    Args:
-        coroutine: The coroutine to be executed.
-        max_retries: The maximum number of retry attempts.
-
-    Returns:
-        The result of the coroutine if successful.
-
-    Raises:
-        The last encountered exception if all retry attempts fail.
-    """
-    for attempt in range(max_retries):
-        try:
-            # Attempt to execute the coroutine
-            return await coroutine
-        except RateLimitError as e:
-            # If the last attempt also fails, raise the exception
-            if attempt == max_retries - 1:
-                raise e
-
-            # Wait for an exponential backoff period before retrying
-            await exponential_backoff(attempt)
-
-    # If max retries are reached without success, raise an exception
-    raise Exception("Max retries reached")

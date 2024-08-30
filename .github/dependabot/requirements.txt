@@ -276,6 +276,8 @@ executing==2.0.1
     # via stack-data
 factory-boy==3.3.0
     # via goob-ai
+faiss-cpu==1.8.0.post1
+    # via goob-ai
 faker==26.1.0
     # via factory-boy
     # via goob-ai
@@ -686,6 +688,7 @@ numpy==1.26.4
     # via chromadb
     # via contourpy
     # via datasets
+    # via faiss-cpu
     # via goob-ai
     # via imageio
     # via langchain
@@ -792,6 +795,7 @@ packaging==24.1
     # via build
     # via dask
     # via datasets
+    # via faiss-cpu
     # via huggingface-hub
     # via ipykernel
     # via jupyter-server
