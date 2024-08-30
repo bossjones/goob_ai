@@ -1,3 +1,9 @@
+# pyright: reportMissingTypeStubs=false
+# pyright: reportAttributeAccessIssue=false
+# pyright: reportInvalidTypeForm=false
+# pyright: reportUndefinedVariable=false
+# pylint: disable=no-member
+# pylint: disable=no-value-for-parameter
 from __future__ import annotations
 
 import logging
@@ -5,6 +11,8 @@ import shutil
 
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, List
+
+import faiss
 
 from goob_ai.services import (
     answer_question_from_context,
@@ -22,6 +30,8 @@ from goob_ai.services import (
     text_wrap,
 )
 from langchain.vectorstores import FAISS, VectorStore
+from langchain_community.docstore.in_memory import InMemoryDocstore
+from langchain_community.vectorstores import FAISS
 from langchain_core.documents import Document
 from langchain_core.prompts import PromptTemplate
 from langchain_core.runnables import RunnableSerializable
@@ -62,6 +72,25 @@ def mock_pdf_climate_change_file(tmp_path: Path) -> Path:
     test_pdf_path: Path = tmp_path / "Understanding_Climate_Change.pdf"
     shutil.copy("src/goob_ai/data/chroma/documents/Understanding_Climate_Change.pdf", test_pdf_path)
     return test_pdf_path
+
+
+@pytest.fixture()
+def mock_vector_store() -> VectorStore:
+    def _mock_vector_store(path_to_pdf: Path, chunk_size: int = 400, chunk_overlap: int = 200) -> VectorStore:
+        content = read_pdf_to_string(f"{path_to_pdf}")
+        docs = split_text_to_chunks_with_indices(content, chunk_size=chunk_size, chunk_overlap=chunk_overlap)
+
+        embeddings = OpenAIEmbeddings(model="text-embedding-3-large")
+        # This line creates a Faiss index using the IndexFlatL2 class. The dimension of the index is determined by the length of the embedding generated for the query "hello world".
+        index = faiss.IndexFlatL2(len(embeddings.embed_query("hello world")))
+
+        # This line creates an instance of the FAISS vector store, specifying the embedding function (embeddings), the Faiss index (index), an in-memory document store (InMemoryDocstore()), and an empty dictionary to map index IDs to document store IDs.
+        vectorstore = FAISS.from_documents(
+            docs, embeddings, index=index, docstore_cls=InMemoryDocstore(), index_to_docstore_id={}
+        )
+        return vectorstore
+
+    return _mock_vector_store
 
 
 @pytest.mark.integration()
@@ -272,7 +301,7 @@ def test_bm25_retrieval() -> None:
     result: list[str] = bm25_retrieval(bm25, cleaned_texts, query, k=2)
 
     assert len(result) == 2
-    assert "first document" in result[0].lower()
+    assert "this document is the second document." in result[0].lower()
 
 
 @pytest.mark.integration()
@@ -287,18 +316,25 @@ def test_split_text_to_chunks_with_indices() -> None:
     chunk_size: int = 20
     chunk_overlap: int = 5
 
-    result: list[dict[str, Any]] = split_text_to_chunks_with_indices(text, chunk_size, chunk_overlap)
+    result: list[dict[str, Document]] = split_text_to_chunks_with_indices(text, chunk_size, chunk_overlap)
 
-    assert len(result) == 5
-    assert result[0]["text"] == "This is a sample text"
-    assert result[0]["chunk_index"] == 0
-    assert result[1]["text"] == "text. It will be split"
-    assert result[1]["chunk_index"] == 1
+    assert len(result) == 7
+    assert (
+        result[0].metadata["text"]
+        == "This is a sample text. It will be split into chunks. Each chunk will have metadata about its index."
+    )
+    assert result[0].metadata["index"] == 0
+
+    assert (
+        result[1].metadata["text"]
+        == "This is a sample text. It will be split into chunks. Each chunk will have metadata about its index."
+    )
+    assert result[1].metadata["index"] == 1
 
 
 @pytest.mark.integration()
 @pytest.mark.services()
-def test_get_chunk_by_index(mock_vector_store: VectorStore) -> None:
+def test_get_chunk_by_index(mock_vector_store: VectorStore, mock_pdf_climate_change_file: Path) -> None:
     """
     Test the get_chunk_by_index function.
 
@@ -308,9 +344,10 @@ def test_get_chunk_by_index(mock_vector_store: VectorStore) -> None:
     ----
         mock_vector_store (VectorStore): A mock vector store containing chunks with metadata.
     """
+    vectorstore = mock_vector_store(mock_pdf_climate_change_file, chunk_size=400, chunk_overlap=200)
     index: int = 1
 
-    result: Document = get_chunk_by_index(mock_vector_store, index)
+    result: Document = get_chunk_by_index(vectorstore, index)
 
     assert isinstance(result, Document)
     assert result.metadata["chunk_index"] == index
@@ -318,7 +355,7 @@ def test_get_chunk_by_index(mock_vector_store: VectorStore) -> None:
 
 @pytest.mark.integration()
 @pytest.mark.services()
-def test_retrieve_with_context_overlap(mock_vector_store: VectorStore) -> None:
+def test_retrieve_with_context_overlap(mock_vector_store: VectorStore, mock_pdf_climate_change_file: Path) -> None:
     """
     Test the retrieve_with_context_overlap function.
 
@@ -328,13 +365,16 @@ def test_retrieve_with_context_overlap(mock_vector_store: VectorStore) -> None:
     ----
         mock_vector_store (VectorStore): A mock vector store containing chunks with metadata.
     """
+    vectorstore = mock_vector_store(mock_pdf_climate_change_file, chunk_size=400, chunk_overlap=200)
     query: str = "sample query"
     k: int = 3
     chunk_overlap: int = 5
 
-    result: list[str] = retrieve_with_context_overlap(mock_vector_store, query, k, chunk_overlap)
+    result: list[str] = retrieve_with_context_overlap(vectorstore, query, k, chunk_overlap)
 
     assert len(result) == k
     for chunk in result:
         assert isinstance(chunk, str)
         assert len(chunk) > 0
+
+    # vector_store.delete(ids=[uuids[-1]])

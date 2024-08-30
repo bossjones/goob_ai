@@ -1,3 +1,9 @@
+# pyright: reportMissingTypeStubs=false
+# pyright: reportAttributeAccessIssue=false
+# pyright: reportInvalidTypeForm=false
+# pyright: reportUndefinedVariable=false
+# pylint: disable=no-member
+# pylint: disable=no-value-for-parameter
 # SOURCE: https://github.com/NirDiamant/RAG_Techniques/blob/9e825a8b6aaae1b29864d9d350cf95aacafac5d4/helper_functions.py#L19
 from __future__ import annotations
 
@@ -6,7 +12,7 @@ import logging
 import random
 import textwrap
 
-from typing import Any, List, Tuple
+from typing import Any, List, Optional, Tuple
 
 import numpy as np
 import pymupdf

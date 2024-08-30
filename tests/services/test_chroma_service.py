@@ -397,6 +397,7 @@ def mock_txt_file(tmp_path: Path) -> Path:
     return test_txt_path
 
 
+@pytest.mark.slow()
 @pytest.mark.services()
 # @pytest.mark.vcr(allow_playback_repeats=True, match_on=["request_matcher"], ignore_localhost=False)
 @pytest.mark.vcr(
