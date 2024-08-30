@@ -65,6 +65,7 @@ from goob_ai import llm_manager, redis_memory
 from goob_ai.aio_settings import aiosettings
 from goob_ai.gen_ai.utilities import (
     WEBBASE_LOADER_PATTERN,
+    calculate_chunk_ids,
     franchise_metadata,
     generate_document_hashes,
     get_file_extension,
@@ -378,52 +379,8 @@ def compare_two_words(w1: str, w2: str) -> None:
     # Compare vector of two words
     evaluator = load_evaluator("pairwise_embedding_distance")
     words = (w1, w2)
-    x = evaluator.evaluate_string_pairs(prediction=words[0], prediction_b=words[1])
+    x = evaluator.evaluate_string_pairs(prediction=words[0], prediction_b=words[1])  # type: ignore
     LOGGER.info(f"Comparing ({words[0]}, {words[1]}): {x}")
-
-
-# SOURCE: https://github.com/divyeg/meakuchatbot_project/blob/0c4483ce4bebce923233cf2a1139f089ac5d9e53/createVectorDB.ipynb#L203
-def calculate_chunk_ids(chunks: list[Document]) -> list[Document]:
-    """
-    Calculate chunk IDs for a list of document chunks.
-
-    This function calculates chunk IDs in the format "data/monopoly.pdf:6:2",
-    where "data/monopoly.pdf" is the page source, "6" is the page number, and
-    "2" is the chunk index.
-
-    Args:
-        chunks (list[Document]): The list of document chunks.
-
-    Returns:
-        list[Document]: The list of document chunks with chunk IDs added to their metadata.
-    """
-    # This will create IDs like "data/monopoly.pdf:6:2"
-    # Page Source : Page Number : Chunk Index
-    # USAGE: chunks_with_ids = calculate_chunk_ids(chunks)
-
-    last_page_id = None
-    current_chunk_index = 0
-
-    for chunk in chunks:
-        source = chunk.metadata.get("source")
-        page = chunk.metadata.get("page")
-        current_page_id = f"{source}:{page}"
-
-        # If the page ID is the same as the last one, increment the index.
-        if current_page_id == last_page_id:
-            current_chunk_index += 1
-        else:
-            current_chunk_index = 0
-
-        # Calculate the chunk ID.
-        chunk_id = f"{current_page_id}:{current_chunk_index}"
-        # LOGGER.debug(f"chunk_id: {chunk_id}")
-        last_page_id = current_page_id
-
-        # Add it to the page meta-data.
-        chunk.metadata["id"] = chunk_id
-
-    return chunks
 
 
 # SOURCE: https://github.com/divyeg/meakuchatbot_project/blob/0c4483ce4bebce923233cf2a1139f089ac5d9e53/createVectorDB.ipynb#L203

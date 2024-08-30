@@ -1,15 +1,55 @@
+"""goob_ai.services.pgvector_service"""
+
+# pyright: reportPrivateImportUsage=false
+# pyright: reportGeneralTypeIssues=false
+# pyright: reportCallInDefaultInitializer=false
+# pylint: disable=no-name-in-module
+# pylint: disable=no-member
 from __future__ import annotations
 
 import logging
+import os
 
-from typing import List, Tuple
+from collections.abc import Sequence
+from dataclasses import dataclass
+from pathlib import Path
+from typing import Any, Callable, List, Literal, Optional, Set, Tuple, Union
 
 from dotenv import load_dotenv
 from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain_community.vectorstores.pgvector import PGVector, _get_embedding_collection_store
 from langchain_core.documents import Document
+from loguru import logger as LOGGER
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import Session
+
+from goob_ai.aio_settings import aiosettings
+from goob_ai.gen_ai.utilities import (
+    WEBBASE_LOADER_PATTERN,
+    calculate_chunk_ids,
+    franchise_metadata,
+    generate_document_hashes,
+    get_file_extension,
+    get_nested_value,
+    get_rag_embedding_function,
+    get_rag_loader,
+    get_rag_splitter,
+    get_suffix,
+    is_github_io_url,
+    is_pdf,
+    is_txt,
+    is_valid_uri,
+    markdown_to_documents,
+    remove_leading_period,
+    string_to_doc,
+    stringify_dict,
+)
+from goob_ai.utils import file_functions
+
+
+HERE = os.path.dirname(__file__)
+
+DATA_PATH = os.path.join(HERE, "..", "data", "chroma", "documents")
 
 
 EmbeddingStore = _get_embedding_collection_store()[0]
@@ -25,8 +65,8 @@ class PgvectorService:
         Args:
             connection_string: The connection string for the database.
         """
-        load_dotenv()
-        self.embeddings = OpenAIEmbeddings()
+        # load_dotenv()
+        self.embeddings = OpenAIEmbeddings(openai_api_key=aiosettings.openai_api_key.get_secret_value())
         self.cnx = connection_string
         self.collections = []
         self.engine = create_engine(self.cnx)
@@ -86,7 +126,7 @@ class PgvectorService:
             collection_name: The name of the collection.
             overwrite: Set to True to delete the collection if it already exists.
         """
-        logging.info(f"Creating new collection: {collection_name}")
+        LOGGER.info(f"Creating new collection: {collection_name}")
         with self.engine.connect() as connection:
             pgvector = PGVector.from_documents(
                 embedding=self.embeddings,
@@ -122,7 +162,7 @@ class PgvectorService:
             docs: The list of documents to update the collection with.
             collection_name: The name of the collection to update.
         """
-        logging.info(f"Updating collection: {collection_name}")
+        LOGGER.info(f"Updating collection: {collection_name}")
         collections = self.get_collections()
 
         if docs is not None:
@@ -136,7 +176,7 @@ class PgvectorService:
         Args:
             collection_name: The name of the collection to delete.
         """
-        logging.info(f"Deleting collection: {collection_name}")
+        LOGGER.info(f"Deleting collection: {collection_name}")
         with self.engine.connect() as connection:
             pgvector = PGVector(
                 collection_name=collection_name,

@@ -1,3 +1,9 @@
+# pylint: disable=too-many-function-args
+# mypy: disable-error-code="arg-type, var-annotated, list-item, no-redef, truthy-bool, return-value"
+# pyright: reportPrivateImportUsage=false
+# pyright: reportGeneralTypeIssues=false
+# pyright: reportAttributeAccessIssue=false
+# mypy: disable-error-code="arg-type, var-annotated, list-item, no-redef"
 from __future__ import annotations
 
 import asyncio
@@ -422,7 +428,7 @@ def test_load_documents(mocker: MockerFixture, mock_pdf_file: Path, vcr: Any) ->
     documents = load_documents()
 
     # this is a bad test, cause the data will change eventually. Need to find a way to test this.
-    assert len(documents) == 680
+    assert len(documents) == 713
     assert vcr.play_count == 0
 
 
@@ -1647,6 +1653,7 @@ def test_add_or_update_documents_existing_documents(
             Document(metadata={"start_index": 0, "id": "None:None:0"}, page_content="Test document"),
             Document(metadata={"start_index": 0, "id": "None:None:1"}, page_content="Test document"),
             Document(metadata={"start_index": 0, "id": "None:None:2"}, page_content="Test document"),
+            Document(metadata={"start_index": 0, "id": "None:None:3"}, page_content="Test document"),
         ],
     )
 
@@ -1656,6 +1663,7 @@ def test_add_or_update_documents_existing_documents(
                 Document(metadata={"start_index": 0, "id": "None:None:0"}, page_content="Test document"),
                 Document(metadata={"start_index": 0, "id": "None:None:1"}, page_content="Test document"),
                 Document(metadata={"start_index": 0, "id": "None:None:2"}, page_content="Test document"),
+                Document(metadata={"start_index": 0, "id": "None:None:3"}, page_content="Test document"),
             ],
             ids=["None:None:0", "None:None:1", "None:None:2"],
         )

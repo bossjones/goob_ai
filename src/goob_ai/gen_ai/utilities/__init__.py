@@ -61,6 +61,11 @@ from goob_ai.aio_settings import aiosettings
 from goob_ai.utils import file_functions
 
 
+HERE = os.path.dirname(__file__)
+
+DATA_PATH = os.path.join(HERE, "..", "data", "chroma", "documents")
+CHROMA_PATH = os.path.join(HERE, "..", "data", "chroma", "vectorstorage")
+CHROMA_PATH_API = Path(CHROMA_PATH)
 WEBBASE_LOADER_PATTERN = r"^https?://[a-zA-Z0-9.-]+\.github\.io(/.*)?$"
 EXCLUDE_KEYS_FROM_CHECKSUM = {"metadata": {"chunk_id", "id", "checksum", "last_seen_at", "item_id"}}
 DAY_IN_SECONDS = 24 * 3600
@@ -497,4 +502,48 @@ def add_chunk_id(chunks: list[Document]) -> list[Document]:
     """
     for d in chunks:
         d.metadata["chunk_id"] = d.metadata.get("chunk_id", str(uuid4()))
+    return chunks
+
+
+# SOURCE: https://github.com/divyeg/meakuchatbot_project/blob/0c4483ce4bebce923233cf2a1139f089ac5d9e53/createVectorDB.ipynb#L203
+def calculate_chunk_ids(chunks: list[Document]) -> list[Document]:
+    """
+    Calculate chunk IDs for a list of document chunks.
+
+    This function calculates chunk IDs in the format "data/monopoly.pdf:6:2",
+    where "data/monopoly.pdf" is the page source, "6" is the page number, and
+    "2" is the chunk index.
+
+    Args:
+        chunks (list[Document]): The list of document chunks.
+
+    Returns:
+        list[Document]: The list of document chunks with chunk IDs added to their metadata.
+    """
+    # This will create IDs like "data/monopoly.pdf:6:2"
+    # Page Source : Page Number : Chunk Index
+    # USAGE: chunks_with_ids = calculate_chunk_ids(chunks)
+
+    last_page_id = None
+    current_chunk_index = 0
+
+    for chunk in chunks:
+        source = chunk.metadata.get("source")
+        page = chunk.metadata.get("page")
+        current_page_id = f"{source}:{page}"
+
+        # If the page ID is the same as the last one, increment the index.
+        if current_page_id == last_page_id:
+            current_chunk_index += 1
+        else:
+            current_chunk_index = 0
+
+        # Calculate the chunk ID.
+        chunk_id = f"{current_page_id}:{current_chunk_index}"
+        # LOGGER.debug(f"chunk_id: {chunk_id}")
+        last_page_id = current_page_id
+
+        # Add it to the page meta-data.
+        chunk.metadata["id"] = chunk_id
+
     return chunks
