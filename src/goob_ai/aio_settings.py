@@ -275,6 +275,33 @@ class AioSettings(BaseSettings):
         env="OCO_PROMPT_MODULE", description="OCO_PROMPT_MODULE", default="conventional-commit"
     )
 
+    # Variables for Postgres/pgvector
+    # CONNECTION_STRING = PGVector.connection_string_from_db_params(
+    #     driver=os.environ.get("PGVECTOR_DRIVER", "psycopg"),
+    #     host=os.environ.get("PGVECTOR_HOST", "localhost"),
+    #     port=int(os.environ.get("PGVECTOR_PORT", "6432")),
+    #     database=os.environ.get("PGVECTOR_DATABASE", "langchain"),
+    #     user=os.environ.get("PGVECTOR_USER", "langchain"),
+    #     password=os.environ.get("PGVECTOR_PASSWORD", "langchain"),
+    # )
+    postgres_host: str = "localhost"
+    postgres_port: int = 7432
+    postgres_password: Optional[str] = "langchain"
+    postgres_driver: Optional[str] = "psycopg"
+    postgres_database: Optional[str] = "langchain"
+    postgres_collection_name: Optional[str] = "langchain"
+    postgres_user: Optional[str] = "langchain"
+    enable_postgres: bool = True
+
+    @property
+    def postgres_url(self) -> URL:
+        """
+        Assemble postgres URL from settings.
+
+        :return: postgres URL.
+        """
+        return f"postgresql+{self.postgres_driver}://{self.postgres_user}:{self.postgres_password}@{self.postgres_host}:{self.postgres_port}/{self.postgres_database}"
+
     @property
     def redis_url(self) -> URL:
         """

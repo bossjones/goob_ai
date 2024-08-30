@@ -8,12 +8,18 @@ from __future__ import annotations
 from enum import Enum
 from typing import Any, Dict, List, Optional
 
-from pydantic import BaseModel, Field
+from langchain.pydantic_v1 import BaseModel, Field
+from pydantic import SecretStr
+
+from goob_ai.aio_settings import aiosettings
 
 
 class EmbeddingsProvider(Enum):
     OpenAI = "OpenAI"
     Cohere = "Cohere"
+
+
+# from pydantic import BaseModel, Field
 
 
 class ChromaIntegration(BaseModel):
@@ -22,9 +28,11 @@ class ChromaIntegration(BaseModel):
         description="Name of the chroma collection where the data will be stored",
         title="Chroma collection name",
     )
-    chromaClientHost: str = Field(..., description="Host argument for Chroma HTTP Client", title="Chroma host")
+    chromaClientHost: str = Field(
+        aiosettings.chroma_host, description="Host argument for Chroma HTTP Client", title="Chroma host"
+    )
     chromaClientPort: Optional[int] = Field(
-        8000, description="Port argument for Chroma HTTP Client", title="Chroma port"
+        aiosettings.chroma_port, description="Port argument for Chroma HTTP Client", title="Chroma port"
     )
     chromaClientSsl: Optional[bool] = Field(False, description="Enable/Disable SSL", title="Chroma SSL enabled")
     chromaServerAuthCredentials: Optional[str] = Field(
@@ -47,7 +55,7 @@ class ChromaIntegration(BaseModel):
         description='Configure the parameters for the LangChain embedding class. Key points to consider:\n\n1. Typically, you only need to specify the model name. For example, for OpenAI, set the model name as {"model": "text-embedding-3-small"}.\n\n2. It\'s crucial to ensure that the vector size of your embeddings matches the size of embeddings in the database.\n\n3. Here are some examples of embedding models:\n   - [OpenAI](https://platform.openai.com/docs/guides/embeddings): `text-embedding-3-small`, `text-embedding-3-large`, etc.\n   - [Cohere](https://docs.cohere.com/docs/cohere-embed): `embed-english-v3.0`, `embed-multilingual-light-v3.0`, etc.\n\n4. For more details about other parameters, refer to the [LangChain documentation](https://python.langchain.com/v0.2/docs/integrations/text_embedding/).',
         title="Configuration for embeddings provider",
     )
-    embeddingsApiKey: str = Field(
+    embeddingsApiKey: SecretStr = Field(
         ...,
         description="Value of the API KEY for the embeddings provider (if required).\n\n For example for OpenAI it is OPENAI_API_KEY, for Cohere it is COHERE_API_KEY)",
         title="Embeddings API KEY (whenever applicable, depends on provider)",

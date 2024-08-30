@@ -13,9 +13,9 @@ services:
 # docker run --name pgvector-container -e POSTGRES_USER=langchain -e POSTGRES_PASSWORD=langchain -e POSTGRES_DB=langchain -p 6024:5432 -d pgvector/pgvector:pg16
   db:
     image: pgvector/pgvector:pg14
-    container_name: pgvector-container
+    container_name: pgvector
     ports:
-      - 5432:5432
+      - 7432:5432
     volumes:
       # This script initialises the DB for integration tests
       - ./docker/pgvector/scripts:/docker-entrypoint-initdb.d

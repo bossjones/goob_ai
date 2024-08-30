@@ -8,7 +8,13 @@ from __future__ import annotations
 from enum import Enum
 from typing import Any, Dict, List, Optional
 
-from pydantic import BaseModel, Field
+from langchain.pydantic_v1 import BaseModel, Field
+from pydantic import SecretStr
+
+from goob_ai.aio_settings import aiosettings
+
+
+# from pydantic import BaseModel, Field
 
 
 class EmbeddingsProvider(Enum):
