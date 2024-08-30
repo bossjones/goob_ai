@@ -142,7 +142,6 @@ example prompt:
 
 source: <https://www.youtube.com/watch?v=AeASAsPp9LE>
 
-
 # july 2024
 
 - <https://medium.com/langchain-0-2-insights/langchain-0-2-insights-building-a-versatile-cli-assistant-with-langchain-and-langgraph-bc81a4570ba2>
@@ -162,10 +161,10 @@ source: <https://www.youtube.com/watch?v=AeASAsPp9LE>
 - https://github.com/codingjoe/relint - `Write your own linting rules using regular expressions.`
 - https://github.com/ionelmc/python-manhole/ - `Debugging manhole for python applications.`
 - https://github.com/langchain-ai/langchain/blob/master/cookbook/Multi_modal_RAG.ipynb
-- https://github.com/SAMAD101/Chino/blob/e38f3d9d38702beaed37229f66d79e86a7acab26/src/chino/query.py (write a query module maybe)
+- https://github.com/SAMAD101/Chino/blob/e38f3d9d38702beaed37229f66d79e86a7acab26/src/chino/query.py (write a query
+    module maybe)
 
-
---------------------------
+______________________________________________________________________
 
 # Advanced rag suggestions
 
@@ -174,5 +173,9 @@ source: <https://www.youtube.com/watch?v=AeASAsPp9LE>
 ### Quotes
 
 - If I had to do it over again, I'd just put everything in Postgres with pgvector turned on.
-- 100%. It's extremely powerful and it's nice when you have it mixed in with conventional database tables. You can do joins across relational and vector data. The performance of the vector indexing database engine will never be a significant performance bottleneck. Performance is mostly affected by the embedding model, LLM, and how many tokens the agent library (e.g. langchain) uses. Besides, Postgres is no slouch when it comes to performance and is easy to scale.
+- 100%. It's extremely powerful and it's nice when you have it mixed in with conventional database tables. You can do
+    joins across relational and vector data. The performance of the vector indexing database engine will never be a
+    significant performance bottleneck. Performance is mostly affected by the embedding model, LLM, and how many tokens
+    the agent library (e.g. langchain) uses. Besides, Postgres is no slouch when it comes to performance and is easy to
+    scale.
 -
