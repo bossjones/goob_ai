@@ -1653,7 +1653,6 @@ def test_add_or_update_documents_existing_documents(
             Document(metadata={"start_index": 0, "id": "None:None:0"}, page_content="Test document"),
             Document(metadata={"start_index": 0, "id": "None:None:1"}, page_content="Test document"),
             Document(metadata={"start_index": 0, "id": "None:None:2"}, page_content="Test document"),
-            Document(metadata={"start_index": 0, "id": "None:None:3"}, page_content="Test document"),
         ],
     )
 
@@ -1663,7 +1662,6 @@ def test_add_or_update_documents_existing_documents(
                 Document(metadata={"start_index": 0, "id": "None:None:0"}, page_content="Test document"),
                 Document(metadata={"start_index": 0, "id": "None:None:1"}, page_content="Test document"),
                 Document(metadata={"start_index": 0, "id": "None:None:2"}, page_content="Test document"),
-                Document(metadata={"start_index": 0, "id": "None:None:3"}, page_content="Test document"),
             ],
             ids=["None:None:0", "None:None:1", "None:None:2"],
         )
