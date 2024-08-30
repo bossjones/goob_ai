@@ -122,6 +122,7 @@ def test_filter_pdfs():
         "opencv-tutorial-readthedocs-io-en-latest.pdf",
         "pillow-readthedocs-io-en-latest.pdf",
         "rich-readthedocs-io-en-latest.pdf",
+        "Understanding_Climate_Change.pdf",
     ]
 
     for i in result:

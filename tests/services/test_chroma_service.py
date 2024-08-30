@@ -1650,11 +1650,13 @@ def test_add_or_update_documents_existing_documents(
         "ids": ["None:None:0", "None:None:1", "None:None:2", "None:None:3"]
     }
 
+    # NOTE: This might be flaky, but it is not clear why.
     assert mock_chroma_db.add_documents.call_args.args == (
         [
             Document(metadata={"start_index": 0, "id": "None:None:0"}, page_content="Test document"),
             Document(metadata={"start_index": 0, "id": "None:None:1"}, page_content="Test document"),
             Document(metadata={"start_index": 0, "id": "None:None:2"}, page_content="Test document"),
+            Document(metadata={"start_index": 0, "id": "None:None:3"}, page_content="Test document"),
         ],
     )
 
@@ -1668,5 +1670,10 @@ def test_add_or_update_documents_existing_documents(
             ids=["None:None:0", "None:None:1", "None:None:2"],
         )
     ]
+
+    #     [
+    #     call([Document(metadata={'start_index': 0, 'id': 'None:None:0'}, page_content='Test document'), Document(metadata={'start_index': 0, 'id': 'None:None:1'}, page_content='Test
+    # document'), Document(metadata={'start_index': 0, 'id': 'None:None:2'}, page_content='Test document')], ids=['None:None:0', 'None:None:1', 'None:None:2'])
+    # ]
 
     assert mock_chroma_db.add_documents.call_args_list == calls

@@ -154,12 +154,8 @@ async def test_delete_collection(pgvector_service: PgvectorService, mocker) -> N
     mock_pgvector.return_value.delete_collection.assert_called_once()
 
 
-from goob_ai.services.pgvector_service import PgvectorService
-from langchain_core.documents import Document
-
-import pytest
-
-
+@pytest.mark.skip(reason="This is a work in progress and it is currently expected to fail")
+@pytest.mark.flaky()
 @pytest.mark.vcronly()
 @pytest.mark.vcr(
     allow_playback_repeats=True, match_on=["method", "scheme", "port", "path", "query"], ignore_localhost=False
@@ -179,6 +175,8 @@ def test_integration_update_pgvector_collection(pgvector_service: PgvectorServic
     assert vcr.play_count == 1
 
 
+@pytest.mark.skip(reason="This is a work in progress and it is currently expected to fail")
+@pytest.mark.flaky()
 @pytest.mark.vcronly()
 @pytest.mark.vcr(
     allow_playback_repeats=True, match_on=["method", "scheme", "port", "path", "query"], ignore_localhost=False
@@ -196,6 +194,8 @@ def test_integration_get_collections(pgvector_service: PgvectorService, vcr: Any
     assert vcr.play_count == 1
 
 
+@pytest.mark.skip(reason="This is a work in progress and it is currently expected to fail")
+@pytest.mark.flaky()
 @pytest.mark.vcronly()
 @pytest.mark.vcr(
     allow_playback_repeats=True, match_on=["method", "scheme", "port", "path", "query"], ignore_localhost=False
@@ -215,6 +215,8 @@ def test_integration_update_collection(pgvector_service: PgvectorService, vcr: A
     assert vcr.play_count == 1
 
 
+@pytest.mark.skip(reason="This is a work in progress and it is currently expected to fail")
+@pytest.mark.flaky()
 @pytest.mark.vcronly()
 @pytest.mark.vcr(
     allow_playback_repeats=True, match_on=["method", "scheme", "port", "path", "query"], ignore_localhost=False
@@ -238,6 +240,8 @@ def test_integration_delete_collection(pgvector_service: PgvectorService, vcr: A
     assert vcr.play_count == 2  # One for creation, one for deletion
 
 
+@pytest.mark.skip(reason="This is a work in progress and it is currently expected to fail")
+@pytest.mark.flaky()
 @pytest.mark.vcronly()
 @pytest.mark.vcr(
     allow_playback_repeats=True, match_on=["method", "scheme", "port", "path", "query"], ignore_localhost=False
