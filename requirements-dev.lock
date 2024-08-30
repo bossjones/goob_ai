@@ -1029,6 +1029,7 @@ packaging==24.1
     # via onnxruntime
     # via pikepdf
     # via pypi-command-line
+    # via pytesseract
     # via pytest
     # via pytest-sugar
     # via streamlit
@@ -1096,6 +1097,7 @@ pillow==10.4.0
     # via pdfplumber
     # via pi-heif
     # via pikepdf
+    # via pytesseract
     # via python-pptx
     # via rapidocr-onnxruntime
     # via sentence-transformers
@@ -1292,6 +1294,8 @@ pysocks==1.7.1
     # via requests
 pytablewriter==1.2.0
     # via goob-ai
+pytesseract==0.3.13
+    # via goob-ai
 pytest==8.3.2
     # via dpytest
     # via pytest-aiohttp
@@ -1332,6 +1336,8 @@ python-dateutil==2.9.0.post0
     # via posthog
     # via typepy
     # via unstructured-client
+python-decouple==3.8
+    # via goob-ai
 python-docx==1.1.2
     # via goob-ai
     # via unstructured

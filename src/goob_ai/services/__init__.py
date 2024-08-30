@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import asyncio
+import logging
 import random
 import textwrap
 
@@ -23,6 +24,7 @@ from langchain_core.runnables import (
     RunnableConfig,
     RunnableLambda,
     RunnableMap,
+    RunnableSequence,
     RunnableSerializable,
     ensure_config,
 )
@@ -167,7 +169,7 @@ class QuestionAnswerFromContext(BaseModel):
     answer_based_on_content: str = Field(description="Generates an answer to a query based on a given context.")
 
 
-def create_question_answer_from_context_chain(llm: ChatOpenAI | None) -> BaseModel:
+def create_question_answer_from_context_chain(llm: ChatOpenAI | None) -> RunnableSequence | RunnableSerializable:
     """Create a chain for answering questions based on context using the provided language model.
 
     Args:
