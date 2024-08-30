@@ -8,13 +8,14 @@ import chromadb
 from langchain_chroma import Chroma
 from langchain_core.documents import Document
 
-from .base import VectorDbBase
+from goob_ai.gen_ai.vectorstore.base import VectorDbBase
 
 
 if TYPE_CHECKING:
     from langchain_core.embeddings import Embeddings
 
-    from ..models import ChromaIntegration
+    # from ..models import ChromaIntegration
+    from goob_ai.models.vectorstores.chroma_input_model import ChromaIntegration
 
 
 class ChromaDatabase(Chroma, VectorDbBase):
