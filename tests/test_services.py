@@ -4,7 +4,7 @@ import logging
 import shutil
 
 from pathlib import Path
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING, Any, List
 
 from goob_ai.services import (
     answer_question_from_context,
@@ -12,17 +12,21 @@ from goob_ai.services import (
     create_question_answer_from_context_chain,
     encode_from_string,
     encode_pdf,
+    get_chunk_by_index,
     read_pdf_to_string,
     replace_t_with_space,
     retrieve_context_per_question,
+    retrieve_with_context_overlap,
     show_context,
+    split_text_to_chunks_with_indices,
     text_wrap,
 )
-from langchain.vectorstores import FAISS
+from langchain.vectorstores import FAISS, VectorStore
 from langchain_core.documents import Document
 from langchain_core.prompts import PromptTemplate
 from langchain_core.runnables import RunnableSerializable
-from langchain_openai import ChatOpenAI
+from langchain_core.vectorstores.base import VectorStoreRetriever
+from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 from loguru import logger as LOGGER
 from rank_bm25 import BM25Okapi
 
@@ -269,3 +273,68 @@ def test_bm25_retrieval() -> None:
 
     assert len(result) == 2
     assert "first document" in result[0].lower()
+
+
+@pytest.mark.integration()
+@pytest.mark.services()
+def test_split_text_to_chunks_with_indices() -> None:
+    """
+    Test the split_text_to_chunks_with_indices function.
+
+    This test verifies that the function correctly splits text into chunks with metadata about the chunk's index.
+    """
+    text: str = "This is a sample text. It will be split into chunks. Each chunk will have metadata about its index."
+    chunk_size: int = 20
+    chunk_overlap: int = 5
+
+    result: list[dict[str, Any]] = split_text_to_chunks_with_indices(text, chunk_size, chunk_overlap)
+
+    assert len(result) == 5
+    assert result[0]["text"] == "This is a sample text"
+    assert result[0]["chunk_index"] == 0
+    assert result[1]["text"] == "text. It will be split"
+    assert result[1]["chunk_index"] == 1
+
+
+@pytest.mark.integration()
+@pytest.mark.services()
+def test_get_chunk_by_index(mock_vector_store: VectorStore) -> None:
+    """
+    Test the get_chunk_by_index function.
+
+    This test verifies that the function correctly retrieves a chunk from a vector store based on its index.
+
+    Args:
+    ----
+        mock_vector_store (VectorStore): A mock vector store containing chunks with metadata.
+    """
+    index: int = 1
+
+    result: Document = get_chunk_by_index(mock_vector_store, index)
+
+    assert isinstance(result, Document)
+    assert result.metadata["chunk_index"] == index
+
+
+@pytest.mark.integration()
+@pytest.mark.services()
+def test_retrieve_with_context_overlap(mock_vector_store: VectorStore) -> None:
+    """
+    Test the retrieve_with_context_overlap function.
+
+    This test verifies that the function correctly retrieves chunks with context overlap based on a query.
+
+    Args:
+    ----
+        mock_vector_store (VectorStore): A mock vector store containing chunks with metadata.
+    """
+    query: str = "sample query"
+    k: int = 3
+    chunk_overlap: int = 5
+
+    result: list[str] = retrieve_with_context_overlap(mock_vector_store, query, k, chunk_overlap)
+
+    assert len(result) == k
+    for chunk in result:
+        assert isinstance(chunk, str)
+        assert len(chunk) > 0

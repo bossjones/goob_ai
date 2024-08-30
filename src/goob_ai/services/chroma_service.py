@@ -83,6 +83,18 @@ from goob_ai.gen_ai.utilities import (
     string_to_doc,
     stringify_dict,
 )
+from goob_ai.services import (
+    answer_question_from_context,
+    bm25_retrieval,
+    create_question_answer_from_context_chain,
+    encode_from_string,
+    encode_pdf,
+    read_pdf_to_string,
+    replace_t_with_space,
+    retrieve_context_per_question,
+    show_context,
+    text_wrap,
+)
 from goob_ai.utils import file_functions
 
 
@@ -1021,6 +1033,7 @@ def split_text(
     )
     # aka chunks = all_splits
     chunks: list[Document] = text_splitter.split_documents(documents)
+    # cleaned_chunks = replace_t_with_space(chunks)
     LOGGER.info(f"Split {len(documents)} documents into {len(chunks)} chunks.")
     return chunks
 
