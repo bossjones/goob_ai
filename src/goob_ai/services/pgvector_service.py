@@ -9,10 +9,8 @@ from __future__ import annotations
 
 import logging
 import os
+import uuid
 
-from collections.abc import Sequence
-from dataclasses import dataclass
-from pathlib import Path
 from typing import Any, Callable, List, Literal, Optional, Set, Tuple, Union
 
 from dotenv import load_dotenv
@@ -20,7 +18,7 @@ from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain_community.vectorstores.pgvector import PGVector, _get_embedding_collection_store
 from langchain_core.documents import Document
 from loguru import logger as LOGGER
-from sqlalchemy import create_engine, text
+from sqlalchemy import MetaData, Table, create_engine, select, text, update
 from sqlalchemy.orm import Session
 
 from goob_ai.aio_settings import aiosettings
@@ -47,6 +45,8 @@ from goob_ai.gen_ai.utilities import (
 from goob_ai.utils import file_functions
 
 
+TABLE_COLLECTION = "langchain_pg_collection"
+TABLE_DOCS = "langchain_pg_embedding"
 HERE = os.path.dirname(__file__)
 
 DATA_PATH = os.path.join(HERE, "..", "data", "chroma", "documents")
@@ -58,17 +58,16 @@ EmbeddingStore = _get_embedding_collection_store()[0]
 class PgvectorService:
     """Service class for interacting with PGVector."""
 
-    def __init__(self, connection_string: str):
+    def __init__(self, connection_string: str) -> None:
         """
         Initialize the PgvectorService.
 
         Args:
             connection_string: The connection string for the database.
         """
-        # load_dotenv()
         self.embeddings = OpenAIEmbeddings(openai_api_key=aiosettings.openai_api_key.get_secret_value())
         self.cnx = connection_string
-        self.collections = []
+        self.collections: list[str] = []
         self.engine = create_engine(self.cnx)
         self.EmbeddingStore = EmbeddingStore
 
@@ -98,10 +97,8 @@ class PgvectorService:
         query_vector = self.get_vector(query)
 
         with Session(self.engine) as session:
-            # Using cosine similarity for the vector comparison
             cosine_distance = self.EmbeddingStore.embedding.cosine_distance(query_vector).label("distance")
 
-            # Querying the EmbeddingStore table
             results = (
                 session.query(
                     self.EmbeddingStore.document,
@@ -112,7 +109,6 @@ class PgvectorService:
                 .limit(k)
                 .all()
             )
-        # Calculate the similarity score by subtracting the cosine distance from 1 (_cosine_relevance_score_fn)
         docs = [(Document(page_content=result[0]), 1 - result[2]) for result in results]
 
         return docs
@@ -150,7 +146,6 @@ class PgvectorService:
                 result = connection.execute(query)
                 collections = [row[0] for row in result]
             except:
-                # If the table doesn't exist, return an empty list
                 collections = []
         return collections
 
@@ -185,3 +180,148 @@ class PgvectorService:
                 embedding_function=self.embeddings,
             )
             pgvector.delete_collection()
+
+    def create_collection(
+        self,
+        collection_name: str,
+        documents: list[Document],
+        video_metadata: dict[str, str],
+        pre_delete_collection: bool = False,
+    ) -> tuple[uuid.UUID, list[str]]:
+        """
+        Creates a new collection with the provided name, documents and video metadata.
+
+        Args:
+            collection_name: The name of the collection to create.
+            documents: The list of documents to add to the collection.
+            video_metadata: The metadata associated with the video.
+            pre_delete_collection: Set to True to delete the collection if it already exists.
+
+        Returns:
+            A tuple containing the UUID of the created collection and a list of document IDs.
+        """
+        LOGGER.info(f"Deleting collection: {collection_name}")
+        with self.engine.connect() as connection:
+            collection = PGVector(
+                collection_name=collection_name,
+                connection_string=self.cnx,
+                embedding_function=self.embeddings,
+                use_jsonb=True,
+                connection=connection,
+                pre_delete_collection=pre_delete_collection,
+            )
+
+            collection_id = self.get_collection_id_by_name(collection_name)
+            doc_ids = collection.add_documents(documents)
+
+            return collection_id, doc_ids
+
+    def get_collection_id_by_name(self, collection_name: str, pre_delete_collection: bool = False) -> Optional[str]:
+        """
+        Fetch the collection ID for the given name.
+
+        Args:
+            collection_name: The name of the collection.
+            pre_delete_collection: Set to True to delete the collection if it already exists.
+
+        Returns:
+            The UUID of the collection if found, otherwise None.
+        """
+        LOGGER.info(f"getting collection id for: {collection_name}")
+        with self.engine.connect() as connection:
+            table = Table(TABLE_COLLECTION, MetaData(), autoload_with=connection)
+            query = select(table.c.uuid).where(table.c.name == collection_name)
+            result = connection.execute(query).fetchone()
+
+            return result[0] if result else None
+
+    def get_collection_metadata(self, collection_id: str, pre_delete_collection: bool = False) -> Optional[dict]:
+        """
+        Fetch the collection metadata for the given ID.
+
+        Args:
+            collection_id: The UUID of the collection.
+            pre_delete_collection: Set to True to delete the collection if it already exists.
+
+        Returns:
+            The metadata of the collection if found, otherwise None.
+        """
+        LOGGER.info(f"getting collection metadata for collection id: {collection_id}")
+        with self.engine.connect() as connection:
+            table = Table(TABLE_COLLECTION, MetaData(), autoload_with=connection)
+            query = select(table.c.cmetadata).where(table.c.uuid == collection_id)
+            result = connection.execute(query).fetchone()
+
+        return result[0] if result else None
+
+    def update_collection_metadata(self, collection_id: str, new_metadata: dict) -> Optional[dict]:
+        """
+        Updates the metadata of the collection.
+
+        Args:
+            collection_id: The UUID of the collection.
+            new_metadata: The new metadata to update.
+
+        Returns:
+            The updated metadata of the collection.
+        """
+        LOGGER.info(f"updating collection metadata for collection id: {collection_id}")
+        with self.engine.connect() as connection:
+            table = Table(TABLE_COLLECTION, MetaData(), autoload_with=connection)
+            query = update(table).where(table.c.uuid == collection_id).values(cmetadata=new_metadata)
+
+            connection.execute(query)
+            connection.commit()
+
+        return self.get_collection_metadata(collection_id)
+
+    def list_collections(self) -> list[str]:
+        """
+        Returns a list of all collections in the vector store.
+
+        Returns:
+            A list of collection names.
+        """
+        LOGGER.info("listing collections")
+        with self.engine.connect() as connection:
+            table = Table(TABLE_COLLECTION, MetaData(), autoload_with=connection)
+            query = select(table.c["name"])
+            results = connection.execute(query).fetchall()
+
+        return results
+
+    def get_by_ids(self, ids: list[str]) -> list[str]:
+        """
+        Returns all documents with the provided IDs.
+
+        Args:
+            ids: The list of document IDs.
+
+        Returns:
+            A list of documents.
+        """
+        LOGGER.info(f"get documents by id: {ids}")
+        with self.engine.connect() as connection:
+            table = Table(TABLE_DOCS, MetaData(), autoload_with=connection)
+            query = select(table).where(table.c.id.in_(ids))
+            results = connection.execute(query).fetchall()
+
+        return results
+
+    def get_all_by_collection_id(self, collection_id: str) -> list[str]:
+        """
+        Returns all documents of the collection.
+
+        Args:
+            collection_id: The UUID of the collection.
+
+        Returns:
+            A list of documents.
+        """
+        LOGGER.info(f"get documents by id: {collection_id}")
+        with self.engine.connect() as connection:
+            table = Table(TABLE_DOCS, MetaData(), autoload_with=connection)
+            query = select(table).where(table.c.collection_id == collection_id)
+            results = connection.execute(query).fetchall()
+
+        return results

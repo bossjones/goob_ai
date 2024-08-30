@@ -260,6 +260,8 @@ find-cassettes-dirs:
 
 delete-cassettes:
 	fd -td cassettes -X rm -ri
+# find tests -type d -name "*cassettes*" -print0 | xargs -0 -I {} rm -rfv {}
+
 
 regenerate-cassettes:
 	fd -td cassettes -X rm -ri

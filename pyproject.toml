@@ -588,6 +588,7 @@ markers = [
     "vectorstoronly: marks tests that run code that utilizes the flex_vector_store_tool module (deselect with '-m \"not vectorstoronly\"')",
     "visiontoolonly: marks tests that run code that utilizes vision_tool.py (deselect with '-m \"not visiontoolonly\"')",
     "webpagetoolonly: marks tests that run code that utilizes the fetch_webpage_tool module (deselect with '-m \"not webpagetoolonly\"')",
+    "vcronly: marks tests that run code that utilizes the vcr module (deselect with '-m \"not vcronly\"')",
     "services: marks tests that run code that belongs to the services module  (deselect with '-m \"not services\"')",
 ]
 # filterwarnings = [

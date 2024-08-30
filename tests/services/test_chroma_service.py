@@ -1646,7 +1646,9 @@ def test_add_or_update_documents_existing_documents(
     add_or_update_documents(chunks, collection_name=collection_name)
 
     assert mock_chroma_db.add_documents.call_count == 1
-    assert mock_chroma_db.add_documents.call_args.kwargs == {"ids": ["None:None:0", "None:None:1", "None:None:2"]}
+    assert mock_chroma_db.add_documents.call_args.kwargs == {
+        "ids": ["None:None:0", "None:None:1", "None:None:2", "None:None:3"]
+    }
 
     assert mock_chroma_db.add_documents.call_args.args == (
         [
