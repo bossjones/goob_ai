@@ -13,6 +13,7 @@ from typing import Any, Dict, List, Optional
 
 from langchain.pydantic_v1 import BaseModel, ConfigDict, Field
 from pydantic import SecretStr
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from goob_ai.aio_settings import aiosettings
 
@@ -22,11 +23,14 @@ class EmbeddingsProvider(Enum):
     Cohere = "Cohere"
 
 
-# from pydantic import BaseModel, Field
-
-
 class ChromaIntegration(BaseModel):
-    model_config = ConfigDict(arbitrary_types_allowed=True)
+    class Config:
+        arbitrary_types_allowed = True
+
+    model_config = SettingsConfigDict(
+        extra="ignore",
+        arbitrary_types_allowed=True,
+    )
 
     chromaCollectionName: Optional[str] = Field(
         "chroma",

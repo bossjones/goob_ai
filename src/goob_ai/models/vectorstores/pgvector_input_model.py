@@ -13,6 +13,7 @@ from typing import Any, Dict, List, Optional
 
 from langchain.pydantic_v1 import BaseModel, ConfigDict, Field
 from pydantic import SecretStr
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from goob_ai.aio_settings import aiosettings
 
@@ -23,7 +24,13 @@ class EmbeddingsProvider(Enum):
 
 
 class PgvectorIntegration(BaseModel):
-    model_config = ConfigDict(arbitrary_types_allowed=True)
+    class Config:
+        arbitrary_types_allowed = True
+
+    model_config = SettingsConfigDict(
+        extra="ignore",
+        arbitrary_types_allowed=True,
+    )
     postgresSqlConnectionStr: str = Field(
         aiosettings.postgres_url,
         description="Connection string for the Postgres SQL database in the format `postgresql://user:password@host:port/database`",
