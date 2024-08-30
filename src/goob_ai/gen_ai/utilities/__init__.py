@@ -61,11 +61,6 @@ from goob_ai.aio_settings import aiosettings
 from goob_ai.utils import file_functions
 
 
-HERE = os.path.dirname(__file__)
-
-DATA_PATH = os.path.join(HERE, "..", "data", "chroma", "documents")
-CHROMA_PATH = os.path.join(HERE, "..", "data", "chroma", "vectorstorage")
-CHROMA_PATH_API = Path(CHROMA_PATH)
 WEBBASE_LOADER_PATTERN = r"^https?://[a-zA-Z0-9.-]+\.github\.io(/.*)?$"
 EXCLUDE_KEYS_FROM_CHECKSUM = {"metadata": {"chunk_id", "id", "checksum", "last_seen_at", "item_id"}}
 DAY_IN_SECONDS = 24 * 3600

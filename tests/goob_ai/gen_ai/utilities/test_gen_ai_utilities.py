@@ -35,8 +35,8 @@ import pytest
 
 if TYPE_CHECKING:
     from _pytest.fixtures import FixtureRequest
-    from _pytest.monkeypatch import MonkeyPatch
-    from vcr.request import Request as VCRRequest
+    # from _pytest.monkeypatch import MonkeyPatch
+    # from vcr.request import Request as VCRRequest
 
 
 def test_get_nested_value() -> None:
