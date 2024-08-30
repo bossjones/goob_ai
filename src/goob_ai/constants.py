@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import enum
+
 
 ONE_MILLION = 1000000
 FIVE_HUNDRED_THOUSAND = 500000
@@ -83,3 +85,20 @@ MAX_THREAD_MESSAGES = 200
 ACTIVATE_THREAD_PREFX = "💬✅"
 INACTIVATE_THREAD_PREFIX = "💬❌"
 MAX_CHARS_PER_REPLY_MSG = 1500  # discord has a 2k limit, we just break message into 1.5k
+
+
+DAY_IN_SECONDS = 24 * 3600
+
+
+class SupportedVectorStores(str, enum.Enum):
+    chroma = "chroma"
+    milvus = "milvus"
+    pgvector = "pgvector"
+    pinecone = "pinecone"
+    qdrant = "qdrant"
+    weaviate = "weaviate"
+
+
+class SupportedEmbeddings(str, enum.Enum):
+    openai = "OpenAI"
+    cohere = "Cohere"

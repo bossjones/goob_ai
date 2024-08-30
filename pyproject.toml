@@ -139,9 +139,15 @@ dependencies = [
     "jedi-language-server>=0.41.4",
     "requests-toolbelt>=1.0.0",
     "pdf2image>=1.17.0",
-    "unstructured[all-docs]==0.10.19",
+    "unstructured[all-docs]==0.15.8",
     "jq>=1.8.0",
     "pyinstrument>=4.7.2",
+    "langchain-postgres>=0.0.9",
+    "langchain-pinecone>=0.1.3",
+    "rank-bm25>=0.2.2",
+    "faiss-cpu>=1.8.0.post1",
+    "pytesseract>=0.3.13",
+    "python-decouple>=3.8",
 ]
 
 readme = "README.md"
@@ -355,6 +361,7 @@ open-all = {chain = [
     "open:otel",
 ]}
 unittests-debug = {cmd = "pytest -s -vv --diff-width=60 --diff-symbols --pdb --pdbcls bpdb:BPdb --showlocals --tb=short --cov-append --cov-report=term-missing --junitxml=junit/test-results.xml --cov-report=xml:cov.xml --cov-report=html:htmlcov --cov-report=annotate:cov_annotate --cov=."}
+unittests-debug-services = {cmd = "pytest -m services -s -vv --diff-width=60 --diff-symbols --pdb --pdbcls bpdb:BPdb --showlocals --tb=short --cov-append --cov-report=term-missing --junitxml=junit/test-results.xml --cov-report=xml:cov.xml --cov-report=html:htmlcov --cov-report=annotate:cov_annotate --cov=."}
 profile-unittests-debug = {cmd = "pyinstrument -m pytest -s -vv --diff-width=60 --diff-symbols --pdb --pdbcls bpdb:BPdb --showlocals --tb=short --cov-append --cov-report=term-missing --junitxml=junit/test-results.xml --cov-report=xml:cov.xml --cov-report=html:htmlcov --cov-report=annotate:cov_annotate --cov=."}
 spy-unittests-debug = {cmd = "py-spy top -- python -m pytest -s -vv --diff-width=60 --diff-symbols --pdb --pdbcls bpdb:BPdb --showlocals --tb=short --cov-append --cov-report=term-missing --junitxml=junit/test-results.xml --cov-report=xml:cov.xml --cov-report=html:htmlcov --cov-report=annotate:cov_annotate --cov=."}
 unittests = {cmd = "pytest --verbose --showlocals --tb=short --cov-append --cov-report=term-missing --junitxml=junit/test-results.xml --cov-report=xml:cov.xml --cov-report=html:htmlcov --cov-report=annotate:cov_annotate --cov=."}
@@ -586,6 +593,7 @@ markers = [
     "vectorstoronly: marks tests that run code that utilizes the flex_vector_store_tool module (deselect with '-m \"not vectorstoronly\"')",
     "visiontoolonly: marks tests that run code that utilizes vision_tool.py (deselect with '-m \"not visiontoolonly\"')",
     "webpagetoolonly: marks tests that run code that utilizes the fetch_webpage_tool module (deselect with '-m \"not webpagetoolonly\"')",
+    "vcronly: marks tests that run code that utilizes the vcr module (deselect with '-m \"not vcronly\"')",
     "services: marks tests that run code that belongs to the services module  (deselect with '-m \"not services\"')",
 ]
 # filterwarnings = [
@@ -1206,6 +1214,7 @@ select = [
 # SOURCE: https://github.com/ansible-collections/cloud-content-handbook/blob/9be137d78af4d1cc140b210f3058977164021c9d/proposals/ruff_transition.md - end
 # Conflicts with the formatter
 ignore = [
+    "N815",
     "PLW0603",
     "D",
     "COM812",
@@ -1385,6 +1394,7 @@ max-complexity = 31 # C901: Recommended goal is 10
 
 # 4. Ignore `E402` (import violations) in all `__init__.py` files, and in select subdirectories.
 [tool.ruff.lint.per-file-ignores]
+"src/goob_ai/gen_ai/models/vectorstores/*" = ["N815"]
 "__init__.py" = ["F401", "E402"]
 "**/{tests,docs,doc}/*" = ["E402"]
 # https://github.com/astral-sh/ruff/issues/3928

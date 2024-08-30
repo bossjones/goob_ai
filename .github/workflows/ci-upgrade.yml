@@ -122,6 +122,11 @@ jobs:
           sudo apt install ffmpeg -y
           sudo apt-get install autoconf automake build-essential libtool python3-dev libsqlite3-dev -y
 
+          echo "install deps for llm_aided_ocr"
+          sudo apt-get install -y build-essential libssl-dev zlib1g-dev libbz2-dev \
+          libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev libncursesw5-dev \
+          xz-utils tk-dev libffi-dev liblzma-dev python3-openssl git
+
       # Allow debugging with tmate
       - name: Setup tmate session
         uses: mxschmitt/action-tmate@v3

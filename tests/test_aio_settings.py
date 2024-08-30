@@ -83,3 +83,75 @@ class TestSettings:
         assert test_settings.openai_api_key == "fake_openai_key"
         assert test_settings.pinecone_api_key == "fake_pinecone_key"
         assert test_settings.pinecone_index == "fake_test_index"
+
+    def test_postgres_defaults(self):
+        test_settings = aio_settings.AioSettings()
+        assert test_settings.postgres_host == "localhost"
+        assert test_settings.postgres_port == 7432
+        assert test_settings.postgres_password == "langchain"
+        assert test_settings.postgres_driver == "psycopg"
+        assert test_settings.postgres_database == "langchain"
+        assert test_settings.postgres_collection_name == "langchain"
+        assert test_settings.postgres_user == "langchain"
+        assert test_settings.enable_postgres == True
+
+    def test_postgres_url(self):
+        test_settings = aio_settings.AioSettings()
+        expected_url = "postgresql+psycopg://langchain:langchain@localhost:7432/langchain"
+        assert test_settings.postgres_url == expected_url
+
+    @pytest.mark.parametrize(
+        "host,port,user,password,driver,database,expected",
+        [
+            (
+                "testhost",
+                5432,
+                "testuser",
+                "testpass",
+                "postgresql",
+                "testdb",
+                "postgresql+postgresql://testuser:testpass@testhost:5432/testdb",
+            ),
+            (
+                "127.0.0.1",
+                5433,
+                "admin",
+                "securepass",
+                "psycopg2",
+                "production",
+                "postgresql+psycopg2://admin:securepass@127.0.0.1:5433/production",
+            ),
+        ],
+    )
+    def test_custom_postgres_url(self, host, port, user, password, driver, database, expected):
+        custom_settings = aio_settings.AioSettings(
+            postgres_host=host,
+            postgres_port=port,
+            postgres_user=user,
+            postgres_password=password,
+            postgres_driver=driver,
+            postgres_database=database,
+        )
+        assert custom_settings.postgres_url == expected
+
+    @pytest.mark.asyncio()
+    async def test_postgres_env_variables(self, monkeypatch):
+        monkeypatch.setenv("GOOB_AI_CONFIG_POSTGRES_HOST", "envhost")
+        monkeypatch.setenv("GOOB_AI_CONFIG_POSTGRES_PORT", "5555")
+        monkeypatch.setenv("GOOB_AI_CONFIG_POSTGRES_USER", "envuser")
+        monkeypatch.setenv("GOOB_AI_CONFIG_POSTGRES_PASSWORD", "envpass")
+        monkeypatch.setenv("GOOB_AI_CONFIG_POSTGRES_DRIVER", "envdriver")
+        monkeypatch.setenv("GOOB_AI_CONFIG_POSTGRES_DATABASE", "envdb")
+        monkeypatch.setenv("GOOB_AI_CONFIG_ENABLE_POSTGRES", "false")
+
+        test_settings = aio_settings.AioSettings()
+        assert test_settings.postgres_host == "envhost"
+        assert test_settings.postgres_port == 5555
+        assert test_settings.postgres_user == "envuser"
+        assert test_settings.postgres_password == "envpass"
+        assert test_settings.postgres_driver == "envdriver"
+        assert test_settings.postgres_database == "envdb"
+        assert test_settings.enable_postgres == False
+
+        expected_url = "postgresql+envdriver://envuser:envpass@envhost:5555/envdb"
+        assert test_settings.postgres_url == expected_url

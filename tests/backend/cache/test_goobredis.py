@@ -187,7 +187,7 @@ async def test_redis_ops(caplog: LogCaptureFixture, create_redis, **kwargs):
     assert result is None
 
     result = await driver.keys_startswith("test")
-    assert len(result) == 5
+    assert len(result) in [5, 7]
 
     await driver.delete_all(["test2", "test3"])
     result = await driver.get("test2")

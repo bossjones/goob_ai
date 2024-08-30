@@ -236,6 +236,9 @@ class AioSettings(BaseSettings):
     pinecone_env: str = Field(env="PINECONE_ENV", description="pinecone env", default="")
     pinecone_index: str = Field(env="PINECONE_INDEX", description="pinecone index", default="")
 
+    unstructured_api_key: SecretStr = Field(env="UNSTRUCTURED_API_KEY", description="unstructured api key", default="")
+    unstructured_api_url: str = Field(env="UNSTRUCTURED_API_URL", description="unstructured api url", default="")
+
     anthropic_api_key: SecretStr = Field(env="ANTHROPIC_API_KEY", description="claude api key", default="")
     groq_api_key: SecretStr = Field(env="GROQ_API_KEY", description="groq api key", default="")
     cohere_api_key: SecretStr = Field(env="COHERE_API_KEY", description="cohere api key", default="")
@@ -274,6 +277,33 @@ class AioSettings(BaseSettings):
     oco_prompt_module: str = Field(
         env="OCO_PROMPT_MODULE", description="OCO_PROMPT_MODULE", default="conventional-commit"
     )
+
+    # Variables for Postgres/pgvector
+    # CONNECTION_STRING = PGVector.connection_string_from_db_params(
+    #     driver=os.environ.get("PGVECTOR_DRIVER", "psycopg"),
+    #     host=os.environ.get("PGVECTOR_HOST", "localhost"),
+    #     port=int(os.environ.get("PGVECTOR_PORT", "6432")),
+    #     database=os.environ.get("PGVECTOR_DATABASE", "langchain"),
+    #     user=os.environ.get("PGVECTOR_USER", "langchain"),
+    #     password=os.environ.get("PGVECTOR_PASSWORD", "langchain"),
+    # )
+    postgres_host: str = "localhost"
+    postgres_port: int = 7432
+    postgres_password: Optional[str] = "langchain"
+    postgres_driver: Optional[str] = "psycopg"
+    postgres_database: Optional[str] = "langchain"
+    postgres_collection_name: Optional[str] = "langchain"
+    postgres_user: Optional[str] = "langchain"
+    enable_postgres: bool = True
+
+    @property
+    def postgres_url(self) -> URL:
+        """
+        Assemble postgres URL from settings.
+
+        :return: postgres URL.
+        """
+        return f"postgresql+{self.postgres_driver}://{self.postgres_user}:{self.postgres_password}@{self.postgres_host}:{self.postgres_port}/{self.postgres_database}"
 
     @property
     def redis_url(self) -> URL:

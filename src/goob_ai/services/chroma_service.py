@@ -63,6 +63,38 @@ from tqdm import tqdm
 
 from goob_ai import llm_manager, redis_memory
 from goob_ai.aio_settings import aiosettings
+from goob_ai.gen_ai.utilities import (
+    WEBBASE_LOADER_PATTERN,
+    calculate_chunk_ids,
+    franchise_metadata,
+    generate_document_hashes,
+    get_file_extension,
+    get_nested_value,
+    get_rag_embedding_function,
+    get_rag_loader,
+    get_rag_splitter,
+    get_suffix,
+    is_github_io_url,
+    is_pdf,
+    is_txt,
+    is_valid_uri,
+    markdown_to_documents,
+    remove_leading_period,
+    string_to_doc,
+    stringify_dict,
+)
+from goob_ai.services import (
+    answer_question_from_context,
+    bm25_retrieval,
+    create_question_answer_from_context_chain,
+    encode_from_string,
+    encode_pdf,
+    read_pdf_to_string,
+    replace_t_with_space,
+    retrieve_context_per_question,
+    show_context,
+    text_wrap,
+)
 from goob_ai.utils import file_functions
 
 
@@ -164,115 +196,115 @@ async def llm_query(
     return (response_text.content, sources)
 
 
-# SOURCE: https://github.com/RSC-NA/rsc/blob/69f8ce29a6e38a960515564bf84fbd1d809468d8/rsc/llm/create_db.py#L176
-async def string_to_doc(text: str) -> Document:
-    """
-    Convert a string to a Document object.
+# # SOURCE: https://github.com/RSC-NA/rsc/blob/69f8ce29a6e38a960515564bf84fbd1d809468d8/rsc/llm/create_db.py#L176
+# async def string_to_doc(text: str) -> Document:
+#     """
+#     Convert a string to a Document object.
 
-    Args:
-        text (str): The input string to convert.
+#     Args:
+#         text (str): The input string to convert.
 
-    Returns:
-        Document: The converted Document object.
-    """
-    return Document(page_content=text)
-
-
-# SOURCE: https://github.com/RSC-NA/rsc/blob/69f8ce29a6e38a960515564bf84fbd1d809468d8/rsc/llm/create_db.py#L176
-async def markdown_to_documents(docs: list[Document]) -> list[Document]:
-    """
-    Split Markdown documents into smaller chunks.
-
-    Args:
-        docs (list[Document]): The list of Markdown documents to split.
-
-    Returns:
-        list[Document]: The list of split document chunks.
-    """
-    md_splitter = MarkdownTextSplitter()
-    return md_splitter.split_documents(docs)
-
-
-# SOURCE: https://github.com/RSC-NA/rsc/blob/69f8ce29a6e38a960515564bf84fbd1d809468d8/rsc/llm/create_db.py#L176
-def franchise_metadata(record: dict, metadata: dict) -> dict:
-    """
-    Update the metadata dictionary with franchise-specific information.
-
-    Args:
-        record (dict): The record dictionary.
-        metadata (dict): The metadata dictionary to update.
-
-    Returns:
-        dict: The updated metadata dictionary.
-    """
-    LOGGER.debug(f"Metadata: {metadata}")
-    metadata["source"] = "API"
-    return metadata
+#     Returns:
+#         Document: The converted Document object.
+#     """
+#     return Document(page_content=text)
 
 
 # # SOURCE: https://github.com/RSC-NA/rsc/blob/69f8ce29a6e38a960515564bf84fbd1d809468d8/rsc/llm/create_db.py#L176
-# async def json_to_docs(data: str, jq_schema: str, metadata_func: Callable | None) -> list[Document]:
+# async def markdown_to_documents(docs: list[Document]) -> list[Document]:
 #     """
-#     Convert JSON data to a list of Document objects.
+#     Split Markdown documents into smaller chunks.
 
 #     Args:
-#         data (str): The JSON data as a string.
-#         jq_schema (str): The jq schema to apply to the JSON data.
-#         metadata_func (Callable | None): The function to apply to the metadata.
+#         docs (list[Document]): The list of Markdown documents to split.
 
 #     Returns:
-#         list[Document]: The list of converted Document objects.
+#         list[Document]: The list of split document chunks.
 #     """
-#     with tempfile.NamedTemporaryFile() as fd:
-#         if isinstance(data, str):
-#             fd.write(data.encode("utf-8"))
-#         elif isinstance(data, bytes):
-#             fd.write(data)
+#     md_splitter = MarkdownTextSplitter()
+#     return md_splitter.split_documents(docs)
+
+
+# # SOURCE: https://github.com/RSC-NA/rsc/blob/69f8ce29a6e38a960515564bf84fbd1d809468d8/rsc/llm/create_db.py#L176
+# def franchise_metadata(record: dict, metadata: dict) -> dict:
+#     """
+#     Update the metadata dictionary with franchise-specific information.
+
+#     Args:
+#         record (dict): The record dictionary.
+#         metadata (dict): The metadata dictionary to update.
+
+#     Returns:
+#         dict: The updated metadata dictionary.
+#     """
+#     LOGGER.debug(f"Metadata: {metadata}")
+#     metadata["source"] = "API"
+#     return metadata
+
+
+# # # SOURCE: https://github.com/RSC-NA/rsc/blob/69f8ce29a6e38a960515564bf84fbd1d809468d8/rsc/llm/create_db.py#L176
+# # async def json_to_docs(data: str, jq_schema: str, metadata_func: Callable | None) -> list[Document]:
+# #     """
+# #     Convert JSON data to a list of Document objects.
+
+# #     Args:
+# #         data (str): The JSON data as a string.
+# #         jq_schema (str): The jq schema to apply to the JSON data.
+# #         metadata_func (Callable | None): The function to apply to the metadata.
+
+# #     Returns:
+# #         list[Document]: The list of converted Document objects.
+# #     """
+# #     with tempfile.NamedTemporaryFile() as fd:
+# #         if isinstance(data, str):
+# #             fd.write(data.encode("utf-8"))
+# #         elif isinstance(data, bytes):
+# #             fd.write(data)
+# #         else:
+# #             raise TypeError("JSON data must be str or bytes")
+# #         loader = JSONLoader(
+# #             file_path=fd.name,
+# #             jq_schema=jq_schema,
+# #             text_content=False,
+# #             metadata_func=franchise_metadata,
+# #         )
+# #         chunks = loader.load()
+
+# #     return chunks
+
+
+# # SOURCE: https://github.com/RSC-NA/rsc/blob/69f8ce29a6e38a960515564bf84fbd1d809468d8/rsc/llm/create_db.py#L176
+# async def generate_document_hashes(docs: list[Document]) -> list[str]:
+#     """
+#     Generate hashes for a list of Document objects.
+
+#     Args:
+#         docs (list[Document]): The list of Document objects to generate hashes for.
+
+#     Returns:
+#         list[str]: The list of generated hashes.
+#     """
+#     hashes = []
+#     for doc in docs:
+#         source = doc.metadata.get("source")
+#         api_id = doc.metadata.get("id")
+
+#         if source and api_id:
+#             ident = f"{source}/{api_id}"
+#         elif source:
+#             ident = f"{source}"
+#         elif api_id:
+#             LOGGER.warning(f"LLM Document has no source: {doc.page_content[:50]}")
+#             ident = f"{api_id}"
 #         else:
-#             raise TypeError("JSON data must be str or bytes")
-#         loader = JSONLoader(
-#             file_path=fd.name,
-#             jq_schema=jq_schema,
-#             text_content=False,
-#             metadata_func=franchise_metadata,
-#         )
-#         chunks = loader.load()
+#             LOGGER.warning(f"LLM Document has no metadata: {doc.page_content[:50]}")
+#             ident = doc.page_content
 
-#     return chunks
+#         hash = hashlib.sha256(ident.encode("utf-8")).hexdigest()
+#         hashes.append(hash)
 
-
-# SOURCE: https://github.com/RSC-NA/rsc/blob/69f8ce29a6e38a960515564bf84fbd1d809468d8/rsc/llm/create_db.py#L176
-async def generate_document_hashes(docs: list[Document]) -> list[str]:
-    """
-    Generate hashes for a list of Document objects.
-
-    Args:
-        docs (list[Document]): The list of Document objects to generate hashes for.
-
-    Returns:
-        list[str]: The list of generated hashes.
-    """
-    hashes = []
-    for doc in docs:
-        source = doc.metadata.get("source")
-        api_id = doc.metadata.get("id")
-
-        if source and api_id:
-            ident = f"{source}/{api_id}"
-        elif source:
-            ident = f"{source}"
-        elif api_id:
-            LOGGER.warning(f"LLM Document has no source: {doc.page_content[:50]}")
-            ident = f"{api_id}"
-        else:
-            LOGGER.warning(f"LLM Document has no metadata: {doc.page_content[:50]}")
-            ident = doc.page_content
-
-        hash = hashlib.sha256(ident.encode("utf-8")).hexdigest()
-        hashes.append(hash)
-
-    await LOGGER.complete()
-    return hashes
+#     await LOGGER.complete()
+#     return hashes
 
 
 # SOURCE: https://github.com/RSC-NA/rsc/blob/69f8ce29a6e38a960515564bf84fbd1d809468d8/rsc/llm/create_db.py#L176
@@ -359,52 +391,8 @@ def compare_two_words(w1: str, w2: str) -> None:
     # Compare vector of two words
     evaluator = load_evaluator("pairwise_embedding_distance")
     words = (w1, w2)
-    x = evaluator.evaluate_string_pairs(prediction=words[0], prediction_b=words[1])
+    x = evaluator.evaluate_string_pairs(prediction=words[0], prediction_b=words[1])  # type: ignore
     LOGGER.info(f"Comparing ({words[0]}, {words[1]}): {x}")
-
-
-# SOURCE: https://github.com/divyeg/meakuchatbot_project/blob/0c4483ce4bebce923233cf2a1139f089ac5d9e53/createVectorDB.ipynb#L203
-def calculate_chunk_ids(chunks: list[Document]) -> list[Document]:
-    """
-    Calculate chunk IDs for a list of document chunks.
-
-    This function calculates chunk IDs in the format "data/monopoly.pdf:6:2",
-    where "data/monopoly.pdf" is the page source, "6" is the page number, and
-    "2" is the chunk index.
-
-    Args:
-        chunks (list[Document]): The list of document chunks.
-
-    Returns:
-        list[Document]: The list of document chunks with chunk IDs added to their metadata.
-    """
-    # This will create IDs like "data/monopoly.pdf:6:2"
-    # Page Source : Page Number : Chunk Index
-    # USAGE: chunks_with_ids = calculate_chunk_ids(chunks)
-
-    last_page_id = None
-    current_chunk_index = 0
-
-    for chunk in chunks:
-        source = chunk.metadata.get("source")
-        page = chunk.metadata.get("page")
-        current_page_id = f"{source}:{page}"
-
-        # If the page ID is the same as the last one, increment the index.
-        if current_page_id == last_page_id:
-            current_chunk_index += 1
-        else:
-            current_chunk_index = 0
-
-        # Calculate the chunk ID.
-        chunk_id = f"{current_page_id}:{current_chunk_index}"
-        # LOGGER.debug(f"chunk_id: {chunk_id}")
-        last_page_id = current_page_id
-
-        # Add it to the page meta-data.
-        chunk.metadata["id"] = chunk_id
-
-    return chunks
 
 
 # SOURCE: https://github.com/divyeg/meakuchatbot_project/blob/0c4483ce4bebce923233cf2a1139f089ac5d9e53/createVectorDB.ipynb#L203
@@ -525,194 +513,194 @@ def add_or_update_documents(
 # Saved 10 chunks to input_data/chroma.
 
 
-def get_suffix(filename: str) -> str:
-    """Get the file extension from the given filename.
+# def get_suffix(filename: str) -> str:
+#     """Get the file extension from the given filename.
 
-    Args:
-        filename: The name of the file.
+#     Args:
+#         filename: The name of the file.
 
-    Returns:
-        The file extension in lowercase without the leading period.
-    """
-    ext = get_file_extension(filename)
-    ext_without_period = remove_leading_period(ext)
-    LOGGER.debug(f"ext: {ext}, ext_without_period: {ext_without_period}")
-    return ext
-
-
-def get_file_extension(filename: str) -> str:
-    """Get the file extension from the given filename.
-
-    Args:
-        filename: The name of the file.
-
-    Returns:
-        The file extension in lowercase.
-    """
-    return pathlib.Path(filename).suffix.lower()
+#     Returns:
+#         The file extension in lowercase without the leading period.
+#     """
+#     ext = get_file_extension(filename)
+#     ext_without_period = remove_leading_period(ext)
+#     LOGGER.debug(f"ext: {ext}, ext_without_period: {ext_without_period}")
+#     return ext
 
 
-def remove_leading_period(ext: str) -> str:
-    """Remove the leading period from the file extension.
+# def get_file_extension(filename: str) -> str:
+#     """Get the file extension from the given filename.
 
-    Args:
-        ext: The file extension.
+#     Args:
+#         filename: The name of the file.
 
-    Returns:
-        The file extension without the leading period.
-    """
-    return ext.replace(".", "")
-
-
-def is_pdf(filename: str) -> bool:
-    """Check if the given filename has a PDF extension.
-
-    Args:
-        filename: The name of the file.
-
-    Returns:
-        True if the file has a PDF extension, False otherwise.
-    """
-    suffix = get_suffix(filename)
-    res = suffix in file_functions.PDF_EXTENSIONS
-    LOGGER.debug(f"res: {res}")
-    return res
+#     Returns:
+#         The file extension in lowercase.
+#     """
+#     return pathlib.Path(filename).suffix.lower()
 
 
-def is_txt(filename: str) -> bool:
-    """Check if the given filename has a text extension.
+# def remove_leading_period(ext: str) -> str:
+#     """Remove the leading period from the file extension.
 
-    Args:
-        filename: The name of the file.
+#     Args:
+#         ext: The file extension.
 
-    Returns:
-        True if the file has a text extension, False otherwise.
-    """
-    suffix = get_suffix(filename)
-    res = suffix in file_functions.TXT_EXTENSIONS
-    LOGGER.debug(f"res: {res}")
-    return res
+#     Returns:
+#         The file extension without the leading period.
+#     """
+#     return ext.replace(".", "")
 
 
-def is_valid_uri(uri: str) -> bool:
-    """
-    Check if the given URI is valid.
+# def is_pdf(filename: str) -> bool:
+#     """Check if the given filename has a PDF extension.
 
-    Args:
-        uri (str): The URI to check.
+#     Args:
+#         filename: The name of the file.
 
-    Returns:
-        bool: True if the URI is valid, False otherwise.
-    """
-    parts = uritools.urisplit(uri)
-    return parts.isuri()
-
-
-def is_github_io_url(filename: str) -> bool:
-    """
-    Check if the given filename is a valid GitHub Pages URL.
-
-    Args:
-        filename (str): The filename to check.
-
-    Returns:
-        bool: True if the filename is a valid GitHub Pages URL, False otherwise.
-    """
-    if re.match(WEBBASE_LOADER_PATTERN, filename) and is_valid_uri(filename):
-        LOGGER.debug("selected filetype github.io url, using WebBaseLoader(filename)")
-        return True
-    return False
+#     Returns:
+#         True if the file has a PDF extension, False otherwise.
+#     """
+#     suffix = get_suffix(filename)
+#     res = suffix in file_functions.PDF_EXTENSIONS
+#     LOGGER.debug(f"res: {res}")
+#     return res
 
 
-def get_rag_loader(filename: str) -> TextLoader | PyMuPDFLoader | WebBaseLoader | None:
-    """Get the appropriate loader for the given filename.
+# def is_txt(filename: str) -> bool:
+#     """Check if the given filename has a text extension.
 
-    Args:
-        filename: The name of the file.
+#     Args:
+#         filename: The name of the file.
 
-    Returns:
-        The loader for the given file type, or None if the file type is not supported.
-    """
-    if is_github_io_url(f"{filename}"):
-        return WebBaseLoader(
-            web_paths=(f"{filename}",),
-            bs_kwargs=dict(parse_only=bs4.SoupStrainer(class_=("post-content", "post-title", "post-header"))),
-        )
-    elif is_txt(filename):
-        LOGGER.debug("selected filetype txt, using TextLoader(filename)")
-        return TextLoader(filename)
-    elif is_pdf(filename):
-        LOGGER.debug("selected filetype pdf, using PyMuPDFLoader(filename)")
-        return PyMuPDFLoader(filename, extract_images=True)
-    else:
-        LOGGER.debug(f"selected filetype UNKNOWN, using None. uri: {filename}")
-        return None
+#     Returns:
+#         True if the file has a text extension, False otherwise.
+#     """
+#     suffix = get_suffix(filename)
+#     res = suffix in file_functions.TXT_EXTENSIONS
+#     LOGGER.debug(f"res: {res}")
+#     return res
 
 
-def get_rag_splitter(filename: str, chunk_size: int = 1000, chunk_overlap: int = 200) -> CharacterTextSplitter | None:
-    """
-    Get the appropriate text splitter for the given filename.
+# def is_valid_uri(uri: str) -> bool:
+#     """
+#     Check if the given URI is valid.
 
-    This function determines the type of the given filename and returns the
-    appropriate text splitter for it. It supports splitting text files and
-    URLs matching the pattern for GitHub Pages.
+#     Args:
+#         uri (str): The URI to check.
 
-    Args:
-        filename (str): The name of the file to split.
-
-    Returns:
-        CharacterTextSplitter | None: The text splitter for the given file,
-        or None if the file type is not supported.
-    """
-    LOGGER.debug(f"get_rag_splitter(filename={filename}, chunk_size={chunk_size}, chunk_overlap={chunk_overlap})")
-
-    if is_github_io_url(f"{filename}"):
-        LOGGER.debug(
-            f"selected filetype github.io url, usingRecursiveCharacterTextSplitter(chunk_size={chunk_size}, chunk_overlap={chunk_overlap})"
-        )
-        return RecursiveCharacterTextSplitter(chunk_size=chunk_size, chunk_overlap=chunk_overlap)
-    elif is_txt(filename):
-        LOGGER.debug(f"selected filetype txt, using CharacterTextSplitter(chunk_size={chunk_size}, chunk_overlap=0)")
-        return CharacterTextSplitter(chunk_size=chunk_size, chunk_overlap=0)
-    else:
-        LOGGER.debug(f"selected filetype UNKNOWN, using None. uri: {filename}")
-        return None
+#     Returns:
+#         bool: True if the URI is valid, False otherwise.
+#     """
+#     parts = uritools.urisplit(uri)
+#     return parts.isuri()
 
 
-def get_rag_embedding_function(
-    filename: str, disallowed_special: Union[Literal["all"], set[str], Sequence[str], None] = None
-) -> SentenceTransformerEmbeddings | OpenAIEmbeddings | None:
-    """
-    Get the appropriate embedding function for the given filename.
+# def is_github_io_url(filename: str) -> bool:
+#     """
+#     Check if the given filename is a valid GitHub Pages URL.
 
-    This function determines the type of the given filename and returns the
-    appropriate embedding function for it. It supports embedding text files,
-    PDF files, and URLs matching the pattern for GitHub Pages.
+#     Args:
+#         filename (str): The filename to check.
 
-    Args:
-        filename (str): The name of the file to embed.
+#     Returns:
+#         bool: True if the filename is a valid GitHub Pages URL, False otherwise.
+#     """
+#     if re.match(WEBBASE_LOADER_PATTERN, filename) and is_valid_uri(filename):
+#         LOGGER.debug("selected filetype github.io url, using WebBaseLoader(filename)")
+#         return True
+#     return False
 
-    Returns:
-        SentenceTransformerEmbeddings | OpenAIEmbeddings | None: The embedding function for the given file,
-        or None if the file type is not supported.
-    """
 
-    if is_github_io_url(f"{filename}"):
-        LOGGER.debug(
-            f"selected filetype github.io url, using OpenAIEmbeddings(disallowed_special={disallowed_special})"
-        )
-        return OpenAIEmbeddings(disallowed_special=disallowed_special)
-    elif is_txt(filename):
-        LOGGER.debug(
-            f'selected filetype txt, using SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2", disallowed_special={disallowed_special})'
-        )
-        return SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2")
-    elif is_pdf(filename):
-        LOGGER.debug(f"selected filetype pdf, using OpenAIEmbeddings(disallowed_special={disallowed_special})")
-        return OpenAIEmbeddings(disallowed_special=disallowed_special)
-    else:
-        LOGGER.debug(f"selected filetype UNKNOWN, using None. uri: {filename}")
-        return None
+# def get_rag_loader(filename: str) -> TextLoader | PyMuPDFLoader | WebBaseLoader | None:
+#     """Get the appropriate loader for the given filename.
+
+#     Args:
+#         filename: The name of the file.
+
+#     Returns:
+#         The loader for the given file type, or None if the file type is not supported.
+#     """
+#     if is_github_io_url(f"{filename}"):
+#         return WebBaseLoader(
+#             web_paths=(f"{filename}",),
+#             bs_kwargs=dict(parse_only=bs4.SoupStrainer(class_=("post-content", "post-title", "post-header"))),
+#         )
+#     elif is_txt(filename):
+#         LOGGER.debug("selected filetype txt, using TextLoader(filename)")
+#         return TextLoader(filename)
+#     elif is_pdf(filename):
+#         LOGGER.debug("selected filetype pdf, using PyMuPDFLoader(filename)")
+#         return PyMuPDFLoader(filename, extract_images=True)
+#     else:
+#         LOGGER.debug(f"selected filetype UNKNOWN, using None. uri: {filename}")
+#         return None
+
+
+# def get_rag_splitter(filename: str, chunk_size: int = 1000, chunk_overlap: int = 200) -> CharacterTextSplitter | None:
+#     """
+#     Get the appropriate text splitter for the given filename.
+
+#     This function determines the type of the given filename and returns the
+#     appropriate text splitter for it. It supports splitting text files and
+#     URLs matching the pattern for GitHub Pages.
+
+#     Args:
+#         filename (str): The name of the file to split.
+
+#     Returns:
+#         CharacterTextSplitter | None: The text splitter for the given file,
+#         or None if the file type is not supported.
+#     """
+#     LOGGER.debug(f"get_rag_splitter(filename={filename}, chunk_size={chunk_size}, chunk_overlap={chunk_overlap})")
+
+#     if is_github_io_url(f"{filename}"):
+#         LOGGER.debug(
+#             f"selected filetype github.io url, usingRecursiveCharacterTextSplitter(chunk_size={chunk_size}, chunk_overlap={chunk_overlap})"
+#         )
+#         return RecursiveCharacterTextSplitter(chunk_size=chunk_size, chunk_overlap=chunk_overlap)
+#     elif is_txt(filename):
+#         LOGGER.debug(f"selected filetype txt, using CharacterTextSplitter(chunk_size={chunk_size}, chunk_overlap=0)")
+#         return CharacterTextSplitter(chunk_size=chunk_size, chunk_overlap=0)
+#     else:
+#         LOGGER.debug(f"selected filetype UNKNOWN, using None. uri: {filename}")
+#         return None
+
+
+# def get_rag_embedding_function(
+#     filename: str, disallowed_special: Union[Literal["all"], set[str], Sequence[str], None] = None
+# ) -> SentenceTransformerEmbeddings | OpenAIEmbeddings | None:
+#     """
+#     Get the appropriate embedding function for the given filename.
+
+#     This function determines the type of the given filename and returns the
+#     appropriate embedding function for it. It supports embedding text files,
+#     PDF files, and URLs matching the pattern for GitHub Pages.
+
+#     Args:
+#         filename (str): The name of the file to embed.
+
+#     Returns:
+#         SentenceTransformerEmbeddings | OpenAIEmbeddings | None: The embedding function for the given file,
+#         or None if the file type is not supported.
+#     """
+
+#     if is_github_io_url(f"{filename}"):
+#         LOGGER.debug(
+#             f"selected filetype github.io url, using OpenAIEmbeddings(disallowed_special={disallowed_special})"
+#         )
+#         return OpenAIEmbeddings(disallowed_special=disallowed_special)
+#     elif is_txt(filename):
+#         LOGGER.debug(
+#             f'selected filetype txt, using SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2", disallowed_special={disallowed_special})'
+#         )
+#         return SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2")
+#     elif is_pdf(filename):
+#         LOGGER.debug(f"selected filetype pdf, using OpenAIEmbeddings(disallowed_special={disallowed_special})")
+#         return OpenAIEmbeddings(disallowed_special=disallowed_special)
+#     else:
+#         LOGGER.debug(f"selected filetype UNKNOWN, using None. uri: {filename}")
+#         return None
 
 
 def get_client(
@@ -1045,6 +1033,7 @@ def split_text(
     )
     # aka chunks = all_splits
     chunks: list[Document] = text_splitter.split_documents(documents)
+    # cleaned_chunks = replace_t_with_space(chunks)
     LOGGER.info(f"Split {len(documents)} documents into {len(chunks)} chunks.")
     return chunks
 

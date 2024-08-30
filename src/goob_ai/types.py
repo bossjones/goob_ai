@@ -12,14 +12,12 @@ import pathlib
 from collections.abc import Coroutine, Mapping
 from collections.abc import Sequence as Seq
 from types import TracebackType
-from typing import Any, Callable, Dict, List, NewType, Tuple, Type, TypedDict, TypeVar, Union
+from typing import TYPE_CHECKING, Any, Callable, Dict, List, NewType, Tuple, Type, TypeAlias, TypedDict, TypeVar, Union
 from typing import runtime_checkable as runtime_checkable
 
 import httpx
 import numpy as np
 
-
-# from pydantic import BaseModel
 from langchain.pydantic_v1 import BaseModel
 from typing_extensions import Literal as Literal
 from typing_extensions import NewType
@@ -27,6 +25,14 @@ from typing_extensions import Protocol as Protocol
 from typing_extensions import TypedDict as TypedDict
 from typing_extensions import TypeGuard as TypeGuard
 from typing_extensions import get_args as get_args
+
+
+if TYPE_CHECKING:
+    from goob_ai.gen_ai.vectorstore import ChromaDatabase, PGVectorDatabase, PineconeDatabase
+    from goob_ai.models.vectorstores import ChromaIntegration, PgvectorIntegration, PineconeIntegration
+
+    ActorInputsDb: TypeAlias = ChromaIntegration | PgvectorIntegration | PineconeIntegration
+    VectorDb: TypeAlias = ChromaDatabase | PGVectorDatabase | PineconeDatabase
 
 
 T = TypeVar("T")
