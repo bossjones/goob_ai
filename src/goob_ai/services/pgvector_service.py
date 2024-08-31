@@ -129,7 +129,7 @@ class PgvectorService:
                 embedding=self.embeddings,
                 documents=docs,
                 collection_name=collection_name,
-                connection_string=self.cnx,
+                # connection_string=self.cnx,
                 connection=connection,
                 pre_delete_collection=overwrite,
             )
@@ -175,10 +175,10 @@ class PgvectorService:
         LOGGER.info(f"Deleting collection: {collection_name}")
         with self.engine.connect() as connection:
             pgvector = PGVector(
+                self.embeddings,
                 collection_name=collection_name,
-                connection_string=self.cnx,
+                # connection_string=self.cnx,
                 connection=connection,
-                embedding_function=self.embeddings,
             )
             pgvector.delete_collection()
 
@@ -204,9 +204,9 @@ class PgvectorService:
         LOGGER.info(f"Deleting collection: {collection_name}")
         with self.engine.connect() as connection:
             collection = PGVector(
+                self.embeddings,
                 collection_name=collection_name,
-                connection_string=self.cnx,
-                embedding_function=self.embeddings,
+                # connection_string=self.cnx,
                 use_jsonb=True,
                 connection=connection,
                 pre_delete_collection=pre_delete_collection,
@@ -337,10 +337,10 @@ class PgvectorService:
         LOGGER.info(f"Deleting collection: {collection_name}")
         with self.engine.connect() as connection:
             store = PGVector(
+                self.embeddings,
                 collection_name=collection_name,
-                connection_string=self.cnx,
+                # connection_string=self.cnx,
                 connection=connection,
-                embedding_function=self.embeddings,
                 use_jsonb=True,
             )
             store.drop_tables()
@@ -355,10 +355,10 @@ class PgvectorService:
         LOGGER.info(f"Deleting collection: {collection_name}")
         with self.engine.connect() as connection:
             store = PGVector(
+                self.embeddings,
                 collection_name=collection_name,
-                connection_string=self.cnx,
+                # connection_string=self.cnx,
                 connection=connection,
-                embedding_function=self.embeddings,
                 use_jsonb=True,
             )
             store.drop_tables()
@@ -377,16 +377,16 @@ class PgvectorService:
 
         if metadatas:
             return PGVector(
+                self.embeddings,
                 collection_name=collection_name,
-                connection_string=self.cnx,
+                # connection_string=self.cnx,
                 collection_metadata=metadatas,
-                embedding_function=self.embeddings,
                 use_jsonb=True,
             )
         else:
             return PGVector(
+                self.embeddings,
                 collection_name=collection_name,
-                connection_string=self.cnx,
-                embedding_function=self.embeddings,
+                # connection_string=self.cnx,
                 use_jsonb=True,
             )

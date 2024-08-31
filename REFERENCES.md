@@ -166,7 +166,7 @@ source: <https://www.youtube.com/watch?v=AeASAsPp9LE>
 - https://github.com/Dicklesworthstone/llm_aided_ocr
 - https://news.ycombinator.com/item?id=41203306
 - https://github.com/dabble-of-devops-bioanalyze/aws-bedrock-utilities/blob/2c3e6effd0d335dcd67d555dcdad88736944fa27/aws_bedrock_utilities/models/pgvector_knowledgebase.py#L21
-  - good example of how to use pgvector. insert_pdf_embeddings. load_and_split_pdf. get_loader.
+    - good example of how to use pgvector. insert_pdf_embeddings. load_and_split_pdf. get_loader.
 
 ______________________________________________________________________
 
