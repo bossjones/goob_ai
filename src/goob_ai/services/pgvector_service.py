@@ -130,7 +130,7 @@ class PgvectorService:
                 documents=docs,
                 collection_name=collection_name,
                 # connection_string=self.cnx,
-                connection=connection,
+                connection=self.cnx,
                 pre_delete_collection=overwrite,
             )
 
@@ -178,7 +178,7 @@ class PgvectorService:
                 self.embeddings,
                 collection_name=collection_name,
                 # connection_string=self.cnx,
-                connection=connection,
+                connection=self.cnx,
             )
             pgvector.delete_collection()
 
@@ -208,7 +208,7 @@ class PgvectorService:
                 collection_name=collection_name,
                 # connection_string=self.cnx,
                 use_jsonb=True,
-                connection=connection,
+                connection=self.cnx,
                 pre_delete_collection=pre_delete_collection,
             )
 
@@ -340,7 +340,7 @@ class PgvectorService:
                 self.embeddings,
                 collection_name=collection_name,
                 # connection_string=self.cnx,
-                connection=connection,
+                connection=self.cnx,
                 use_jsonb=True,
             )
             store.drop_tables()
@@ -358,7 +358,7 @@ class PgvectorService:
                 self.embeddings,
                 collection_name=collection_name,
                 # connection_string=self.cnx,
-                connection=connection,
+                connection=self.cnx,
                 use_jsonb=True,
             )
             store.drop_tables()
@@ -379,7 +379,7 @@ class PgvectorService:
             return PGVector(
                 self.embeddings,
                 collection_name=collection_name,
-                # connection_string=self.cnx,
+                connection=self.cnx,
                 collection_metadata=metadatas,
                 use_jsonb=True,
             )
@@ -388,5 +388,6 @@ class PgvectorService:
                 self.embeddings,
                 collection_name=collection_name,
                 # connection_string=self.cnx,
+                connection=self.cnx,
                 use_jsonb=True,
             )
