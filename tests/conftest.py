@@ -40,9 +40,9 @@ from langchain.document_loaders import TextLoader
 from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.text_splitter import CharacterTextSplitter
 from langchain.vectorstores import Pinecone
-from langchain.vectorstores.pgvector import PGVector
 from langchain_core.documents import Document
 from langchain_openai.embeddings import OpenAIEmbeddings
+from langchain_postgres import PGVector
 from requests_toolbelt.multipart import decoder
 from vcr import filters
 
