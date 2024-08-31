@@ -167,6 +167,11 @@ source: <https://www.youtube.com/watch?v=AeASAsPp9LE>
 - https://news.ycombinator.com/item?id=41203306
 - https://github.com/dabble-of-devops-bioanalyze/aws-bedrock-utilities/blob/2c3e6effd0d335dcd67d555dcdad88736944fa27/aws_bedrock_utilities/models/pgvector_knowledgebase.py#L21
     - good example of how to use pgvector. insert_pdf_embeddings. load_and_split_pdf. get_loader.
+- Docker optimizations:
+  - https://testdriven.io/blog/docker-best-practices/
+  - https://testdriven.io/blog/python-type-checking/
+  - https://testdriven.io/blog/python-code-quality/
+  - https://testdriven.io/blog/clean-code-python/
 
 ______________________________________________________________________
 
