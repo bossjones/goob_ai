@@ -148,6 +148,8 @@ dependencies = [
     "faiss-cpu>=1.8.0.post1",
     "pytesseract>=0.3.13",
     "python-decouple>=3.8",
+    "grandalf>=0.8",
+    "rapidfuzz>=3.9.6",
 ]
 
 readme = "README.md"

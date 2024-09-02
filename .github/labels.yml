@@ -1,3 +1,4 @@
+---
 # SOURCE: https://github.com/cloudflare/cloudflare-python
 - name: "kind: breaking-change"
   description: ""
@@ -49,107 +50,107 @@
 - name: needs-triage
   description: "Indicates an issue or PR lacks a `triage: foo` label and requires one."
   color: ef9ed3
-- name: "service: access"
-  description: Categorizes issue or PR as related to the Access service.
-  color: 98D063
-- name: "service: addressing"
-  description: Categorizes issue or PR as related to the Addressing service.
-  color: 98D063
-- name: "service: api-shield"
-  description: Categorizes issue or PR as related to the API shield service.
-  color: 98D063
-- name: "service: argo"
-  description: Categorizes issue or PR as related to the Argo service.
-  color: 98D063
-- name: "service: bot-management"
-  description: Categorizes issue or PR as related to the Bot Management service.
-  color: 98D063
-- name: "service: byoip"
-  description: Categorizes issue or PR as related to the BYOIP service.
-  color: 98D063
-- name: "service: cache"
-  description: Categorizes issue or PR as related to the Content Delivery service.
-  color: 98D063
-- name: "service: custom-pages"
-  description: Categorizes issue or PR as related to the custom pages service.
-  color: 98D063
-- name: "service: d1"
-  description: Categorizes issue or PR as related to the D1 service.
-  color: 98D063
-- name: "service: dns"
-  description: Categorizes issue or PR as related to the DNS service.
-  color: 98D063
-- name: "service: durable-objects"
-  description: Categorizes issue or PR as related to the Durable Objects service.
-  color: 98D063
-- name: "service: firewall"
-  description: Categorizes issue or PR as related to the Firewall service.
-  color: 98D063
-- name: "service: gateway"
-  description: Categorizes issue or PR as related to the Zero Trust Gateway service.
-  color: 98D063
-- name: "service: iam"
-  description: Categorizes issue or PR as related to the IAM service.
-  color: 98D063
-- name: "service: kv"
-  description: Categorizes issue or PR as related to the KV service.
-  color: 98D063
-- name: "service: list"
-  description: Categorizes issue or PR as related to the List service.
-  color: 98D063
-- name: "service: lists"
-  description: Categorizes issue or PR as related to the Lists service.
-  color: 98D063
-- name: "service: load-balancing"
-  description: Categorizes issue or PR as related to the Load Balancing service.
-  color: 98D063
-- name: "service: logs"
-  description: Categorizes issue or PR as related to the Logging services.
-  color: 98D063
-- name: "service: magic-transit"
-  description: Categorizes issue or PR as related to Magic Transit services.
-  color: 98D063
-- name: "service: magic-wan"
-  description: Categorizes issue or PR as related to the Magic WAN service.
-  color: 98D063
-- name: "service: notifications"
-  description: Categorizes issue or PR as related to the notification service.
-  color: 98D063
-- name: "service: page-rules"
-  description: Categorizes issue or PR as related to the Page Rules service.
-  color: 98D063
-- name: "service: pages"
-  description: Categorizes issue or PR as related to the Pages service.
-  color: 98D063
-- name: "service: r2"
-  description: Categorizes issue or PR as related to the R2 service.
-  color: 98D063
-- name: "service: rulesets"
-  description: Categorizes issue or PR as related to the Rulesets service.
-  color: 98D063
-- name: "service: spectrum"
-  description: Categorizes issue or PR as related to the Spectrum service.
-  color: 98D063
-- name: "service: tls"
-  description: Categorizes issue or PR as related to the TLS services.
-  color: 98D063
-- name: "service: tunnel"
-  description: Categorizes issue or PR as related to the Tunnel service.
-  color: 98D063
-- name: "service: turnstile"
-  description: |
-    Categorizes issue or PR as related to Turnstile and the Challenge Platform
-    service.
-  color: 98D063
-- name: "service: workers"
-  description: Categorizes issue or PR as related to the Workers service.
-  color: 98D063
-- name: "service: zero-trust-devices"
-  description: Categorizes issue or PR as related to the Zero Trust Devices service.
-  color: 98D063
-- name: "service: zones"
-  description: Categorizes issue or PR as related to the Zones service.
-  color: 98D063
+# - name: "service: access"
+#   description: Categorizes issue or PR as related to the Access service.
+#   color: 98D063
+# - name: "service: addressing"
+#   description: Categorizes issue or PR as related to the Addressing service.
+#   color: 98D063
+# - name: "service: api-shield"
+#   description: Categorizes issue or PR as related to the API shield service.
+#   color: 98D063
+# - name: "service: argo"
+#   description: Categorizes issue or PR as related to the Argo service.
+#   color: 98D063
+# - name: "service: bot-management"
+#   description: Categorizes issue or PR as related to the Bot Management service.
+#   color: 98D063
+# - name: "service: byoip"
+#   description: Categorizes issue or PR as related to the BYOIP service.
+#   color: 98D063
+# - name: "service: cache"
+#   description: Categorizes issue or PR as related to the Content Delivery service.
+#   color: 98D063
+# - name: "service: custom-pages"
+#   description: Categorizes issue or PR as related to the custom pages service.
+#   color: 98D063
+# - name: "service: d1"
+#   description: Categorizes issue or PR as related to the D1 service.
+#   color: 98D063
+# - name: "service: dns"
+#   description: Categorizes issue or PR as related to the DNS service.
+#   color: 98D063
+# - name: "service: durable-objects"
+#   description: Categorizes issue or PR as related to the Durable Objects service.
+#   color: 98D063
+# - name: "service: firewall"
+#   description: Categorizes issue or PR as related to the Firewall service.
+#   color: 98D063
+# - name: "service: gateway"
+#   description: Categorizes issue or PR as related to the Zero Trust Gateway service.
+#   color: 98D063
+# - name: "service: iam"
+#   description: Categorizes issue or PR as related to the IAM service.
+#   color: 98D063
+# - name: "service: kv"
+#   description: Categorizes issue or PR as related to the KV service.
+#   color: 98D063
+# - name: "service: list"
+#   description: Categorizes issue or PR as related to the List service.
+#   color: 98D063
+# - name: "service: lists"
+#   description: Categorizes issue or PR as related to the Lists service.
+#   color: 98D063
+# - name: "service: load-balancing"
+#   description: Categorizes issue or PR as related to the Load Balancing service.
+#   color: 98D063
+# - name: "service: logs"
+#   description: Categorizes issue or PR as related to the Logging services.
+#   color: 98D063
+# - name: "service: magic-transit"
+#   description: Categorizes issue or PR as related to Magic Transit services.
+#   color: 98D063
+# - name: "service: magic-wan"
+#   description: Categorizes issue or PR as related to the Magic WAN service.
+#   color: 98D063
+# - name: "service: notifications"
+#   description: Categorizes issue or PR as related to the notification service.
+#   color: 98D063
+# - name: "service: page-rules"
+#   description: Categorizes issue or PR as related to the Page Rules service.
+#   color: 98D063
+# - name: "service: pages"
+#   description: Categorizes issue or PR as related to the Pages service.
+#   color: 98D063
+# - name: "service: r2"
+#   description: Categorizes issue or PR as related to the R2 service.
+#   color: 98D063
+# - name: "service: rulesets"
+#   description: Categorizes issue or PR as related to the Rulesets service.
+#   color: 98D063
+# - name: "service: spectrum"
+#   description: Categorizes issue or PR as related to the Spectrum service.
+#   color: 98D063
+# - name: "service: tls"
+#   description: Categorizes issue or PR as related to the TLS services.
+#   color: 98D063
+# - name: "service: tunnel"
+#   description: Categorizes issue or PR as related to the Tunnel service.
+#   color: 98D063
+# - name: "service: turnstile"
+#   description: |
+#     Categorizes issue or PR as related to Turnstile and the Challenge Platform
+#     service.
+#   color: 98D063
+# - name: "service: workers"
+#   description: Categorizes issue or PR as related to the Workers service.
+#   color: 98D063
+# - name: "service: zero-trust-devices"
+#   description: Categorizes issue or PR as related to the Zero Trust Devices service.
+#   color: 98D063
+# - name: "service: zones"
+#   description: Categorizes issue or PR as related to the Zones service.
+#   color: 98D063
 - name: spam
   description: ""
   color: e6f99f
@@ -207,3 +208,103 @@
   color: ededed
 - name: "autorelease: tagged"
   color: ededed
+
+# SOURCE: https://dalezak.medium.com/github-pro-tips-for-your-development-team-9fe0f0a48afb
+# Type labels indicate the kind of issue, I selected these different color codes so they are easily distinguishable.
+# Type: Bug #333333
+# Type: Design #6a1051
+# Type: Enhancement #58508d
+# Type: External #bfdadc
+# Type: Feature #216583
+# Type: Maintenance #a0855b
+# Type: Pull Request #6ba8a9
+# Type: Question #50b6bb
+# Type: Research #ac8daf
+# bossjones
+- name: "Type: Bug"
+  description: ""
+  color: 333333
+- name: "Type: Design"
+  description: ""
+  color: 6a1051
+- name: "Type: Enhancement"
+  description: ""
+  color: 58508d
+- name: "Type: External"
+  description: ""
+  color: bfdadc
+- name: "Type: Feature"
+  description: ""
+  color: 216583
+- name: "Type: Maintenance"
+  description: ""
+  color: a0855b
+- name: "Type: Pull Request"
+  description: ""
+  color: 6ba8a9
+- name: "Type: Question"
+  description: ""
+  color: 50b6bb
+- name: "Type: Research"
+  description: ""
+  color: ac8daf
+
+# Priority labels specify the level of importance using color codes varying from yellow to red so they are easily identifiable.
+# Priority: Critical #7c0a02
+# Priority: High #b22222
+# Priority: Medium #e88a1a
+# Priority: Low #f1bc31
+- name: "Priority: Critical"
+  description: ""
+  color: 7c0a02
+- name: "Priority: High"
+  description: ""
+  color: b22222
+- name: "Priority: Medium"
+  description: ""
+  color: e88a1a
+- name: "Priority: Low"
+  description: ""
+  color: f1bc31
+
+# Size labels indicate the level of effort using shades of green where Small is a few hours, Medium is around a day, and Large is multiple days of effort. Although some people prefer fibonacci points for estimates, I like this approach for its simplicity. For example, you should probably only schedule one Large issue to a person if you're doing weekly sprints, where as they could probably do a couple Medium issues in a week.
+
+# Size: Small #76a665
+# Size: Medium #227066
+# Size: Large #265961
+- name: "Size: Small"
+  description: ""
+  color: 76a665
+- name: "Size: Medium"
+  description: ""
+  color: 227066
+- name: "Size: Large"
+  description: ""
+  color: 265961
+
+# Status labels using shades of pink to indicate which issues were fixed or not, this is helpful when reviewing old issues that are closed.
+# Status: Resolved #fad6d6
+# Status: Unresolved #e99695
+- name: "Status: Resolved"
+  description: ""
+  color: fad6d6
+- name: "Status: Unresolved"
+  description: ""
+  color: e99695
+
+# App labels indicate the source of the issue, which can be helpful when you have multiple repos on the same Project board.
+# App: Backend #cccccc
+# App: Frontend #cccccc
+# App: Database #cccccc
+# App: Mobile #cccccc
+- name: "App: Backend"
+  description: ""
+  color: cccccc
+- name: "App: Frontend"
+  description: ""
+  color: cccccc
+- name: "App: Database"
+  description: ""
+  color: cccccc
+- name: "App: Mobile"
+  description: ""
