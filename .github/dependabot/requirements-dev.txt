@@ -424,6 +424,8 @@ googleapis-common-protos==1.63.2
     # via opentelemetry-exporter-otlp-proto-grpc
     # via pinecone-client
     # via protoc-gen-openapiv2
+grandalf==0.8
+    # via goob-ai
 greenlet==3.0.3
     # via bpython
 griffe==0.48.0
@@ -1268,6 +1270,7 @@ pyowm==3.3.0
 pypandoc==1.13
     # via unstructured
 pyparsing==3.1.2
+    # via grandalf
     # via httplib2
     # via matplotlib
 pypdf==4.3.1
@@ -1411,7 +1414,8 @@ questionary==2.0.1
     # via pypi-command-line
 rank-bm25==0.2.2
     # via goob-ai
-rapidfuzz==3.9.5
+rapidfuzz==3.9.6
+    # via goob-ai
     # via levenshtein
     # via pypi-command-line
     # via thefuzz

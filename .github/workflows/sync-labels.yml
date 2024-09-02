@@ -1,17 +1,22 @@
 ---
 name: Sync labels
 on: # yamllint disable-line rule:truthy
-    workflow_dispatch:
-    push:
-        branches: [main, master]
-        paths: [.github/labels.yml]
+    # You can run this with every type of event, but it's better to run it only when you actually need it.
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+      - master
+    paths:
+      - .github/labels.yml
 jobs:
-    build:
-        runs-on: ubuntu-latest
-        steps:
-            - uses: actions/checkout@v2
-            - uses: micnncim/action-label-syncer@v1
-              env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-              with:
-                  manifest: .github/labels.yml
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: micnncim/action-label-syncer@v1.3.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          manifest: .github/labels.yml
+          prune: false

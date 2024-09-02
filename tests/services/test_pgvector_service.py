@@ -1,8 +1,11 @@
 from __future__ import annotations
 
 import logging
+import re
+import uuid
 
 from typing import TYPE_CHECKING, Any
+from uuid import UUID
 
 from goob_ai.aio_settings import aiosettings
 from goob_ai.services.pgvector_service import PgvectorService
@@ -24,6 +27,12 @@ if TYPE_CHECKING:
     from pytest_mock.plugin import MockerFixture
 
 
+def valid_uuid(uuid_txt: str) -> bool:
+    regex = re.compile(r"^[a-f0-9]{8}-?[a-f0-9]{4}-?4[a-f0-9]{3}-?[89ab][a-f0-9]{3}-?[a-f0-9]{12}\Z", re.I)
+    match = regex.match(uuid_txt)
+    return bool(match)
+
+
 @pytest.fixture()
 def pgvector_service() -> PgvectorService:
     """Fixture to create a PgvectorService instance.
@@ -36,6 +45,7 @@ def pgvector_service() -> PgvectorService:
 
 @pytest.mark.asyncio()
 @pytest.mark.services()
+@pytest.mark.pgvectoronly()
 async def test_get_vector(pgvector_service: PgvectorService) -> None:
     """Test the get_vector method.
 
@@ -52,6 +62,7 @@ async def test_get_vector(pgvector_service: PgvectorService) -> None:
 @pytest.mark.flaky()
 @pytest.mark.asyncio()
 @pytest.mark.services()
+@pytest.mark.pgvectoronly()
 async def test_custom_similarity_search_with_scores(pgvector_service: PgvectorService, mocker) -> None:
     """Test the custom_similarity_search_with_scores method.
 
@@ -82,6 +93,7 @@ async def test_custom_similarity_search_with_scores(pgvector_service: PgvectorSe
 
 @pytest.mark.asyncio()
 @pytest.mark.services()
+@pytest.mark.pgvectoronly()
 async def test_update_pgvector_collection(pgvector_service: PgvectorService, mocker) -> None:
     """Test the update_pgvector_collection method.
 
@@ -101,6 +113,7 @@ async def test_update_pgvector_collection(pgvector_service: PgvectorService, moc
 @pytest.mark.flaky()
 @pytest.mark.asyncio()
 @pytest.mark.services()
+@pytest.mark.pgvectoronly()
 async def test_get_collections(pgvector_service: PgvectorService, mocker) -> None:
     """Test the get_collections method.
 
@@ -122,6 +135,7 @@ async def test_get_collections(pgvector_service: PgvectorService, mocker) -> Non
 
 @pytest.mark.asyncio()
 @pytest.mark.services()
+@pytest.mark.pgvectoronly()
 async def test_update_collection(pgvector_service: PgvectorService, mocker) -> None:
     """Test the update_collection method.
 
@@ -140,6 +154,7 @@ async def test_update_collection(pgvector_service: PgvectorService, mocker) -> N
 
 @pytest.mark.asyncio()
 @pytest.mark.services()
+@pytest.mark.pgvectoronly()
 async def test_delete_collection(pgvector_service: PgvectorService, mocker) -> None:
     """Test the delete_collection method.
 
@@ -263,3 +278,179 @@ def test_integration_create_collection(pgvector_service: PgvectorService, vcr: A
     assert isinstance(doc_ids, list)
     assert len(doc_ids) == 1
     assert vcr.play_count == 1
+
+
+############################################################################
+# FIXME: these tests are not working and are currently expected to fail
+############################################################################
+
+
+@pytest.mark.asyncio()
+@pytest.mark.services()
+@pytest.mark.pgvectoronly()
+@pytest.mark.skip(reason="This is a work in progress and it is currently expected to fail")
+@pytest.mark.flaky()
+async def test_integration_get_collection_id_by_name(pgvector_service: PgvectorService, mocker: MockerFixture) -> None:
+    """Test the get_collection_id_by_name method.
+
+    Args:
+        pgvector_service (PgvectorService): The PgvectorService instance.
+        mocker (MockerFixture): The pytest-mock plugin for mocking.
+    """
+    collection_name = "test_collection"
+    expected_collection_id = "test_collection_id"
+
+    store = pgvector_service.get_vector_store(collection_name)
+    store.__post_init__()
+    engine = pgvector_service.engine
+    spy = mocker.spy(engine, "connect")
+
+    collection_id = pgvector_service.get_collection_id_by_name(collection_name)
+
+    # assert collection_id == expected_collection_id
+
+    # assert the uuid we get back is valid
+    assert UUID(str(collection_id))
+    spy.assert_called_once()
+
+
+@pytest.mark.asyncio()
+@pytest.mark.services()
+@pytest.mark.pgvectoronly()
+@pytest.mark.skip(reason="This is a work in progress and it is currently expected to fail")
+@pytest.mark.flaky()
+async def test_integration_get_collection_metadata(pgvector_service: PgvectorService, mocker: MockerFixture) -> None:
+    """Test the get_collection_metadata method.
+
+    Args:
+        pgvector_service (PgvectorService): The PgvectorService instance.
+        mocker (MockerFixture): The pytest-mock plugin for mocking.
+    """
+    expected_metadata = {"duration": "10:00"}
+    collection_name = "test_integration_get_collection_metadata"
+    store = pgvector_service.get_vector_store(collection_name, metadatas=expected_metadata)
+    store.__post_init__()
+
+    documents = [Document(page_content="Test document for metadata")]
+
+    real_collection_id, doc_ids = pgvector_service.create_collection(collection_name, documents, expected_metadata)
+
+    collection_id = pgvector_service.get_collection_id_by_name(collection_name)
+
+    engine = pgvector_service.engine
+    spy = mocker.spy(engine, "connect")
+
+    metadata = pgvector_service.get_collection_metadata(collection_id)
+
+    assert metadata == expected_metadata
+    spy.assert_called_once()
+
+
+@pytest.mark.asyncio()
+@pytest.mark.services()
+@pytest.mark.pgvectoronly()
+@pytest.mark.skip(reason="This is a work in progress and it is currently expected to fail")
+@pytest.mark.flaky()
+async def test_integration_update_collection_metadata(pgvector_service: PgvectorService, mocker: MockerFixture) -> None:
+    """Test the update_collection_metadata method.
+
+    Args:
+        pgvector_service (PgvectorService): The PgvectorService instance.
+        mocker (MockerFixture): The pytest-mock plugin for mocking.
+    """
+    collection_name = "test_collection_update_metadata"
+    collection_id = "test_collection_id"
+    new_metadata = {"new_key": "new_value"}
+    expected_metadata = {"key": "value", "new_key": "new_value"}
+
+    store = pgvector_service.get_vector_store(collection_name)
+    store.__post_init__()
+    engine = pgvector_service.engine
+    spy_connect = mocker.spy(engine, "connect")
+
+    documents = [Document(page_content="Test document for VCR create")]
+    video_metadata = {"title": "Test Video", "duration": "10:00"}
+
+    real_collection_id, doc_ids = pgvector_service.create_collection(collection_name, documents, video_metadata)
+
+    spy_get_metadata = mocker.spy(pgvector_service, "get_collection_metadata")
+    # spy_connect = mocker.spy(pgvector_service.engine, "connect")
+
+    updated_metadata = pgvector_service.update_collection_metadata(collection_id, new_metadata)
+
+    assert updated_metadata == expected_metadata
+    spy_get_metadata.assert_called_once_with(collection_id)
+    spy_connect.assert_called_once()
+
+
+@pytest.mark.asyncio()
+@pytest.mark.services()
+@pytest.mark.pgvectoronly()
+@pytest.mark.skip(reason="This is a work in progress and it is currently expected to fail")
+@pytest.mark.flaky()
+async def test_integration_list_collections(pgvector_service: PgvectorService, mocker: MockerFixture) -> None:
+    """Test the list_collections method.
+
+    Args:
+        pgvector_service (PgvectorService): The PgvectorService instance.
+        mocker (MockerFixture): The pytest-mock plugin for mocking.
+    """
+    # FIXME: this is a leak from a previous test
+    expected_collections = [
+        ("test_collection",),
+        ("test_integration_get_collection_metadata",),
+        ("test_collection_update_metadata",),
+    ]
+
+    spy = mocker.spy(pgvector_service.engine, "connect")
+
+    collections = pgvector_service.list_collections()
+
+    assert collections == expected_collections
+    spy.assert_called_once()
+
+
+@pytest.mark.asyncio()
+@pytest.mark.services()
+@pytest.mark.pgvectoronly()
+@pytest.mark.skip(reason="This is a work in progress and it is currently expected to fail")
+@pytest.mark.flaky()
+async def test_integration_get_by_ids(pgvector_service: PgvectorService, mocker: MockerFixture) -> None:
+    """Test the get_by_ids method.
+
+    Args:
+        pgvector_service (PgvectorService): The PgvectorService instance.
+        mocker (MockerFixture): The pytest-mock plugin for mocking.
+    """
+    ids = ["id1", "id2"]
+    expected_results = [("doc1",), ("doc2",)]
+
+    spy = mocker.spy(pgvector_service.engine, "connect")
+
+    results = pgvector_service.get_by_ids(ids)
+
+    assert results == expected_results
+    spy.assert_called_once()
+
+
+@pytest.mark.asyncio()
+@pytest.mark.services()
+@pytest.mark.pgvectoronly()
+@pytest.mark.skip(reason="This is a work in progress and it is currently expected to fail")
+@pytest.mark.flaky()
+async def test_integration_get_all_by_collection_id(pgvector_service: PgvectorService, mocker: MockerFixture) -> None:
+    """Test the get_all_by_collection_id method.
+
+    Args:
+        pgvector_service (PgvectorService): The PgvectorService instance.
+        mocker (MockerFixture): The pytest-mock plugin for mocking.
+    """
+    collection_id = "test_collection_id"
+    expected_results = [("doc1",), ("doc2",)]
+
+    spy = mocker.spy(pgvector_service.engine, "connect")
+
+    results = pgvector_service.get_all_by_collection_id(collection_id)
+
+    assert results == expected_results
+    spy.assert_called_once()

@@ -15,8 +15,9 @@ from typing import Any, Callable, List, Literal, Optional, Set, Tuple, Union
 
 from dotenv import load_dotenv
 from langchain.embeddings.openai import OpenAIEmbeddings
-from langchain_community.vectorstores.pgvector import PGVector, _get_embedding_collection_store
+from langchain_community.vectorstores.pgvector import _get_embedding_collection_store
 from langchain_core.documents import Document
+from langchain_postgres import PGVector
 from loguru import logger as LOGGER
 from sqlalchemy import MetaData, Table, create_engine, select, text, update
 from sqlalchemy.orm import Session
@@ -128,8 +129,8 @@ class PgvectorService:
                 embedding=self.embeddings,
                 documents=docs,
                 collection_name=collection_name,
-                connection_string=self.cnx,
-                connection=connection,
+                # connection_string=self.cnx,
+                connection=self.cnx,
                 pre_delete_collection=overwrite,
             )
 
@@ -174,10 +175,10 @@ class PgvectorService:
         LOGGER.info(f"Deleting collection: {collection_name}")
         with self.engine.connect() as connection:
             pgvector = PGVector(
+                self.embeddings,
                 collection_name=collection_name,
-                connection_string=self.cnx,
-                connection=connection,
-                embedding_function=self.embeddings,
+                # connection_string=self.cnx,
+                connection=self.cnx,
             )
             pgvector.delete_collection()
 
@@ -203,11 +204,11 @@ class PgvectorService:
         LOGGER.info(f"Deleting collection: {collection_name}")
         with self.engine.connect() as connection:
             collection = PGVector(
+                self.embeddings,
                 collection_name=collection_name,
-                connection_string=self.cnx,
-                embedding_function=self.embeddings,
+                # connection_string=self.cnx,
                 use_jsonb=True,
-                connection=connection,
+                connection=self.cnx,
                 pre_delete_collection=pre_delete_collection,
             )
 
@@ -325,3 +326,68 @@ class PgvectorService:
             results = connection.execute(query).fetchall()
 
         return results
+
+    def drop_tables(self, collection_name: str) -> None:
+        """
+        Delete a collection based on the collection name.
+
+        Args:
+            collection_name: The name of the collection to delete.
+        """
+        LOGGER.info(f"Deleting collection: {collection_name}")
+        with self.engine.connect() as connection:
+            store = PGVector(
+                self.embeddings,
+                collection_name=collection_name,
+                # connection_string=self.cnx,
+                connection=self.cnx,
+                use_jsonb=True,
+            )
+            store.drop_tables()
+
+    def reset(self, collection_name: str) -> None:
+        """
+        Delete a collection based on the collection name.
+
+        Args:
+            collection_name: The name of the collection to delete.
+        """
+        LOGGER.info(f"Deleting collection: {collection_name}")
+        with self.engine.connect() as connection:
+            store = PGVector(
+                self.embeddings,
+                collection_name=collection_name,
+                # connection_string=self.cnx,
+                connection=self.cnx,
+                use_jsonb=True,
+            )
+            store.drop_tables()
+            store.create_tables_if_not_exists()
+            store.create_collection()
+
+    def get_vector_store(self, collection_name: str, metadatas: list[dict[str, Any]] = []) -> PGVector:
+        """
+        Get the vector store.
+
+        Returns:
+            The vector store.
+        """
+        LOGGER.info(f"getting vector store for collection: {collection_name}")
+        LOGGER.info(f"metadatas: {metadatas}")
+
+        if metadatas:
+            return PGVector(
+                self.embeddings,
+                collection_name=collection_name,
+                connection=self.cnx,
+                collection_metadata=metadatas,
+                use_jsonb=True,
+            )
+        else:
+            return PGVector(
+                self.embeddings,
+                collection_name=collection_name,
+                # connection_string=self.cnx,
+                connection=self.cnx,
+                use_jsonb=True,
+            )

@@ -165,6 +165,14 @@ source: <https://www.youtube.com/watch?v=AeASAsPp9LE>
     module maybe)
 - https://github.com/Dicklesworthstone/llm_aided_ocr
 - https://news.ycombinator.com/item?id=41203306
+- https://github.com/dabble-of-devops-bioanalyze/aws-bedrock-utilities/blob/2c3e6effd0d335dcd67d555dcdad88736944fa27/aws_bedrock_utilities/models/pgvector_knowledgebase.py#L21
+    - good example of how to use pgvector. insert_pdf_embeddings. load_and_split_pdf. get_loader.
+- Docker optimizations:
+  - https://testdriven.io/blog/docker-best-practices/
+  - https://testdriven.io/blog/python-type-checking/
+  - https://testdriven.io/blog/python-code-quality/
+  - https://testdriven.io/blog/clean-code-python/
+
 ______________________________________________________________________
 
 # Advanced rag suggestions
@@ -180,3 +188,155 @@ ______________________________________________________________________
     the agent library (e.g. langchain) uses. Besides, Postgres is no slouch when it comes to performance and is easy to
     scale.
 -
+
+### Postgres + pgvector
+
+```sql
+
+# The following statement retrieves the database names from the pg_database view:
+SELECT datname FROM pg_database;
+
+# Showing tables using pg_catalog schema - The following statement retrieves the table in PostgreSQL from the pg_catalog.pg_tables view:
+SELECT *
+FROM pg_catalog.pg_tables
+WHERE schemaname != 'pg_catalog' AND
+    schemaname != 'information_schema';
+
+
+
+
+# 2) PostgreSQL DESCRIBE TABLE using information_schema
+The information_schema.columns catalog contains the information on columns of all tables. To get information on columns of a table, you query the information_schema.columns catalog.
+SELECT
+  column_name,
+  data_type,
+  character_maximum_length,
+  is_nullable,
+  column_default
+FROM
+  information_schema.columns
+WHERE
+  table_name = 'langchain_pg_collection';
+
+SELECT
+  column_name,
+  data_type,
+  character_maximum_length,
+  is_nullable,
+  column_default
+FROM
+  information_schema.columns
+WHERE
+  table_name = 'langchain_pg_embedding';
+```
+
+______________________________________________________________________
+
+# via cursor:
+
+> Here is a markdown file with examples of practical psql commands, based on the PostgreSQL tutorial you provided:
+
+# Practical psql Commands
+
+## Connecting to a PostgreSQL Database
+
+To connect to a specific database under a user:
+
+```bash
+$ psql -d database -U user -W
+```
+
+PostgreSQL will prompt for the user's password.
+
+To connect to a remote PostgreSQL instance:
+
+```bash
+$ psql -U username -h hostname -p port -d database
+```
+
+For example:
+
+```bash
+$ psql -U doadmin -h production-sfo-test1-do-user-4866002-0.db.ondigitalocean.com -p 25060 -d defaultdb
+```
+
+Enter the password when prompted. \[1\]
+
+## Getting Information About Databases
+
+To list available databases:
+
+```sql
+\l
+```
+
+To describe a table:
+
+```sql
+\d table_name
+```
+
+To list available schemas:
+
+```sql
+\dn
+```
+
+To list available functions:
+
+```sql
+\df
+```
+
+To execute the previous command again:
+
+```sql
+SELECT version();
+\g
+```
+
+\[1\]
+
+## Timing Queries
+
+To turn on query execution time:
+
+```sql
+\timing
+SELECT count(*) FROM table;
+```
+
+The execution time will be displayed after the query results. \[1\]
+
+## Maintenance
+
+To locate the `pg_hba.conf` configuration file:
+
+```sql
+show hba_file;
+```
+
+To reload the `pg_hba.conf` configuration file while Postgres is running:
+
+```sql
+SELECT pg_reload_conf();
+```
+
+\[1\]
+
+## References
+
+1. https://tomcam.github.io/postgres/
+
+The key points are:
+
+- Use `psql` to interactively work with PostgreSQL databases
+- `\l` lists databases
+- `\d table` describes a table
+- `\dn` lists schemas
+- `\df` lists functions
+- `\timing` turns on query timing
+- Configuration is in `pg_hba.conf`, location found via `show hba_file`
+- `pg_hba.conf` can be reloaded without restarting using `SELECT pg_reload_conf()`
+
+Let me know if you have any other questions!

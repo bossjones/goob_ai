@@ -278,6 +278,10 @@ class AioSettings(BaseSettings):
         env="OCO_PROMPT_MODULE", description="OCO_PROMPT_MODULE", default="conventional-commit"
     )
 
+    openai_embeddings_model: str = Field(
+        env="OPENAI_EMBEDDINGS_MODEL", description="openai embeddings model", default="text-embedding-3-large"
+    )
+
     # Variables for Postgres/pgvector
     # CONNECTION_STRING = PGVector.connection_string_from_db_params(
     #     driver=os.environ.get("PGVECTOR_DRIVER", "psycopg"),
