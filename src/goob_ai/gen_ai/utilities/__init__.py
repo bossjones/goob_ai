@@ -33,8 +33,6 @@ from chromadb.api import ClientAPI, ServerAPI
 from chromadb.config import Settings as ChromaSettings
 from httpx import ConnectError
 from langchain.evaluation import load_evaluator
-from langchain_chroma import Chroma
-from langchain_chroma import Chroma as ChromaVectorStore
 from langchain_community.document_loaders import (
     DirectoryLoader,
     JSONLoader,

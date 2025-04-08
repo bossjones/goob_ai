@@ -34,7 +34,6 @@ import rich
 import sentry_sdk
 import typer
 from langchain.globals import set_debug, set_verbose
-from langchain_chroma import Chroma as ChromaVectorStore
 from loguru import logger as LOGGER
 from pinecone import Pinecone, ServerlessSpec  # pyright: ignore[reportAttributeAccessIssue]
 from pinecone.core.openapi.data.model.describe_index_stats_response import DescribeIndexStatsResponse
@@ -223,7 +222,6 @@ def deps() -> None:
     rich.print(f"langchain_core_version: {importlib_metadata_version('langchain_core')}")
     rich.print(f"langchain_openai_version: {importlib_metadata_version('langchain_openai')}")
     rich.print(f"langchain_text_splitters_version: {importlib_metadata_version('langchain_text_splitters')}")
-    rich.print(f"langchain_chroma_version: {importlib_metadata_version('langchain_chroma')}")
     rich.print(f"chromadb_version: {importlib_metadata_version('chromadb')}")
     rich.print(f"langsmith_version: {importlib_metadata_version('langsmith')}")
     rich.print(f"pydantic_version: {importlib_metadata_version('pydantic')}")
@@ -406,61 +404,6 @@ def run_download_and_predict(
     path_to_image_from_cli = fix_path(img_url)
     try:
         ImageService.handle_predict_from_file(path_to_image_from_cli)
-    except Exception as ex:
-        print(f"{ex}")
-        exc_type, exc_value, exc_traceback = sys.exc_info()
-        print(f"Error Class: {ex.__class__}")
-        output = f"[UNEXPECTED] {type(ex).__name__}: {ex}"
-        print(output)
-        print(f"exc_type: {exc_type}")
-        print(f"exc_value: {exc_value}")
-        traceback.print_tb(exc_traceback)
-        if aiosettings.dev_mode:
-            bpdb.pm()
-
-
-@APP.command()
-def query_readthedocs() -> None:
-    """Smoketest for querying readthedocs pdfs against vectorstore."""
-    try:
-        import rich
-        from langchain_chroma import Chroma
-        from langchain_openai import OpenAIEmbeddings
-
-        from goob_ai.services.chroma_service import CHROMA_PATH, DATA_PATH, ChromaService
-        from goob_ai.utils import file_functions
-
-        client = ChromaService.client
-        test_collection_name = "readthedocs"
-
-        documents = []
-
-        d = file_functions.tree(DATA_PATH)
-        result = file_functions.filter_pdfs(d)
-
-        for filename in result:
-            LOGGER.info(f"Loading document: {filename}")
-            db: ChromaVectorStore = ChromaService.add_to_chroma(
-                path_to_document=f"{filename}",
-                collection_name=test_collection_name,
-                embedding_function=None,
-            )
-
-        embedding_function = OpenAIEmbeddings()
-
-        db: ChromaVectorStore = Chroma(
-            client=client,
-            collection_name=test_collection_name,
-            embedding_function=embedding_function,
-        )
-
-        # query it
-        query = "How do I enable syntax highlighting with rich?"
-        docs = db.similarity_search(query)
-        rich.print("Answer: ")
-        # rich.print(docs)
-        print(docs[0].page_content)
-
     except Exception as ex:
         print(f"{ex}")
         exc_type, exc_value, exc_traceback = sys.exc_info()

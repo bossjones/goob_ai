@@ -38,8 +38,6 @@ from chromadb.api import ClientAPI, ServerAPI
 from chromadb.config import Settings as ChromaSettings
 from httpx import ConnectError
 from langchain.evaluation import load_evaluator
-from langchain_chroma import Chroma
-from langchain_chroma import Chroma as ChromaVectorStore
 from langchain_community.document_loaders import (
     DirectoryLoader,
     JSONLoader,
@@ -118,79 +116,80 @@ Answer the question based on the above context: {question}
 WEBBASE_LOADER_PATTERN = r"^https?://[a-zA-Z0-9.-]+\.github\.io(/.*)?$"
 
 
-async def llm_query(
-    collection_name: str = "",
-    question: str = "",
-    threshold: float = 0.65,
-    count: int = 5,
-    disallowed_special: Literal["all"] | set[str] | Sequence[str] = (),
-) -> tuple[str | list | None, list[str | None]]:
-    LOGGER.debug(f"Querying chroma db. Count={count} Threshold={threshold}", collection_name=collection_name)
-
-    http_client = httpx.AsyncClient()
-
-    # Load DB
-    llm_db = Chroma(
-        collection_name=collection_name,
-        persist_directory=str(CHROMA_PATH),
-        embedding_function=OpenAIEmbeddings(
-            openai_api_key=aiosettings.openai_api_key.get_secret_value(),
-            disallowed_special=disallowed_special,
-            async_client=httpx.AsyncClient(),
-        ),
-    )
-
-    if not llm_db:
-        raise RuntimeError("Chroma DB does not exist")
-
-    # Search the DB.
-    similar = llm_db.similarity_search_with_relevance_scores(question, k=count)
-
-    if not similar:
-        LOGGER.debug("Unable to find matching results.", collection_name=collection_name)
-        return (None, [])
-
-    LOGGER.debug(f"Similar result count: {len(similar)}", collection_name=collection_name)
-
-    results: list[tuple[Document, float]] = []
-    for r in similar:
-        LOGGER.debug(f"Result Threshold: {r[1]:.4f}", collection_name=collection_name)
-        if r[1] > threshold and r not in results:
-            results.append(r)
-
-    if not results:
-        LOGGER.debug("Unable to find matching results.", collection_name=collection_name)
-        return (None, [])
-
-    LOGGER.debug(f"Final Result count: {len(results)}", collection_name=collection_name)
-
-    context_text = "\n\n---\n\n".join([doc.page_content for doc, _score in results])
-    prompt_template = ChatPromptTemplate.from_template(PROMPT_TEMPLATE)
-    prompt = prompt_template.format(context=context_text, question=question)
-    LOGGER.debug(prompt)
-
-    # FIXME: This is a hack to get the model to work. We need to fix this in the llm_manager.
-    # model: ChatOpenAI | None = llm_manager.LlmManager().llm
-    model = ChatOpenAI(
-        name="ChatOpenAI",
-        model=aiosettings.chat_model,
-        streaming=True,
-        temperature=aiosettings.llm_temperature,
-        async_client=http_client,
-    )
-    response_text = model.invoke(prompt)
-
-    await http_client.aclose()
-
-    sources: list[str | None] = [doc.metadata.get("source") for doc, _score in results]
-    if not response_text.content:
-        return (None, [])
-    LOGGER.debug(f"LLM Response: {response_text.content}", collection_name=collection_name)
-    if len(response_text.content) > 2000:
-        return ("Sorry that response is too long for me to put in discord.", [])
-
-    await LOGGER.complete()
-    return (response_text.content, sources)
+# TODO: Reimplement this function without langchain_chroma dependency
+# async def llm_query(
+#     collection_name: str = "",
+#     question: str = "",
+#     threshold: float = 0.65,
+#     count: int = 5,
+#     disallowed_special: Literal["all"] | set[str] | Sequence[str] = (),
+# ) -> tuple[str | list | None, list[str | None]]:
+#     LOGGER.debug(f"Querying chroma db. Count={count} Threshold={threshold}", collection_name=collection_name)
+#
+#     http_client = httpx.AsyncClient()
+#
+#     # Load DB
+#     llm_db = Chroma(
+#         collection_name=collection_name,
+#         persist_directory=str(CHROMA_PATH),
+#         embedding_function=OpenAIEmbeddings(
+#             openai_api_key=aiosettings.openai_api_key.get_secret_value(),
+#             disallowed_special=disallowed_special,
+#             async_client=httpx.AsyncClient(),
+#         ),
+#     )
+#
+#     if not llm_db:
+#         raise RuntimeError("Chroma DB does not exist")
+#
+#     # Search the DB.
+#     similar = llm_db.similarity_search_with_relevance_scores(question, k=count)
+#
+#     if not similar:
+#         LOGGER.debug("Unable to find matching results.", collection_name=collection_name)
+#         return (None, [])
+#
+#     LOGGER.debug(f"Similar result count: {len(similar)}", collection_name=collection_name)
+#
+#     results: list[tuple[Document, float]] = []
+#     for r in similar:
+#         LOGGER.debug(f"Result Threshold: {r[1]:.4f}", collection_name=collection_name)
+#         if r[1] > threshold and r not in results:
+#             results.append(r)
+#
+#     if not results:
+#         LOGGER.debug("Unable to find matching results.", collection_name=collection_name)
+#         return (None, [])
+#
+#     LOGGER.debug(f"Final Result count: {len(results)}", collection_name=collection_name)
+#
+#     context_text = "\n\n---\n\n".join([doc.page_content for doc, _score in results])
+#     prompt_template = ChatPromptTemplate.from_template(PROMPT_TEMPLATE)
+#     prompt = prompt_template.format(context=context_text, question=question)
+#     LOGGER.debug(prompt)
+#
+#     # FIXME: This is a hack to get the model to work. We need to fix this in the llm_manager.
+#     # model: ChatOpenAI | None = llm_manager.LlmManager().llm
+#     model = ChatOpenAI(
+#         name="ChatOpenAI",
+#         model=aiosettings.chat_model,
+#         streaming=True,
+#         temperature=aiosettings.llm_temperature,
+#         async_client=http_client,
+#     )
+#     response_text = model.invoke(prompt)
+#
+#     await http_client.aclose()
+#
+#     sources: list[str | None] = [doc.metadata.get("source") for doc, _score in results]
+#     if not response_text.content:
+#         return (None, [])
+#     LOGGER.debug(f"LLM Response: {response_text.content}", collection_name=collection_name)
+#     if len(response_text.content) > 2000:
+#         return ("Sorry that response is too long for me to put in discord.", [])
+#
+#     await LOGGER.complete()
+#     return (response_text.content, sources)
 
 
 # # SOURCE: https://github.com/RSC-NA/rsc/blob/69f8ce29a6e38a960515564bf84fbd1d809468d8/rsc/llm/create_db.py#L176
@@ -305,51 +304,45 @@ async def llm_query(
 
 
 # SOURCE: https://github.com/RSC-NA/rsc/blob/69f8ce29a6e38a960515564bf84fbd1d809468d8/rsc/llm/create_db.py#L176
-async def create_chroma_db(
-    collection_name: str,
-    docs: list[Document],
-    disallowed_special: Literal["all"] | set[str] | Sequence[str] = (),
-    reset: bool = False,
-) -> None:
-    """
-    Create a Chroma database with the given collection name and documents.
-
-    Args:
-        collection_name (str): The name of the collection.
-        org_name (str): The name of the organization.
-        api_key (str): The API key for authentication.
-        docs (list[Document]): The list of Document objects to add to the database.
-    """
-    if reset:
-        # Clear out the database first.
-        LOGGER.debug("Clear out the database first.")
-        await rm_chroma_db()
-
-    # Create directory if needed
-    if not CHROMA_PATH_API.absolute().exists():
-        # Create brand new DB if it doesn't exist
-        LOGGER.debug("Creating Chroma DB Directory", collection_name=collection_name)
-        CHROMA_PATH_API.absolute().mkdir(parents=True, exist_ok=True)
-        await asyncio.sleep(5)
-
-    LOGGER.debug("Saving Chroma DB.", collection_name=collection_name)
-    Chroma.from_documents(
-        documents=docs,
-        collection_name=collection_name,
-        embedding=OpenAIEmbeddings(
-            openai_api_key=aiosettings.openai_api_key.get_secret_value(),
-            disallowed_special=disallowed_special,
-            async_client=httpx.AsyncClient(),
-        ),
-        # embedding=OpenAIEmbeddings(
-        #     organization=org_name,
-        #     api_key=SecretStr(api_key),
-        #     async_client=httpx.AsyncClient(),
-        # ),
-        persist_directory=str(CHROMA_PATH_API.absolute()),
-    )
-    LOGGER.info(f"Saved {len(docs)} chunks to {CHROMA_PATH_API}.", collection_name=collection_name)
-    await LOGGER.complete()
+# TODO: Reimplement this function without langchain_chroma dependency
+# async def create_chroma_db(
+#     collection_name: str,
+#     docs: list[Document],
+#     disallowed_special: Literal["all"] | set[str] | Sequence[str] = (),
+#     reset: bool = False,
+# ) -> None:
+#     """
+#     Create a Chroma database with the given collection name and documents.
+#
+#     Args:
+#         collection_name (str): The name of the collection to create.
+#         docs (list[Document]): The list of documents to add to the collection.
+#         disallowed_special (Literal["all"] | set[str] | Sequence[str], optional): Special tokens to disallow.
+#             Defaults to ().
+#         reset (bool, optional): Whether to reset the database before creating it. Defaults to False.
+#     """
+#     if reset:
+#         await rm_chroma_db()
+#
+#     if not CHROMA_PATH_API.absolute().exists():
+#         # Create the directory if it doesn't exist
+#         LOGGER.debug("Creating Chroma DB Directory", collection_name=collection_name)
+#         CHROMA_PATH_API.absolute().mkdir(parents=True, exist_ok=True)
+#
+#     # Save the documents to the database
+#     LOGGER.debug("Saving Chroma DB.", collection_name=collection_name)
+#     Chroma.from_documents(
+#         documents=docs,
+#         collection_name=collection_name,
+#         embedding=OpenAIEmbeddings(
+#             openai_api_key=aiosettings.openai_api_key.get_secret_value(),
+#             disallowed_special=disallowed_special,
+#             async_client=httpx.AsyncClient(),
+#         ),
+#         persist_directory=str(CHROMA_PATH_API.absolute()),
+#     )
+#     LOGGER.info(f"Saved {len(docs)} chunks to {CHROMA_PATH_API}.", collection_name=collection_name)
+#     await LOGGER.complete()
 
 
 # SOURCE: https://github.com/RSC-NA/rsc/blob/69f8ce29a6e38a960515564bf84fbd1d809468d8/rsc/llm/create_db.py#L176
@@ -713,24 +706,24 @@ def get_client(
     )
 
 
-@pysnooper.snoop()
-def search_db(db: Chroma, query_text: str, k: int = 3) -> list[tuple[Document, float]] | None:
-    """Search the Chroma database for relevant documents.
-
-    Args:
-        db (Chroma): The Chroma database to search.
-        query_text (str): The query text to search for.
-        k (int): Number of nearest neighbours to return.
-
-    Returns:
-        list[tuple[Document, float]] | None: The list of relevant documents and their scores,
-        or None if no relevant documents are found.
-    """
-    results = db.similarity_search_with_relevance_scores(query_text, k=k)
-    LOGGER.debug(f"search_db results: {results}")
-    if len(results) == 0 or results[0][1] < 0.7:
-        return None
-    return results
+# TODO: Reimplement this function without langchain_chroma dependency
+# @pysnooper.snoop()
+# def search_db(db: Chroma, query_text: str, k: int = 3) -> list[tuple[Document, float]] | None:
+#     """Search the Chroma database for relevant documents.
+#
+#     Args:
+#         db (Chroma): The Chroma database to search.
+#         query_text (str): The query text to search for.
+#         k (int, optional): The number of results to return. Defaults to 3.
+#
+#     Returns:
+#         list[tuple[Document, float]] | None: A list of tuples containing the document and its relevance score,
+#             or None if no results are found.
+#     """
+#     results = db.similarity_search_with_relevance_scores(query_text, k=k)
+#     if not results:
+#         return None
+#     return results
 
 
 # @pysnooper.snoop()
@@ -773,62 +766,101 @@ def get_sources(results: list[tuple[Document, float]]) -> list[str | None]:
     return [doc.metadata.get("source", None) for doc, _score in results]
 
 
-@pysnooper.snoop()
-def get_response(
-    query_text: str,
-    persist_directory: str = CHROMA_PATH,
-    embedding_function: Any = OpenAIEmbeddings(),
-    model: Any = ChatOpenAI(),
-    k: int = 3,
-    collection_name: str = "",
-    reset: bool = False,
-    **kwargs: Any,
-) -> str:
-    """Perform the query and get the response.
+# TODO: Reimplement these functions without langchain_chroma dependency
+# def get_response(
+#     query_text: str,
+#     persist_directory: str = CHROMA_PATH,
+#     embedding_function: Any = OpenAIEmbeddings(),
+#     model: Any = ChatOpenAI(),
+#     k: int = 3,
+#     collection_name: str = "",
+#     reset: bool = False,
+#     **kwargs: Any,
+# ) -> str:
+#     """Get a response from the LLM using the given query text.
+#
+#     Args:
+#         query_text (str): The query text to use.
+#         persist_directory (str): The directory to persist the Chroma database.
+#         embedding_function (Any, optional): The embedding function to use. Defaults to OpenAIEmbeddings().
+#         model (Any, optional): The model to use. Defaults to ChatOpenAI().
+#         k (int, optional): The number of results to return. Defaults to 3.
+#         collection_name (str, optional): The name of the collection. Defaults to "".
+#         reset (bool, optional): Whether to reset the database. Defaults to False.
+#         **kwargs: Additional keyword arguments to pass to Chroma.
+#
+#     Returns:
+#         str: The response from the LLM.
+#     """
+#     db = get_chroma_db(persist_directory, embedding_function, collection_name=collection_name)
+#     results = search_db(db, query_text, k=k)
+#     if not results:
+#         return "I don't know."
+#     context_text = generate_context_text(results)
+#     prompt = generate_prompt(context_text, query_text)
+#     response = model.invoke(prompt)
+#     return response.content
 
-    Args:
-        query_text (str): The query text to search in the database.
-        persist_directory (str): The directory to persist the Chroma database.
-        embedding_function (Any): The embedding function to use.
-        **kwargs: Additional keyword arguments to override default values.
+# def generate_and_query_data_store(
+#     collection_name: str = "", embedding_function: Any = OpenAIEmbeddings(), reset: bool = False
+# ) -> VectorStoreRetriever:
+#     """Generate and store document embeddings in a Chroma vector store.
+#
+#     Args:
+#         collection_name (str, optional): The name of the collection. Defaults to "".
+#         embedding_function (Any, optional): The embedding function to use. Defaults to OpenAIEmbeddings().
+#         reset (bool, optional): Whether to reset the database. Defaults to False.
+#
+#     Returns:
+#         VectorStoreRetriever: The retriever for the database.
+#     """
+#     return generate_data_store(collection_name=collection_name, embedding_function=embedding_function, reset=reset)
 
-    Returns:
-        str: The response text based on the query.
-    """
-    db = get_chroma_db(persist_directory, embedding_function, collection_name=collection_name)
-
-    # Search the DB
-    results = search_db(db, query_text, k=k)
-    if not results:
-        return "Unable to find matching results."
-
-    context_text = generate_context_text(results)
-    prompt = generate_prompt(context_text, query_text)
-
-    # response_text = model.predict(prompt)
-    response_text = model.invoke(prompt)
-
-    sources = get_sources(results)
-    return f"Response: {response_text}\nSources: {sources}"
-
-
-@pysnooper.snoop()
-def get_chroma_db(
-    persist_directory: str = CHROMA_PATH,
-    embedding_function: Any = OpenAIEmbeddings(),
-    **kwargs: Any,
-) -> Chroma:
-    """Get the Chroma database.
-
-    Args:
-        persist_directory (str): The directory to persist the Chroma database.
-        embedding_function (Any): The embedding function to use.
-        **kwargs: Additional keyword arguments to override default values.
-
-    Returns:
-        Chroma: The Chroma database.
-    """
-    return Chroma(persist_directory=persist_directory, embedding_function=embedding_function, **kwargs)
+# @pysnooper.snoop()
+# def save_to_chroma(
+#     chunks: list[Document],
+#     disallowed_special: Literal["all"] | set[str] | Sequence[str] | None = (),
+#     use_custom_openai_embeddings: bool = False,
+#     collection_name: str = "",
+#     reset: bool = False,
+# ) -> VectorStoreRetriever:
+#     """Save document chunks to a Chroma vector store.
+#
+#     Args:
+#         chunks (list[Document]): The document chunks to save.
+#         disallowed_special (Literal["all"] | set[str] | Sequence[str] | None, optional): Special tokens to disallow.
+#             Defaults to ().
+#         use_custom_openai_embeddings (bool, optional): Whether to use custom OpenAI embeddings. Defaults to False.
+#         collection_name (str, optional): The name of the collection. Defaults to "".
+#         reset (bool, optional): Whether to reset the database. Defaults to False.
+#
+#     Returns:
+#         VectorStoreRetriever: The retriever for the database.
+#     """
+#     if reset:
+#         clean_chroma_db(collection_name=collection_name)
+#
+#     if use_custom_openai_embeddings:
+#         embeddings = CustomOpenAIEmbeddings(disallowed_special=disallowed_special)
+#     else:
+#         embeddings = OpenAIEmbeddings(disallowed_special=disallowed_special)
+#
+#     # Create directory if needed
+#     if not CHROMA_PATH_API.absolute().exists():
+#         # Create brand new DB if it doesn't exist
+#         LOGGER.debug("Creating Chroma DB Directory", collection_name=collection_name)
+#         CHROMA_PATH_API.absolute().mkdir(parents=True, exist_ok=True)
+#
+#     # Save the documents to the database
+#     LOGGER.debug("Saving Chroma DB.", collection_name=collection_name)
+#     db = Chroma.from_documents(
+#         documents=chunks,
+#         collection_name=collection_name,
+#         embedding=embeddings,
+#         persist_directory=str(CHROMA_PATH_API.absolute()),
+#     )
+#     LOGGER.info(f"Saved {len(chunks)} chunks to {CHROMA_PATH_API}.", collection_name=collection_name)
+#     return db.as_retriever()
 
 
 def main() -> None:
@@ -1147,260 +1179,175 @@ class ChromaService:
 
     @staticmethod
     def add_collection(collection_name: str, embedding_function: Any | None = None) -> chromadb.Collection:
-        """
-        Add a collection to ChromaDB.
+        """Add a collection to ChromaDB.
 
         Args:
             collection_name (str): The name of the collection to add.
-            embedding_function (Any): The embedding function to use.
+            embedding_function (Any | None, optional): The embedding function to use. Defaults to None.
 
         Returns:
-            chromadb.Collection: The created or retrieved collection.
+            chromadb.Collection: The created collection.
         """
-        return (
-            ChromaService.client.get_or_create_collection(name=collection_name, embedding_function=embedding_function)
-            if embedding_function
-            else ChromaService.client.get_or_create_collection(name=collection_name)
-        )
+        client = get_client()
+        collection = client.get_or_create_collection(name=collection_name)
+        return collection
 
     @staticmethod
     def get_list_collections() -> Sequence[chromadb.Collection]:
-        """
-        List all collections in ChromaDB.
+        """Get a list of all collections in ChromaDB.
 
         Returns:
-            Sequence[chromadb.Collection]: A sequence of all collections.
+            Sequence[chromadb.Collection]: The list of collections.
         """
-        return ChromaService.client.list_collections()
+        client = get_client()
+        return client.list_collections()
 
     @staticmethod
     def get_collection(collection_name: str, embedding_function: Any) -> chromadb.Collection | None:
-        """
-        Retrieve a collection from ChromaDB.
+        """Get a collection from ChromaDB.
 
         Args:
-            collection_name (str): The name of the collection to retrieve.
+            collection_name (str): The name of the collection to get.
             embedding_function (Any): The embedding function to use.
 
         Returns:
-            chromadb.Collection | None: The retrieved collection or None if not found.
+            chromadb.Collection | None: The collection if it exists, None otherwise.
         """
-        return ChromaService.client.get_collection(name=collection_name, embedding_function=embedding_function)
+        client = get_client()
+        try:
+            collection = client.get_collection(name=collection_name)
+            return collection
+        except ValueError:
+            return None
 
     @staticmethod
     def get_client() -> chromadb.ClientAPI:
-        """
-        Get the ChromaDB client.
+        """Get the ChromaDB client.
 
         Returns:
             chromadb.ClientAPI: The ChromaDB client.
         """
-        return ChromaService.client
+        return get_client()
 
     @staticmethod
     def get_or_create_collection(collection_name: str, embedding_function: Any) -> chromadb.Collection:
-        """
-        Get or create a collection in ChromaDB.
+        """Get or create a collection in ChromaDB.
 
         Args:
-            collection_name: Name of the collection.
-            embedding_function: Embedding function to use.
+            collection_name (str): The name of the collection.
+            embedding_function (Any): The embedding function to use.
 
         Returns:
-            The created collection.
+            chromadb.Collection: The collection.
         """
-        collection = ChromaService.client.get_or_create_collection(
-            name=collection_name, embedding_function=embedding_function
-        )
-        LOGGER.debug(f"Collection: {collection}")
+        client = get_client()
+        collection = client.get_or_create_collection(name=collection_name)
         return collection
 
-    @staticmethod
-    def get_response(query_text: str, collection_name: str = "", reset: bool = False) -> str:
-        """
-        Get a response from ChromaDB based on the query text.
+    # TODO: Reimplement these methods without langchain_chroma dependency
+    # @staticmethod
+    # def get_response(query_text: str, collection_name: str = "", reset: bool = False) -> str:
+    #     """Get a response from the LLM using the given query text.
+    #
+    #     Args:
+    #         query_text (str): The query text to use.
+    #         collection_name (str, optional): The name of the collection to use. Defaults to "".
+    #         reset (bool, optional): Whether to reset the database. Defaults to False.
+    #
+    #     Returns:
+    #         str: The response from the LLM.
+    #     """
+    #     return get_response(query_text, collection_name=collection_name, reset=reset)
 
-        Args:
-            query_text (str): The query text to search in the database.
+    # @staticmethod
+    # def generate_data_store() -> None:
+    #     """Generate a data store from the documents."""
+    #     generate_data_store()
 
-        Returns:
-            str: The response text based on the query.
-        """
-        return get_response(query_text, collection_name=collection_name, reset=reset)
+    # @staticmethod
+    # def load_documents() -> list[Document]:
+    #     """Load documents from the data directory.
+    #
+    #     Returns:
+    #         list[Document]: The loaded documents.
+    #     """
+    #     return load_documents()
 
-    @staticmethod
-    def generate_data_store() -> None:
-        """
-        Generate and store document embeddings in a Chroma vector store.
-        """
-        generate_data_store()
+    # @staticmethod
+    # def add_and_query(collection_name: str = "", question: str = "", reset: bool = False) -> VectorStoreRetriever:
+    #     """Add documents to the database and query it.
+    #
+    #     Args:
+    #         collection_name (str, optional): The name of the collection. Defaults to "".
+    #         question (str, optional): The question to query. Defaults to "".
+    #         reset (bool, optional): Whether to reset the database. Defaults to False.
+    #
+    #     Returns:
+    #         VectorStoreRetriever: The retriever for the database.
+    #     """
+    #     return generate_and_query_data_store(collection_name=collection_name, reset=reset)
 
-    @staticmethod
-    def load_documents() -> list[Document]:
-        """
-        Load documents from the specified data path.
+    # @staticmethod
+    # def split_text(documents: list[Document]) -> list[Document]:
+    #     """Split text into chunks.
+    #
+    #     Args:
+    #         documents (list[Document]): The documents to split.
+    #
+    #     Returns:
+    #         list[Document]: The split documents.
+    #     """
+    #     return split_text(documents)
 
-        Returns:
-            List[Document]: The list of loaded documents.
-        """
-        return load_documents()
+    # @staticmethod
+    # def get_vector_store_from_client(
+    #     collection_name: str | None = "",
+    #     embedding_function: Any | None = None,
+    #     client: chromadb.ClientAPI | None = None,
+    # ) -> ChromaVectorStore:
+    #     """Get a vector store from a ChromaDB client.
+    #
+    #     Args:
+    #         collection_name (str | None, optional): The name of the collection. Defaults to "".
+    #         embedding_function (Any | None, optional): The embedding function to use. Defaults to None.
+    #         client (chromadb.ClientAPI | None, optional): The ChromaDB client. Defaults to None.
+    #
+    #     Returns:
+    #         ChromaVectorStore: The vector store.
+    #     """
+    #     if client is None:
+    #         client = get_client()
+    #     collection = client.get_or_create_collection(name=collection_name)
+    #     return ChromaVectorStore(collection=collection, embedding_function=embedding_function)
 
-    @staticmethod
-    def add_and_query(collection_name: str = "", question: str = "", reset: bool = False) -> VectorStoreRetriever:
-        """
-        Generate and query a data store for a given collection and question.
+    # @staticmethod
+    # def add_to_chroma(
+    #     path_to_document: str = "", collection_name: str = "", embedding_function: Any | None = None
+    # ) -> ChromaVectorStore:
+    #     """Add a document to ChromaDB.
+    #
+    #     Args:
+    #         path_to_document (str, optional): The path to the document. Defaults to "".
+    #         collection_name (str, optional): The name of the collection. Defaults to "".
+    #         embedding_function (Any | None, optional): The embedding function to use. Defaults to None.
+    #
+    #     Returns:
+    #         ChromaVectorStore: The vector store containing the document.
+    #     """
+    #     # sourcery skip: inline-immediately-returned-variable
+    #     client = get_client()
+    #     collection = client.get_or_create_collection(name=collection_name)
+    #     vector_store = ChromaVectorStore(collection=collection, embedding_function=embedding_function)
+    #     return vector_store
 
-        Args:
-            collection_name (str): The name of the collection to generate and query.
-            question (str): The question to query the data store with.
-            reset (bool): Whether to reset the data store before generating and querying.
-
-        Returns:
-            VectorStoreRetriever: The vector store retriever used to query the data store.
-
-        This function generates a data store for the specified collection name and queries it
-        with the provided question. If the `reset` flag is set to True, the existing data store
-        will be removed before generating a new one.
-
-        The function performs the following steps:
-        1. Generates a data store for the specified collection name using the `generate_data_store` function.
-        2. Queries the generated data store with the provided question using the `query_data_store` function.
-        3. Returns the vector store retriever used to query the data store.
-
-        Example usage:
-        ```python
-        collection_name = "my_collection"
-        question = "What is the meaning of life?"
-        retriever = ChromaService.add_and_query(collection_name, question, reset=True)
-        ```
-        """
-        return generate_and_query_data_store(collection_name, question, reset=reset)
-
-    @staticmethod
-    def split_text(documents: list[Document]) -> list[Document]:
-        """
-        Split documents into smaller chunks.
-
-        Args:
-            documents (List[Document]): The list of documents to be split into chunks.
-
-        Returns:
-            List[Document]: The list of document chunks.
-        """
-        return split_text(documents)
-
-    @staticmethod
-    def get_vector_store_from_client(
-        collection_name: str | None = "",
-        embedding_function: Any | None = None,
-        client: chromadb.ClientAPI | None = None,
-    ) -> ChromaVectorStore:
-        """
-        Get a Chroma vector store from the ChromaDB client.
-
-        Args:
-            collection_name (str): The name of the collection to retrieve.
-            embedding_function (Any, optional): The embedding function to use. Defaults to None.
-
-        Returns:
-            ChromaVectorStore: The Chroma vector store.
-        """
-        # client = ChromaService.get_client()
-        collection = ChromaService.get_or_create_collection(collection_name, embedding_function)
-        return ChromaVectorStore(client=client, collection_name=collection_name, embedding_function=embedding_function)
-
-    @staticmethod
-    def add_to_chroma(
-        path_to_document: str = "", collection_name: str = "", embedding_function: Any | None = None
-    ) -> ChromaVectorStore:
-        # sourcery skip: inline-immediately-returned-variable, use-named-expression
-        """
-        Add/Save document chunks to a Chroma vector store.
-
-        Args:
-            chunks (list[Document]): The list of document chunks to be saved.
-        """
-        # Log the input parameters for debugging purposes
-        LOGGER.debug(f"path_to_document = {path_to_document}")
-        LOGGER.debug(f"collection_name = {collection_name}")
-        LOGGER.debug(f"embedding_function = {embedding_function}")
-
-        # Get the Chroma client
-        client = ChromaService.get_client()
-        # FIXME: We need to make embedding_function optional
-        # Add or retrieve the collection with the specified name
-        collection: chromadb.Collection = ChromaService.add_collection(collection_name)
-
-        # Load the document using the appropriate loader based on the file type
-        loader: TextLoader | PyMuPDFLoader | WebBaseLoader | None = get_rag_loader(path_to_document)
-        # Load the documents using the selected loader
-        documents: list[Document] = loader.load()
-
-        # If the file type is txt, split the documents into chunks
-        text_splitter = get_rag_splitter(path_to_document)
-        if text_splitter:
-            # Split the documents into chunks using the text splitter
-            docs: list[Document] = text_splitter.split_documents(documents)
-        else:
-            # If no text splitter is available, use the original documents
-            docs: list[Document] = documents  # type: ignore
-
-        if embedding_function:
-            # If an embedding function is provided, use it
-            embedding_function = embedding_function
-        else:
-            # If no embedding function is provided, create an open-source embedding function based on the file type
-            embedding_function = get_rag_embedding_function(path_to_document)
-
-        # Load the document chunks into Chroma
-        db: ChromaVectorStore = Chroma.from_documents(
-            docs, embedding=embedding_function, collection_name=collection_name, client=client
-        )
-        # Return the Chroma database
-        return db
-
-    @staticmethod
-    def save_to_chroma(chunks: list[Document]) -> None:
-        """
-        Save document chunks to a Chroma vector store.
-
-        Args:
-            chunks (list[Document]): The list of document chunks to be saved.
-        """
-        save_to_chroma(chunks)
-
-    # https://github.com/langchain-ai/langchain/blob/master/cookbook/img-to_img-search_CLIP_ChromaDB.ipynb
-    @staticmethod
-    def embed_images(chroma_client: chromadb.ClientAPI | None = None, uris: list[str] = [], metadatas: list[dict] = []):
-        """
-        Function to add images to Chroma client with progress bar.
-
-        Args:
-            chroma_client: The Chroma client object.
-            uris (List[str]): List of image file paths.
-            metadatas (List[dict]): List of metadata dictionaries.
-        """
-        if chroma_client is None:
-            chroma_client = ChromaService.get_client()
-
-        LOGGER.debug(f"chroma_client: {chroma_client}")
-        LOGGER.debug(f"uris: {uris}")
-
-        # Iterate through the uris with a progress bar
-        success_count = 0
-        for i in tqdm(range(len(uris)), desc="Adding images"):
-            uri = uris[i]
-            metadata = metadatas[i]
-
-            try:
-                chroma_client.add_images(uris=[uri], metadatas=[metadata])
-            except Exception as e:
-                LOGGER.error(f"Failed to add image {uri} with metadata {metadata}. Error: {e}")
-            else:
-                success_count += 1
-                # print(f"Successfully added image {uri} with metadata {metadata}")
-
-        return success_count
+    # @staticmethod
+    # def save_to_chroma(chunks: list[Document]) -> None:
+    #     """Save document chunks to ChromaDB.
+    #
+    #     Args:
+    #         chunks (list[Document]): The document chunks to save.
+    #     """
+    #     save_to_chroma(chunks)
 
 
 def _await_server(api: ServerAPI | ClientAPI = get_client(), attempts: int = 0) -> None:
