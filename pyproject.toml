@@ -182,6 +182,7 @@
         "pypdf2>=3.0.1",
         "pypdf>=5.4.0",
         "pypi-command-line[speedups]>=1.7.1",
+        "pysnooper>=1.2.1",
         "pytablewriter[html]>=1.2.1",
         "pytesseract>=0.3.13",
         "python-decouple>=3.8",
