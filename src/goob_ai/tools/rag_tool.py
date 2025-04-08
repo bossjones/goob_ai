@@ -5,12 +5,10 @@ from __future__ import annotations
 import logging
 import sys
 import traceback
-
 from typing import Any, ClassVar, List, Optional, Type
 
 import langchain_chroma.vectorstores
 import openai
-
 from langchain import hub
 from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain.chains.retrieval import create_retrieval_chain
@@ -40,7 +38,6 @@ from openai import Client
 from goob_ai.aio_settings import aiosettings
 from goob_ai.llm_manager import LlmManager
 from goob_ai.services.chroma_service import ChromaService
-
 
 RETRIEVAL_QA_CHAT_PROMPT: ChatPromptTemplate = hub.pull("langchain-ai/retrieval-qa-chat")
 RAG_PROMPT: ChatPromptTemplate = hub.pull("rlm/rag-prompt")

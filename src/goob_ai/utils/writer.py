@@ -6,7 +6,6 @@ from __future__ import annotations
 import logging
 
 import aiofiles
-
 from loguru import logger as LOGGER
 
 

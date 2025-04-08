@@ -123,7 +123,7 @@ class PaperStore:
         during the initialization of the PaperStore instance. It ensures that all
         changes made to the database are saved to disk.
 
-        Returns
+        Returns:
         -------
             None
 

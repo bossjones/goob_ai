@@ -11,12 +11,10 @@ import asyncio
 import logging
 import random
 import textwrap
-
 from typing import Any, List, Optional, Tuple
 
 import numpy as np
 import pymupdf
-
 from langchain.document_loaders import PyPDFLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.vectorstores import FAISS, VectorStore
@@ -141,7 +139,7 @@ def encode_from_string(content: str, chunk_size: int = 1000, chunk_overlap: int 
         vectorstore = FAISS.from_documents(chunks, embeddings)
 
     except Exception as e:
-        raise RuntimeError(f"An error occurred during the encoding process: {str(e)}")
+        raise RuntimeError(f"An error occurred during the encoding process: {e!s}")
 
     return vectorstore
 
@@ -243,7 +241,7 @@ def show_context(context: list[str]) -> None:
     LOGGER.infos each context item in the list with a heading indicating its position.
     """
     for i, c in enumerate(context):
-        LOGGER.info(f"Context {i+1}:")
+        LOGGER.info(f"Context {i + 1}:")
         LOGGER.info(c)
         LOGGER.info("\n")
 

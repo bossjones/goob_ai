@@ -1,8 +1,13 @@
 from __future__ import annotations
 
 import logging
-
 from typing import TYPE_CHECKING, Optional, TypeVar
+
+import pytest
+from loguru import logger as LOGGER
+from redis.asyncio import ConnectionPool
+from sqlalchemy import text
+from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession
 
 from goob_ai.aio_settings import aiosettings
 from goob_ai.db import (
@@ -16,13 +21,6 @@ from goob_ai.db import (
     init_worker_redis,
     set_redis_value,
 )
-from loguru import logger as LOGGER
-from redis.asyncio import ConnectionPool
-from sqlalchemy import text
-from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession
-
-import pytest
-
 
 if TYPE_CHECKING:
     from unittest.mock import AsyncMock, MagicMock, NonCallableMagicMock
@@ -31,7 +29,6 @@ if TYPE_CHECKING:
     from _pytest.fixtures import FixtureRequest
     from _pytest.logging import LogCaptureFixture
     from _pytest.monkeypatch import MonkeyPatch
-
     from pytest_mock.plugin import MockerFixture
 
 

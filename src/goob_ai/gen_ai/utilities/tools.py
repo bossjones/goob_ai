@@ -4,17 +4,14 @@ from __future__ import annotations
 import json
 import re
 import traceback
-
 from typing import TYPE_CHECKING
 
 import discord
-
 
 if TYPE_CHECKING:
     from goob_ai.goob_bot import AsyncGoobBot
 
 from loguru import logger as LOGGER
-
 
 # via discord-ai
 

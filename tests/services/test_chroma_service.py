@@ -13,12 +13,21 @@ import os
 import random
 import shutil
 import tempfile
-
 from collections.abc import Generator, Iterable, Iterator, Sequence
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, List, Literal, Set, Union
 
+import pytest
 from chromadb import Collection
+from langchain.schema import Document
+from langchain_chroma import Chroma
+from langchain_chroma import Chroma as ChromaVectorStore
+from langchain_community.document_loaders import PyMuPDFLoader, PyPDFLoader, TextLoader, WebBaseLoader
+from langchain_core.documents import Document
+from langchain_core.vectorstores.base import VectorStoreRetriever
+from langchain_text_splitters import MarkdownTextSplitter
+from loguru import logger as LOGGER
+
 from goob_ai.aio_settings import aiosettings
 from goob_ai.services.chroma_service import (
     CHROMA_PATH,
@@ -53,17 +62,6 @@ from goob_ai.services.chroma_service import (
     split_text,
     string_to_doc,
 )
-from langchain.schema import Document
-from langchain_chroma import Chroma
-from langchain_chroma import Chroma as ChromaVectorStore
-from langchain_community.document_loaders import PyMuPDFLoader, PyPDFLoader, TextLoader, WebBaseLoader
-from langchain_core.documents import Document
-from langchain_core.vectorstores.base import VectorStoreRetriever
-from langchain_text_splitters import MarkdownTextSplitter
-from loguru import logger as LOGGER
-
-import pytest
-
 
 if TYPE_CHECKING:
     from unittest.mock import AsyncMock, MagicMock, NonCallableMagicMock
@@ -72,7 +70,6 @@ if TYPE_CHECKING:
     from _pytest.fixtures import FixtureRequest
     from _pytest.logging import LogCaptureFixture
     from _pytest.monkeypatch import MonkeyPatch
-
     from pytest_mock.plugin import MockerFixture
 
 # import pysnooper
@@ -224,8 +221,6 @@ def test_add_collection(mocker: MockerFixture) -> None:
         mocker (MockerFixture): The mocker fixture for patching.
 
     """
-    from goob_ai.services.chroma_service import ChromaService
-
     mock_client = mocker.patch.object(ChromaService, "client")
     mock_collection = mocker.Mock()
     mock_client.get_or_create_collection.return_value = mock_collection
@@ -254,8 +249,6 @@ def test_get_client(mocker: MockerFixture) -> None:
         mocker (MockerFixture): The mocker fixture for patching.
 
     """
-    from goob_ai.services.chroma_service import ChromaService
-
     mock_client = mocker.Mock()
     mocker.patch.object(ChromaService, "client", mock_client)
 
@@ -277,8 +270,6 @@ def test_get_collection(mocker: MockerFixture) -> None:
         mocker (MockerFixture): The mocker fixture for patching.
 
     """
-    from goob_ai.services.chroma_service import ChromaService
-
     mock_client = mocker.patch.object(ChromaService, "client")
     mock_collection = mocker.Mock()
     mock_client.get_collection.return_value = mock_collection
@@ -305,8 +296,6 @@ def test_get_list_collections(mocker: MockerFixture) -> None:
         mocker (MockerFixture): The mocker fixture for patching.
 
     """
-    from goob_ai.services.chroma_service import ChromaService
-
     mock_client = mocker.patch.object(ChromaService, "client")
     mock_collections = [mocker.Mock(), mocker.Mock()]
     mock_client.list_collections.return_value = mock_collections
@@ -423,9 +412,6 @@ def test_load_documents(mocker: MockerFixture, mock_pdf_file: Path, vcr: Any) ->
     4. Asserts that the document is loaded, split, and saved correctly.
 
     """
-
-    from goob_ai.services.chroma_service import load_documents
-
     documents = load_documents()
 
     # this is a bad test, cause the data will change eventually. Need to find a way to test this.
@@ -457,10 +443,9 @@ def test_split_text(mocker: MockerFixture) -> None:
     4. Verifies that the RecursiveCharacterTextSplitter is called with the correct arguments.
 
     """
-    from typing import List
+    from langchain.schema import Document
 
     from goob_ai.services.chroma_service import split_text
-    from langchain.schema import Document
 
     mock_documents: list[Document] = [Document(page_content="This is a test document.", metadata={})]
     mock_chunks: list[Document] = [
@@ -503,10 +488,7 @@ def test_split_text(mocker: MockerFixture) -> None:
 @pytest.mark.e2e()
 def test_chroma_service_e2e(mocker: MockerFixture, mock_txt_file: Path) -> None:
     import chromadb
-
-    from goob_ai.services.chroma_service import ChromaService
     from langchain_chroma import Chroma
-    from langchain_community.document_loaders import TextLoader
     from langchain_community.embeddings.sentence_transformer import SentenceTransformerEmbeddings
     from langchain_text_splitters import CharacterTextSplitter
 
@@ -549,7 +531,6 @@ def test_chroma_service_e2e_add_to_chroma(
     mocker: MockerFixture, mock_txt_file: Path, caplog: pytest.LogCaptureFixture, capsys: pytest.CaptureFixture
 ) -> None:
     caplog.set_level(logging.DEBUG)
-    from goob_ai.services.chroma_service import ChromaService
 
     client = ChromaService.client
     test_collection_name = "test_chroma_service_e2e_add_to_chroma"
@@ -579,8 +560,6 @@ def test_chroma_service_e2e_add_to_chroma(
 @pytest.mark.integration()
 @pytest.mark.e2e()
 def test_chroma_service_e2e_add_to_chroma_disallowed_special(mocker: MockerFixture, mock_txt_file: Path) -> None:
-    from goob_ai.services.chroma_service import ChromaService
-
     client = ChromaService.client
     test_collection_name = "test_chroma_service_e2e_add_to_chroma_disallowed_special"
 
@@ -606,8 +585,6 @@ def test_chroma_service_e2e_add_to_chroma_disallowed_special(mocker: MockerFixtu
 @pytest.mark.integration()
 @pytest.mark.e2e()
 def test_chroma_service_e2e_add_to_chroma_url(mocker: MockerFixture) -> None:
-    from goob_ai.services.chroma_service import ChromaService
-
     client = ChromaService.client
     test_collection_name = "test_chroma_service_e2e_add_to_chroma_url"
 
@@ -1242,8 +1219,9 @@ def test_generate_context_text() -> None:
     This test verifies that the `generate_context_text` function correctly generates
     the context text from the given search results.
     """
-    from goob_ai.services.chroma_service import generate_context_text
     from langchain.schema import Document
+
+    from goob_ai.services.chroma_service import generate_context_text
 
     results = [
         (Document(page_content="doc1"), 0.8),
@@ -1285,8 +1263,9 @@ def test_generate_context_text_single_result() -> None:
     This test verifies that the `generate_context_text` function correctly generates
     the context text when given a single search result.
     """
-    from goob_ai.services.chroma_service import generate_context_text
     from langchain.schema import Document
+
+    from goob_ai.services.chroma_service import generate_context_text
 
     results = [(Document(page_content="doc1"), 0.8)]
 
@@ -1535,7 +1514,7 @@ def test_add_to_chroma(
     """
     caplog.set_level(logging.DEBUG)
 
-    from goob_ai.services.chroma_service import ChromaService, _await_server, load_documents
+    from goob_ai.services.chroma_service import _await_server
 
     collection_name = "hugo_johnson"
     chroma_client = get_client()
@@ -1585,8 +1564,6 @@ def test_add_or_update_documents_new_documents(
     This test verifies that the `add_or_update_documents` function correctly adds
     new documents to the Chroma database when they don't exist.
     """
-    from goob_ai.services.chroma_service import load_documents
-
     caplog.set_level(logging.DEBUG)
 
     mock_get_rag_splitter = mocker.patch("goob_ai.services.chroma_service.get_rag_splitter")
@@ -1626,8 +1603,6 @@ def test_add_or_update_documents_existing_documents(
     This test verifies that the `add_or_update_documents` function correctly skips
     adding documents that already exist in the Chroma database.
     """
-    from goob_ai.services.chroma_service import load_documents
-
     caplog.set_level(logging.DEBUG)
 
     mock_get_rag_splitter = mocker.patch("goob_ai.services.chroma_service.get_rag_splitter")

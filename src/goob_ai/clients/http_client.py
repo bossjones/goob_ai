@@ -7,14 +7,12 @@ import logging
 import sys
 import traceback
 import typing
-
 from types import TracebackType
 from typing import TYPE_CHECKING, Any, Dict, Literal, Optional, Type, Union
 
 import httpx
 import requests
 import tenacity
-
 from loguru import logger as LOGGER
 from pydantic import BaseModel
 from requests import Response
@@ -24,9 +22,8 @@ from goob_ai import __version__
 from goob_ai.aio_settings import aiosettings
 from goob_ai.utils import retry
 
-
 USER_AGENT = (
-    f"goob-ai/{__version__} | Python/" f"{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}"
+    f"goob-ai/{__version__} | Python/{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}"
 )
 _METHODS = typing.Literal["GET", "POST"]  # pylint: disable=invalid-name
 _TIMEOUT = 1.0
@@ -119,9 +116,7 @@ class HttpClient(BaseModel):
             raise e
         return resp
 
-    def get(
-        self, url: str, urlparams: dict[str, str] | None = None, headers: Optional[dict[str, str]] = None
-    ) -> Response:
+    def get(self, url: str, urlparams: dict[str, str] | None = None, headers: dict[str, str] | None = None) -> Response:
         """
         Perform an HTTP GET request.
 
@@ -169,7 +164,7 @@ class HttpClient(BaseModel):
             raise e
         return resp
 
-    def __get_headers(self, additional_headers: Optional[dict[str, str]] = None) -> dict[str, str]:
+    def __get_headers(self, additional_headers: dict[str, str] | None = None) -> dict[str, str]:
         """
         Get the headers for the request.
 
@@ -319,7 +314,7 @@ class AsyncHttpxClient(BaseModel):
             await LOGGER.complete()
 
     async def get(
-        self, url: str, urlparams: dict[str, str] | None = None, headers: Optional[dict[str, str]] = None
+        self, url: str, urlparams: dict[str, str] | None = None, headers: dict[str, str] | None = None
     ) -> httpx.Response:
         """
         Perform an asynchronous HTTP GET request using httpx.
@@ -415,7 +410,7 @@ class AsyncHttpxClient(BaseModel):
             # Code that always executes, regardless of whether an exception occurred or not
             await LOGGER.complete()
 
-    def __get_headers(self, additional_headers: Optional[dict[str, str]] = None) -> dict[str, str]:
+    def __get_headers(self, additional_headers: dict[str, str] | None = None) -> dict[str, str]:
         """
         Get the headers for the request.
 

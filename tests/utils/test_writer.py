@@ -3,19 +3,16 @@
 from __future__ import annotations
 
 import logging
-
 from typing import TYPE_CHECKING
 
-from goob_ai.agent import AiAgent
+import pytest
 from loguru import logger as LOGGER
 
-import pytest
-
+from goob_ai.agent import AiAgent
 
 if TYPE_CHECKING:
     from _pytest.fixtures import FixtureRequest
     from _pytest.monkeypatch import MonkeyPatch
-
     from pytest_mock.plugin import MockerFixture
 
 import asyncio

@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import enum
 
-
 ONE_MILLION = 1000000
 FIVE_HUNDRED_THOUSAND = 500000
 ONE_HUNDRED_THOUSAND = 100000

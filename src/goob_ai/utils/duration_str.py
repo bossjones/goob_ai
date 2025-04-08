@@ -18,10 +18,8 @@
 from __future__ import annotations
 
 import re
-
 from datetime import timedelta
 from typing import Optional
-
 
 _nanosecond_size = 1
 _microsecond_size = 1000 * _nanosecond_size
@@ -127,7 +125,7 @@ def timedelta_to_duration_str(delta: timedelta, extended: bool = False) -> str:
     return f"{sign}{result_str}"
 
 
-def _to_str_small(nanoseconds: Optional[float], extended: bool = False) -> str:
+def _to_str_small(nanoseconds: float | None, extended: bool = False) -> str:
     result_str = ""
 
     if not nanoseconds:

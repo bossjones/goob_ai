@@ -6,7 +6,6 @@ import os
 import aiosqlite
 import discord
 
-
 DATABASE_PATH = f"{os.path.realpath(os.path.dirname(__file__))}/../database/database.db"
 MESSAGES_PATH = f"{os.path.realpath(os.path.dirname(__file__))}/../database/messages.db"
 

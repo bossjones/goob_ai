@@ -1,11 +1,10 @@
 # NOTE: https://github.com/apify/actor-vector-database-integrations/blob/master/code/src/vector_stores/chroma.py
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime, timezone
 from typing import TYPE_CHECKING, Dict, List, Optional
 
 import chromadb
-
 from chromadb.config import Settings as ChromaSettings
 from langchain_chroma import Chroma
 from langchain_core.documents import Document
@@ -13,7 +12,6 @@ from loguru import logger as LOGGER
 
 from goob_ai.aio_settings import aiosettings
 from goob_ai.gen_ai.vectorstore.base import VectorDbBase
-
 
 if TYPE_CHECKING:
     from langchain_core.embeddings import Embeddings
@@ -85,17 +83,20 @@ class ChromaDatabase(Chroma, VectorDbBase):
         """
         results = self.index.get(where={"item_id": item_id}, include=["metadatas"])
         if (ids := results.get("ids")) and (metadata := results.get("metadatas")):
-            return [Document(page_content="", metadata={**m, "chunk_id": _id}) for _id, m in zip(ids, metadata)]
+            return [
+                Document(page_content="", metadata={**m, "chunk_id": _id})
+                for _id, m in zip(ids, metadata, strict=False)
+            ]
         return []
 
-    def update_last_seen_at(self, ids: list[str], last_seen_at: Optional[int] = None) -> None:
+    def update_last_seen_at(self, ids: list[str], last_seen_at: int | None = None) -> None:
         """Update last_seen_at field in the database.
 
         Args:
             ids: List of document IDs to update.
             last_seen_at: Timestamp to set for last_seen_at. Defaults to current timestamp.
         """
-        last_seen_at = last_seen_at or int(datetime.now(timezone.utc).timestamp())
+        last_seen_at = last_seen_at or int(datetime.now(UTC).timestamp())
         for _id in ids:
             self.index.update(ids=_id, metadatas=[{"last_seen_at": last_seen_at}])
 
@@ -113,9 +114,7 @@ class ChromaDatabase(Chroma, VectorDbBase):
         if r["ids"]:
             self.delete(ids=r["ids"])
 
-    def search_by_vector(
-        self, vector: list[float], k: int = 1_000_000, filter_: Optional[dict] = None
-    ) -> list[Document]:
+    def search_by_vector(self, vector: list[float], k: int = 1_000_000, filter_: dict | None = None) -> list[Document]:
         """Search documents by vector similarity.
 
         Args:

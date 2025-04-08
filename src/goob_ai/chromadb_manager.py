@@ -4,11 +4,9 @@
 from __future__ import annotations
 
 import os
-
 from typing import Any, Dict, List, Optional, Tuple
 
 import chromadb
-
 from langchain_community.document_loaders.pdf import PyMuPDFLoader
 from langchain_community.llms.ollama import Ollama
 from langchain_core.documents import Document
@@ -19,7 +17,6 @@ from loguru import logger as LOGGER
 from tqdm import tqdm
 
 from goob_ai.aio_settings import aiosettings
-
 
 HERE = os.path.dirname(__file__)
 QDRANT_URL = os.getenv("QDRANT_URL", "https://localhost:6333")
@@ -187,7 +184,7 @@ class ChromaDB:
         """
         return self.chroma_client.list_collections()
 
-    def get_collection(self, collection_name: str, embedding_function: Any) -> Optional[chromadb.Collection]:
+    def get_collection(self, collection_name: str, embedding_function: Any) -> chromadb.Collection | None:
         """Get a collection by name.
 
         Args:
@@ -280,7 +277,7 @@ class ChromaDBManager:
         """
         return self.vector_db.get_list_collections()
 
-    def get_collection(self, collection_name: str, embedding_function: Any) -> Optional[chromadb.Collection]:
+    def get_collection(self, collection_name: str, embedding_function: Any) -> chromadb.Collection | None:
         """Get a collection by name.
 
         Args:

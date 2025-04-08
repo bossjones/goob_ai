@@ -4,16 +4,14 @@ import logging
 import os
 import shutil
 import sys
-
 from collections.abc import Generator, Iterable, Iterator, Sequence
 from pathlib import Path
 from typing import TYPE_CHECKING, List, Literal, Set, Union
 
-from goob_ai.utils import base
+import pytest
 from loguru import logger as LOGGER
 
-import pytest
-
+from goob_ai.utils import base
 
 if TYPE_CHECKING:
     from unittest.mock import AsyncMock, MagicMock, NonCallableMagicMock
@@ -22,7 +20,6 @@ if TYPE_CHECKING:
     from _pytest.fixtures import FixtureRequest
     from _pytest.logging import LogCaptureFixture
     from _pytest.monkeypatch import MonkeyPatch
-
     from pytest_mock.plugin import MockerFixture
 
 
@@ -122,7 +119,7 @@ def test_create_dict_from_filter() -> None:
         ([], ["a"], None),
     ],
 )
-def test_fltr(node: Union[dict, list], whitelist: list[str], expected: Union[dict, list, None]) -> None:
+def test_fltr(node: dict | list, whitelist: list[str], expected: dict | list | None) -> None:
     assert base.fltr(node, whitelist) == expected
 
 

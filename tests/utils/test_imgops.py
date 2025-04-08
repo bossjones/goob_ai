@@ -2,13 +2,15 @@ from __future__ import annotations
 
 import asyncio
 import os
-
 from pathlib import Path
 from typing import List, Tuple
 
 import numpy as np
+import pytest
 import pytest_asyncio
+import pytest_mock
 import torch
+from PIL import Image
 
 from goob_ai.utils.devices import get_device
 from goob_ai.utils.imgops import (
@@ -32,10 +34,6 @@ from goob_ai.utils.imgops import (
     rgb_to_bgr,
     setup_model,
 )
-from PIL import Image
-
-import pytest
-import pytest_mock
 
 
 @pytest.fixture()

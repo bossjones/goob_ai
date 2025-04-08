@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import glob
-
 from pathlib import Path
 from typing import Dict, List, Optional
 
@@ -11,7 +10,6 @@ from langchain_community.document_loaders import PyMuPDFLoader
 from langchain_community.embeddings.sentence_transformer import SentenceTransformerEmbeddings
 from langchain_community.vectorstores.chroma import Chroma
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-
 
 industry_files: dict[str, str] = {
     "OpenCV tutorial Documentation": "opencv-tutorial-readthedocs-io-en-latest.pdf",
@@ -96,7 +94,7 @@ class ChromaDB:
         """Initialize the ChromaDB."""
         self.embedding_function = SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2")
         self.vector_store_path = "data/chroma"
-        self.chroma: Optional[Chroma] = None
+        self.chroma: Chroma | None = None
 
         # Load store if path exists
         if Path(self.vector_store_path).exists():
@@ -122,7 +120,7 @@ class ChromaDB:
             embedding=self.embedding_function,
         )
 
-    def query(self, query: str, industry: Optional[str] = None) -> list[Document]:
+    def query(self, query: str, industry: str | None = None) -> list[Document]:
         """Query the Chroma database for similar documents.
 
         Args:

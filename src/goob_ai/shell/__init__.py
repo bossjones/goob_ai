@@ -10,20 +10,17 @@ import pathlib
 import subprocess
 import sys
 import time
-
 from asyncio.subprocess import Process
 from pathlib import Path
 from typing import List, Tuple, Union
 
 import uritools
-
 from codetiming import Timer
-
 
 HOME_PATH = os.environ.get("HOME")
 
 
-async def _aio_run_process_and_communicate(cmd: list[str], cwd: Union[str, None] = None):
+async def _aio_run_process_and_communicate(cmd: list[str], cwd: str | None = None):
     """
     _summary_
 
@@ -43,7 +40,7 @@ async def _aio_run_process_and_communicate(cmd: list[str], cwd: Union[str, None]
     return stdout.decode("utf-8").strip()
 
 
-def _stat_y_file(fname: str, env: dict = None, cwd: Union[str, None] = None) -> str:
+def _stat_y_file(fname: str, env: dict = None, cwd: str | None = None) -> str:
     # """Get the timestamp of a file."""
     if env is None:
         env = {}
@@ -68,7 +65,7 @@ def _stat_y_file(fname: str, env: dict = None, cwd: Union[str, None] = None) -> 
     return timestamp
 
 
-def _popen(cmd_arg: tuple, env: dict = None, cwd: Union[str, None] = None):
+def _popen(cmd_arg: tuple, env: dict = None, cwd: str | None = None):
     """
     _summary_
 
@@ -99,7 +96,7 @@ def _popen(cmd_arg: tuple, env: dict = None, cwd: Union[str, None] = None):
     return retval
 
 
-def _popen_communicate(cmd_arg: tuple, env: dict = None, cwd: Union[str, None] = None):
+def _popen_communicate(cmd_arg: tuple, env: dict = None, cwd: str | None = None):
     """
     _summary_
 
@@ -174,7 +171,7 @@ class ShellConsole:  # pylint: disable=too-few-public-methods
         sys.stdout.flush()
 
 
-def pquery(command: Union[str, list], stdin: bool = None, **kwargs):
+def pquery(command: str | list, stdin: bool = None, **kwargs):
     """
     _summary_
 
@@ -212,7 +209,7 @@ def pquery(command: Union[str, list], stdin: bool = None, **kwargs):
     return stdout.decode("utf-8")
 
 
-def _popen_stdout(cmd_arg: str, cwd: Union[str, None] = None):
+def _popen_stdout(cmd_arg: str, cwd: str | None = None):
     """
     _summary_
 
@@ -237,13 +234,13 @@ def _popen_stdout(cmd_arg: str, cwd: Union[str, None] = None):
     for line in iter(cmd.stdout.readline, b""):
         # Print line
         _line = line.rstrip()
-        ShellConsole.message(f'>>> {_line.decode("utf-8")}')
+        ShellConsole.message(f">>> {_line.decode('utf-8')}")
 
     ShellConsole.message(f"END: {cmd_arg}")
     # subprocess.CompletedProcess(args=cmd_arg, returncode=0)
 
 
-def _popen_stdout_lock(cmd_arg: str, cwd: Union[str, None] = None):
+def _popen_stdout_lock(cmd_arg: str, cwd: str | None = None):
     """
     _summary_
 
@@ -268,7 +265,7 @@ def _popen_stdout_lock(cmd_arg: str, cwd: Union[str, None] = None):
         for line in iter(cmd.stdout.readline, b""):
             # Print line
             _line = line.rstrip()
-            ShellConsole.message(f'>>> {_line.decode("utf-8")}')
+            ShellConsole.message(f">>> {_line.decode('utf-8')}")
 
         ShellConsole.message(f"END: {cmd_arg}")
         subprocess.CompletedProcess(args=cmd_arg, returncode=0)

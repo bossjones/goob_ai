@@ -6,13 +6,13 @@ import logging
 import os.path
 import sys
 import textwrap
-
-from collections.abc import Iterable, Iterator
+from collections.abc import Callable, Iterable, Iterator
 from datetime import datetime
 from enum import Enum
 from functools import partial
-from typing import TYPE_CHECKING, Annotated, Any, Callable, Dict, List, Literal, Optional, Tuple, Type, Union
+from typing import TYPE_CHECKING, Annotated, Any, Dict, List, Literal, Optional, Tuple, Type, Union
 
+import pytest
 from langchain_core.callbacks import AsyncCallbackManagerForToolRun, CallbackManagerForToolRun
 from langchain_core.messages import ToolMessage
 from langchain_core.pydantic_v1 import BaseModel, Field, ValidationError
@@ -31,13 +31,9 @@ from loguru import logger as LOGGER
 from requests_mock.mocker import Mocker as RequestsMocker
 from typing_extensions import TypedDict
 
-import pytest
-
-
 if TYPE_CHECKING:
     from _pytest.fixtures import FixtureRequest
     from _pytest.monkeypatch import MonkeyPatch
-
     from pytest_mock.plugin import MockerFixture
 
 logger = logging.getLogger(__name__)
@@ -58,6 +54,10 @@ def test_rag_tool_injected_arg_with_schema(
     request: FixtureRequest,
 ) -> None:
     # initalize the tool
+    from langchain_chroma import Chroma
+    from langchain_openai import ChatOpenAI, OpenAIEmbeddings
+    from pydantic_settings import SettingsConfigDict
+
     from goob_ai import llm_manager
     from goob_ai.aio_settings import AioSettings, aiosettings
     from goob_ai.gen_ai.tools.vision_tool import VisionTool
@@ -65,9 +65,6 @@ def test_rag_tool_injected_arg_with_schema(
     from goob_ai.services.chroma_service import ChromaService
     from goob_ai.tools import rag_tool
     from goob_ai.tools.rag_tool import ReadTheDocsQATool
-    from langchain_chroma import Chroma
-    from langchain_openai import ChatOpenAI, OpenAIEmbeddings
-    from pydantic_settings import SettingsConfigDict
 
     embeddings = OpenAIEmbeddings()
     db = Chroma(

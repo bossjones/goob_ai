@@ -4,7 +4,6 @@ from __future__ import annotations
 import logging
 import os
 import re
-
 from collections import defaultdict
 from collections.abc import Sequence
 from typing import TYPE_CHECKING, Annotated, Any, Dict, List, Literal, Optional, TypedDict, Union
@@ -62,7 +61,6 @@ from goob_ai.gen_ai.tools.vision_tool import VisionTool
 from goob_ai.llm_manager import LlmManager
 from goob_ai.services.chroma_service import ChromaService
 from goob_ai.tools.rag_tool import ReadTheDocsQATool
-
 
 if TYPE_CHECKING:
     from pinecone.control import Pinecone  # pyright: ignore[reportAttributeAccessIssue]
@@ -208,7 +206,7 @@ llm = gpt_4o_mini.configurable_alternatives(
 )
 
 
-def get_retriever(k: Optional[int] = None) -> BaseRetriever:
+def get_retriever(k: int | None = None) -> BaseRetriever:
     embeddings = OpenAIEmbeddings()
     db = Chroma(
         client=ChromaService.client,
@@ -244,7 +242,7 @@ def format_docs(docs: Sequence[Document]) -> str:
     return "\n".join(formatted_docs)
 
 
-def retrieve_documents(state: AgentState, *, config: Optional[RunnableConfig] = None) -> AgentState:
+def retrieve_documents(state: AgentState, *, config: RunnableConfig | None = None) -> AgentState:
     config = ensure_config(config)
     retriever = get_retriever(k=config["configurable"].get("k"))
     messages = convert_to_messages(state["messages"])

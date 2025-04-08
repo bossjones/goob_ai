@@ -6,13 +6,11 @@ from __future__ import annotations
 import csv
 import os
 import re
-
 from glob import glob
 from pathlib import Path
 from typing import List, Optional, Tuple, Union
 
 import numpy as np
-
 from dask import array as da
 from dask import delayed
 
@@ -29,7 +27,7 @@ def imread(filename: str) -> np.ndarray:
     filename : string
         The path from which to read the image.
 
-    Returns
+    Returns:
     -------
     data : np.ndarray
         The image data.
@@ -50,11 +48,11 @@ def _alphanumeric_key(s):
     ----------
     s : string
 
-    Returns
+    Returns:
     -------
     k : a list of strings and ints
 
-    Examples
+    Examples:
     --------
     >>> _alphanumeric_key("z23a")
     ['z', 23, 'a']
@@ -89,7 +87,7 @@ def magic_imread(filenames, *, use_dask=None, stack=True):
         Whether to stack the images in multiple files into a single array. If
         False, a list of arrays will be returned.
 
-    Returns
+    Returns:
     -------
     image : array-like
         Array or list of images
@@ -213,8 +211,8 @@ def magic_imread(filenames, *, use_dask=None, stack=True):
 
 def write_csv(
     filename: str,
-    data: Union[list, np.ndarray],
-    column_names: Optional[list[str]] = None,
+    data: list | np.ndarray,
+    column_names: list[str] | None = None,
 ):
     """
     Write a csv file.
@@ -244,7 +242,7 @@ def write_csv(
 
 def guess_layer_type_from_column_names(
     column_names: list[str],
-) -> Optional[str]:
+) -> str | None:
     """
     Guess layer type based on column names from a csv file.
 
@@ -253,7 +251,7 @@ def guess_layer_type_from_column_names(
     column_names : list of str
         List of the column names from the csv.
 
-    Returns
+    Returns:
     -------
     str or None
         Layer type if recognized, otherwise None.
@@ -267,7 +265,7 @@ def guess_layer_type_from_column_names(
         return None
 
 
-def read_csv(filename: str, require_type: str = None) -> tuple[np.array, list[str], Optional[str]]:
+def read_csv(filename: str, require_type: str = None) -> tuple[np.array, list[str], str | None]:
     """
     Return CSV data only if column names match format for ``require_type``.
 
@@ -289,13 +287,13 @@ def read_csv(filename: str, require_type: str = None) -> tuple[np.array, list[st
         layer type string, then a ``ValueError`` will be raised if the column
         names are not of the predicted format.
 
-    Returns
+    Returns:
     -------
     (data, column_names, layer_type) : Tuple[np.array, List[str], str]
         The table data and column names from the CSV file, along with the
         detected layer type (string).
 
-    Raises
+    Raises:
     ------
     ValueError
         If the column names do not match the format requested by

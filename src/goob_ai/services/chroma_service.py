@@ -23,11 +23,10 @@ import sys
 import tempfile
 import time
 import traceback
-
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Callable, List, Literal, Optional, Set, Union
+from typing import Any, List, Literal, Optional, Set, Union
 
 import bpdb
 import bs4
@@ -35,7 +34,6 @@ import chromadb
 import httpx
 import pysnooper
 import uritools
-
 from chromadb.api import ClientAPI, ServerAPI
 from chromadb.config import Settings as ChromaSettings
 from httpx import ConnectError
@@ -97,7 +95,6 @@ from goob_ai.services import (
 )
 from goob_ai.utils import file_functions
 
-
 # from langchain_community.vectorstores import Chroma
 # from langchain.vectorstores.chroma import Chroma
 
@@ -126,7 +123,7 @@ async def llm_query(
     question: str = "",
     threshold: float = 0.65,
     count: int = 5,
-    disallowed_special: Union[Literal["all"], set[str], Sequence[str]] = (),
+    disallowed_special: Literal["all"] | set[str] | Sequence[str] = (),
 ) -> tuple[str | list | None, list[str | None]]:
     LOGGER.debug(f"Querying chroma db. Count={count} Threshold={threshold}", collection_name=collection_name)
 
@@ -311,7 +308,7 @@ async def llm_query(
 async def create_chroma_db(
     collection_name: str,
     docs: list[Document],
-    disallowed_special: Union[Literal["all"], set[str], Sequence[str]] = (),
+    disallowed_special: Literal["all"] | set[str] | Sequence[str] = (),
     reset: bool = False,
 ) -> None:
     """
@@ -323,7 +320,6 @@ async def create_chroma_db(
         api_key (str): The API key for authentication.
         docs (list[Document]): The list of Document objects to add to the database.
     """
-
     if reset:
         # Clear out the database first.
         LOGGER.debug("Clear out the database first.")
@@ -401,7 +397,7 @@ def compare_two_words(w1: str, w2: str) -> None:
 def add_or_update_documents(
     chunks: list[Document],
     persist_directory: str = CHROMA_PATH,
-    disallowed_special: Union[Literal["all"], set[str], Sequence[str], None] = (),
+    disallowed_special: Literal["all"] | set[str] | Sequence[str] | None = (),
     use_custom_openai_embeddings: bool = False,
     collection_name: str = "",
     # path_to_document: str = "",
@@ -425,7 +421,6 @@ def add_or_update_documents(
     Returns:
         None
     """
-
     # NOTE: orig code
     # from langchain_community.embeddings import HuggingFaceEmbeddings
     # embedder = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
@@ -860,7 +855,7 @@ class CustomOpenAIEmbeddings(OpenAIEmbeddings):
     def __init__(
         self,
         openai_api_key: str = aiosettings.openai_api_key.get_secret_value(),
-        disallowed_special: Union[Literal["all"], set[str], Sequence[str], None] = None,
+        disallowed_special: Literal["all"] | set[str] | Sequence[str] | None = None,
     ) -> None:
         """Initialize the CustomOpenAIEmbeddings class.
 
@@ -923,7 +918,7 @@ def do_generate_data_store_and_update(
     collection_name: str = "",
     embedding_function: Any = OpenAIEmbeddings(),
     reset: bool = False,
-    disallowed_special: Union[Literal["all"], set[str], Sequence[str], None] = (),
+    disallowed_special: Literal["all"] | set[str] | Sequence[str] | None = (),
     use_custom_openai_embeddings: bool = False,
 ) -> VectorStoreRetriever:
     if reset:
@@ -1041,7 +1036,7 @@ def split_text(
 @pysnooper.snoop()
 def save_to_chroma(
     chunks: list[Document],
-    disallowed_special: Union[Literal["all"], set[str], Sequence[str], None] = (),
+    disallowed_special: Literal["all"] | set[str] | Sequence[str] | None = (),
     use_custom_openai_embeddings: bool = False,
     collection_name: str = "",
     reset: bool = False,
@@ -1325,7 +1320,6 @@ class ChromaService:
         Args:
             chunks (list[Document]): The list of document chunks to be saved.
         """
-
         # Log the input parameters for debugging purposes
         LOGGER.debug(f"path_to_document = {path_to_document}")
         LOGGER.debug(f"collection_name = {collection_name}")
@@ -1409,7 +1403,7 @@ class ChromaService:
         return success_count
 
 
-def _await_server(api: Union[ServerAPI, ClientAPI] = get_client(), attempts: int = 0) -> None:
+def _await_server(api: ServerAPI | ClientAPI = get_client(), attempts: int = 0) -> None:
     try:
         api.heartbeat()
     except ConnectError as e:

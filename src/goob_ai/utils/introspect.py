@@ -9,7 +9,6 @@ Defines built in goob_ai functions to aid in introspection
 from __future__ import annotations
 
 import inspect
-
 from types import MethodType
 
 

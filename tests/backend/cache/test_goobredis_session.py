@@ -5,21 +5,19 @@
 from __future__ import annotations
 
 import asyncio
-
 from typing import TYPE_CHECKING
-
-from goob_ai.backend.cache import goobredis_session
 
 import pytest
 
+from goob_ai.backend.cache import goobredis_session
 
 if TYPE_CHECKING:
     from _pytest.fixtures import FixtureRequest
     from _pytest.monkeypatch import MonkeyPatch
+    from pytest_mock.plugin import MockerFixture
+
     from goob_ai.backend.cache.goobredis import GoobRedisClient
     from goob_ai.backend.cache.goobredis_session import RedisSessionManagerUtility
-
-    from pytest_mock.plugin import MockerFixture
 
 
 async def test_redis_session_manager_utility():

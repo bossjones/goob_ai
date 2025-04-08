@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import time
-
 from typing import Dict, Optional
 
 
@@ -32,8 +31,8 @@ class Timer:
     """
 
     def __init__(self):
-        self._start_time: Optional[float] = None
-        self._stop_time: Optional[float] = None
+        self._start_time: float | None = None
+        self._stop_time: float | None = None
         self._duration: float = 0.0
 
     def start(self) -> None:

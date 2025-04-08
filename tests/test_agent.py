@@ -8,13 +8,12 @@ import asyncio
 import logging
 import sys
 import uuid
-
 from collections.abc import AsyncIterator, Iterable, Iterator, Sequence
 from functools import partial
 from itertools import cycle
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, cast
 
-from goob_ai.agent import AiAgent
+import pytest
 from langchain_core.callbacks import CallbackManagerForRetrieverRun, Callbacks
 from langchain_core.chat_history import BaseChatMessageHistory
 from langchain_core.documents import Document
@@ -43,8 +42,7 @@ from langchain_core.utils.aiter import aclosing
 from langchain_openai import OpenAIEmbeddings
 from loguru import logger as LOGGER
 
-import pytest
-
+from goob_ai.agent import AiAgent
 
 if TYPE_CHECKING:
     from unittest.mock import AsyncMock, MagicMock, NonCallableMagicMock
@@ -53,7 +51,6 @@ if TYPE_CHECKING:
     from _pytest.fixtures import FixtureRequest
     from _pytest.logging import LogCaptureFixture
     from _pytest.monkeypatch import MonkeyPatch
-
     from pytest_mock.plugin import MockerFixture
 
 

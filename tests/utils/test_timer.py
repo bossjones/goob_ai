@@ -2,9 +2,9 @@ from __future__ import annotations
 
 import time
 
-from goob_ai.utils.timer import Timer, TimerCollection
-
 import pytest
+
+from goob_ai.utils.timer import Timer, TimerCollection
 
 
 def test_timer_start_stop(mocker):

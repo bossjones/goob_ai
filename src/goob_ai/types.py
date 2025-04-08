@@ -8,24 +8,20 @@
 from __future__ import annotations
 
 import pathlib
-
-from collections.abc import Coroutine, Mapping
+from collections.abc import Callable, Coroutine, Mapping
 from collections.abc import Sequence as Seq
 from types import TracebackType
-from typing import TYPE_CHECKING, Any, Callable, Dict, List, NewType, Tuple, Type, TypeAlias, TypedDict, TypeVar, Union
+from typing import TYPE_CHECKING, Any, Dict, List, NewType, Tuple, Type, TypeAlias, TypedDict, TypeVar, Union
+from typing import Literal as Literal
+from typing import TypeGuard as TypeGuard
+from typing import get_args as get_args
 from typing import runtime_checkable as runtime_checkable
 
 import httpx
 import numpy as np
-
 from langchain.pydantic_v1 import BaseModel
-from typing_extensions import Literal as Literal
-from typing_extensions import NewType
 from typing_extensions import Protocol as Protocol
 from typing_extensions import TypedDict as TypedDict
-from typing_extensions import TypeGuard as TypeGuard
-from typing_extensions import get_args as get_args
-
 
 if TYPE_CHECKING:
     from goob_ai.gen_ai.vectorstore import ChromaDatabase, PGVectorDatabase, PineconeDatabase
@@ -199,7 +195,7 @@ if tuple(np.__version__.split(".")) < ("1", "20"):
     # this hack is because NewType doesn't allow `Any` as a base type
     # and numpy <=1.20 didn't provide type stubs for np.ndarray
     # https://github.com/python/mypy/issues/6701#issuecomment-609638202
-    class ArrayBase(np.ndarray):  # noqa
+    class ArrayBase(np.ndarray):
         def __getattr__(self, name: str) -> Any:
             # Super of 'ArrayBase' has no '__getattr__' member (no-member)
             return super().__getattr__(name)  # pylint: disable=no-member

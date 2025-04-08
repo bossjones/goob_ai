@@ -2,14 +2,11 @@ from __future__ import annotations
 
 import asyncio
 import io
-
-from collections.abc import Iterable
-from typing import TYPE_CHECKING, Any, Callable, Generic, Optional, Protocol, TypeVar, Union
+from collections.abc import Callable, Iterable
+from typing import TYPE_CHECKING, Any, Generic, Optional, Protocol, TypeVar, Union
 
 import discord
-
 from discord.ext import commands
-
 
 if TYPE_CHECKING:
     # from asyncpg import Pool, Connection
@@ -35,9 +32,9 @@ class ConnectionContextManager(Protocol):
 
     async def __aexit__(
         self,
-        exc_type: Optional[type[BaseException]],
-        exc_value: Optional[BaseException],
-        traceback: Optional[TracebackType],
+        exc_type: type[BaseException] | None,
+        exc_value: BaseException | None,
+        traceback: TracebackType | None,
     ) -> None: ...
 
 
@@ -61,10 +58,10 @@ class ConnectionContextManager(Protocol):
 class ConfirmationView(discord.ui.View):
     def __init__(self, *, timeout: float, author_id: int, delete_after: bool) -> None:
         super().__init__(timeout=timeout)
-        self.value: Optional[bool] = None
+        self.value: bool | None = None
         self.delete_after: bool = delete_after
         self.author_id: int = author_id
-        self.message: Optional[discord.Message] = None
+        self.message: discord.Message | None = None
 
     async def interaction_check(self, interaction: discord.Interaction) -> bool:
         if interaction.user and interaction.user.id == self.author_id:
@@ -135,7 +132,7 @@ class DisambiguatorView(discord.ui.View, Generic[T]):
 
 
 class Context(commands.Context):
-    channel: Union[discord.VoiceChannel, discord.TextChannel, discord.Thread, discord.DMChannel]
+    channel: discord.VoiceChannel | discord.TextChannel | discord.Thread | discord.DMChannel
     prefix: str
     command: commands.Command[Any, ..., Any]
     bot: AsyncGoobBot
@@ -167,14 +164,14 @@ class Context(commands.Context):
         return self.bot.session
 
     @discord.utils.cached_property
-    def replied_reference(self) -> Optional[discord.MessageReference]:
+    def replied_reference(self) -> discord.MessageReference | None:
         ref = self.message.reference
         if ref and isinstance(ref.resolved, discord.Message):
             return ref.resolved.to_reference()
         return None
 
     @discord.utils.cached_property
-    def replied_message(self) -> Optional[discord.Message]:
+    def replied_message(self) -> discord.Message | None:
         ref = self.message.reference
         if ref and isinstance(ref.resolved, discord.Message):
             return ref.resolved
@@ -203,8 +200,8 @@ class Context(commands.Context):
         *,
         timeout: float = 60.0,
         delete_after: bool = True,
-        author_id: Optional[int] = None,
-    ) -> Optional[bool]:
+        author_id: int | None = None,
+    ) -> bool | None:
         """
         An interactive reaction confirmation dialog.
 
@@ -220,7 +217,7 @@ class Context(commands.Context):
             The member who should respond to the prompt. Defaults to the author of the
             Context's message.
 
-        Returns
+        Returns:
         -------
         Optional[bool]
             ``True`` if explicit confirm,
@@ -238,7 +235,7 @@ class Context(commands.Context):
         await view.wait()
         return view.value
 
-    def tick(self, opt: Optional[bool], label: Optional[str] = None) -> str:
+    def tick(self, opt: bool | None, label: str | None = None) -> str:
         lookup = {
             True: "<:greenTick:330090705336664065>",
             False: "<:redTick:330090723011592193>",
@@ -282,6 +279,6 @@ class Context(commands.Context):
 class GuildContext(Context):
     author: discord.Member
     guild: discord.Guild
-    channel: Union[discord.VoiceChannel, discord.TextChannel, discord.Thread]
+    channel: discord.VoiceChannel | discord.TextChannel | discord.Thread
     me: discord.Member
     prefix: str

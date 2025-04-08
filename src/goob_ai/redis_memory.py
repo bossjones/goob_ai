@@ -7,7 +7,6 @@
 from __future__ import annotations
 
 import logging
-
 from typing import Any, Dict, List, Optional, Tuple
 
 from langchain.memory import ConversationBufferMemory, ConversationBufferWindowMemory, ReadOnlySharedMemory
@@ -34,8 +33,7 @@ class CustomConversationBufferMemory(ConversationBufferMemory):
     def _get_input_output(self, inputs: dict[str, Any], outputs: dict[str, str]) -> tuple[str, str]:
         # HACK: because key `groups`` is used for filter which tools that are allowed to execute,
         # but its conflict with `inputs` of memory, so will be removed from inputs.
-        if "groups" in inputs:
-            del inputs["groups"]
+        inputs.pop("groups", None)
         return super()._get_input_output(inputs, outputs)
 
 

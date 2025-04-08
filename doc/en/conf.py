@@ -2,13 +2,11 @@ from __future__ import annotations
 
 import os
 import shutil
-
 from pathlib import Path
 from textwrap import dedent
 from typing import TYPE_CHECKING
 
 from pytest import __version__ as full_version
-
 
 if TYPE_CHECKING:
     import sphinx.application
@@ -299,4 +297,4 @@ def setup(app: sphinx.application.Sphinx) -> None:
 
     # legacypath.py monkey-patches pytest.Testdir in. Import the file so
     # that autodoc can discover references to it.
-    import _pytest.legacypath  # noqa: F401
+    import _pytest.legacypath

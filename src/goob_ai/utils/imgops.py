@@ -26,7 +26,6 @@ import time
 import traceback
 import typing
 import uuid
-
 from enum import IntEnum
 from io import BytesIO
 from pathlib import Path
@@ -39,7 +38,6 @@ import rich
 import torch
 import torchvision.transforms as transforms
 import torchvision.transforms.functional as FT
-
 from loguru import logger as LOGGER
 from PIL import Image
 from scipy.spatial import KDTree
@@ -52,7 +50,6 @@ from webcolors import CSS3_HEX_TO_NAMES, hex_to_rgb
 from goob_ai.utils import file_functions
 from goob_ai.utils.devices import get_device
 from goob_ai.utils.torchutils import load_model
-
 
 IMG_SIZE_CUTOFF = 1080
 
@@ -87,7 +84,7 @@ def setup_model() -> torch.nn.Module:
     device and model name. The model is loaded from a file named "ScreenNetV1.pth"
     and is returned as a torch.nn.Module object.
 
-    Returns
+    Returns:
     -------
         torch.nn.Module: The loaded image processing model.
 
@@ -132,7 +129,6 @@ def is_image_data(b64data):
 # SOURCE: https://github.com/langchain-ai/langchain/blob/master/cookbook/multi_modal_QA.ipynb
 def encode_image(image_path: str):
     """Getting the base64 string"""
-
     with open(image_path, "rb") as image_file:
         return base64.b64encode(image_file.read()).decode("utf-8")
 
@@ -198,11 +194,11 @@ def convert_to_base64(pil_image):
 def handle_autocrop(
     images_filepaths: list[str],
     cols: int = 5,
-    model: Optional[torch.nn.Module] = None,
+    model: torch.nn.Module | None = None,
     device: torch.device = DEVICE,
-    args: Optional[dict] = None,
+    args: dict | None = None,
     resize: bool = False,
-    predict_results: Optional[list[tuple[Image.Image, list[tuple[int, int, int, int]]]]] = None,
+    predict_results: list[tuple[Image.Image, list[tuple[int, int, int, int]]]] | None = None,
 ) -> list[str]:
     """
     Crop images based on predicted bounding boxes.
@@ -313,11 +309,11 @@ def display_normalized_rectangle(image, out_bbox):
 def handle_autocrop_one(
     images_filepath: str,
     cols: int = 5,
-    model: Optional[torch.nn.Module] = None,
+    model: torch.nn.Module | None = None,
     device: torch.device = DEVICE,
-    args: Optional[dict] = None,
+    args: dict | None = None,
     resize: bool = False,
-    predict_results: Optional[tuple[Image.Image, list[tuple[int, int, int, int]]]] = None,
+    predict_results: tuple[Image.Image, list[tuple[int, int, int, int]]] | None = None,
 ) -> str:
     """
     Crop a single image based on predicted bounding boxes.
@@ -370,9 +366,9 @@ def handle_autocrop_one(
 def handle_resize(
     images_filepaths: list[str],
     cols: int = 5,
-    model: Optional[torch.nn.Module] = None,
+    model: torch.nn.Module | None = None,
     device: torch.device = DEVICE,
-    args: Optional[dict] = None,
+    args: dict | None = None,
     resize: bool = False,
 ) -> list[str]:
     """
@@ -419,9 +415,9 @@ def handle_resize(
 def handle_resize_one(
     images_filepath: str,
     cols: int = 5,
-    model: Optional[torch.nn.Module] = None,
+    model: torch.nn.Module | None = None,
     device: torch.device = DEVICE,
-    args: Optional[dict] = None,
+    args: dict | None = None,
     resize: bool = False,
 ) -> str:
     """
@@ -464,9 +460,9 @@ def handle_resize_one(
 def handle_predict(
     images_filepaths: list[str],
     cols: int = 5,
-    model: Optional[torch.nn.Module] = None,
+    model: torch.nn.Module | None = None,
     device: torch.device = DEVICE,
-    args: Optional[dict] = None,
+    args: dict | None = None,
     resize: bool = False,
 ) -> list:
     # -> List[Tuple[Image, torch.Tensor]]:
@@ -504,7 +500,7 @@ def handle_predict_one(
     cols: int = 5,
     model: torch.nn.Module | None = None,
     device: torch.device = DEVICE,
-    args: Optional[dict] = None,
+    args: dict | None = None,
     resize: bool = False,
 ):
     #  -> Tuple[Image.Image, torch.Tensor]:
@@ -1413,7 +1409,7 @@ def auto_split_upscale(
     upscale_function: typing.Callable[[np.ndarray], np.ndarray],
     scale: int = 4,
     overlap: int = 32,
-    max_depth: Optional[int] = None,
+    max_depth: int | None = None,
     current_depth: int = 1,
 ) -> tuple[np.ndarray, int]:
     """

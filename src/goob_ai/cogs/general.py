@@ -5,22 +5,20 @@ from __future__ import annotations
 
 import platform
 import random
-
-from collections.abc import Iterable
-from typing import TYPE_CHECKING, Any, Callable, Generic, List, Optional, Protocol, TypeVar, Union
+from collections.abc import Callable, Iterable
+from typing import TYPE_CHECKING, Any, Generic, List, Optional, Protocol, TypeVar, Union
 
 import aiohttp
 import discord
-
 from discord import app_commands
 from discord.ext import commands
 from discord.ext.commands import Command, Context
+from loguru import logger as LOGGER
+
 from goob_ai.aio_settings import aiosettings
 from goob_ai.factories import cmd_factory, guild_factory
 from goob_ai.goob_bot import AsyncGoobBot
 from goob_ai.helpers import checks
-from loguru import logger as LOGGER
-
 
 if TYPE_CHECKING:
     from ..goob_bot import AsyncGoobBot

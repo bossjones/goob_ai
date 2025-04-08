@@ -3,7 +3,6 @@ from __future__ import annotations
 
 import argparse
 import contextlib
-
 from typing import Optional, Union
 
 import torch
@@ -46,7 +45,7 @@ def extract_device_id(args, name):
 def get_optimal_device(args: argparse.Namespace):
     if torch.cuda.is_available():
         # from modules import shared
-        device_id: Optional[Union[int, None]]
+        device_id: int | None | None
         device_id = args.gpu
 
         if device_id is None:
@@ -165,7 +164,7 @@ def mps_check():
         x * 2
 
     elif not torch.backends.mps.is_built():
-        print("MPS not available because the current PyTorch install was not " "built with MPS enabled.")
+        print("MPS not available because the current PyTorch install was not built with MPS enabled.")
     else:
         print(
             "MPS not available because the current MacOS version is not 12.3+ "

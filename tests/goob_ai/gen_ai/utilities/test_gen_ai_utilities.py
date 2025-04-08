@@ -7,14 +7,17 @@ This module contains pytest tests for the functions in the gen_ai.utilities.__in
 from __future__ import annotations
 
 import datetime
-
 from collections.abc import Generator, Iterable, Iterator
 from concurrent.futures import Executor, Future
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime, timezone
 from pathlib import Path, PosixPath
 from typing import TYPE_CHECKING, Optional, TypeVar
 from uuid import UUID
+
+import pytest
+from langchain.document_loaders import TextLoader
+from langchain_core.documents import Document
 
 from goob_ai.gen_ai.utilities import (
     add_chunk_id,
@@ -27,11 +30,6 @@ from goob_ai.gen_ai.utilities import (
     get_nested_value,
     stringify_dict,
 )
-from langchain.document_loaders import TextLoader
-from langchain_core.documents import Document
-
-import pytest
-
 
 if TYPE_CHECKING:
     from _pytest.fixtures import FixtureRequest
@@ -71,7 +69,7 @@ def test_compute_hash() -> None:
 
 def test_get_chunks_to_delete() -> None:
     """Test the get_chunks_to_delete function."""
-    now = datetime.now(timezone.utc).timestamp()
+    now = datetime.now(UTC).timestamp()
     chunks_prev = [
         Document(page_content="Old1", metadata={"item_id": "1", "last_seen_at": int(now - 86400 * 2)}),
         Document(page_content="Old2", metadata={"item_id": "2", "last_seen_at": int(now - 86400 * 1)}),

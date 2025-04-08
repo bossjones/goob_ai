@@ -6,7 +6,6 @@ import logging
 
 from goob_ai.__version__ import __version__
 
-
 logging.getLogger("asyncio").setLevel(logging.DEBUG)
 logging.getLogger("httpx").setLevel(logging.DEBUG)
 logging.getLogger("faker").setLevel(logging.DEBUG)

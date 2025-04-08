@@ -8,7 +8,6 @@ from langchain_openai import ChatOpenAI
 
 from goob_ai.aio_settings import aiosettings
 
-
 OPENAI_LLM = ChatOpenAI(
     model=aiosettings.chat_model,
     temperature=aiosettings.llm_temperature,

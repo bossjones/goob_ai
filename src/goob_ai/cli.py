@@ -17,15 +17,14 @@ import sys
 import tempfile
 import traceback
 import typing
-
-from collections.abc import Awaitable, Iterable, Sequence
+from collections.abc import Awaitable, Callable, Iterable, Sequence
 from enum import Enum
 from functools import partial, wraps
 from importlib import import_module, metadata
 from importlib.metadata import version as importlib_metadata_version
 from pathlib import Path
 from re import Pattern
-from typing import Annotated, Any, Callable, Dict, List, Optional, Set, Tuple, Type, Union
+from typing import Annotated, Any, Dict, List, Optional, Set, Tuple, Type, Union
 
 import anyio
 import asyncer
@@ -34,7 +33,6 @@ import discord
 import rich
 import sentry_sdk
 import typer
-
 from langchain.globals import set_debug, set_verbose
 from langchain_chroma import Chroma as ChromaVectorStore
 from loguru import logger as LOGGER
@@ -59,7 +57,6 @@ from sentry_sdk.integrations.threading import ThreadingIntegration
 from typer import Typer
 
 import goob_ai
-
 from goob_ai import db
 from goob_ai.aio_settings import aiosettings, get_rich_console
 from goob_ai.asynctyper import AsyncTyper
@@ -72,9 +69,8 @@ from goob_ai.utils import repo_typing
 from goob_ai.utils.base import print_line_seperator
 from goob_ai.utils.file_functions import fix_path
 
-
 # # Use the following to enable the debugger
-# from IPython.terminal.debugger import TerminalPdb  # noqa
+# from IPython.terminal.debugger import TerminalPdb
 # sys.excepthook = TerminalPdb(
 #     call_pdb=True, ostream=sys.__stdout__
 # )
@@ -199,7 +195,7 @@ def load_commands(directory: str = "subcommands"):
 
     for filename in os.listdir(subcommands_dir):
         if filename.endswith("_cmd.py"):
-            module_name = f'{__name__.split(".")[0]}.{directory}.{filename[:-3]}'
+            module_name = f"{__name__.split('.')[0]}.{directory}.{filename[:-3]}"
             module = import_module(module_name)
             if hasattr(module, "app"):
                 APP.add_typer(module.app, name=filename[:-7])
@@ -428,7 +424,6 @@ def query_readthedocs() -> None:
     """Smoketest for querying readthedocs pdfs against vectorstore."""
     try:
         import rich
-
         from langchain_chroma import Chroma
         from langchain_openai import OpenAIEmbeddings
 

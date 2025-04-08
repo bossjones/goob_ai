@@ -5,15 +5,12 @@ from __future__ import annotations
 
 import os
 import re
-
 from datetime import datetime, timedelta
 from typing import Any, List
 
 import aiohttp
-
 from langchain_text_splitters import CharacterTextSplitter
 from PyPDF2 import PdfReader
-
 
 bar_emoji = {
     "1e": "<a:emptyleft:1118209186917011566>",

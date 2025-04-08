@@ -17,7 +17,6 @@ import shutil
 import sys
 import time
 import typing
-
 from collections.abc import Generator, Iterable, Iterator
 from concurrent.futures import Executor, Future
 from dataclasses import dataclass
@@ -26,16 +25,12 @@ from typing import TYPE_CHECKING, Optional, TypeVar
 
 import discord as dc
 import discord.ext.test as dpytest
+import pytest
 import pytest_asyncio
-
 from _pytest.logging import LogCaptureFixture
 from _pytest.monkeypatch import MonkeyPatch
 from discord.client import _LoopSentinel
 from discord.ext import commands
-from goob_ai.gen_ai.vectorstore import ChromaDatabase, PGVectorDatabase, PineconeDatabase
-from goob_ai.goob_bot import AsyncGoobBot
-from goob_ai.models.vectorstores import ChromaIntegration, EmbeddingsProvider, PgvectorIntegration, PineconeIntegration
-from goob_ai.services.pgvector_service import PgvectorService
 from langchain.document_loaders import TextLoader
 from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.text_splitter import CharacterTextSplitter
@@ -46,8 +41,10 @@ from langchain_openai.embeddings import OpenAIEmbeddings
 from requests_toolbelt.multipart import decoder
 from vcr import filters
 
-import pytest
-
+from goob_ai.gen_ai.vectorstore import ChromaDatabase, PGVectorDatabase, PineconeDatabase
+from goob_ai.goob_bot import AsyncGoobBot
+from goob_ai.models.vectorstores import ChromaIntegration, EmbeddingsProvider, PgvectorIntegration, PineconeIntegration
+from goob_ai.services.pgvector_service import PgvectorService
 
 if TYPE_CHECKING:
     from _pytest.fixtures import FixtureRequest
@@ -104,7 +101,7 @@ class TestContext:
 
     data_path: Path
     out_path: Path
-    caplog: Optional[LogCaptureFixture]
+    caplog: LogCaptureFixture | None
 
     def __post_init__(self) -> None:
         if self.caplog:
@@ -156,11 +153,11 @@ def request_matcher(r1: VCRRequest, r2: VCRRequest) -> bool:
 
         #     parts_same = [r1p == r2p for (r1p, r2p) in zip(r1_parts, r2_parts)]
         #     return all(parts_same)
-    elif is_opensearch_uri(r1.uri) and is_opensearch_uri(r2.uri):
-        return r1.body == r2.body
-    elif is_llm_uri(r1.uri) and is_llm_uri(r2.uri):
-        return r1.body == r2.body
-    elif is_chroma_uri(r1.uri) and is_chroma_uri(r2.uri):
+    elif (
+        (is_opensearch_uri(r1.uri) and is_opensearch_uri(r2.uri))
+        or (is_llm_uri(r1.uri) and is_llm_uri(r2.uri))
+        or (is_chroma_uri(r1.uri) and is_chroma_uri(r2.uri))
+    ):
         return r1.body == r2.body
 
     return False
@@ -183,7 +180,6 @@ def filter_response(response):
     """
     If the response has a 'retry-after' header, we set it to 0 to avoid waiting for the retry time
     """
-
     if "retry-after" in response["headers"]:  # type: ignore
         response["headers"]["retry-after"] = "0"  # type: ignore
 
@@ -198,7 +194,6 @@ def filter_request(request):
         with older dates, leading to failures in request body text comparison when executed with new dates.
     2. Filter out specific fields from post data fields
     """
-
     # vcr does not handle multipart/form-data correctly as reported on https://github.com/kevin1024/vcrpy/issues/521
     # so let it pass through as is
     if ctype := request.headers.get("Content-Type"):

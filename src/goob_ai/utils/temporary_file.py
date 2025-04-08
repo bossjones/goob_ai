@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import os
-
 from contextlib import contextmanager
 from tempfile import NamedTemporaryFile
 
@@ -18,7 +17,7 @@ def temporary_file(suffix=""):
     suffix : string, optional
         The suffix for the file.
 
-    Examples
+    Examples:
     --------
     >>> import numpy as np
     >>> from goob_ai.utils import io

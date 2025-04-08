@@ -3,20 +3,17 @@ from __future__ import annotations
 import asyncio
 import os
 import tempfile
-
 from typing import TYPE_CHECKING
 from urllib.parse import urljoin
 
 import aiohttp
 import pinecone
-
 from bs4 import BeautifulSoup
 from langchain_community.document_loaders import ReadTheDocsLoader
 from langchain_openai import OpenAIEmbeddings
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from loguru import logger as LOGGER
 from pinecone import Pinecone
-
 
 if TYPE_CHECKING:
     from goob_ai.goob_bot import AsyncGoobBot

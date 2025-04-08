@@ -26,7 +26,6 @@ import time
 import traceback
 import typing
 import uuid
-
 from enum import IntEnum
 from timeit import default_timer as timer
 from typing import Any, ClassVar, Dict, List, NewType, Optional, Type
@@ -37,7 +36,6 @@ import openai
 import requests
 import rich
 import uritools
-
 from codetiming import Timer
 from discord.ext import commands
 from discord.message import Message
@@ -103,7 +101,6 @@ class DownloadTool(BaseTool):
         Args:
             url: url to read
         """
-
         LOGGER.info(f"url = {url}")
 
         try:
@@ -188,7 +185,7 @@ class DownloadTool(BaseTool):
                                 print(ex)
                                 exc_type, exc_value, exc_traceback = sys.exc_info()
                                 err_msg = f"Error invoking regular DownloadTool(url='{url}'): exc_type={type(ex).__name__},exc_value='{exc_value}': {ex}"
-                                LOGGER.error(f"Error Class: {str(ex.__class__)}")
+                                LOGGER.error(f"Error Class: {ex.__class__!s}")
                                 output = f"[UNEXPECTED] {type(ex).__name__}: {ex}"
                                 LOGGER.warning(output)
                                 # await ctx.send(embed=discord.Embed(description=output))
@@ -209,7 +206,7 @@ class DownloadTool(BaseTool):
     async def _arun(
         self,
         url: str,
-        run_manager: Optional[AsyncCallbackManagerForToolRun] | None = None,
+        run_manager: AsyncCallbackManagerForToolRun | None | None = None,
         **kwargs,
     ) -> str:
         """
@@ -218,7 +215,6 @@ class DownloadTool(BaseTool):
         Args:
             url: url to read
         """
-
         LOGGER.info(f"url = {url}")
 
         try:
@@ -298,7 +294,7 @@ class DownloadTool(BaseTool):
                                 print(ex)
                                 exc_type, exc_value, exc_traceback = sys.exc_info()
                                 err_msg = f"Error invoking regular DownloadTool(url='{url}'): exc_type={type(ex).__name__},exc_value='{exc_value}': {ex}"
-                                LOGGER.error(f"Error Class: {str(ex.__class__)}")
+                                LOGGER.error(f"Error Class: {ex.__class__!s}")
                                 output = f"[UNEXPECTED] {type(ex).__name__}: {ex}"
                                 LOGGER.warning(output)
                                 # await ctx.send(embed=discord.Embed(description=output))

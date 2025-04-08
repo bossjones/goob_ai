@@ -10,8 +10,8 @@ from __future__ import annotations
 import logging
 import os
 import uuid
-
-from typing import Any, Callable, List, Literal, Optional, Set, Tuple, Union
+from collections.abc import Callable
+from typing import Any, List, Literal, Optional, Set, Tuple, Union
 
 from dotenv import load_dotenv
 from langchain.embeddings.openai import OpenAIEmbeddings
@@ -43,7 +43,6 @@ from goob_ai.gen_ai.utilities import (
     stringify_dict,
 )
 from goob_ai.utils import file_functions
-
 
 TABLE_COLLECTION = "langchain_pg_collection"
 TABLE_DOCS = "langchain_pg_embedding"
@@ -216,7 +215,7 @@ class PgvectorService:
 
             return collection_id, doc_ids
 
-    def get_collection_id_by_name(self, collection_name: str, pre_delete_collection: bool = False) -> Optional[str]:
+    def get_collection_id_by_name(self, collection_name: str, pre_delete_collection: bool = False) -> str | None:
         """
         Fetch the collection ID for the given name.
 
@@ -235,7 +234,7 @@ class PgvectorService:
 
             return result[0] if result else None
 
-    def get_collection_metadata(self, collection_id: str, pre_delete_collection: bool = False) -> Optional[dict]:
+    def get_collection_metadata(self, collection_id: str, pre_delete_collection: bool = False) -> dict | None:
         """
         Fetch the collection metadata for the given ID.
 
@@ -254,7 +253,7 @@ class PgvectorService:
 
         return result[0] if result else None
 
-    def update_collection_metadata(self, collection_id: str, new_metadata: dict) -> Optional[dict]:
+    def update_collection_metadata(self, collection_id: str, new_metadata: dict) -> dict | None:
         """
         Updates the metadata of the collection.
 

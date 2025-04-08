@@ -9,17 +9,15 @@ import functools
 import logging
 import threading
 import time
-
 from asyncio import Semaphore, coroutines, ensure_future, gather, get_running_loop
 from asyncio.events import AbstractEventLoop
-from collections.abc import Awaitable, Coroutine
+from collections.abc import Awaitable, Callable, Coroutine
 from concurrent.futures import ThreadPoolExecutor
 from traceback import extract_stack
-from typing import Any, Callable, TypeVar
+from typing import Any, TypeVar
 
 from codetiming import Timer
 from loguru import logger as LOGGER
-
 
 _SHUTDOWN_RUN_CALLBACK_THREADSAFE = "_shutdown_run_callback_threadsafe"
 
@@ -303,7 +301,6 @@ def to_sync(fn):
 def force_async(fn):
     """Turns a sync function to async function using threads"""
     import asyncio
-
     from concurrent.futures import ThreadPoolExecutor
 
     pool = ThreadPoolExecutor()

@@ -6,15 +6,12 @@ from __future__ import annotations
 
 import logging
 import unittest.mock
-
 from typing import Union
 
+import pytest
 import tenacity
 
 from goob_ai.utils import retry
-
-import pytest
-
 
 MockType = Union[
     unittest.mock.MagicMock,

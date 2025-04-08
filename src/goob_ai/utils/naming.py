@@ -13,7 +13,6 @@ import re
 
 from goob_ai.utils.misc import formatdoc
 
-
 sep = " "
 start = 1
 
@@ -47,7 +46,7 @@ def inc_name_count(name):
     name : str
         Original name.
 
-    Returns
+    Returns:
     -------
     incremented_name : str
         Numbered name incremented by ``1``.
@@ -67,7 +66,7 @@ def magic_name(value, *, path_prefix):
     path_prefix : absolute path-like, kwonly
         The path prefixes to ignore.
 
-    Returns
+    Returns:
     -------
     name : str or None
         Name of the variable, if found.

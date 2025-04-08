@@ -24,7 +24,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 from __future__ import annotations
 
 import goob_ai
-
 from goob_ai.utils import introspect
 
 

@@ -9,7 +9,6 @@ import subprocess
 import sys
 import tempfile
 import traceback
-
 from collections import defaultdict
 from operator import itemgetter
 from pathlib import Path
