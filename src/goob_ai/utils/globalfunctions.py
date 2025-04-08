@@ -4,13 +4,11 @@ from __future__ import annotations
 import os
 import re
 import site
-
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta, timezone
 from io import BytesIO
 from typing import Union
 
 import discord
-
 from discord import Webhook, ui
 from discord.ext import commands
 from discord.utils import escape_markdown
@@ -104,7 +102,7 @@ def split_and_cluster_strings(input_string: str, max_cluster_size: int, split_su
 
 def prioritized_string_split(
     input_string: str,
-    substring_split_order: list[Union[str, tuple[str, int]]],
+    substring_split_order: list[str | tuple[str, int]],
     default_max_len: int = 1024,
     trim=False,
     length=len,
@@ -321,7 +319,7 @@ def seconds_to_time_stamp(seconds_init: int | float):
 
 
 async def get_server_icon_color(guild: discord.Guild) -> str | int:
-    "Get the guild icon, and color."
+    """Get the guild icon, and color."""
     if not guild.icon:
         return 0xFFFFFF
     icon_bytes = await guild.icon.read()
@@ -366,7 +364,7 @@ def extract_timestamp(timestamp: str):
         # timestamp_adjusted=timestamp_adjusted
     if not timestamp_adjusted.endswith("Z"):
         timestamp_adjusted += "Z"
-    return datetime.strptime(timestamp_adjusted, format_string).replace(tzinfo=timezone.utc)
+    return datetime.strptime(timestamp_adjusted, format_string).replace(tzinfo=UTC)
 
 
 def human_format(num):

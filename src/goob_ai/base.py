@@ -5,7 +5,6 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import List, Optional
 
-
 SEPARATOR_TOKEN = "<|endoftext|>"
 
 ###################################################################
@@ -28,7 +27,7 @@ class GoobMessage:
     """
 
     user: str
-    text: Optional[str] = None
+    text: str | None = None
 
     def render(self) -> str:
         """Renders the message as a string.

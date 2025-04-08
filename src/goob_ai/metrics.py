@@ -4,9 +4,7 @@ from __future__ import annotations
 import asyncio
 import time
 import traceback
-
 from typing import Dict, Optional, Type
-
 
 try:
     from prometheus_client import Counter, Histogram
@@ -23,10 +21,10 @@ class watch:
     def __init__(
         self,
         *,
-        counter: Optional[Counter] = None,
-        histogram: Optional[Histogram] = None,
+        counter: Counter | None = None,
+        histogram: Histogram | None = None,
         error_mappings: dict[str, type[BaseException]] = None,
-        labels: Optional[dict[str, str]] = None,
+        labels: dict[str, str] | None = None,
     ):
         self.counter = counter
         self.histogram = histogram
@@ -39,9 +37,9 @@ class watch:
 
     def __exit__(
         self,
-        exc_type: Optional[type[BaseException]],
-        exc_value: Optional[Exception],
-        exc_traceback: Optional[traceback.StackSummary],
+        exc_type: type[BaseException] | None,
+        exc_value: Exception | None,
+        exc_traceback: traceback.StackSummary | None,
     ):
         if Counter is None:
             return
@@ -74,7 +72,7 @@ class watch_lock:
         self,
         histogram: Histogram,
         lock: asyncio.Lock,
-        labels: Optional[dict[str, str]] = None,
+        labels: dict[str, str] | None = None,
     ):
         self.histogram = histogram
         self.lock = lock

@@ -14,12 +14,10 @@ import aiofile
 import aiohttp
 import certifi
 
-
 # LOGGER = get_logger(__name__, provider="Downloader", level=logging.DEBUG)
 from loguru import logger as LOGGER
 
 from goob_ai.bot_logger import get_logger
-
 
 VERIFY_SSL = False
 
@@ -43,7 +41,7 @@ async def download_and_save(url: str, dest_override=False):
                         async for chunk in resp.content.iter_chunked(1024 * 512):  # 500 KB
                             await afp.write(chunk)
                             size += len(chunk)
-                except asyncio.TimeoutError:
+                except TimeoutError:
                     LOGGER.error(f"A timeout ocurred while downloading '{filename}'")
 
                 await LOGGER.complete()

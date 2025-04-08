@@ -1,17 +1,15 @@
 from __future__ import annotations
 
 import logging
-
 from typing import TYPE_CHECKING, Any
 
-from goob_ai.aio_settings import aiosettings
-from goob_ai.services.pgvector_service import PgvectorService
+import pytest
 from langchain_core.documents import Document
 from loguru import logger as LOGGER
 from sqlalchemy.orm import Session
 
-import pytest
-
+from goob_ai.aio_settings import aiosettings
+from goob_ai.services.pgvector_service import PgvectorService
 
 if TYPE_CHECKING:
     from unittest.mock import AsyncMock, MagicMock, NonCallableMagicMock
@@ -20,7 +18,6 @@ if TYPE_CHECKING:
     from _pytest.fixtures import FixtureRequest
     from _pytest.logging import LogCaptureFixture
     from _pytest.monkeypatch import MonkeyPatch
-
     from pytest_mock.plugin import MockerFixture
 
 

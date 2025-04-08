@@ -1,171 +1,221 @@
----
-dev_addr: 127.0.0.1:8888
-site_url: https://goob_ai.readthedocs.io
-repo_url: https://github.com/bossjones/goob_ai
-site_author: bossjones
-site_description: POC langchain rag discord chatbot. Heavily inspired by DiscordLangAgent
-repo_name: bossjones/goob_ai
-site_name: GoobAI Documentation
-copyright: MIT License - Copyright (c) 2024 bossjones
-edit_uri: edit/main/docs
+# Basic site information
+# Sets the name of your documentation site that appears in the header
+site_name: Codegen Lab
+# Provides a meta description for SEO purposes
+site_description: AI-powered code generation tooling for efficient software development
+# Specifies the author of the site for metadata
+site_author: Malcolm Jones
+# For GitHub Pages deployment
+# Defines the canonical URL of your documentation site
+site_url: https://bossjones.github.io/codegen-lab/docs
+
+# Repository information
+# Sets the display name for the repository link in the theme
+repo_name: bossjones/codegen-lab
+# URL to your GitHub repository, enabling the "Edit this page" feature
+repo_url: https://github.com/bossjones/codegen-lab
+# Path to edit pages on GitHub, appended to repo_url
+edit_uri: edit/main/docs/
+
+# URL configuration
+# When true, creates cleaner URLs without .html extensions
+use_directory_urls: true
+
+# Specifies which files `mkdocs serve` should watch for changes and reload automatically
 watch:
-  - src/
+  - mkdocs_macro_plugin.py # Watches the macros plugin file
+  - docs_templates # Watches template files for documentation
+  - src/codegen_lab # Watches source code for API documentation changes
+  - README.md # Watches readme file
+  - CHANGELOG.md # Watches changelog file
+  - changes/ # Watches changes directory
+  - scripts/docs # Watches documentation scripts
 
-extra_css:
-  - css/mkdocstrings.css
-
+# Theme configuration
 theme:
-  locale: en
-  name: material
-    # features: [content.code.copy, content.code.select, navigation.footer]
-  features:
-    - content.action.edit
-    - content.action.view
-    - content.code.copy  # https://squidfunk.github.io/mkdocs-material/reference/code-blocks/#code-copy-button
-    - content.code.select  # https://squidfunk.github.io/mkdocs-material/reference/code-blocks/#code-selection-button
-    - content.tooltips
-    - navigation.footer
-    - search.share
+  name: material # Uses Material for MkDocs theme for the documentation
+  font:
+    code: JetBrains Mono # Sets JetBrains Mono as the monospace font for code blocks
+
+  # Theme assets
+  logo: images/logo2.png # Sets the logo image for the site header
+  favicon: images/logo2.png # Sets the browser favicon
+
+  # Icon configurations for various UI elements
+  icon:
+    repo: fontawesome/brands/github # Sets GitHub icon for repository link
+    edit: material/pencil # Sets edit icon for the edit button
+    view: material/eye # Sets view icon for the view button
+    # Configures icons for admonition blocks (notes, warnings, etc.)
+    admonition:
+      note: octicons/tag-16 # Icon for note blocks
+      abstract: octicons/checklist-16 # Icon for abstract blocks
+      info: octicons/info-16 # Icon for info blocks
+      tip: octicons/squirrel-16 # Icon for tip blocks
+      success: octicons/check-16 # Icon for success blocks
+      question: octicons/question-16 # Icon for question blocks
+      warning: octicons/alert-16 # Icon for warning blocks
+      failure: octicons/x-circle-16 # Icon for failure blocks
+      danger: octicons/zap-16 # Icon for danger blocks
+      bug: octicons/bug-16 # Icon for bug blocks
+      example: octicons/beaker-16 # Icon for example blocks
+      quote: octicons/quote-16 # Icon for quote blocks
+
+  # Color scheme configuration
   palette:
-    # Palette toggle for dark mode
-    - scheme: slate
+    # Light mode configuration
+    - media: "(prefers-color-scheme: light)" # Applies this palette when user prefers light mode
+      scheme: default # Uses default light scheme
+      primary: deep purple # Sets primary color to deep purple
+      accent: deep purple # Sets accent color to deep purple
       toggle:
-        icon: material/brightness-4
-        name: Switch to light mode
-    # Palette toggle for light mode
-    - scheme: default
+        icon: material/lightbulb # Sets the toggle icon to a lightbulb
+        name: Switch to dark mode # Text for switch to dark mode button
+
+    # Dark mode configuration
+    - media: "(prefers-color-scheme: dark)" # Applies this palette when user prefers dark mode
+      scheme: slate # Uses slate dark scheme
+      primary: deep purple # Sets primary color to deep purple
+      accent: deep purple # Sets accent color to deep purple
       toggle:
-        icon: material/brightness-7
-        name: Switch to dark mode
+        icon: material/lightbulb-outline # Sets the toggle icon to an outline lightbulb
+        name: Switch to light mode # Text for switch to light mode button
 
-# markdown_extensions:
-#     - admonition
-#     - pymdownx.superfences:
-#           custom_fences:
-#               - name: mermaid
-#                 class: mermaid
-#                 format: !!python/name:pymdownx.superfences.fence_code_format
-#     - pymdownx.highlight:
-#           anchor_linenums: true
-#           line_spans: __span
-#           pygments_lang_class: true
-#     - pymdownx.inlinehilite
-#     - pymdownx.snippets
+  # Feature flags for the theme
+  features:
+    - content.action.edit # Adds an edit button to each page
+    - content.action.view # Adds a view source button to each page
+    - content.code.copy # Adds a copy button to code blocks
+    - content.code.select # Adds ability to select code in code blocks
+    - content.tooltips # Enables tooltips for better UX
+    - navigation.footer # Enables footer navigation
+    - search.share # Enables sharing search results
 
+    # - content.tabs.link     # Enables linked tabs for content
+    # - search.highlight      # Enables highlighting of search results
+    # - search.suggest        # Enables search suggestions
+    # - search.share          # Enables sharing search results
+    # - content.action.edit   # Enables edit button for pages
+    # - navigation.tabs       # Enables navigation tabs at the top
+    # - navigation.indexes    # Enables section index pages
+    # - navigation.top        # Enables back-to-top button
+
+# Plugin configuration
 plugins:
-  - autorefs    # recommended by mkdocstrings
-    # - awesome-pages  # https://github.com/lukasgeiter/mkdocs-awesome-pages-plugin
-    # - blog  # https://squidfunk.github.io/mkdocs-material/plugins/blog/
-    # - git-revision-date-localized:
-    #     enable_creation_date: true
-    #     type: datetime
-    # - git-authors
-    # - macros  # https://mkdocs-macros-plugin.readthedocs.io
-    # - mkdocs_apidoc  # https://ecurtin2.github.io/mkdocs-apidoc/
-  - mermaid2
-    # - mkdocstrings # generate from docstrings
-  - mkdocstrings:    # https://mkdocstrings.github.io/
+  - autorefs # Enables automatic cross-references, recommended by mkdocstrings. Automatically link across pages in MkDocs.
+  - awesome-pages # Enables better page organization and navigation https://github.com/lukasgeiter/mkdocs-awesome-pages-plugin
+  # - blog                  # Blog plugin is commented out (would enable blog features)
+  - git-revision-date-localized: # Adds last updated dates to pages
+      enable_creation_date: true # Shows creation date along with last updated
+      type: datetime # Shows dates in datetime format
+  - git-authors # Adds page author information from git history
+  - macros: # Enables macro processing in markdown
+      module_name: mkdocs_macro_plugin # Sets the module for macros
+      verbose: true # Enables verbose output for debugging
+  - mermaid2 # Enables Mermaid diagrams in documentation
+  # - mkdocs_apidoc         # API docs generator (commented out)
+  # - towncrier             # News/changelog generator (commented out)
+  - gen-files: # Generates files dynamically
+      scripts:
+        - scripts/docs/gen_ref_pages.py # Script to generate reference pages
+  # - literate-nav:           # Enables literate navigation
+  #     nav_file: summary.md   # Uses summary.md for navigation structure
+  - mkdocstrings: # Enables automatic API documentation generation
+      # enabled: !ENV [ENABLE_MKDOCSTRINGS, true]  # Optional environment variable control
+      default_handler: python # Sets Python as the default handler
+      enable_inventory: true # Generates inventory for cross-referencing
       handlers:
-        python:
+        python: # Configuration for Python handler
+          paths: [src] # Looks for Python modules in src directory
           import:
-            - https://docs.python.org/3/objects.inv
-            - https://installer.readthedocs.io/en/stable/objects.inv  # demonstration purpose in the docs
-            - https://mkdocstrings.github.io/autorefs/objects.inv
-            # paths: [src]
+            - https://docs.python.org/3/objects.inv # Links to Python docs
+            - https://docs.aiohttp.org/en/stable/objects.inv # Links to aiohttp docs
+            - https://www.attrs.org/en/stable/objects.inv # Links to attrs docs
+            - https://multidict.readthedocs.io/en/stable/objects.inv # Links to multidict docs
+            - https://yarl.readthedocs.io/en/stable/objects.inv # Links to yarl docs
           options:
-            docstring_options:
-              ignore_init_summary: true
-            docstring_section_style: list
-            filters:
-              - "!^_"
-            heading_level: 1
-            inherited_members: false
-            merge_init_into_class: true
-            separate_signature: true
-            show_root_heading: true
-            show_root_full_path: false
-            show_signature_annotations: true
-            show_symbol_type_heading: true
-            show_symbol_type_toc: true
-            signature_crossrefs: true
-            summary: true
-      default_handler: python
-  - search    # https://squidfunk.github.io/mkdocs-material/plugins/search/
-  - tags   # https://squidfunk.github.io/mkdocs-material/plugins/tags/
-    # Want to have ezlinks after macros
-    # because macros might return markup with ezlinks that we want expanded - e.g.: for people
-    # - ezlinks  # https://github.com/orbikm/mkdocs-ezlinks-plugin
-  # # SOURCE: mkdocs-with-pdf
-  # - with-pdf:
-  #   # cover_title:
-  #   cover_subtitle: GoobAI
-  #   # cover_logo: assets/images/banner.png
-  #   back_cover: true
-  #   toc_level: 2
-  #   excludes_children:
-  #     - 'releases/changelog/:upgrading'
-  #   # convert_iframe:
-  #   #   - src: https://streamable.com/e/zmtb00
-  #   #     img: https://cdn-cf-east.streamable.com/image/zmtb00-screenshot75403.jpg
-  #   two_columns_level: 3
-  #   render_js: true
-  #   # headless_chrome_path: google-chrome
-  #   output_path: ../document.pdf
-  #   # debug_html: true
-  #   # verbose: true
-  #   # show_anchors: true
-  #   # enabled_if_env: ENABLE_PDF_EXPORT
+            filters: ["!^_"] # Excludes members starting with underscore
+            heading_level: 3 # Starts headings at level 3
+            annotations_path: brief # Shows brief type annotations
+            docstring_section_style: spacy # Uses spacy style for docstring sections
+            docstring_style: google # Parses Google style docstrings
+            inherited_members: false # Doesn't show inherited members
+            merge_init_into_class: true # Merges __init__ docs into class docs
+            separate_signature: true # Shows function signatures separately
+            show_signature_annotations: true # Shows annotations in signatures
+            show_source: false # Doesn't show source code
+            show_submodules: false # Doesn't show submodules
+            signature_crossrefs: true # Enables signature cross-references
+            show_symbol_type_heading: true # Shows symbol type headings
+            show_symbol_type_toc: true # Includes symbol types in TOC
+            #            show_root_toc_entry: false  # Would disable root TOC entry
+            find_stubs_package: true # Searches for type hints in stub packages
+            extensions:
+              - griffe_inherited_docstrings # Supports inherited docstrings
 
-nav:
-  - Home: index.md
-  # - Images: images.md
-  - Versioning: versioning.md
-  # - Hardware: hardware.md
-  # - Firmware: firmware.md
-  # - Python Interface: controller.md
-  # - GUI: gui.md
-  - Changelog: changelog.md
-  - Developer Guide: dev.md
-  - Acknowledgement: acknowledgement.md
-  - Utilities: utilities.md
+  - search # Enables search functionality
+  - tags # Enables tags for categorizing content
+  # - ezlinks               # Easy links plugin (commented out)
+  - coverage: # Adds test coverage reporting
+      page_path: coverage # Path for coverage pages
+      html_report_dir: htmlcov # Directory for HTML coverage reports
 
-# # SOURCE: https://github.com/vinta/awesome-python/blob/master/mkdocs.yml
-# extra:
-#   social:
-#     - type: github
-#       link: https://github.com/bossjones
-#     - type: twitter
-#       link: https://twitter.com/bossjones
-#     - type: linkedin
-#       link: https://www.linkedin.com/in/bossjones
-
+# Markdown extension configuration
 markdown_extensions:
-  # Python Markdown
-  - toc:
-      permalink: true
+  # Basic markdown extensions
+  - abbr # Enables abbreviation syntax
+  - admonition # Enables admonition blocks (note, warning, etc.)
+  - attr_list # Enables attributes on HTML elements
+  - def_list # Enables definition lists
+  - footnotes # Enables footnote references
+  - meta # Enables metadata parsing
+  - md_in_html # Enables markdown inside HTML
+  - toc: # Table of contents configuration
+      permalink: true # Adds permanent links to headers
 
-  # Python Markdown Extensions
-  - abbr
-  - admonition
-  - attr_list
-  - pymdownx.details
-  - pymdownx.emoji:
+  # Python Markdown Extensions (PyMdownx)
+  - pymdownx.snippets # Enables including external files
+  - pymdownx.caret # Enables superscript and insert text
+  - pymdownx.details # Enables collapsible blocks
+  - pymdownx.keys # Enables keyboard key styling
+  - pymdownx.mark # Enables highlighted text
+  - pymdownx.superfences: # Enables enhanced code blocks
+      # Configures custom fences for special content
+      custom_fences:
+        - name: mermaid # Mermaid diagram support
+          class: mermaid
+          format: !!python/name:mermaid2.fence_mermaid_custom
+
+  - pymdownx.tilde # Enables subscript and strikethrough
+  - pymdownx.emoji: # Enables emoji support
       emoji_index: !!python/name:material.extensions.emoji.twemoji
       emoji_generator: !!python/name:material.extensions.emoji.to_svg
-  - pymdownx.highlight:
-      anchor_linenums: true
-      line_spans: __span
-      pygments_lang_class: true
-  - pymdownx.inlinehilite
-  - pymdownx.magiclink  # Allows plain ol' URLs to be links
-  - pymdownx.snippets
-  - pymdownx.superfences:
-      # make exceptions to highlighting of code:
-      custom_fences:
-        - name: mermaid
-          class: mermaid
-          # format: !!python/name:mermaid2.fence_mermaid_custom
-          format: !!python/name:pymdownx.superfences.fence_code_format
-  - pymdownx.tabbed:
+  - pymdownx.betterem: # Improves emphasis handling
+      smart_enable: all
+  - pymdownx.tabbed: # Enables tabbed content
       alternate_style: true
-  - tables
+      combine_header_slug: true
+      slugify: !!python/object/apply:pymdownx.slugs.slugify
+        kwds:
+          case: lower
+  - pymdownx.tasklist: # Enables task lists
+      custom_checkbox: true
+  - pymdownx.highlight: # Enables code highlighting
+  - pymdownx.inlinehilite # Enables inline code highlighting
+  - pymdownx.magiclink # Enables auto-linking of URLs
+  - pymdownx.tabbed: # Duplicate tabbed setting (likely a mistake)
+      alternate_style: true
+  - tables # Enables table syntax
+
+# Additional settings
+extra: # Extra customization
+  social: # Social media links
+    - icon: fontawesome/brands/github # GitHub icon
+      link: https://github.com/bossjones/codegen-lab # Link to GitHub profile/repo
+
+# Footer configuration
+copyright: Copyright &copy; 2023 - 2025 Malcolm Jones # Copyright notice in footer
+
+# Additional CSS files to include
+extra_css:
+  - css/neoteroi.cards.css

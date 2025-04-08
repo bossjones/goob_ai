@@ -6,7 +6,6 @@ from asyncio.exceptions import CancelledError
 from typing import Any, Optional
 
 import sentry_sdk
-
 from loguru import logger as LOGGER
 from redis.exceptions import ConnectionError as RedisConnectionError
 from redis.exceptions import RedisError, ResponseError
@@ -83,7 +82,7 @@ def traces_sampler(sampling_context: dict) -> float:
     return 0.1
 
 
-def before_send(event: dict, hint: dict) -> Optional[dict]:
+def before_send(event: dict, hint: dict) -> dict | None:
     """Check if error is database error, and ignore if so"""
     # pylint: disable=no-name-in-module
     ignored_classes = (
@@ -122,7 +121,7 @@ def before_send(event: dict, hint: dict) -> Optional[dict]:
             "paramiko.transport",
         ]:
             return None
-    LOGGER.debug("sending event to sentry", exc=exc_value, source_logger=event.get("logger", None))
+    LOGGER.debug("sending event to sentry", exc=exc_value, source_logger=event.get("logger"))
     if aiosettings.debug:
         return None
     return event

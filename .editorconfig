@@ -17,19 +17,31 @@ end_of_line = crlf
 [LICENSE]
 insert_final_newline = false
 
-[Makefile]
+[Makefile,Justfile]
 indent_style = tab
 
-[Justfile]
-indent_style = tab
-
-[*.{md,svg,rb,pp,yaml,yml}]
+[*.{svg,rb,pp,yaml,yml}]
 indent_size = 2
 
-[*.{py,pyi,json}]
+[*.md]
+trim_trailing_whitespace = false
+insert_final_newline = true
+indent_size = 2
+
+[*.{py,pyi}]
 max_line_length = 132
 indent_size = 4
+insert_final_newline = true
 
 [*.toml]
 max_line_length = 132
 indent_size = 2
+
+
+[*.json]
+indent_size = 4
+indent_style = space
+max_line_length = 132
+
+[*.mdc]
+insert_final_newline = true

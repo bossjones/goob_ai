@@ -5,7 +5,6 @@ from __future__ import annotations
 from warnings import warn
 
 import PIL
-
 from PIL import ImageChops
 from PIL.Image import Image
 

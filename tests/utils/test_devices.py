@@ -1,10 +1,9 @@
 from __future__ import annotations
 
+import pytest
 import torch
 
 from goob_ai.utils.devices import get_device
-
-import pytest
 
 
 @pytest.mark.parametrize(

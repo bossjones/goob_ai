@@ -1,18 +1,17 @@
 from __future__ import annotations
 
 import re
-
 from io import BytesIO
 
 import discord
 import requests
 import torch
-
 from discord.ext import commands
-from goob_ai.factories import cmd_factory, guild_factory
 from loguru import logger as LOGGER
 from PIL import Image
 from transformers import BlipForConditionalGeneration, BlipProcessor  # pyright: ignore[reportAttributeAccessIssue]
+
+from goob_ai.factories import cmd_factory, guild_factory
 
 
 class ImageCaptionCog(commands.Cog, name="image_caption"):

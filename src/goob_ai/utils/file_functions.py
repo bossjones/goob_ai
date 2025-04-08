@@ -20,7 +20,6 @@ import tempfile
 import time
 import traceback
 import typing
-
 from enum import IntEnum
 from os import PathLike
 from timeit import default_timer as timer
@@ -29,7 +28,6 @@ from typing import TYPE_CHECKING, Any, Dict, List, NewType, Optional, Tuple, Uni
 import aiofiles
 import pandas as pd
 import rich
-
 from loguru import logger as LOGGER
 from numpy import isin
 from rich.console import Console
@@ -46,7 +44,6 @@ from goob_ai.constants import (
     THIRTY_THOUSAND,
     TWENTY_THOUSAND,
 )
-
 
 if TYPE_CHECKING:
     from pandas import DataFrame
@@ -87,7 +84,7 @@ async def aio_read_jsonfile(jsonfile: str) -> dict:
 
     """
     print(f" [aio_read_jsonfile] jsonfile -> {jsonfile}")
-    async with aiofiles.open(jsonfile, mode="r", encoding="utf-8") as f:
+    async with aiofiles.open(jsonfile, encoding="utf-8") as f:
         contents = await f.read()
     json_data = json.loads(contents)
     print(f" [aio_read_jsonfile] json_data -> {json_data}")
@@ -107,7 +104,7 @@ async def aio_json_loads(uri: str) -> dict:
         dict: Parsed JSON data.
 
     """
-    return json.loads(await (await aiofiles.open(uri, mode="r")).read())
+    return json.loads(await (await aiofiles.open(uri)).read())
 
 
 async def run_aio_json_loads(uri: str) -> dict:
@@ -584,7 +581,7 @@ def rich_likes_or_comments(val: int) -> str:
         str: [description] eg. "[bold bright_yellow]4366347347457[/bold bright_yellow]"
     """
 
-    if TEN_THOUSAND >= val:
+    if val <= TEN_THOUSAND:
         return f"[bold bright_yellow]{val}[/bold bright_yellow]"
     elif FIFTY_THOUSAND < val < ONE_HUNDRED_THOUSAND:
         return f"[bold dodger_blue2]{val}[/bold dodger_blue2]"
@@ -598,7 +595,7 @@ def rich_likes_or_comments(val: int) -> str:
         return f"[bold bright_white]{val}[/bold bright_white]"
 
 
-def rich_display_meme_pull_list(df: DataFrame) -> None:  # noqa
+def rich_display_meme_pull_list(df: DataFrame) -> None:
     """
     Display meme pull list in a rich table format.
 
@@ -659,7 +656,7 @@ def rich_display_meme_pull_list(df: DataFrame) -> None:  # noqa
     console.print(table)
 
 
-def rich_display_popstars_analytics(df: DataFrame) -> None:  # noqa
+def rich_display_popstars_analytics(df: DataFrame) -> None:
     """
     Display popstars analytics in a rich table format.
 
@@ -848,7 +845,7 @@ async def aioread_file(data: str, dl_dir: str = "./", fname: str = "", ext: str 
     full_path_dl_dir = f"{p_dl_dir.absolute()}"
     p_new = pathlib.Path(f"{full_path_dl_dir}/{fname}.{ext}")
     LOGGER.debug(f"Writing to {p_new.absolute()}")
-    async with aiofiles.open(p_new.absolute(), mode="r") as f:
+    async with aiofiles.open(p_new.absolute()) as f:
         await f.read(data)
         await f.read(data)
     await LOGGER.complete()
@@ -1022,15 +1019,13 @@ def fix_path(path: str) -> str | list[str]:
     def __fix_path(path):
         if not isinstance(path, str):
             return path
-        elif "~" == path[0]:
+        elif path[0] == "~":
             tilda_fixed_path = tilda(path)
             if is_file(tilda_fixed_path):
                 return tilda_fixed_path
             else:
                 exit(path, ": does not exit.")
-        elif is_file(pathlib.Path.home() / path):
-            return str(pathlib.Path().home() / path)
-        elif is_directory(pathlib.Path.home() / path):
+        elif is_file(pathlib.Path.home() / path) or is_directory(pathlib.Path.home() / path):
             return str(pathlib.Path().home() / path)
         else:
             return path

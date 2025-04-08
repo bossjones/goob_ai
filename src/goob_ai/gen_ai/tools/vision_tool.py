@@ -12,13 +12,11 @@ import re
 import sys
 import traceback
 import uuid
-
 from typing import ClassVar, Dict, Optional, Type
 
 import aiohttp
 import openai
 import requests
-
 from langchain.pydantic_v1 import BaseModel, Field
 from langchain_core.callbacks import AsyncCallbackManagerForToolRun, CallbackManagerForToolRun
 from langchain_core.runnables import ConfigurableField, Runnable, RunnableBranch, RunnableLambda, RunnableMap
@@ -32,7 +30,6 @@ from openai import Client
 from goob_ai.aio_settings import aiosettings
 from goob_ai.clients.http_client import HttpClient
 from goob_ai.llm_manager import VisionModel
-
 
 DISCORD_URL_PATTERN = r"https?://media\.discordapp\.net/.*"
 
@@ -171,7 +168,7 @@ class VisionTool(BaseTool):
         self,
         image_path: str,
         prompt: str,
-        run_manager: Optional[AsyncCallbackManagerForToolRun] | None = None,
+        run_manager: AsyncCallbackManagerForToolRun | None | None = None,
         **kwargs,
     ) -> str:
         # """Use the tool asynchronously."""

@@ -16,8 +16,8 @@ from goob_ai.factories import SerializerFactory
 @dataclass
 class CmdSerializer(SerializerFactory):
     name: str
-    cmd: Optional[str]
-    uri: Optional[str]
+    cmd: str | None
+    uri: str | None
 
     @staticmethod
     def create(d: dict) -> CmdSerializer:

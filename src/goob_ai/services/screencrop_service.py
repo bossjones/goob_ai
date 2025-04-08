@@ -8,7 +8,6 @@ import pathlib
 import random
 import tempfile
 import traceback
-
 from io import BytesIO
 from os import PathLike
 from typing import Dict, List, Literal, Tuple
@@ -24,7 +23,6 @@ import numpy as np
 import requests
 import torch
 import torchvision
-
 from loguru import logger as LOGGER
 from PIL import Image
 

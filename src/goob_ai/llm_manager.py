@@ -5,7 +5,6 @@ from __future__ import annotations
 import logging
 
 import openai
-
 from langchain.pydantic_v1 import BaseModel
 from langchain_core.runnables import ConfigurableField, Runnable, RunnableBranch, RunnableLambda, RunnableMap
 from langchain_openai import ChatOpenAI, OpenAI
@@ -14,7 +13,6 @@ from langsmith.wrappers import wrap_openai
 from loguru import logger as LOGGER
 
 from goob_ai.aio_settings import aiosettings
-
 
 # from openai import Client
 

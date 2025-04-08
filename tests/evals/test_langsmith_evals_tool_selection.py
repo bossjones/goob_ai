@@ -15,16 +15,12 @@ import os
 import sys
 import time
 import uuid
-
 from importlib.metadata import version
 from typing import TYPE_CHECKING, Any, ClassVar, Dict, Optional, Set, Type
 
 import langsmith
+import pytest
 import rich
-
-from goob_ai import agent
-from goob_ai.agent import AiAgent
-from goob_ai.llm_manager import LlmManager
 from langchain import chat_models, prompts, smith
 from langchain.callbacks.manager import AsyncCallbackManagerForToolRun, CallbackManagerForToolRun
 from langchain.evaluation import EvaluatorType, load_evaluator
@@ -38,14 +34,14 @@ from langsmith.evaluation import EvaluationResult, evaluate, run_evaluator
 from langsmith.schemas import Dataset, DataType, Example, Run, TracerSession, TracerSessionResult
 from loguru import logger as LOGGER
 
-import pytest
-
+from goob_ai import agent
+from goob_ai.agent import AiAgent
+from goob_ai.llm_manager import LlmManager
 
 if TYPE_CHECKING:
     from _pytest.fixtures import FixtureRequest
     from _pytest.logging import LogCaptureFixture
     from _pytest.monkeypatch import MonkeyPatch
-
     from pytest_mock.plugin import MockerFixture
 
 runs = []

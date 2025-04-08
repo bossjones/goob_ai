@@ -22,17 +22,15 @@ import time
 import traceback
 import typing
 import uuid
-
 from collections import Counter, defaultdict
-from collections.abc import AsyncIterator, Coroutine, Iterable
+from collections.abc import AsyncIterator, Callable, Coroutine, Iterable
 from io import BytesIO
-from typing import TYPE_CHECKING, Any, Callable, Dict, List, NoReturn, Optional, Tuple, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, Dict, List, NoReturn, Optional, Tuple, TypeVar, Union, cast
 
 import aiohttp
 import bpdb
 import discord
 import rich
-
 from codetiming import Timer
 from discord.ext import commands
 from langchain_text_splitters import RecursiveCharacterTextSplitter
@@ -43,7 +41,6 @@ from redis.asyncio import ConnectionPool as RedisConnectionPool
 from starlette.responses import JSONResponse, StreamingResponse
 
 import goob_ai
-
 from goob_ai import db, helpers, shell, utils
 from goob_ai.agent import AiAgent
 from goob_ai.aio_settings import aiosettings
@@ -69,7 +66,6 @@ from goob_ai.user_input_enrichment import UserInputEnrichment
 from goob_ai.utils import async_, file_functions
 from goob_ai.utils.context import Context
 from goob_ai.utils.misc import CURRENTFUNCNAME
-
 
 LOGGER.add(sys.stderr, level="DEBUG")
 
@@ -519,7 +515,7 @@ async def preload_guild_data() -> dict[int, dict[str, str]]:
     This function initializes and returns a dictionary containing guild data.
     Each guild is represented by its ID and contains a dictionary with the guild's prefix.
 
-    Returns
+    Returns:
     -------
         Dict[int, Dict[str, str]]: A dictionary where the keys are guild IDs and the values are dictionaries
         containing guild-specific data, such as the prefix.
@@ -538,7 +534,7 @@ def extensions() -> Iterable[str]:
     This function searches for Python files in the 'cogs' directory relative to the current file's directory.
     It constructs the module path for each file and yields it.
 
-    Yields
+    Yields:
     ------
         str: The module path for each Python file in the 'cogs' directory.
 
@@ -578,7 +574,7 @@ def _prefix_callable(bot: AsyncGoobBot, msg: discord.Message) -> list[str]:
     return base
 
 
-async def details_from_file(path_to_media_from_cli: str, cwd: typing.Union[str, None] = None) -> tuple[str, str, str]:
+async def details_from_file(path_to_media_from_cli: str, cwd: str | None = None) -> tuple[str, str, str]:
     """
     Generate input and output file paths and retrieve the timestamp of the input file.
 
@@ -614,9 +610,9 @@ async def details_from_file(path_to_media_from_cli: str, cwd: typing.Union[str, 
 
 
 class ProxyObject(discord.Object):
-    def __init__(self, guild: Optional[discord.abc.Snowflake]):
+    def __init__(self, guild: discord.abc.Snowflake | None):
         super().__init__(id=0)
-        self.guild: Optional[discord.abc.Snowflake] = guild
+        self.guild: discord.abc.Snowflake | None = guild
 
 
 # class AsyncGoobBot(commands.AutoShardedBot):
@@ -724,7 +720,7 @@ class AsyncGoobBot(commands.Bot):
 
         It also sets the intents for members and message content to True.
 
-        Raises
+        Raises:
         ------
             Exception: If an extension fails to load, an exception is raised with
                        detailed error information.
@@ -747,7 +743,7 @@ class AsyncGoobBot(commands.Bot):
             except Exception as ex:
                 print(f"Failed to load extension {ext} - exception: {ex}")
                 exc_type, exc_value, exc_traceback = sys.exc_info()
-                LOGGER.error(f"Error Class: {str(ex.__class__)}")
+                LOGGER.error(f"Error Class: {ex.__class__!s}")
                 output = f"[UNEXPECTED] {type(ex).__name__}: {ex}"
                 LOGGER.warning(output)
                 LOGGER.error(f"exc_type: {exc_type}")
@@ -765,7 +761,7 @@ class AsyncGoobBot(commands.Bot):
         This property returns the owner of the bot as a discord.User object.
         The owner information is retrieved from the bot's application info.
 
-        Returns
+        Returns:
         -------
             discord.User: The owner of the bot.
 
@@ -780,7 +776,7 @@ class AsyncGoobBot(commands.Bot):
         that are older than one week. It iterates through each shard's list of dates
         and deletes the entries that are older than the specified time frame.
 
-        Returns
+        Returns:
         -------
             None
 
@@ -848,7 +844,7 @@ class AsyncGoobBot(commands.Bot):
 
         await LOGGER.complete()
 
-    def get_guild_prefixes(self, guild: Optional[discord.abc.Snowflake], *, local_inject=_prefix_callable) -> list[str]:
+    def get_guild_prefixes(self, guild: discord.abc.Snowflake | None, *, local_inject=_prefix_callable) -> list[str]:
         """
         Retrieve the command prefixes for a specific guild.
 
@@ -871,7 +867,7 @@ class AsyncGoobBot(commands.Bot):
 
     async def query_member_named(
         self, guild: discord.Guild, argument: str, *, cache: bool = False
-    ) -> Optional[discord.Member]:
+    ) -> discord.Member | None:
         """
         Query a member by their name, name + discriminator, or nickname.
 
@@ -899,7 +895,7 @@ class AsyncGoobBot(commands.Bot):
 
             return discord.utils.find(lambda m: m.name == argument or m.nick == argument, members)  # pylint: disable=consider-using-in # pyright: ignore[reportAttributeAccessIssue]
 
-    async def get_or_fetch_member(self, guild: discord.Guild, member_id: int) -> Optional[discord.Member]:
+    async def get_or_fetch_member(self, guild: discord.Guild, member_id: int) -> discord.Member | None:
         """
         Retrieve a member from the cache or fetch from the API if not found.
 
@@ -1002,7 +998,7 @@ class AsyncGoobBot(commands.Bot):
         and prints the invite link. Additionally, it preloads guild data and logs the
         logger tree structure.
 
-        Returns
+        Returns:
         -------
             None
 
@@ -1071,7 +1067,7 @@ class AsyncGoobBot(commands.Bot):
             return
         # await message.channel.send("Processing attachments... (this may take a minute)", delete_after=30.0)  # pyright: ignore[reportAttributeAccessIssue]
 
-        root_temp_dir = f"temp/{str(uuid.uuid4())}"
+        root_temp_dir = f"temp/{uuid.uuid4()!s}"
         uploaded_file_paths = []
         for attachment in message.attachments:  # pyright: ignore[reportAttributeAccessIssue]
             LOGGER.debug(f"Downloading file from {attachment.url}")
@@ -1214,7 +1210,7 @@ class AsyncGoobBot(commands.Bot):
         )
 
         # Create a temporary directory to store the attachments
-        tmpdirname = f"temp/{str(uuid.uuid4())}"
+        tmpdirname = f"temp/{uuid.uuid4()!s}"
         os.makedirs(os.path.dirname(tmpdirname), exist_ok=True)
         print("created temporary directory", tmpdirname)
         with Timer(text="\nTotal elapsed time: {:.1f}"):
@@ -1247,7 +1243,7 @@ class AsyncGoobBot(commands.Bot):
                 await ctx.send(embed=discord.Embed(description="Could not download story...."))
                 print(ex)
                 exc_type, exc_value, exc_traceback = sys.exc_info()
-                LOGGER.error(f"Error Class: {str(ex.__class__)}")
+                LOGGER.error(f"Error Class: {ex.__class__!s}")
                 output = f"[UNEXPECTED] {type(ex).__name__}: {ex}"
                 LOGGER.warning(output)
                 await ctx.send(embed=discord.Embed(description=output))
@@ -1266,7 +1262,7 @@ class AsyncGoobBot(commands.Bot):
             await LOGGER.complete()
 
     def prepare_agent_input(
-        self, message: Union[discord.Message, discord.Thread], user_real_name: str, surface_info: dict
+        self, message: discord.Message | discord.Thread, user_real_name: str, surface_info: dict
     ) -> dict[str, Any]:
         """
         Prepare the agent input from the incoming Discord message.
@@ -1305,7 +1301,7 @@ class AsyncGoobBot(commands.Bot):
 
         return agent_input
 
-    def get_session_id(self, message: Union[discord.Message, discord.Thread]) -> str:
+    def get_session_id(self, message: discord.Message | discord.Thread) -> str:
         """
         Generate a session ID for the given message.
 
@@ -1420,7 +1416,7 @@ class AsyncGoobBot(commands.Bot):
         await LOGGER.complete()
         return True
 
-    async def handle_message_from_channel(self, message: Union[discord.Message, discord.Thread]) -> bool:
+    async def handle_message_from_channel(self, message: discord.Message | discord.Thread) -> bool:
         LOGGER.debug(f"message -> {message}")
         rich.inspect(message, all=True)
         # ctx: Context = await self.get_context(message)  # type: ignore
@@ -1476,7 +1472,7 @@ class AsyncGoobBot(commands.Bot):
         await LOGGER.complete()
         return True
 
-    async def get_context(self, origin: Union[discord.Interaction, discord.Message], /, *, cls=Context) -> Context:
+    async def get_context(self, origin: discord.Interaction | discord.Message, /, *, cls=Context) -> Context:
         """
         Retrieve the context for a Discord interaction or message.
 
@@ -1590,7 +1586,7 @@ class AsyncGoobBot(commands.Bot):
             # let's do all validation and creation of threads here instead.
             try:
                 # ignore messages not in a thread
-                channel: Union[discord.VoiceChannel, discord.TextChannel, discord.Thread, discord.DMChannel] = (
+                channel: discord.VoiceChannel | discord.TextChannel | discord.Thread | discord.DMChannel = (
                     message.channel  # pyright: ignore[reportAttributeAccessIssue]
                 )  # pyright: ignore[reportAttributeAccessIssue]
 
@@ -1716,7 +1712,7 @@ class AsyncGoobBot(commands.Bot):
             LOGGER.exception(f"Failed to process user task: {ex}")
             print(f"Failed to load extension {ex} - exception: {ex}")
             exc_type, exc_value, exc_traceback = sys.exc_info()
-            LOGGER.error(f"Error Class: {str(ex.__class__)}")
+            LOGGER.error(f"Error Class: {ex.__class__!s}")
             output = f"[UNEXPECTED] {type(ex).__name__}: {ex}"
             LOGGER.warning(output)
             LOGGER.error(f"exc_type: {exc_type}")
@@ -1777,7 +1773,7 @@ class AsyncGoobBot(commands.Bot):
         before shutting down the bot. It closes the aiohttp session and
         calls the superclass's close method to ensure proper shutdown.
 
-        Returns
+        Returns:
         -------
             None
 
@@ -1796,7 +1792,7 @@ class AsyncGoobBot(commands.Bot):
         The method overrides the default `start` method from the `commands.Bot` class to
         include the bot's specific token and reconnection behavior.
 
-        Returns
+        Returns:
         -------
             None
 
@@ -1853,7 +1849,7 @@ class AsyncGoobBot(commands.Bot):
 
         The method ensures that the monitoring runs indefinitely until the bot is closed.
 
-        Returns
+        Returns:
         -------
             None
 

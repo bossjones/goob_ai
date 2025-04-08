@@ -6,7 +6,6 @@ from typing import TYPE_CHECKING, Dict, List, Optional
 
 from loguru import logger as LOGGER
 
-
 if TYPE_CHECKING:
     from langchain_core.documents import Document
 
@@ -29,7 +28,7 @@ class VectorDbBase(ABC):
         """
 
     @abstractmethod
-    def update_last_seen_at(self, ids: list[str], last_seen_at: Optional[int] = None) -> None:
+    def update_last_seen_at(self, ids: list[str], last_seen_at: int | None = None) -> None:
         """Update last_seen_at field in the database.
 
         Args:
@@ -58,7 +57,7 @@ class VectorDbBase(ABC):
         """
 
     @abstractmethod
-    def search_by_vector(self, vector: list[float], k: int, filter_: Optional[dict] = None) -> list[Document]:
+    def search_by_vector(self, vector: list[float], k: int, filter_: dict | None = None) -> list[Document]:
         """Search for documents by vector.
 
         Args:

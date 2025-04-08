@@ -9,7 +9,6 @@ from loguru import logger as LOGGER
 
 from goob_ai.llm_manager import LlmManager
 
-
 # logger = logging.getLogger(__name__)
 
 
@@ -52,7 +51,7 @@ class UserInputEnrichment:
         ----------
         user_input (str): The text to be analyzed.
 
-        Returns
+        Returns:
         -------
         dict: A dictionary with a boolean value for the key 'classification'.
 

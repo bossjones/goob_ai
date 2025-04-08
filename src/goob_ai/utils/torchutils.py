@@ -5,7 +5,6 @@ from __future__ import annotations
 
 import os.path
 import pathlib
-
 from collections import OrderedDict
 from os import PathLike
 
@@ -13,7 +12,6 @@ import cv2
 import discord
 import numpy as np
 import torch
-
 from loguru import logger as LOGGER
 from torch import nn
 

@@ -26,8 +26,7 @@ import logging
 import os
 import re
 import sys
-
-from datetime import datetime, timezone
+from datetime import UTC, datetime, timezone
 from logging import Logger, LogRecord
 from pathlib import Path
 from pprint import pformat
@@ -39,13 +38,11 @@ from typing import TYPE_CHECKING, Any, Deque, Dict, Literal, Optional, Union, ca
 import loguru
 import pysnooper
 import vcr
-
 from loguru import logger
 from loguru._defaults import LOGURU_FORMAT
 from tqdm import tqdm
 
 from goob_ai.models.loggers import LoggerModel, LoggerPatch
-
 
 if TYPE_CHECKING:
     from better_exceptions.log import BetExcLogger
@@ -116,12 +113,12 @@ class TqdmOutputStream:
         return sys.stderr.isatty()
 
 
-_console_handler_id: Optional[int] = None
-_file_handler_id: Optional[int] = None
+_console_handler_id: int | None = None
+_file_handler_id: int | None = None
 
-_old_log_dir: Optional[str] = None
-_old_console_log_level: Optional[LOG_LEVEL] = None
-_old_backup_count: Optional[int] = None
+_old_log_dir: str | None = None
+_old_console_log_level: LOG_LEVEL | None = None
+_old_backup_count: int | None = None
 
 # ###################################################################################################
 # # NOTE: Make sure we don't log secrets
@@ -162,7 +159,7 @@ def set_log_extras(record: dict[str, Any]) -> None:
     Args:
         record: The log record to modify.
     """
-    record["extra"]["datetime"] = datetime.now(timezone.utc)
+    record["extra"]["datetime"] = datetime.now(UTC)
 
 
 # SOURCE: https://github.com/joint-online-judge/fastapi-rest-framework/blob/b0e93f0c0085597fcea4bb79606b653422f16700/fastapi_rest_framework/logging.py#L43
@@ -235,7 +232,7 @@ class InterceptHandler(logging.Handler):
 
         # Find caller from where originated the logged message
         frame, depth = logging.currentframe(), 2
-        while frame.f_code.co_filename == logging.__file__:  # noqa: WPS609
+        while frame.f_code.co_filename == logging.__file__:
             frame = frame.f_back
             # DISABLED 12/10/2021 # frame = cast(FrameType, frame.f_back)
             depth += 1
@@ -248,7 +245,7 @@ class InterceptHandler(logging.Handler):
 
 def get_logger(
     name: str,
-    provider: Optional[str] = None,
+    provider: str | None = None,
     level: int = logging.INFO,
     logger: logging.Logger = logger,
 ) -> logging.Logger:
@@ -263,7 +260,7 @@ def request_id_filter(record: dict[str, Any]):
     record["extra"]["request_id"] = REQUEST_ID_CONTEXTVAR.get()
 
 
-def reset_logging(log_dir: str, *, console_log_level: LOG_LEVEL = "INFO", backup_count: Optional[int] = None) -> None:
+def reset_logging(log_dir: str, *, console_log_level: LOG_LEVEL = "INFO", backup_count: int | None = None) -> None:
     global _console_handler_id, _file_handler_id
     global _old_log_dir, _old_console_log_level, _old_backup_count
     logger.configure(extra={"room_id": ""})
@@ -313,7 +310,7 @@ def reset_logging(log_dir: str, *, console_log_level: LOG_LEVEL = "INFO", backup
 # @pysnooper.snoop(thread_info=True)
 # FIXME: https://github.com/abnerjacobsen/fastapi-mvc-loguru-demo/blob/main/mvc_demo/core/loguru_logs.py
 # SOURCE: https://loguru.readthedocs.io/en/stable/api/logger.html#loguru._logger.Logger
-def global_log_config(log_level: Union[str, int] = logging.DEBUG, json: bool = False) -> _Logger:
+def global_log_config(log_level: str | int = logging.DEBUG, json: bool = False) -> _Logger:
     """Configure global logging settings.
 
     Args:
@@ -323,7 +320,6 @@ def global_log_config(log_level: Union[str, int] = logging.DEBUG, json: bool = F
     Returns:
         The configured logger instance.
     """
-
     # SOURCE: https://github.com/acgnhiki/blrec/blob/975fa2794a3843a883597acd5915a749a4e196c8/src/blrec/logging/configure_logging.py#L21
     global _console_handler_id, _file_handler_id
     global _old_log_dir, _old_console_log_level, _old_backup_count
@@ -427,7 +423,7 @@ def setup_gunicorn_logger():
     logging.getLogger("gunicorn.access").handlers = [InterceptHandler()]
 
 
-def get_lm_from_tree(loggertree: LoggerModel, find_me: str) -> Optional[LoggerModel]:
+def get_lm_from_tree(loggertree: LoggerModel, find_me: str) -> LoggerModel | None:
     """Recursively search for a logger model in the logger tree.
 
     Args:

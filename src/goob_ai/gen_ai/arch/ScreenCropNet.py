@@ -5,9 +5,7 @@ from __future__ import annotations
 import timm
 import torch.nn as nn
 import torchvision.models as models
-
 from loguru import logger as LOGGER
-
 
 MODEL_NAMES = sorted(
     name for name in models.__dict__ if name.islower() and not name.startswith("__") and callable(models.__dict__[name])

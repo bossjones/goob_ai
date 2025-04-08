@@ -6,13 +6,11 @@
 from __future__ import annotations
 
 import logging
-
 from typing import Any, Dict
 
 import tenacity
 
 from goob_ai.aio_settings import aiosettings
-
 
 TenacityParameters = dict[str, Any]
 from loguru import logger as LOGGER

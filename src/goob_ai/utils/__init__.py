@@ -14,14 +14,13 @@ import logging
 import os
 import time
 import warnings
-
 from asyncio import Semaphore, as_completed
 from asyncio.futures import isfuture
-from collections.abc import AsyncIterable, AsyncIterator, Awaitable, Coroutine, Generator, Iterable, Iterator
+from collections.abc import AsyncIterable, AsyncIterator, Awaitable, Callable, Coroutine, Generator, Iterable, Iterator
 from importlib.util import find_spec
 from itertools import chain
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Callable, Dict, List, NoReturn, Optional, Tuple, TypeVar, Union
+from typing import TYPE_CHECKING, Any, Dict, List, NoReturn, Optional, Tuple, TypeVar, Union
 
 from discord.utils import maybe_coroutine
 from loguru import logger as LOGGER
@@ -30,9 +29,8 @@ from goob_ai import constants
 from goob_ai.aio_settings import aiosettings
 from goob_ai.types import CoroType, FuncType, TypeGuard
 
-
 if TYPE_CHECKING:
-    from typing_extensions import TypeGuard
+    from typing import TypeGuard
 
 _T = TypeVar("_T")
 
@@ -55,7 +53,7 @@ def time_since(start: float, precision: int = 4) -> str:
 
 
 def maybe_async_run(
-    func: Union[FuncType, CoroType],
+    func: FuncType | CoroType,
     *args: Any,
     **kwargs: Any,
 ) -> object:
@@ -176,11 +174,11 @@ class AsyncFilter(AsyncIterator[_T], Awaitable[list[_T]]):  # pylint: disable=du
 
     def __init__(
         self,
-        func: Callable[[_T], Union[bool, Awaitable[bool]]],
-        iterable: Union[AsyncIterable[_T], Iterable[_T]],
+        func: Callable[[_T], bool | Awaitable[bool]],
+        iterable: AsyncIterable[_T] | Iterable[_T],
     ) -> None:
-        self.__func: Callable[[_T], Union[bool, Awaitable[bool]]] = func
-        self.__iterable: Union[AsyncIterable[_T], Iterable[_T]] = iterable
+        self.__func: Callable[[_T], bool | Awaitable[bool]] = func
+        self.__iterable: AsyncIterable[_T] | Iterable[_T] = iterable
 
         # We assign the generator strategy based on the arguments' types
         if isinstance(iterable, AsyncIterable):
@@ -224,8 +222,8 @@ class AsyncFilter(AsyncIterator[_T], Awaitable[list[_T]]):  # pylint: disable=du
 
 
 def async_filter(
-    func: Callable[[_T], Union[bool, Awaitable[bool]]],
-    iterable: Union[AsyncIterable[_T], Iterable[_T]],
+    func: Callable[[_T], bool | Awaitable[bool]],
+    iterable: AsyncIterable[_T] | Iterable[_T],
 ) -> AsyncFilter[_T]:
     """
     Filter an (optionally async) iterable with an (optionally async) predicate.
@@ -240,12 +238,12 @@ def async_filter(
     iterable : Union[AsyncIterable[_T], Iterable[_T]]
         An iterable or async iterable which is to be filtered.
 
-    Raises
+    Raises:
     ------
     TypeError
         If neither of the arguments are async.
 
-    Returns
+    Returns:
     -------
     AsyncFilter[T]
         An object which can either be awaited to yield a list of the filtered
@@ -266,7 +264,7 @@ async def async_enumerate(async_iterable: AsyncIterable[_T], start: int = 0) -> 
     start : int
         The index to start from. Defaults to 0.
 
-    Returns
+    Returns:
     -------
     AsyncIterator[Tuple[int, T]]
         An async iterator of tuples in the form of ``(index, item)``.
@@ -283,7 +281,7 @@ async def _sem_wrapper(sem, task):
 
 
 def bounded_gather_iter(
-    *coros_or_futures, limit: int = 4, semaphore: Optional[Semaphore] = None
+    *coros_or_futures, limit: int = 4, semaphore: Semaphore | None = None
 ) -> Iterator[Awaitable[Any]]:
     """
     An iterator that returns tasks as they are ready, but limits the
@@ -300,7 +298,7 @@ def bounded_gather_iter(
         The semaphore to use for bounding tasks. If `None`, create one
         using ``loop`` and ``limit``.
 
-    Raises
+    Raises:
     ------
     TypeError
         When invalid parameters are passed
@@ -330,7 +328,7 @@ def bounded_gather(
     *coros_or_futures,
     return_exceptions: bool = False,
     limit: int = 4,
-    semaphore: Optional[Semaphore] = None,
+    semaphore: Semaphore | None = None,
 ) -> Awaitable[list[Any]]:
     """
     A semaphore-bounded wrapper to :meth:`asyncio.gather`.
@@ -348,7 +346,7 @@ def bounded_gather(
         The semaphore to use for bounding tasks. If `None`, create one
         using ``loop`` and ``limit``.
 
-    Raises
+    Raises:
     ------
     TypeError
         When invalid parameters are passed
@@ -381,12 +379,12 @@ class AsyncIter(AsyncIterator[_T], Awaitable[list[_T]]):  # pylint: disable=dupl
     steps: int
         The number of iterations between sleeps.
 
-    Raises
+    Raises:
     ------
     ValueError
         When ``steps`` is lower than 1.
 
-    Examples
+    Examples:
     --------
     >>> from redbot.core.utils import AsyncIter
     >>> async for value in AsyncIter(range(3)):
@@ -397,7 +395,7 @@ class AsyncIter(AsyncIterator[_T], Awaitable[list[_T]]):  # pylint: disable=dupl
 
     """
 
-    def __init__(self, iterable: Iterable[_T], delay: Union[float, int] = 0, steps: int = 1) -> None:
+    def __init__(self, iterable: Iterable[_T], delay: float | int = 0, steps: int = 1) -> None:
         if steps < 1:
             raise ValueError("Steps must be higher than or equals to 1")
         self._delay = delay
@@ -424,7 +422,7 @@ class AsyncIter(AsyncIterator[_T], Awaitable[list[_T]]):  # pylint: disable=dupl
         """
         Returns a list of the iterable.
 
-        Examples
+        Examples:
         --------
         >>> from redbot.core.utils import AsyncIter
         >>> iterator = AsyncIter(range(5))
@@ -443,12 +441,12 @@ class AsyncIter(AsyncIterator[_T], Awaitable[list[_T]]):  # pylint: disable=dupl
         default: Optional[Any]
             The value to return if the iterator is exhausted.
 
-        Raises
+        Raises:
         ------
         StopAsyncIteration
             When ``default`` is not specified and the iterator has been exhausted.
 
-        Examples
+        Examples:
         --------
         >>> from redbot.core.utils import AsyncIter
         >>> iterator = AsyncIter(range(5))
@@ -470,7 +468,7 @@ class AsyncIter(AsyncIterator[_T], Awaitable[list[_T]]):  # pylint: disable=dupl
         """
         Returns a list of the iterable.
 
-        Examples
+        Examples:
         --------
         >>> from redbot.core.utils import AsyncIter
         >>> iterator = AsyncIter(range(5))
@@ -480,7 +478,7 @@ class AsyncIter(AsyncIterator[_T], Awaitable[list[_T]]):  # pylint: disable=dupl
         """
         return [item async for item in self]
 
-    def filter(self, function: Callable[[_T], Union[bool, Awaitable[bool]]]) -> AsyncFilter[_T]:
+    def filter(self, function: Callable[[_T], bool | Awaitable[bool]]) -> AsyncFilter[_T]:
         """
         Filter the iterable with an (optionally async) predicate.
 
@@ -490,13 +488,13 @@ class AsyncIter(AsyncIterator[_T], Awaitable[list[_T]]):  # pylint: disable=dupl
             A function or coroutine function which takes one item of ``iterable``
             as an argument, and returns ``True`` or ``False``.
 
-        Returns
+        Returns:
         -------
         AsyncFilter[T]
             An object which can either be awaited to yield a list of the filtered
             items, or can also act as an async iterator to yield items one by one.
 
-        Examples
+        Examples:
         --------
         >>> from redbot.core.utils import AsyncIter
         >>> def predicate(value):
@@ -526,12 +524,12 @@ class AsyncIter(AsyncIterator[_T], Awaitable[list[_T]]):  # pylint: disable=dupl
         start: int
             The index to start from. Defaults to 0.
 
-        Returns
+        Returns:
         -------
         AsyncIterator[Tuple[int, T]]
             An async iterator of tuples in the form of ``(index, item)``.
 
-        Examples
+        Examples:
         --------
         >>> from redbot.core.utils import AsyncIter
         >>> iterator = AsyncIter(["one", "two", "three"])
@@ -548,7 +546,7 @@ class AsyncIter(AsyncIterator[_T], Awaitable[list[_T]]):  # pylint: disable=dupl
         """
         Iterates while omitting duplicated entries.
 
-        Examples
+        Examples:
         --------
         >>> from redbot.core.utils import AsyncIter
         >>> iterator = AsyncIter([1, 2, 3, 3, 4, 4, 5])
@@ -570,8 +568,8 @@ class AsyncIter(AsyncIterator[_T], Awaitable[list[_T]]):  # pylint: disable=dupl
 
     async def find(
         self,
-        predicate: Callable[[_T], Union[bool, Awaitable[bool]]],
-        default: Optional[Any] = None,
+        predicate: Callable[[_T], bool | Awaitable[bool]],
+        default: Any | None = None,
     ) -> AsyncIterator[_T]:
         """
         Calls ``predicate`` over items in iterable and return first value to match.
@@ -583,12 +581,12 @@ class AsyncIter(AsyncIterator[_T], Awaitable[list[_T]]):  # pylint: disable=dupl
         default: Optional[Any]
             The value to return if there are no matches.
 
-        Raises
+        Raises:
         ------
         TypeError
             When ``predicate`` is not a callable.
 
-        Examples
+        Examples:
         --------
         >>> from redbot.core.utils import AsyncIter
         >>> await AsyncIter(range(3)).find(lambda x: x == 1)
@@ -604,7 +602,7 @@ class AsyncIter(AsyncIterator[_T], Awaitable[list[_T]]):  # pylint: disable=dupl
             if ret:
                 return elem
 
-    def map(self, func: Callable[[_T], Union[_S, Awaitable[_S]]]) -> AsyncIter[_S]:
+    def map(self, func: Callable[[_T], _S | Awaitable[_S]]) -> AsyncIter[_S]:
         """
         Set the mapping callable for this instance of `AsyncIter`.
 
@@ -616,12 +614,12 @@ class AsyncIter(AsyncIterator[_T], Awaitable[list[_T]]):  # pylint: disable=dupl
         func: Union[Callable, Coroutine]
             The function to map values to. The function provided can be a coroutine.
 
-        Raises
+        Raises:
         ------
         TypeError
             When ``func`` is not a callable.
 
-        Examples
+        Examples:
         --------
         >>> from redbot.core.utils import AsyncIter
         >>> async for value in AsyncIter(range(3)).map(bool):
@@ -637,7 +635,7 @@ class AsyncIter(AsyncIterator[_T], Awaitable[list[_T]]):  # pylint: disable=dupl
         return self
 
 
-def get_end_user_data_statement(file: Union[Path, str]) -> Optional[str]:
+def get_end_user_data_statement(file: Path | str) -> str | None:
     """
     This function attempts to get the ``end_user_data_statement`` key from cog's ``info.json``.
     This will log the reason if ``None`` is returned.
@@ -647,13 +645,13 @@ def get_end_user_data_statement(file: Union[Path, str]) -> Optional[str]:
     file: Union[pathlib.Path, str]
         The ``__file__`` variable for the cog's ``__init__.py`` file.
 
-    Returns
+    Returns:
     -------
     Optional[str]
         The end user data statement found in the info.json
         or ``None`` if there was an issue finding one.
 
-    Examples
+    Examples:
     --------
     >>> # In cog's `__init__.py`
     >>> from redbot.core.utils import get_end_user_data_statement
@@ -684,7 +682,7 @@ def get_end_user_data_statement(file: Union[Path, str]) -> Optional[str]:
     return None
 
 
-def get_end_user_data_statement_or_raise(file: Union[Path, str]) -> str:
+def get_end_user_data_statement_or_raise(file: Path | str) -> str:
     """
     This function attempts to get the ``end_user_data_statement`` key from cog's ``info.json``.
 
@@ -693,12 +691,12 @@ def get_end_user_data_statement_or_raise(file: Union[Path, str]) -> str:
     file: Union[pathlib.Path, str]
         The ``__file__`` variable for the cog's ``__init__.py`` file.
 
-    Returns
+    Returns:
     -------
     str
         The end user data statement found in the info.json.
 
-    Raises
+    Raises:
     ------
     FileNotFoundError
         When ``info.json`` does not exist.

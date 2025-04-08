@@ -15,13 +15,12 @@ import sys
 import tempfile
 import time
 import traceback
-
 from collections import defaultdict
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime, timezone
 from pathlib import Path
-from typing import Any, Callable, List, Literal, Optional, Set, Union
+from typing import Any, List, Literal, Optional, Set, Union
 from uuid import uuid4
 
 import bpdb
@@ -30,13 +29,10 @@ import chromadb
 import httpx
 import pysnooper
 import uritools
-
 from chromadb.api import ClientAPI, ServerAPI
 from chromadb.config import Settings as ChromaSettings
 from httpx import ConnectError
 from langchain.evaluation import load_evaluator
-from langchain_chroma import Chroma
-from langchain_chroma import Chroma as ChromaVectorStore
 from langchain_community.document_loaders import (
     DirectoryLoader,
     JSONLoader,
@@ -60,7 +56,6 @@ from goob_ai import llm_manager, redis_memory
 from goob_ai.aio_settings import aiosettings
 from goob_ai.utils import file_functions
 
-
 WEBBASE_LOADER_PATTERN = r"^https?://[a-zA-Z0-9.-]+\.github\.io(/.*)?$"
 EXCLUDE_KEYS_FROM_CHECKSUM = {"metadata": {"chunk_id", "id", "checksum", "last_seen_at", "item_id"}}
 DAY_IN_SECONDS = 24 * 3600
@@ -74,7 +69,6 @@ def get_nested_value(d: dict, keys: str) -> str:
       >>> get_nested_value({"a": "v1", "c1": {"c2": "v2"}}, "c1.c2")
       'v2'
     """
-
     d = copy.deepcopy(d)
     for key in keys.split("."):
         if d and isinstance(d, dict) and d.get(key):
@@ -374,7 +368,7 @@ def get_rag_splitter(filename: str, chunk_size: int = 1000, chunk_overlap: int =
 
 
 def get_rag_embedding_function(
-    filename: str, disallowed_special: Union[Literal["all"], set[str], Sequence[str], None] = None
+    filename: str, disallowed_special: Literal["all"] | set[str] | Sequence[str] | None = None
 ) -> SentenceTransformerEmbeddings | OpenAIEmbeddings | None:
     """
     Get the appropriate embedding function for the given filename.
@@ -390,7 +384,6 @@ def get_rag_embedding_function(
         SentenceTransformerEmbeddings | OpenAIEmbeddings | None: The embedding function for the given file,
         or None if the file type is not supported.
     """
-
     if is_github_io_url(f"{filename}"):
         LOGGER.debug(
             f"selected filetype github.io url, using OpenAIEmbeddings(disallowed_special={disallowed_special})"
@@ -425,7 +418,7 @@ def get_chunks_to_delete(
     """
     ids_current = {d.metadata["item_id"] for d in chunks_current}
 
-    ts_expired = int(datetime.now(timezone.utc).timestamp() - expired_days * DAY_IN_SECONDS)
+    ts_expired = int(datetime.now(UTC).timestamp() - expired_days * DAY_IN_SECONDS)
     chunks_expired_delete, chunks_old_keep = [], []
 
     # chunks that have been crawled in the current run and are older than ts_expired => to delete
@@ -449,7 +442,6 @@ def get_chunks_to_update(
     undergone content changes by comparing their checksums. These chunks are marked for addition. chunks that are
     present in both runs but have not undergone content changes are marked for metadata update.
     """
-
     prev_id_checksum = defaultdict(list)
     for chunk in chunks_prev:
         prev_id_checksum[chunk.metadata["item_id"]].append(chunk.metadata["checksum"])
@@ -471,7 +463,7 @@ def get_chunks_to_update(
 def add_item_last_seen_at(items: list[Document]) -> list[Document]:
     """Add last_seen_at timestamp to the metadata of each dataset item."""
     for item in items:
-        item.metadata["last_seen_at"] = int(datetime.now(timezone.utc).timestamp())
+        item.metadata["last_seen_at"] = int(datetime.now(UTC).timestamp())
     return items
 
 

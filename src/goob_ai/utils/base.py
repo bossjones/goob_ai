@@ -5,11 +5,9 @@ from __future__ import annotations
 import collections
 import copy
 import math
-
 from typing import TYPE_CHECKING, Any, Dict, List, Tuple, Union
 
 from loguru import logger as LOGGER
-
 
 if TYPE_CHECKING:
     import types
@@ -148,7 +146,7 @@ def create_dict_from_filter(d: dict[Any, Any], white_list: list[Any]) -> dict[An
 
 # NAME: Python filter nested dict given list of key names
 # https://stackoverflow.com/questions/23230947/python-filter-nested-dict-given-list-of-key-names
-def fltr(node: Union[dict[Any, Any], list[Any]], whitelist: list[Any]) -> Union[dict[Any, Any], list[Any], None]:
+def fltr(node: dict[Any, Any] | list[Any], whitelist: list[Any]) -> dict[Any, Any] | list[Any] | None:
     """
     Filter a nested dictionary or list based on a white list of keys.
 

@@ -16,16 +16,14 @@ import os
 import re
 import sys
 import warnings
-
-from collections.abc import Iterable, Iterator, Sequence
+from collections.abc import Callable, Iterable, Iterator, Sequence
 from enum import Enum, EnumMeta
 from os import PathLike, fspath, path
 from os import path as os_path
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Callable, List, Optional, Type, TypeVar, Union
+from typing import TYPE_CHECKING, Any, List, Optional, Type, TypeVar, Union
 
 import numpy as np
-
 
 if TYPE_CHECKING:
     import packaging.version
@@ -103,7 +101,7 @@ def running_as_bundled_app() -> bool:
 #     return "Briefcase-Version" in metadata
 
 
-def bundle_bin_dir() -> Optional[str]:
+def bundle_bin_dir() -> str | None:
     """Return path to briefcase app_packages/bin if it exists."""
     path_to_bin: builtins.str = os_path.join(os_path.dirname(sys.exec_prefix), "app_packages", "bin")
     if path.isdir(path_to_bin):
@@ -152,11 +150,7 @@ def is_iterable(arg, color=False):
     provided and the argument is a 1-D array of length 3 or 4 then the input
     is taken to not be iterable.
     """
-    if arg is None:
-        return False
-    elif type(arg) is str:
-        return False
-    elif np.isscalar(arg):
+    if arg is None or type(arg) is str or np.isscalar(arg):
         return False
     elif color and isinstance(arg, (list, np.ndarray)):
         return np.array(arg).ndim != 1 or len(arg) not in [3, 4]
@@ -180,7 +174,7 @@ def is_sequence(arg):
     return isinstance(arg, Sequence) and not isinstance(arg, str)
 
 
-def ensure_sequence_of_iterables(obj, length: Optional[int] = None):
+def ensure_sequence_of_iterables(obj, length: int | None = None):
     """
     Ensure that ``obj`` behaves like a (nested) sequence of iterables.
 
@@ -194,12 +188,12 @@ def ensure_sequence_of_iterables(obj, length: Optional[int] = None):
     length : int, optional
         If provided, assert that obj has len ``length``, by default None
 
-    Returns
+    Returns:
     -------
     iterable
         nested sequence of iterables, or an itertools.repeat instance
 
-    Examples
+    Examples:
     --------
     In [1]: ensure_sequence_of_iterables([1, 2])
     Out[1]: repeat([1, 2])
@@ -259,7 +253,7 @@ def abspath_or_url(relpath: T) -> T:
     relpath : str or list or tuple
         A path, or list or tuple of paths.
 
-    Returns
+    Returns:
     -------
     abspath : str or list or tuple
         An absolute path, or list or tuple of absolute paths (same type as
@@ -311,7 +305,7 @@ class CallSignature(inspect.Signature):
         the copy/pasted inspect module code :)
         """
         result = [str(param) for param in self.parameters.values()]
-        rendered = f'({", ".join(result)})'
+        rendered = f"({', '.join(result)})"
 
         if self.return_annotation is not inspect._empty:
             anno = inspect.formatannotation(self.return_annotation)
@@ -332,7 +326,7 @@ def all_subclasses(cls: type) -> set:
     cls : class
         A python class (or anything that implements a __subclasses__ method).
 
-    Returns
+    Returns:
     -------
     set
         the set of all classes that are subclassed from ``cls``
@@ -352,7 +346,7 @@ def ensure_n_tuple(val, n, fill=0):
     n : int
         Length of tuple.
 
-    Returns
+    Returns:
     -------
     tuple
         Coerced tuple.

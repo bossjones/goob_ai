@@ -7,19 +7,16 @@ import logging
 import pathlib
 import sys
 import traceback
-
 from typing import TYPE_CHECKING, List, Optional, Union
 
 import discord
 import rich
-
 from loguru import logger as LOGGER
 
 from goob_ai import downloader
 from goob_ai.bot_logger import get_logger
 from goob_ai.factories import cmd_factory
 from goob_ai.utils.file_functions import get_all_media_files_to_upload, glob_file_by_extension, run_aio_json_loads
-
 
 if TYPE_CHECKING:
     from discord.ext.commands import Context

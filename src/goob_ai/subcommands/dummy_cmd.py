@@ -8,7 +8,6 @@ import typer
 
 from goob_ai.asynctyper import AsyncTyper
 
-
 # app = typer.Typer(help="dummy command")
 app = AsyncTyper(help="dummy command")
 

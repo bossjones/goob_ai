@@ -5,13 +5,11 @@ from __future__ import annotations
 import datetime
 import itertools
 import textwrap
-
 from collections.abc import Iterator, Sequence
 from io import BytesIO
 from typing import List, Optional, SupportsInt, Union
 
 import discord
-
 from babel.lists import format_list as babel_list
 from babel.numbers import format_decimal
 
@@ -25,7 +23,7 @@ def error(text: str) -> str:
     text : str
         The text to be prefixed.
 
-    Returns
+    Returns:
     -------
     str
         The new message.
@@ -43,7 +41,7 @@ def warning(text: str) -> str:
     text : str
         The text to be prefixed.
 
-    Returns
+    Returns:
     -------
     str
         The new message.
@@ -61,7 +59,7 @@ def info(text: str) -> str:
     text : str
         The text to be prefixed.
 
-    Returns
+    Returns:
     -------
     str
         The new message.
@@ -79,7 +77,7 @@ def success(text: str) -> str:
     text : str
         The text to be prefixed.
 
-    Returns
+    Returns:
     -------
     str
         The new message.
@@ -97,7 +95,7 @@ def question(text: str) -> str:
     text : str
         The text to be prefixed.
 
-    Returns
+    Returns:
     -------
     str
         The new message.
@@ -119,7 +117,7 @@ def bold(text: str, escape_formatting: bool = True) -> str:
     escape_formatting : `bool`, optional
         Set to :code:`False` to not escape markdown formatting in the text.
 
-    Returns
+    Returns:
     -------
     str
         The marked up text.
@@ -139,7 +137,7 @@ def box(text: str, lang: str = "") -> str:
     lang : `str`, optional
         The syntax highlighting language for the codeblock.
 
-    Returns
+    Returns:
     -------
     str
         The marked up text.
@@ -157,7 +155,7 @@ def inline(text: str) -> str:
     text : str
         The text to be marked up.
 
-    Returns
+    Returns:
     -------
     str
         The marked up text.
@@ -179,7 +177,7 @@ def italics(text: str, escape_formatting: bool = True) -> str:
     escape_formatting : `bool`, optional
         Set to :code:`False` to not escape markdown formatting in the text.
 
-    Returns
+    Returns:
     -------
     str
         The marked up text.
@@ -201,7 +199,7 @@ def spoiler(text: str, escape_formatting: bool = True) -> str:
     escape_formatting : `bool`, optional
         Set to :code:`False` to not escape markdown formatting in the text.
 
-    Returns
+    Returns:
     -------
     str
         The marked up text.
@@ -214,7 +212,7 @@ def bordered(*columns: Sequence[str], ascii_border: bool = False) -> str:
     """
     Get two blocks of text inside borders.
 
-    Note
+    Note:
     ----
     This will only work with a monospaced font.
 
@@ -225,7 +223,7 @@ def bordered(*columns: Sequence[str], ascii_border: bool = False) -> str:
     ascii_border : bool
         Whether or not the border should be pure ASCII.
 
-    Returns
+    Returns:
     -------
     str
         The bordered text.
@@ -266,7 +264,7 @@ def bordered(*columns: Sequence[str], ascii_border: bool = False) -> str:
         lines.append(sep.join(row))
 
     final_row = []
-    for width, done in zip(widths, colsdone):
+    for width, done in zip(widths, colsdone, strict=False):
         if not done:
             final_row.append("{BL}" + "{HZ}" * width + "{BR}")
         else:
@@ -288,7 +286,7 @@ def pagify(
     """
     Generate multiple pages from the given text.
 
-    Note
+    Note:
     ----
     This does not respect code blocks or inline code.
 
@@ -315,7 +313,7 @@ def pagify(
     page_length : `int`
         The maximum length of each page. Defaults to 2000.
 
-    Yields
+    Yields:
     ------
     `str`
         Pages of the given text.
@@ -363,7 +361,7 @@ def strikethrough(text: str, escape_formatting: bool = True) -> str:
     escape_formatting : `bool`, optional
         Set to :code:`False` to not escape markdown formatting in the text.
 
-    Returns
+    Returns:
     -------
     str
         The marked up text.
@@ -385,7 +383,7 @@ def underline(text: str, escape_formatting: bool = True) -> str:
     escape_formatting : `bool`, optional
         Set to :code:`False` to not escape markdown formatting in the text.
 
-    Returns
+    Returns:
     -------
     str
         The marked up text.
@@ -403,7 +401,7 @@ def quote(text: str) -> str:
     text : str
         The text to be marked up.
 
-    Returns
+    Returns:
     -------
     str
         The marked up text.
@@ -425,7 +423,7 @@ def escape(text: str, *, mass_mentions: bool = False, formatting: bool = False) 
     formatting : `bool`, optional
         Set to :code:`True` to escape any markdown formatting in the text.
 
-    Returns
+    Returns:
     -------
     str
         The escaped text.
@@ -439,7 +437,7 @@ def escape(text: str, *, mass_mentions: bool = False, formatting: bool = False) 
     return text
 
 
-def humanize_list(items: Sequence[str], *, locale: Optional[str] = None, style: str = "standard") -> str:
+def humanize_list(items: Sequence[str], *, locale: str | None = None, style: str = "standard") -> str:
     """
     Get comma-separated list, with the last element joined with *and*.
 
@@ -478,12 +476,12 @@ def humanize_list(items: Sequence[str], *, locale: Optional[str] = None, style: 
             A list suitable for narrow units, where space on the screen is very limited.
             eg. "3′ 7″"
 
-    Raises
+    Raises:
     ------
     ValueError
         The locale does not support the specified style.
 
-    Examples
+    Examples:
     --------
     .. testsetup::
 
@@ -515,7 +513,7 @@ def format_perms_list(perms: discord.Permissions) -> str:
         The permissions object with the requested permissions to list
         enabled.
 
-    Returns
+    Returns:
     -------
     str
         The humanized list.
@@ -531,8 +529,8 @@ def format_perms_list(perms: discord.Permissions) -> str:
 
 def humanize_timedelta(
     *,
-    timedelta: Optional[datetime.timedelta] = None,
-    seconds: Optional[SupportsInt] = None,
+    timedelta: datetime.timedelta | None = None,
+    seconds: SupportsInt | None = None,
 ) -> str:
     """
     Get a locale aware human timedelta representation.
@@ -549,12 +547,12 @@ def humanize_timedelta(
     seconds: Optional[SupportsInt]
         A number of seconds
 
-    Returns
+    Returns:
     -------
     str
         A locale aware representation of the timedelta or seconds.
 
-    Raises
+    Raises:
     ------
     ValueError
         The function was called with neither a number of seconds nor a timedelta object
@@ -587,7 +585,7 @@ def humanize_timedelta(
     return ", ".join(strings)
 
 
-def humanize_number(val: Union[int, float], override_locale=None) -> str:
+def humanize_number(val: int | float, override_locale=None) -> str:
     """
     Convert an int or float to a str with digit separators based on bot locale
 
@@ -598,7 +596,7 @@ def humanize_number(val: Union[int, float], override_locale=None) -> str:
     override_locale: Optional[str]
         A value to override bot's regional format.
 
-    Returns
+    Returns:
     -------
     str
         locale aware formatted number.
@@ -629,7 +627,7 @@ def text_to_file(
     spoiler: bool
         Whether the attachment is a spoiler. Defaults to ``False``.
 
-    Returns
+    Returns:
     -------
     discord.File
         The file containing your text.

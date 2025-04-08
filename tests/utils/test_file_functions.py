@@ -3,12 +3,12 @@ from __future__ import annotations
 import json
 import os
 import pathlib
-
 from os import PathLike
 from typing import List
 
 import aiofiles
 import pandas as pd
+import pytest
 
 from goob_ai.services.chroma_service import CHROMA_PATH, DATA_PATH
 from goob_ai.utils.file_functions import (
@@ -51,9 +51,6 @@ from goob_ai.utils.file_functions import (
     tilda,
     tree,
 )
-
-import pytest
-
 
 HERE = os.path.dirname(__file__)
 
@@ -205,9 +202,9 @@ def test_filter_media(mocker):
 def test_get_dataframe_from_csv(mocker):
     mock_read_csv = mocker.patch("pandas.read_csv", return_value=pd.DataFrame({"col1": [1], "col2": [2]}))
     result = get_dataframe_from_csv("/Users/malcolm/dev/bossjones/goob_ai/test.csv")
-    assert result.equals(
-        pd.DataFrame({"col1": [1], "col2": [2]})
-    ), f"Expected DataFrame: {pd.DataFrame({'col1': [1], 'col2': [2]})}, but got: {result}"
+    assert result.equals(pd.DataFrame({"col1": [1], "col2": [2]})), (
+        f"Expected DataFrame: {pd.DataFrame({'col1': [1], 'col2': [2]})}, but got: {result}"
+    )
     mock_read_csv.assert_called_once_with("/Users/malcolm/dev/bossjones/goob_ai/test.csv")
 
 

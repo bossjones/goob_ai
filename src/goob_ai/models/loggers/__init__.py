@@ -12,7 +12,6 @@ from typing import Any, ForwardRef, List, Optional
 # from pydantic import BaseModel
 from langchain.pydantic_v1 import BaseModel
 
-
 LoggerModel = ForwardRef("LoggerModel")
 
 
@@ -23,10 +22,10 @@ class LoggerPatch(BaseModel):
 
 class LoggerModel(BaseModel):
     name: str
-    level: Optional[int]
+    level: int | None
     # children: Optional[List["LoggerModel"]] = None
     # fixes: https://github.com/samuelcolvin/pydantic/issues/545
-    children: Optional[list[Any]] = None
+    children: list[Any] | None = None
     # children: ListLoggerModel = None
 
 

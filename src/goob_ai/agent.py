@@ -5,11 +5,9 @@
 from __future__ import annotations
 
 import logging
-
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 
 import openai
-
 from langchain.agents import AgentExecutor
 from langchain.agents.agent import BaseMultiActionAgent, BaseSingleActionAgent
 from langchain.agents.format_scratchpad.openai_tools import format_to_openai_tool_messages
@@ -18,7 +16,6 @@ from langchain.callbacks.tracers import LoggingCallbackHandler
 from langchain.chains.conversation.memory import ConversationBufferWindowMemory
 from langchain.globals import set_debug
 from langchain.pydantic_v1 import BaseModel, Field
-from langchain_chroma import Chroma
 from langchain_community.chat_message_histories import RedisChatMessageHistory
 from langchain_core.callbacks import StdOutCallbackHandler
 from langchain_core.output_parsers import StrOutputParser
@@ -40,7 +37,6 @@ from goob_ai.llm_manager import LlmManager
 from goob_ai.services.chroma_service import ChromaService
 from goob_ai.tools.rag_tool import ReadTheDocsQATool
 
-
 if TYPE_CHECKING:
     from pinecone.control import Pinecone  # pyright: ignore[reportAttributeAccessIssue]
 
@@ -49,7 +45,7 @@ if TYPE_CHECKING:
 class AiAgent:
     custom_tools: list[BaseTool] | None = None
     all_tools: list[BaseTool] | None = None
-    agent: Union[BaseSingleActionAgent, BaseMultiActionAgent] | None = None
+    agent: BaseSingleActionAgent | BaseMultiActionAgent | None = None
     settings: AioSettings | None = None
     # dynamodb_session: boto3_Session | None = None
     agent_name: str | None = None
@@ -71,9 +67,9 @@ class AiAgent:
         if self.settings.langchain_debug_logs:
             set_debug(True)
 
-        self._vector_store: Optional[Chroma] = None
-        self._embeddings: Optional[OpenAIEmbeddings] = None
-        self._collection_name: Optional[str] = None
+        self._vector_store: Chroma | None = None
+        self._embeddings: OpenAIEmbeddings | None = None
+        self._collection_name: str | None = None
 
     # def __repr__(self):
     #     return f'{self.__class__.__name__}("{self._data}")'
@@ -170,7 +166,7 @@ class AiAgent:
         )
 
     def init_tools(self):
-        self.custom_tools: Union[list[BaseTool], list[Any]] | None = [VisionTool()]
+        self.custom_tools: list[BaseTool] | list[Any] | None = [VisionTool()]
         self._embeddings = embeddings = OpenAIEmbeddings()
         self._vector_store = db = Chroma(
             client=ChromaService.client,

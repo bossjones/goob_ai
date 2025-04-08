@@ -10,13 +10,11 @@ import asyncio
 import logging
 import pickle
 import uuid
-
 from typing import Any, Dict, List, Optional
 
 import backoff
 import redis
 import redis.asyncio
-
 from loguru import logger as LOGGER
 from redis.asyncio import ConnectionPool, Redis
 from redis.asyncio.client import PubSub
@@ -37,7 +35,7 @@ class RedisSessionManagerUtility:
     def __init__(self):
         self._ttl = 3660
         self._prefix = "session"
-        self._driver: Optional[GoobRedisClient] = None
+        self._driver: GoobRedisClient | None = None
         self._initialized = False
 
     async def initialize(self) -> None:
@@ -71,7 +69,7 @@ class RedisSessionManagerUtility:
         await LOGGER.complete()
         return session
 
-    async def exist_session(self, ident: Optional[str], session: Optional[str]) -> bool:
+    async def exist_session(self, ident: str | None, session: str | None) -> bool:
         """
         Check if a session exists.
 
@@ -136,7 +134,7 @@ class RedisSessionManagerUtility:
             raise KeyError("Invalid session")
         await LOGGER.complete()
 
-    async def list_sessions(self, ident: Optional[str]) -> list[str]:
+    async def list_sessions(self, ident: str | None) -> list[str]:
         """
         List all sessions for a given identifier.
 
@@ -155,7 +153,7 @@ class RedisSessionManagerUtility:
         await LOGGER.complete()
         return [x.split(b":")[2].decode("utf-8") for x in value]
 
-    async def get_session(self, ident: Optional[str], session: Optional[str]) -> str:
+    async def get_session(self, ident: str | None, session: str | None) -> str:
         """
         Get the data for a session.
 

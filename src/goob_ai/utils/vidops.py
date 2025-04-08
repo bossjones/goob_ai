@@ -26,7 +26,6 @@ import time
 import traceback
 import typing
 import uuid
-
 from enum import IntEnum
 from io import BytesIO
 from pathlib import Path
@@ -37,7 +36,6 @@ import numpy as np
 import pytz
 import rich
 import torchvision.transforms.functional as FT
-
 from loguru import logger as LOGGER
 
 from goob_ai import db, helpers, shell, utils
@@ -45,7 +43,6 @@ from goob_ai.shell import _aio_run_process_and_communicate
 from goob_ai.utils.devices import get_device
 from goob_ai.utils.file_functions import VIDEO_EXTENSIONS, unlink_orig_file
 from goob_ai.utils.torchutils import load_model
-
 
 # https://github.com/universityofprofessorex/ESRGAN-Bot
 
@@ -312,7 +309,7 @@ async def aio_compress_video(tmpdirname: str, file_to_compress: str) -> bool:
         except Exception as ex:
             print(ex)
             exc_type, exc_value, exc_traceback = sys.exc_info()
-            LOGGER.error(f"Error Class: {str(ex.__class__)}")
+            LOGGER.error(f"Error Class: {ex.__class__!s}")
             output = f"[UNEXPECTED] {type(ex).__name__}: {ex}"
             LOGGER.warning(output)
             LOGGER.error(f"exc_type: {exc_type}")
@@ -370,7 +367,7 @@ def compress_video(tmpdirname: str, file_to_compress: str) -> bool:
         except Exception as ex:
             print(ex)
             exc_type, exc_value, exc_traceback = sys.exc_info()
-            LOGGER.error(f"Error Class: {str(ex.__class__)}")
+            LOGGER.error(f"Error Class: {ex.__class__!s}")
             output = f"[UNEXPECTED] {type(ex).__name__}: {ex}"
             LOGGER.warning(output)
             LOGGER.error(f"exc_type: {exc_type}")

@@ -3,9 +3,7 @@ from __future__ import annotations
 
 import os
 import re
-
 from typing import Set
-
 
 PYRIGHT_CMD = "pyright -p pyproject.toml ."
 MISSING_TYPESTUB_PATTERN = r'.*error: Stub file not found for "(.*)".*'

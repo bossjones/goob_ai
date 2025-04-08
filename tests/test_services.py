@@ -8,11 +8,21 @@ from __future__ import annotations
 
 import logging
 import shutil
-
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, List
 
 import faiss
+import pytest
+from langchain.vectorstores import FAISS, VectorStore
+from langchain_community.docstore.in_memory import InMemoryDocstore
+from langchain_community.vectorstores import FAISS
+from langchain_core.documents import Document
+from langchain_core.prompts import PromptTemplate
+from langchain_core.runnables import RunnableSerializable
+from langchain_core.vectorstores.base import VectorStoreRetriever
+from langchain_openai import ChatOpenAI, OpenAIEmbeddings
+from loguru import logger as LOGGER
+from rank_bm25 import BM25Okapi
 
 from goob_ai.services import (
     answer_question_from_context,
@@ -29,26 +39,12 @@ from goob_ai.services import (
     split_text_to_chunks_with_indices,
     text_wrap,
 )
-from langchain.vectorstores import FAISS, VectorStore
-from langchain_community.docstore.in_memory import InMemoryDocstore
-from langchain_community.vectorstores import FAISS
-from langchain_core.documents import Document
-from langchain_core.prompts import PromptTemplate
-from langchain_core.runnables import RunnableSerializable
-from langchain_core.vectorstores.base import VectorStoreRetriever
-from langchain_openai import ChatOpenAI, OpenAIEmbeddings
-from loguru import logger as LOGGER
-from rank_bm25 import BM25Okapi
-
-import pytest
-
 
 if TYPE_CHECKING:
     from _pytest.capture import CaptureFixture
     from _pytest.fixtures import FixtureRequest
     from _pytest.logging import LogCaptureFixture
     from _pytest.monkeypatch import MonkeyPatch
-
     from pytest_mock.plugin import MockerFixture
 
 

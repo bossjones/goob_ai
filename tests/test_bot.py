@@ -6,28 +6,24 @@ from __future__ import annotations
 
 import asyncio
 import os
-
 from io import BytesIO
 from typing import TYPE_CHECKING
 
 import aiohttp
 import discord.ext.test as dpytest
+import pytest
 import pytest_asyncio
-
 from aiohttp import ClientSession
 from aiohttp.client_exceptions import ClientError
 from discord.ext.commands import Cog, command
+
 from goob_ai import aio_settings
 from goob_ai.goob_bot import AsyncGoobBot, download_image
-
-import pytest
-
 
 if TYPE_CHECKING:
     from _pytest.fixtures import FixtureRequest
     from _pytest.logging import LogCaptureFixture
     from _pytest.monkeypatch import MonkeyPatch
-
     from pytest_mock.plugin import MockerFixture
 
 IS_RUNNING_ON_GITHUB_ACTIONS = bool(os.environ.get("GITHUB_ACTOR"))
@@ -78,7 +74,7 @@ async def bot():
 
 
 # @pytest.mark.skipif(
-#     os.getenv("GOOB_AI_BOT_SANITY"),  # noqa
+#     os.getenv("GOOB_AI_BOT_SANITY"),
 #     reason="These tests are meant to only run locally on laptop prior to porting it over to new system",
 # )
 @pytest.mark.filterwarnings("ignore:unclosed <ssl.SSLSocket ")

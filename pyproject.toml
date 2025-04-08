@@ -1,2515 +1,785 @@
-# NOTE: The comment below tells vscode to use the json schema for this file.
-#:schema hack/jsonschema/pyproject.json
-# SOURCE: https://github.com/pylint-dev/pylint/blob/df5533f7d2d7bbe5092ddbbfb213c561fd263a64/examples/pyproject.toml#L24
-
-[project]
-name = "goob-ai"
-dynamic = ["version"]
-description = "Add your description here"
-authors = [
-    {name = "Malcolm Jones", email = "bossjones@theblacktonystark.com"},
-]
-dependencies = [
-    "langchain>=0.1.17",
-    "langchain-core",
-    "fastapi>=0.111.0",
-    "boto3>=1.34.120",
-    "beautifulsoup4>=4.12.3",
-    "chardet>=5.2.0",
-    "langchain-community>=0.0.36",
-    "langchain-openai>=0.1.6",
-    "openai>=1.25.1",
-    "pydantic-settings>=2.2.1",
-    "pydantic[dotenv,email]>=2.7.1",
-    "pypdf>=4.2.0",
-    "python-docx>=1.1.2",
-    "python-dotenv>=1.0.1",
-    "striprtf>=0.0.26",
-    "tenacity>=8.2.3",
-    "requests>=2.31.0",
-    "uvicorn>=0.29.0",
-    "aiocache>=0.12.2",
-    "aiodebug>=2.3.0",
-    "aiodns>=3.2.0",
-    "aiofile>=3.8.8",
-    "aiofiles>=23.2.1",
-    "aiohttp>=3.9.5",
-    "aiomonitor>=0.7.0",
-    "aioprometheus[starlette]>=23.12.0",
-    "aiosql>=10.1",
-    "aiosqlite>=0.20.0",
-    "attrs>=23.2.0",
-    "better-exceptions>=0.3.3",
-    "click-spinner>=0.1.10",
-    "codetiming>=1.4.0",
-    "discord-py>=2.3.2",
-    "factory-boy>=3.3.0",
-    "faker>=25.0.1",
-    "fonttools[woff]>=4.51.0",
-    "gallery-dl>=1.26.9",
-    "google-auth>=2.29.0",
-    "google-auth-oauthlib>=1.2.0",
-    "gutter>=0.5.0",
-    "imageio>=2.34.2",
-    "imutils>=0.5.4",
-    "logging-tree>=1.10",
-    "loguru>=0.7.2",
-    "lxml>=5.2.1",
-    "markdown>=3.6",
-    "matplotlib>=3.8.4",
-    "md2pdf>=1.0.1",
-    "memory-profiler>=0.61.0",
-    "motor>=3.4.0",
-    "multiprocess>=0.70.16",
-    "mutagen>=1.47.0",
-    "numpy>=1.26.4",
-    "passlib[bcrypt]>=1.7.4",
-    "pillow>=10.3.0",
-    "prettytable>=3.10.0",
-    "pycryptodome>=3.20.0",
-    "pygments>=2.18.0",
-    "pyinspect>=0.1.0",
-    "pypdf2>=3.0.1",
-    "pypi-command-line[speedups]>=1.7.1",
-    "pytablewriter[html]>=1.2.0",
-    "python-levenshtein>=0.25.1",
-    "python-slugify>=8.0.4",
-    "pytz>=2024.1",
-    "redis>=5.0.4",
-    "scenedetect[opencv]>=0.6.3",
-    "sentencepiece>=0.2.0",
-    "simpletransformers>=0.70.0",
-    "soupsieve>=2.5",
-    "streamlit==1.34.0",
-    "telnetlib3>=2.0.4",
-    "tqdm>=4.66.4",
-    "transformers>=4.40.1",
-    "typer[all]>=0.12.3",
-    "uritemplate>=4.1.1",
-    "uritools>=4.0.2",
-    "validators>=0.28.1",
-    "watchdog[watchmedo]>=4.0.0",
-    "webcolors==1.13",
-    "websockets>=12.0",
-    "docutils>=0.21.2",
-    "pyinvoke>=1.0.4",
-    "pathlib-mate>=1.3.2",
-    "lazy-object-proxy>=1.10.0",
-    "httpx[http2]>=0.27.0",
-    "python-json-logger>=2.0.7",
-    "torch==2.0.1",
-    "chromadb==0.5.3",
-    "duckduckgo-search>=6.1.6",
-    "wikipedia>=1.4.0",
-    "pandas>=2.2.2",
-    "babel>=2.14.0",
-    "dask>=2024.5.0",
-    "invoke>=2.2.0",
-    "click>=8.1.7",
-    "torchvision==0.15.2",
-    "asyncer>=0.0.7",
-    "bump-pydantic>=0.8.0",
-    "pinecone-client[grpc]>=4.1.1",
-    "langserve[all]>=0.1.1",
-    "prometheus-client>=0.20.0",
-    "aiopytesseract>=0.14.0",
-    "langchain-google-genai>=1.0.6",
-    "langchain-anthropic>=0.1.15",
-    "pyowm>=3.3.0",
-    "yfinance>=0.2.40",
-    "youtube-search>=2.1.2",
-    "timm>=1.0.3",
-    "huggingface-hub>=0.23.3",
-    "langchain-chroma>=0.1.2",
-    "ipykernel>=6.29.5",
-    "sentence-transformers>=3.0.1",
-    "ipywidgets>=8.1.3",
-    "widgetsnbextension>=4.0.11",
-    "nbqa>=1.8.5",
-    "rapidocr-onnxruntime>=1.3.24",
-    "pickledb>=0.9.2",
-    "pymupdf>=1.24.7",
-    "langchainhub>=0.1.20",
-    "sentry-sdk>=2.9.0",
-    "langgraph>=0.1.10",
-    "langchain-groq>=0.1.6",
-    "notebook>=7.2.1",
-    "nbconvert>=7.16.4",
-    "moviepy>=1.0.3",
-    "jedi-language-server>=0.41.4",
-    "requests-toolbelt>=1.0.0",
-    "pdf2image>=1.17.0",
-    "unstructured[all-docs]==0.15.8",
-    "jq>=1.8.0",
-    "pyinstrument>=4.7.2",
-    "langchain-postgres>=0.0.9",
-    "langchain-pinecone>=0.1.3",
-    "rank-bm25>=0.2.2",
-    "faiss-cpu>=1.8.0.post1",
-    "pytesseract>=0.3.13",
-    "python-decouple>=3.8",
-]
-
-readme = "README.md"
-# requires-python = ">= 3.8"
-# requires-python = "!=3.9.7,~=3.9"
-# requires-python = ">= 3.9.7, <3.13"
-requires-python = ">=3.10,<3.12"
-
-license = {text = "MIT"}
-
-[project.scripts]
-# openai = "openai.cli:main"
-goobctl = 'goob_ai.cli:entry'
+# :schema = "https://json.schemastore.org/pyproject.json"
 
 [build-system]
-requires = ["hatchling", "packaging<24"]
-build-backend = "hatchling.build"
+    build-backend = "setuptools.build_meta"
+    requires      = ["setuptools>=61"]
 
-# SOURCE: https://github.com/humblFINANCE/humblAPI/blob/master/pyproject.toml
+[dependency-groups]
+    dev = [
+        "aiodebug>=2.3.0",
+        "aiomonitor>=0.7.1",
+        "bpython>=0.25",
+        "bump-pydantic>=0.8.0",
+        "codetiming>=1.4.0",
+        "commitizen>=4.4.1",
+        "coverage[toml]>=7.6.12",
+        "debugpy>=1.8.12",
+        "factory-boy>=3.3.3",
+        "faker>=37.1.0",
+        "griffe-inherited-docstrings>=1.1.1",
+        "ipykernel>=6.29.5",
+        "ipywidgets>=8.1.5",
+        "jedi-language-server>=0.44.0",
+        "markdown-emdash>=0.2.0",
+        "memory-profiler>=0.61.0",
+        "mkdocs-api-autonav>=0.2.1",
+        "mkdocs-awesome-pages-plugin>=2.10.1",
+        "mkdocs-coverage>=1.1.0",
+        "mkdocs-ezlinks-plugin>=0.1.14",
+        "mkdocs-gen-files>=0.5.0",
+        "mkdocs-git-authors-plugin>=0.9.4",
+        "mkdocs-git-revision-date-localized-plugin>=1.4.5",
+        "mkdocs-glightbox>=0.4.0",
+        "mkdocs-jupyter>=0.25.1",
+        "mkdocs-literate-nav>=0.6.2",
+        "mkdocs-macros-plugin>=1.3.7",
+        "mkdocs-material>=9.6.6",
+        "mkdocs-mermaid2-plugin>=1.2.1",
+        "mkdocs-open-in-new-tab>=1.0.8",
+        "mkdocs-section-index>=0.3.9",
+        "mkdocs-towncrier>=0.1.4",
+        "mkdocs>=1.6.1",
+        "mkdocstrings[python]>=0.29.1",
+        "nbconvert>=7.16.6",
+        "nbqa>=1.9.1",
+        "neoteroi-mkdocs>=1.1.0",
+        "notebook>=7.3.3",
+        "pdoc>=15.0.1",
+        "pre-commit>=4.1.0",
+        "pydocstyle>=6.3.0",
+        "pygments>=2.19.1",
+        "pyinspect>=0.1.0",
+        "pyinstrument>=5.0.1",
+        "pylint-per-file-ignores>=1.4.0",
+        "pylint-pydantic>=0.3.5",
+        "pyright>=1.1.395",
+        "pytest-aiohttp>=1.1.0",
+        "pytest-aioresponses>=0.3.0",
+        "pytest-asyncio>=0.25.3",
+        "pytest-clarity>=1.0.1",
+        "pytest-cov>=6.0.0",
+        "pytest-freezegun",
+        "pytest-httpx>=0.35.0",
+        "pytest-ignore-flaky>=2.2.1",
+        "pytest-memray>=1.7.0",
+        "pytest-mock>=3.14.0",
+        "pytest-recording>=0.13.2",
+        "pytest-retry>=1.7.0",
+        "pytest-skip-slow>=0.0.5",
+        "pytest-skipuntil>=0.2.0",
+        "pytest-sugar>=1.0.0",
+        "pytest>=8.3.4",
+        "pyupgrade>=3.19.1",
+        "requests-mock>=1.12.1",
+        "respx>=0.22.0",
+        "ruff>=0.9.9",
+        "rust-just>=1.40.0",
+        "towncrier>=24.8.0",
+        "tox-uv>=1.25.0",
+        "types-aiofiles>=24.1.0.20241221",
+        "types-beautifulsoup4>=4.12.0.20250204",
+        "types-mock>=5.1.0.20240425",
+        "types-requests>=2.32.0.20250301",
+        "validate-pyproject[all,store]>=0.23",
+        "watchdog[watchmedo]>=6.0.0",
+        "widgetsnbextension>=4.0.13",
+    ]
+
+[project]
+    authors = [
+        { email = "bossjones@theblacktonystark.com", name = "Malcolm Jones" },
+    ]
+    dependencies = [
+        "aiocache>=0.12.3",
+        "aiodns>=3.2.0",
+        "aiofile>=3.9.0",
+        "aiofiles>=24.1.0",
+        "aiohttp>=3.11.16",
+        "aioprometheus[starlette]>=23.12.0",
+        "aiopytesseract>=0.14.0",
+        "aiosql>=13.3",
+        "aiosqlite>=0.21.0",
+        "asyncer>=0.0.8",
+        "attrs>=25.3.0",
+        "babel>=2.17.0",
+        "beautifulsoup4>=4.13.3",
+        "better-exceptions>=0.3.3",
+        "boto3>=1.37.29",
+        "bpython>=0.25",
+        "chardet>=5.2.0",
+        "chromadb>=1.0.3",
+        "dask>=2025.3.0",
+        "discord-py>=2.5.2",
+        "docutils>=0.21.2",
+        "duckduckgo-search>=2025.4.4",
+        "faiss-cpu>=1.10.0",
+        "fastapi>=0.115.9",
+        "files-to-prompt>=0.4",
+        "fonttools[woff]>=4.57.0",
+        "gallery-dl>=1.29.3",
+        "gitpython>=3.1.44",
+        "google-auth-oauthlib>=1.2.1",
+        "google-auth>=2.38.0",
+        "google-generativeai>=0.8.4",
+        "gutter>=0.5.0",
+        "httpx[http2]>=0.28.1",
+        "huggingface-hub>=0.30.1",
+        "imageio>=2.37.0",
+        "imutils>=0.5.4",
+        "jq>=1.8.0",
+        "langchain-anthropic>=0.3.9",
+        "langchain-aws>=0.2.15",
+        "langchain-community>=0.3.19",
+        "langchain-core>=0.3.43",
+        "langchain-google-genai>=2.0.10",
+        "langchain-groq>=0.3.2",
+        "langchain-openai>=0.3.8",
+        "langchain-pinecone>=0.0.1",
+        "langchain-postgres>=0.0.13",
+        "langchain-text-splitters>=0.3.6",
+        "langchain>=0.3.20",
+        "langchainhub>=0.1.21",
+        "langgraph>=0.3.5",
+        "langsmith>=0.3.13",
+        "lazy-object-proxy>=1.10.0",
+        "llm-anthropic>=0.12",
+        "llm-cmd>=0.2a0",
+        "llm-jq>=0.1.1",
+        "llm-perplexity>=2025.2.0",
+        "llm-python>=0.1",
+        "llm-sentence-transformers>=0.2",
+        "llm>=0.19",
+        "logging-tree>=1.10",
+        "loguru>=0.7.3",
+        "lxml>=5.3.2",
+        "markdown>=3.7",
+        "matplotlib>=3.10.1",
+        "mcp[cli]>=1.3.0",
+        "md2pdf>=1.0.1",
+        "motor>=3.7.0",
+        "moviepy>=1.0.3",
+        "multiprocess>=0.70.17",
+        "mutagen>=1.47.0",
+        "numpy>=1.26.4",
+        "openai>=1.71.0",
+        "pandas>=2.2.3",
+        "passlib[bcrypt]>=1.7.4",
+        "pathlib-mate>=1.3.2",
+        "pdf2image>=1.17.0",
+        "pickledb>=1.3.2",
+        "pillow>=11.1.0",
+        "pinecone>=6.0.2",
+        "prettytable>=3.16.0",
+        "prometheus-client>=0.21.1",
+        "psutil>=5.9.5",
+        "pycryptodome>=3.22.0",
+        "pydantic-settings>=2.8.1",
+        "pydantic[email]>=2.11.2",
+        "pygithub>=2.6.1",
+        "pyinvoke>=1.0.4",
+        "pymupdf>=1.25.5",
+        "pyowm>=3.3.0",
+        "pypdf2>=3.0.1",
+        "pypdf>=5.4.0",
+        "pypi-command-line[speedups]>=1.7.1",
+        "pysnooper>=1.2.1",
+        "pytablewriter[html]>=1.2.1",
+        "pytesseract>=0.3.13",
+        "python-decouple>=3.8",
+        "python-docx>=1.1.2",
+        "python-dotenv>=1.1.0",
+        "python-json-logger>=3.3.0",
+        "python-levenshtein>=0.27.1",
+        "python-slugify>=8.0.4",
+        "pytz>=2025.1",
+        "rank-bm25>=0.2.2",
+        "rapidocr-onnxruntime>=1.4.4",
+        "redis>=5.2.1",
+        "requests-toolbelt>=1.0.0",
+        "requests>=2.32.3",
+        "rich>=13.9.4",
+        "scenedetect[opencv]>=0.6.6",
+        "sentence-transformers>=4.0.2",
+        "sentencepiece>=0.2.0",
+        "sentry-sdk>=2.25.1",
+        "simpletransformers>=0.70.1",
+        "soupsieve>=2.6",
+        "spacy>=3.8.4",
+        "streamlit>=1.44.1",
+        "striprtf>=0.0.29",
+        "telnetlib3>=2.0.4",
+        "tenacity>=9.0.0",
+        "timm>=1.0.15",
+        "torch>=2.6.0",
+        "torchvision>=0.21.0",
+        "tqdm>=4.67.1",
+        "transformers>=4.51.0",
+        "ttok>=0.3",
+        "typer>=0.15.2",
+        "tzlocal>=5.2",
+        "unstructured[all-docs]>=0.17.2",
+        "uritemplate>=4.1.1",
+        "uritools>=4.0.3",
+        "uvicorn>=0.34.0",
+        "validators>=0.34.0",
+        "webcolors>=24.11.1",
+        "websockets>=15.0.1",
+        "wikipedia>=1.4.0",
+        "yfinance>=0.2.55",
+        "youtube-search>=2.1.2",
+    ]
+    description = "Discord bot named after my french bulldog, Goob"
+    keywords = ["ai", "bot", "discord", "goob"]
+    license = { file = "LICENSE.txt" }
+    name = "goob-ai"
+    readme = "README.md"
+    requires-python = ">=3.12"
+    version = "0.1.0"
+
+    [project.scripts]
+        # clctl       = "goob_ai.cli:main"
+        # goob-ai = "goob_ai.cli:main"
+        goobctl = 'goob_ai.cli:entry'
+
+    [project.urls]
+        "Bug Tracker"   = "https://github.com/bossjones/goob-ai/issues"
+        Changelog       = "https://github.com/bossjones/goob-ai/blob/main/CHANGELOG.md"
+        "Code"          = "https://github.com/bossjones/goob-ai"
+        Documentation   = "https://bossjones.github.io/goob-ai/goob_ai.html"
+        Homepage        = "https://github.com/bossjones/goob-ai"
+        "Issue tracker" = "https://github.com/bossjones/goob-ai/issues"
+        Repository      = "https://github.com/bossjones/goob-ai"
+
+[tool.setuptools]
+    package-dir = { "" = "src" }
+    packages    = ["goob_ai"]
+
+[tool.changelog-bot]
+
+    [tool.changelog-bot.towncrier_changelog]
+        changelog_skip_label = "no-changelog-entry-needed"
+        enabled              = true
+        verify_pr_number     = true
+
+# SOURCE: https://github.com/fmind/mlops-python-package/blob/2a9741f0f97e2213aafb9f3e9bb5b0a9092738cd/pyproject.toml
 [tool.commitizen]
-name = "cz_gitmoji"
-version_provider = "pep621"
-# version = "0.4.0"
-tag_format = "v$version"
-update_changelog_on_bump = true
-annotated_tag = true
-bump_message = "🔖 bump(release): v$current_version → v$new_version"
-major_version_zero = true
-version_files = [
-    "pyproject.toml:^version",
-]
-path = ".cz-config.js"
-
-[tool.commitizen.customize]
-example = "feat: this feature enables customizing through pyproject.toml file"
-schema = """
-<type>(<scope>): <subject> \n
-<BLANK LINE> \n
-<body> \n
-<BLANK LINE> \n
-(BREAKING CHANGE: )<breaking> \n
-<BLANK LINE> \n
-(ISSUES: )<footer>
-"""
-schema_pattern = "(?s)(✨ feat|🐛 fix|🚑 hotfix|🔧 chore|♻️ refactor|🚧 WIP|📚 docs|⚡️ perf|💄 style|🏗️ build|👷 ci|✅ test|⏪ revert|➕ add_dep|➖ rem_dep)(\\(\\S+\\))?!?:( [^\\n\\r]+)((\\n\\n.*)|(\\s*))?$"
-bump_pattern = "^(✨ feat|🐛 fix|🚑 hotfix|⚡️ perf|♻️ refactor|⏪ revert|➕ add_dep)"
-bump_map = {"BREAKING CHANGE" = "MAJOR", "✨ feat" = "MINOR", "🐛 fix" = "PATCH", "🚑 hotfix" = "PATCH", "⚡️ perf" = "PATCH", "♻️ refactor" = "PATCH"}
-change_type_order = [
-    "BREAKING CHANGE",
-    "✨ feat",
-    "🐛 fix",
-    "🚑 hotfix",
-    "♻️ refactor",
-    "⚡️ perf",
-    "🏗️ build",
-    "💄 style",
-    "📚 docs",
-    "➕ add_dep",
-    "➖ rem_dep",
-]
-info_path = "cz_customize_info.txt"
-info = """
-This is customized commitizen info
-"""
-commit_parser = "^(?P<change_type>✨ feat|🐛 fix|🚑 hotfix|🔧 chore|♻️ refactor|🚧 WIP|📚 docs|⚡️ perf|💄 style|🏗️ build|👷 ci|✅ test|⏪ revert|➕ add_dep|➖ rem_dep):\\s(?P<message>.*)?"
-changelog_pattern = "^(✨ feat|🐛 fix|🚑 hotfix|🔧 chore|♻️ refactor|🚧 WIP|📚 docs|⚡️ perf|💄 style|🏗️ build|👷 ci|✅ test|⏪ revert|➕ add_dep|➖ rem_dep)?(!)?"
-change_type_map = {"🏗️ build" = "Build", "👷 ci" = "CI", "📚 docs" = "Docs", "✨ feat" = "Feat", "🐛 fix" = "Fix", "🚑 hotfix" = "Hotfix", "⚡️ perf" = "Perf", "♻️ refactor" = "Refactor", "💄 style" = "Style", "✅ test" = "Test", "🔧 chore" = "Chore", "⏪ revert" = "Revert", "➕ add_dep" = "Added Dependency", "➖ rem_dep" = "Removed Dependency"}
-
-
-[tool.rye]
-managed = true
-dev-dependencies = [
-    "black>=24.4.2",
-    "boto3-stubs[essential]>=1.34.98",
-    "bpython>=0.24",
-    "flake8>=7.0.0",
-    "isort>=5.13.2",
-    "mypy>=1.10.0",
-    "mypy-boto3>=1.34.98",
-    "pre-commit>=3.7.0",
-    "pydocstyle>=6.3.0",
-    "pytest-cov>=5.0.0",
-    "pytest-mock>=3.14.0",
-    "pytest-sugar>=1.0.0",
-    "pytest>=8.2.0",
-    "pyupgrade>=3.15.2",
-    "requests-mock>=1.12.1",
-    "rich>=13.7.1",
-    "ruff>=0.4.3",
-    "types-beautifulsoup4>=4.12.0.20240511",
-    "types-boto>=2.49.18.20240205",
-    "types-mock>=5.1.0.20240425",
-    "types-pyyaml>=6.0.12.20240311",
-    "types-aiofiles>=23.2.0.20240403",
-    "types-click>=7.1.8",
-    "types-colorama>=0.4.15.20240311",
-    "types-dataclasses>=0.6.6",
-    "types-freezegun>=1.1.10",
-    "types-pytz>=2024.1.0.20240417",
-    "types-setuptools>=69.5.0.20240423",
-    "types-six>=1.16.21.20240513",
-    "monkeytype>=23.3.0",
-    "hunter>=3.7.0",
-    "sourcery>=1.18.0",
-    "types-html5lib>=1.1.11.20240228",
-    "types-pyasn1>=0.6.0.20240402",
-    "types-python-jose>=3.3.4.20240106",
-    "typing-extensions>=4.11.0",
-    "pyright>=1.1.363",
-    "pytest-asyncio>=0.23.6",
-    "validate-pyproject[all,store]>=0.16",
-    "pylint-per-file-ignores>=1.3.2",
-    "pylint>=3.1.0",
-    "docformatter[tomli]>=1.7.5",
-    "pytest-httpx>=0.30.0",
-    "coverage[toml]>=7.5.1",
-    "dpytest>=0.7.0",
-    "types-ujson>=5.9.0.0",
-    "types-tqdm>=4.66.0.20240417",
-    "types-toml>=0.10.8.20240310",
-    "types-regex>=2024.5.10.20240512",
-    "types-redis>=4.6.0.20240425",
-    "types-psutil>=5.9.5.20240511",
-    "types-mypy-extensions>=1.0.0.20240311",
-    "types-jsonschema>=4.22.0.20240501",
-    "types-click-spinner>=0.1.13.20240311",
-    "types-cffi>=1.16.0.20240331",
-    "pandas-stubs>=2.2.2.240514",
-    "types-urllib3>=1.26.25.14",
-    "grpc-stubs>=1.53.0.5",
-    "types-protobuf>=5.26.0.20240422",
-    "types-contextvars>=2.4.7.3",
-    "pytest-aiohttp>=1.0.5",
-    "pytest-skip-slow>=0.0.5",
-    "pytest-clarity>=1.0.1",
-    "pytest-retry>=1.6.3",
-    "commitizen>=3.28.0",
-    "cz-conventional-gitmoji>=0.3.2",
-    "pydocstringformatter>=0.7.3",
-    "pylint-to-ruff>=0.3.0",
-    "mkdocs>=1.6.0",
-    "mkdocs-material>=9.5.30",
-    "mkdocs-mermaid2-plugin>=1.1.1",
-    "mkdocs-with-pdf>=0.9.3",
-    "towncrier>=23.11.0",
-    "mdformat-pyproject>=0.0.1",
-    "mdformat-gfm>=0.3.6",
-    "mdformat-frontmatter>=2.0.8",
-    "mdformat-config>=0.1.3",
-    "mdx-gh-links>=0.4",
-    "mkdocs-simple-hooks>=0.1.5",
-    "mkdocs-version-annotations>=1.0.0",
-    "mkdocs-include-markdown-plugin>=6.2.1",
-    "pytest-ignore-flaky>=2.2.1",
-    "mdformat-footnote>=0.1.1",
-    "mkdocstrings[python]>=0.25.2",
-    "mkdocs-jupyter>=0.24.8",
-    "mkdocs-redirects>=1.2.1",
-    "mdformat-mkdocs>=3.0.0",
-    "yamlfix>=1.16.0",
-    "yamllint>=1.35.1",
-    "pymarkdownlnt>=0.9.21",
-    "respx>=0.21.1",
-    "memray>=1.13.4",
-    "pytest-memray>=1.7.0",
-    "sentry-sdk[opentelemetry]>=2.12.0",
-    "pytest-recording>=0.13.2",
-    "debugpy>=1.8.5",
-    "manhole>=1.8.1",
-    "pysnooper>=1.2.0",
-]
-
-[tool.rye.scripts]
-lint-markdown = "pymarkdownlnt --disable-rules=MD013,MD034 scan README.md"
-serve-docs = "mkdocs serve"
-pylint-to-ruff = "pylint-to-ruff"
-http = {cmd = ["python", "-mhttp.server", "8008"]}
-whoami = {cmd = "whoami"}
-mypy-missing = {cmd = "mypy --install-types"}
-clean = {cmd = "python -m invoke ci.clean -vvv"}
-fmt = {cmd = "pre-commit run --all-files"}
-pylint = {cmd = "python -m invoke ci.pylint --everything"}
-pylint-error-only = {cmd = "pylint --output-format=colorized --generated-members=torch.*,numpy.*,cv2.* --disable=all --max-line-length=120 --enable=F,E --rcfile pyproject.toml src tests"}
-lint-all = {cmd = "python -m pylint -j4 --output-format=colorized --rcfile pyproject.toml tests src"}
-lint = {cmd = "python -m pylint --output-format=colorized --disable=C0111,E0401,C,W,R0402,R6102 --enable=F,E tests src"}
-typecheck = {chain = [
-    "typecheck:pyright",
-    "typecheck:mypy",
-]}
-"typecheck:pyright" = "pyright -p pyproject.toml ."
-"typecheck:verify-types" = "pyright --verifytypes openai --ignoreexternal"
-"typecheck:mypy" = {chain = [
-    "ci:mypy",
-    "open:mypy-coverage",
-]}
-"sourcery:check" = "sourcery review --config .sourcery.yaml --check --summary ."
-"sourcery:diff" = "sourcery review --config .sourcery.yaml --diff 'git diff main' --verbose ."
-"sourcery:fix" = "sourcery review --config .sourcery.yaml --fix ."
-"sourcery:hub" = "sourcery hub"
-"docs:changelog" = "towncrier build --version main --draft"
-"ci:mypy" = "mypy  --config-file=pyproject.toml --html-report typingcov ."
-"open:mypy-coverage" = "open typingcov/index.html"
-"open:chroma" = "open http://127.0.0.1:3000"
-"open:zipkin" = "open http://127.0.0.1:9411"
-"open:otel" = "open http://127.0.0.1:4317"
-"open:coverage" = "just local-open-coverage"
-open-all = {chain = [
-    "open:mypy-coverage",
-    "open:chroma",
-    "open:zipkin",
-    "open:otel",
-]}
-unittests-debug = {cmd = "pytest -s -vv --diff-width=60 --diff-symbols --pdb --pdbcls bpdb:BPdb --showlocals --tb=short --cov-append --cov-report=term-missing --junitxml=junit/test-results.xml --cov-report=xml:cov.xml --cov-report=html:htmlcov --cov-report=annotate:cov_annotate --cov=."}
-unittests-debug-services = {cmd = "pytest -m services -s -vv --diff-width=60 --diff-symbols --pdb --pdbcls bpdb:BPdb --showlocals --tb=short --cov-append --cov-report=term-missing --junitxml=junit/test-results.xml --cov-report=xml:cov.xml --cov-report=html:htmlcov --cov-report=annotate:cov_annotate --cov=."}
-profile-unittests-debug = {cmd = "pyinstrument -m pytest -s -vv --diff-width=60 --diff-symbols --pdb --pdbcls bpdb:BPdb --showlocals --tb=short --cov-append --cov-report=term-missing --junitxml=junit/test-results.xml --cov-report=xml:cov.xml --cov-report=html:htmlcov --cov-report=annotate:cov_annotate --cov=."}
-spy-unittests-debug = {cmd = "py-spy top -- python -m pytest -s -vv --diff-width=60 --diff-symbols --pdb --pdbcls bpdb:BPdb --showlocals --tb=short --cov-append --cov-report=term-missing --junitxml=junit/test-results.xml --cov-report=xml:cov.xml --cov-report=html:htmlcov --cov-report=annotate:cov_annotate --cov=."}
-unittests = {cmd = "pytest --verbose --showlocals --tb=short --cov-append --cov-report=term-missing --junitxml=junit/test-results.xml --cov-report=xml:cov.xml --cov-report=html:htmlcov --cov-report=annotate:cov_annotate --cov=."}
-unittests-vcr-record = {cmd = "pytest --record-mode=all --verbose --showlocals --tb=short --cov-append --cov-report=term-missing --junitxml=junit/test-results.xml --cov-report=xml:cov.xml --cov-report=html:htmlcov --cov-report=annotate:cov_annotate --cov=."}
-unittests-vcr-record-rewrite = {cmd = "pytest --record-mode=rewrite --verbose --showlocals --tb=short --cov-append --cov-report=term-missing --junitxml=junit/test-results.xml --cov-report=xml:cov.xml --cov-report=html:htmlcov --cov-report=annotate:cov_annotate --cov=."}
-unittests-vcr-record-once = {cmd = "pytest --record-mode=once --verbose --showlocals --tb=short --cov-append --cov-report=term-missing --junitxml=junit/test-results.xml --cov-report=xml:cov.xml --cov-report=html:htmlcov --cov-report=annotate:cov_annotate --cov=."}
-unittests-vcr-record-all = {chain = [
-    "unittests-vcr-record",
-]}
-# NOTE: this is the only one that works
-unittests-vcr-record-final = {chain = [
-    "unittests-vcr-record",
-]}
-test-simple = {cmd = "pytest -p no:warnings"}
-simple-test = {cmd = "pytest -p no:warnings"}
-new-unittests-debug = {cmd = "pytest -s --verbose --pdb --pdbcls bpdb:BPdb --showlocals --tb=short"}
-test = {chain = [
-    "lint",
-    "unittests",
-]}
-# SOURCE: https://github.com/rayference/joseki/blob/5e9812a2f77be1476e09aef66a05fdc78e736aba/pyproject.toml#L62
-coverage-combine = {cmd = "python -m coverage combine"}
-coverage-html = {cmd = "python -m coverage html --skip-covered --skip-empty"}
-coverage-pytest = {cmd = "coverage run --rcfile=pyproject.toml -m pytest tests"}
-coverage-pytest-debug = {cmd = "coverage run --rcfile=pyproject.toml -m pytest --verbose -vvv --pdb --pdbcls bpdb:BPdb --showlocals --tb=short --capture=no tests"}
-coverage-pytest-evals-debug = {cmd = "coverage run --rcfile=pyproject.toml -m pytest --verbose -vv --pdb --pdbcls bpdb:BPdb --showlocals --tb=short --capture=no -m evals --slow tests"}
-
-memray-coverage-pytest-debug = {cmd = "coverage run --rcfile=pyproject.toml -m pytest --verbose -vvv --memray --pdb --pdbcls bpdb:BPdb --showlocals --tb=short --capture=no tests"}
-memray-coverage-pytest-evals-debug = {cmd = "coverage run --rcfile=pyproject.toml -m pytest --verbose --memray -vv --pdb --pdbcls bpdb:BPdb --showlocals --tb=short --capture=no -m evals --slow tests"}
-coverage-report = {chain = [
-    "coverage-pytest",
-    "coverage-combine",
-    "coverage-show",
-    "coverage-html",
-    "coverage-open",
-]}
-coverage-report-debug = {chain = [
-    "coverage-pytest-debug",
-    "coverage-combine",
-    "coverage-show",
-    "coverage-html",
-    "coverage-open",
-]}
-coverage-report-debug-evals = {chain = [
-    "coverage-pytest-debug",
-    "coverage-pytest-evals-debug",
-    "coverage-combine",
-    "coverage-show",
-    "coverage-html",
-    "coverage-open",
-]}
-e2e-coverage-pytest-debug = {cmd = "coverage run --rcfile=pyproject.toml -m pytest --verbose --pdb --pdbcls bpdb:BPdb --showlocals --tb=short --capture=no tests -m e2e"}
-e2e-coverage-report-debug = {chain = [
-    "e2e-coverage-pytest-debug",
-    "coverage-combine",
-    "coverage-show",
-    "coverage-html",
-    "coverage-open",
-]}
-coverage-show = {cmd = "python -m coverage report --fail-under=5"}
-coverage-open = {cmd = "just local-open-coverage"}
-ci = {chain = [
-    "lint",
-    "test",
-]}
-ci-with-evals = {chain = [
-    "coverage-pytest-debug",
-    "coverage-pytest-evals-debug",
-    "coverage-combine",
-    "coverage-show",
-    "coverage-html",
-    "coverage-open",
-]}
-ci-with-evals-memray = {chain = [
-    "memray-coverage-pytest-debug",
-    "memray-coverage-pytest-evals-debug",
-    "coverage-combine",
-    "coverage-show",
-    "coverage-html",
-    "coverage-open",
-]}
-gh-deploy = "mkdocs gh-deploy --force --message '[skip ci] Docs updates'"
-mkdir-site = "mkdir site"
-deploy-docs = {chain = [
-    "mkdir-site",
-    "gh-deploy",
-]}
-
-
-# Private tasks used for chaining (https://github.com/charbonnierg/pytest-broadcaster/blob/e98456b2f6db7f99a034795f162ac0013a8001d7/pyproject.toml#L157C1-L158C15)
-__formatcheck = "rye fmt --check"
-
-# SOURCE: https://github.com/rayference/joseki/blob/5e9812a2f77be1476e09aef66a05fdc78e736aba/pyproject.toml#L62
-
-# TODO: enable this
-# SOURCE: https://github.com/JacobCoffee/byte/blob/f863a146060165fe5c33a6343ee661b71f3ebf4a/pyproject.toml#L10
-# docs-serve = "sphinx-autobuild docs docs/_build/ -j auto --watch app --watch docs --watch tests --watch CONTRIBUTING.rst --port 8002"
-# changelog = "git cliff -c pyproject.toml -o docs/changelog.rst"
-# # TODO: Move more from makefile here
-
-# NOTE: THIS CAUSED EVERYTHING TO BE HELD BACK TO SUPER OLD VERSIONS
-# # https://github.com/astral-sh/rye/blob/ab8d5b433d5c4342c2bb125583c6bff4d29f5fbc/docs/guide/faq.md
-# [[tool.rye.sources]]
-# name = "pytorch"
-# url = "https://download.pytorch.org/whl/cpu"
+    # Indicates the commit from which to start generating the changelog.
+    changelog_start_rev = "v0.1.0"
+    # Specifies the commitizen plugin to use for creating conventional commits.
+    name = "cz_conventional_commits"
+    # Defines the format for version tags (e.g., v1.2.3).
+    tag_format = "v$version"
+    # Automatically update the changelog file on version bumps.
+    update_changelog_on_bump = true
+    # Specifies that the version is defined in pyproject.toml as per PEP 621.
+    version_provider = "pep621"
+    # Declares the versioning scheme to be compliant with PEP 440.
+    version_scheme = "pep440"
 
 [tool.coverage.html]
-directory = "htmlcov"
+    directory = "htmlcov"
 
-[tool.coverage.xml]
-output = "cov.xml"
-
-# unittests-debug = {cmd = "pytest --verbose --pdb --pdbcls bpdb:BPdb --showlocals --tb=short --cov-append --cov-report=term-missing --junitxml=junit/test-results.xml --cov-report=xml:cov.xml --cov-report=html:htmlcov --cov-report=annotate:cov_annotate --cov=."}
-
-[tool.hatch.version]
-path = "src/goob_ai/__version__.py"
-
-[tool.hatch.metadata]
-allow-direct-references = true
-
-[tool.hatch.build.targets.wheel]
-packages = ["src/goob_ai"]
+[tool.coverage.paths]
+    # The first path is the path on the local filesystem
+    # The second path is the path as it appears within the Docker container
+    source = ["/usr/src/python-app", "src/"]
 
 [tool.coverage.report]
-exclude_lines = [
-    '\(Protocol\):$',
-    '\s*\.\.\.$',
-    "@(abc.)?abstractmethod",
-    "@overload",
-    "@typing.overload",
-    "assert_never",
-    "def __repr__",
-    "def __str__",
-    "except ImportError:",
-    "if __name__ == .__main__.:",
-    "if not _PANDAS_AVAILABLE:",
-    "if self.debug",
-    "if settings.DEBUG",
-    "if TYPE_CHECKING:",
-    "if TYPE_CHECKING",
-    "if typing.TYPE_CHECKING:",
-    "pragma: $TEST_PLATFORM no cover",
-    "pragma: no cover",
-    "pragma: py$PYTHON_MAJOR_VERSION no cover",
-    "raise AssertionError",
-    "raise NotImplementedError",
-    "return NotImplemented",
-    "typing.assert_never",
-]
-omit = [
-    "test/*",
-    "tests/*",
-]
-# fail if coverage drops below the specified percentage:
-fail_under = 10
+    # Additional regexes for lines to exclude from consideration
+    exclude_also = [
+        # Don't complain about abstract methods, they aren't run:
+        "@(abc\\.)?abstractmethod",
+        # A pragma comment that excludes an entire file:
+        "\\A(?s:.*# pragma: exclude file.*)\\Z",
+        # Don't complain about missing debug-only code:
+        "def __repr__",
+        # Exclude specific exception clauses:
+        "except ValueError:\\n\\s*assume\\(False\\)",
+        # Don't complain if non-runnable code isn't run:
+        "if 0:",
+        "if __name__ == .__main__.:",
+        "if self\\.debug",
+        # Comments to turn coverage on and off:
+        "no cover: start(?s:.)*?no cover: stop",
+        # Don't complain if tests don't hit defensive assertion code:
+        "raise AssertionError",
+        "raise NotImplementedError",
+    ]
+    exclude_lines = [
+        "@(abc.)?abstractmethod",
+        "@overload",
+        "@typing.overload",
+        "assert_never",
+        "def __repr__",
+        "def __str__",
+        "except ImportError:",
+        "if TYPE_CHECKING",
+        "if TYPE_CHECKING:",
+        "if __name__ == .__main__.:",
+        "if not _PANDAS_AVAILABLE:",
+        "if self.debug",
+        "if settings.DEBUG",
+        "if typing.TYPE_CHECKING:",
+        "pragma: $TEST_PLATFORM no cover",
+        "pragma: no cover",
+        "pragma: py$PYTHON_VERSION no cover",
+        "raise AssertionError",
+        "raise NotImplementedError",
+        "return NotImplemented",
+        "typing.assert_never",
+        '\(Protocol\):$',
+        '\s*\.\.\.$',
+    ]
+    fail_under = 30
+    # Ignore source code that can't be found, emitting a warning instead of an exception
+    ignore_errors = false
+    omit          = ["*/studio/*", "*/test/*", "*/tests/*"]
+    # When running a summary report, show missing lines
+    show_missing = true
+    # Don't report files that are 100% covered
+    skip_covered = false
+    skip_empty   = true
 
-# Regexes for lines to exclude from consideration
-exclude_also = [
-    # Don't complain about missing debug-only code:
-    "def __repr__",
-    "if self\\.debug",
-
-    # Don't complain if tests don't hit defensive assertion code:
-    "raise AssertionError",
-    "raise NotImplementedError",
-
-    # Don't complain if non-runnable code isn't run:
-    "if 0:",
-    "if __name__ d .__main__.:",
-
-    # Don't complain about abstract methods, they aren't run:
-    "@(abc\\.)?abstractmethod",
-]
-
-# (boolean, default False) Ignore source code that can't be found, emitting a warning instead of an exception.
-ignore_errors = false
-# (boolean, default False) When running a summary report, show missing lines. See Coverage summary: coverage report for more information.
-show_missing = true
-# (boolean, default False) Don't report files that are 100% covered. This helps you focus on files that need attention.
-skip_covered = false
-
-# =========================[ PYTEST INI OPTIONS ]========================
-[tool.pytest.ini_options]
-# retries = 5
-# retry_delay = 0.5
-# retry_delay = 30
-pythonpath = "."
-asyncio_mode = "auto"
-addopts = [
-    # Print runtimes of the slowest tests.
-    '--durations=10',
-    '--durations-min=0.05',
-    '--junitxml=junit/test-results.xml',
-    '--cov-report=annotate:cov_annotate',
-]
-
-# ###################################################################################
-# # enable live logging when needed (very useful when debugging evals)
-# ###################################################################################
-log_cli = false
-log_cli_level = "DEBUG"
-log_cli_format = "%(asctime)s [%(levelname)8s] %(message)s (%(filename)s:%(lineno)s)"
-log_cli_date_format = "%Y-%m-%d %H:%M:%S"
-
-# Enable live logging to a file when needed (very useful when debugging evals)
-log_file = "pytest-accuracy-debug.log"
-log_file_date_format = "%Y-%m-%d %H:%M:%S"
-log_file_format = "%(asctime)s [%(levelname)8s] %(message)s (%(filename)s:%(lineno)s)"
-log_file_level = "DEBUG"
-
-# markers=["basic", "filetree", "suites", "markers", "parametrization", "buildmeta"]
-# allows you to conditionally call only a subset of pytest baased on the marker provided
-markers = [
-    "configonly: marks tests that run code that utilizes the config module (deselect with '-m \"not configonly\"')",
-    "e2e: marks tests dealing with e2e testing (deselect with '-m \"not e2e\"')",
-    "evals: marks tests as evals (run with '-m evals')",
-    "fast: marks tests as fast (run with '-m fast')",
-    "httpclientonly: marks tests that run code that utilizes the http_client module (deselect with '-m \"not httpclientonly\"')",
-    "imgops: marks tests as imgops (run with '-m imgops')",
-    "integration: marks tests dealing with integration testing (deselect with '-m \"not integration\"')",
-    "onboardingonly: marks tests that run code that utilizes the new_dev_onboarding_tool module (deselect with '-m \"not onboardingonly\"')",
-    "utilsonly: marks tests that run code that utilizes any utils module (deselect with '-m \"not utilsonly\"')",
-    "retryonly: marks tests that run code that utilizes the retry module (deselect with '-m \"not retryonly\"')",
-    "skip_in_parallel: marks tests that should be run in serial only (deselect with '-m \"not skip_in_parallel\"')",
-    "slow: marks tests as slow (run with '-m slow')",
-    "toolonly: marks tests that run code that utilizes a Custom Langchain tool module in the tools directory (deselect with '-m \"not toolonly\"')",
-    "toolonly: marks tests that run code that utilizes llm tool classes  (deselect with '-m \"not toolonly\"')",
-    "unittest: marks tests dealing with unittest (deselect with '-m \"not unittest\"')",
-    "vectorstoronly: marks tests that run code that utilizes the flex_vector_store_tool module (deselect with '-m \"not vectorstoronly\"')",
-    "visiontoolonly: marks tests that run code that utilizes vision_tool.py (deselect with '-m \"not visiontoolonly\"')",
-    "webpagetoolonly: marks tests that run code that utilizes the fetch_webpage_tool module (deselect with '-m \"not webpagetoolonly\"')",
-    "vcronly: marks tests that run code that utilizes the vcr module (deselect with '-m \"not vcronly\"')",
-    "services: marks tests that run code that belongs to the services module  (deselect with '-m \"not services\"')",
-]
-# filterwarnings = [
-#     "error",
-#     # fastapi uses deprecated pydantic functions
-#     "ignore:`FieldValidationInfo` is deprecated.*:DeprecationWarning:pydantic_core:",
-#     "ignore:`general_(before|after|wrap|plain)_validator_function` is deprecated.*:DeprecationWarning:fastapi:",
-#     "ignore:`general_(before|after|wrap|plain)_validator_function` is deprecated.*:DeprecationWarning:pydantic_core:",
-#     # google packages are using deprecated APIs
-#     "ignore::DeprecationWarning:pkg_resources*:",
-#     "ignore::DeprecationWarning:google*:",
-#     "ignore:.* google._upb._message.*:DeprecationWarning",
-#     # OTEL uses some deprecated APIs
-#     "ignore:pkg_resources:DeprecationWarning:opentelemetry.instrumentation.dependencies*:",
-#     # To be able to test numpy.matrix
-#     "ignore:the matrix subclass is not the recommended way.*:PendingDeprecationWarning",
-#     # See test_filter_warnings in test_testing.py
-#     'ignore:(?s).*google/cloud/pubsub_v1/subscriber/_protocol/streaming_pull_manager.*scheduler\.shutdown.*IndexError. tuple index out of range:pytest.PytestUnhandledThreadExceptionWarning',
-#     'ignore:(?s).*aiosqlite/core\.py.*get_loop\(future\).call_soon_threadsafe.*RuntimeError. Event loop is closed:pytest.PytestUnhandledThreadExceptionWarning',
-#     # This problem is fixed in https://github.com/open-telemetry/opentelemetry-python-contrib/pull/2013, but not the warning.
-#     "ignore:The '__version__' attribute is deprecated and will be removed in Flask 3.1:DeprecationWarning",
-#     # ignore DeprecationWarning from httpx - Marcelo knows why this is happening
-#     "ignore:The 'app' shortcut is now deprecated.*:DeprecationWarning:httpx*:",
-# ]
-
-testpaths = [
-    "tests",
-]
-
-# =========================[ PYTEST-COV ]========================
-[tool.coverage.paths]
-# SOURCE: https://coverage.readthedocs.io/en/latest/config.html
-# the first path is the path on the local filesystem
-# the second path is the path as it appears within the Docker container
-source = [
-    "src/",
-    "/src",
-]
+# ===========================[ COVERAGE CONFIGURATION ]========================
 [tool.coverage.run]
-parallel = true
-branch = true
-source = ["goob_ai"]
-# NOTE: This might break some SHIT (5/8/2024)
-# SOURCE: https://github.com/anthonycorletti/snok/blob/039ae9aaf403485ce9b7fedb0e1943c25a250eed/snok/templates/__shared/_pyproject_toml#L130
-concurrency = ["thread", "greenlet", "multiprocessing"]
+    branch         = true
+    concurrency    = ["greenlet", "multiprocessing", "thread"]
+    data_file      = ".coverage"
+    parallel       = true
+    relative_files = true
+    source         = ["src"]
 
-# dd=======================[ BLACK ]========================
-[tool.black]
-line-length = 120
-target-version = ["py39", "py310", "py311", "py312"]
+[tool.coverage.xml]
+    output = "cov.xml"
 
+[tool.pytest]
 
-# ===========================[ MYPY ]========================
+    [tool.pytest.ini_options]
+        addopts = [
+            '--cov-branch',
+            '--cov-report=annotate:cov_annotate',
+            '--cov-report=html:htmlcov',
+            '--cov-report=term-missing',
+            '--cov-report=xml:cov.xml',
+            # Coverage reporting options
+            '--cov=src',
+            '--durations-min=0.05',
+            # Print runtimes of the slowest tests.
+            '--durations=10',
+            '--junitxml=junit/test-results.xml',
+        ]
+        asyncio_default_fixture_loop_scope = "function"
+        asyncio_mode = "auto"
+        filterwarnings = [
+            "default::DeprecationWarning:democracy_exe.*:",
+            "default::pydantic.warnings.PydanticDeprecatedSince20:democracy_exe.*:",
+            "ignore::DeprecationWarning:.venv.*:",
+            "ignore::DeprecationWarning:audioop:",
+            "ignore::DeprecationWarning:discord.*:",
+            "ignore::ResourceWarning:aiohttp",
+            "ignore::ResourceWarning:anyio.abc",
+            "ignore::ResourceWarning:anyio.streams.memory",
+            "ignore::ResourceWarning:anyio.streams.stapled",
+            "ignore::ResourceWarning:asyncio",
+            "ignore::ResourceWarning:pytest_asyncio",
+            "ignore::pydantic.warnings.PydanticDeprecatedSince20:.venv.*:",
+            "ignore::pydantic.warnings.PydanticDeprecatedSince20:fireworks.*:",
+            "ignore::pydantic.warnings.PydanticDeprecatedSince20:pydantic.*:",
+            'ignore:configuration option "asyncio_default_fixture_loop_scope" is unset',
+        ]
+        log_cli = false
+        log_cli_date_format = "%Y-%m-%d %H:%M:%S"
+        # log_cli_format = "%(asctime)s [%(levelname)8s] %(message)s (%(filename)s:%(lineno)s)"
+        # log_cli_format = "%(asctime)s [%(levelname)8s] %(module)s.%(funcName)s:%(lineno)d - %(message)s"
+        log_cli_format = "%(asctime)s [%(levelname)8s] [%(threadName)s] %(name)s - %(module)s.%(funcName)s (%(filename)s:%(lineno)d) - %(message)s"
+        log_cli_level  = "DEBUG"
+        # Enable live logging to a file when needed (very useful when debugging evals)
+        log_file = "pytest-accuracy-debug.log"
+        log_file_date_format = "%Y-%m-%d %H:%M:%S"
+        log_file_format = "%(asctime)s [%(levelname)8s] %(message)s (%(filename)s:%(lineno)s)"
+        log_file_level = "DEBUG"
+        markers = [
+            "agenticonly: marks tests that run code that utilizes the agentic module (deselect with '-m \"not agenticonly\"')",
+            "aidergenerated: marks tests that are aider generated (deselect with '-m \"not aidergenerated\"')",
+            "asynciotyper: marks tests that are asyncio typer generated (deselect with '-m \"not asynciotyper\"')",
+            "chatbotonly: marks tests that run code that utilizes the chatbot module (deselect with '-m \"not chatbotonly\"')",
+            "cli: marks tests that are cli generated (deselect with '-m \"not cli\"')",
+            "cogs: marks tests that run code that utilizes the cogs module (deselect with '-m \"not cogs\"')",
+            "configonly: marks tests that run code that utilizes the config module (deselect with '-m \"not configonly\"')",
+            "cursorgenerated: marks tests that are cursor generated (deselect with '-m \"not cursorgenerated\"')",
+            "discordonly: marks tests that run code that belongs to the discordonly calls at end of pytest run module  (deselect with '-m \"not discordonly\"')",
+            "dropboxonly: marks tests that run code that utilizes the dropbox module (deselect with '-m \"not dropboxonly\"')",
+            "e2e: marks tests dealing with e2e testing (deselect with '-m \"not e2e\"')",
+            "evals: marks tests as evals (run with '-m evals')",
+            "fast: marks tests as fast (run with '-m fast')",
+            "gallerydlonly: marks tests that run code that utilizes the gallery-dl module (deselect with '-m \"not gallerydlonly\"')",
+            "httpclientonly: marks tests that run code that utilizes the http_client module (deselect with '-m \"not httpclientonly\"')",
+            "imgops: marks tests as imgops (run with '-m imgops')",
+            "integration: marks tests dealing with integration testing (deselect with '-m \"not integration\"')",
+            "logsonly: marks tests that run code that utilizes the logs module (deselect with '-m \"not logsonly\"')",
+            "onboardingonly: marks tests that run code that utilizes the new_dev_onboarding_tool module (deselect with '-m \"not onboardingonly\"')",
+            "pgvectoronly: marks tests that run code that utilizes the pgvector module (deselect with '-m \"not pgvectoronly\"')",
+            "retryonly: marks tests that run code that utilizes the retry module (deselect with '-m \"not retryonly\"')",
+            "services: marks tests that run code that belongs to the services module  (deselect with '-m \"not services\"')",
+            "skip_in_parallel: marks tests that should be run in serial only (deselect with '-m \"not skip_in_parallel\"')",
+            "slow: marks tests as slow (run with '-m slow')",
+            "slower: marks tests that run code that belongs to the slower calls at end of pytest run module  (deselect with '-m \"not slower\"')",
+            "toolonly: marks tests that run code that utilizes a Custom Langchain tool module in the tools directory (deselect with '-m \"not toolonly\"')",
+            "unittest: marks tests dealing with unittest (deselect with '-m \"not unittest\"')",
+            "utilsonly: marks tests that run code that utilizes any utils module (deselect with '-m \"not utilsonly\"')",
+            "vcrcanary: marks tests that run code that utilizes the vcr test canary module (deselect with '-m \"not vcrcanary\"')",
+            "vcronly: marks tests that run code that utilizes the vcr module (deselect with '-m \"not vcronly\"')",
+            "vectorstoronly: marks tests that run code that utilizes the flex_vector_store_tool module (deselect with '-m \"not vectorstoronly\"')",
+            "visiontoolonly: marks tests that run code that utilizes vision_tool.py (deselect with '-m \"not visiontoolonly\"')",
+            "webpagetoolonly: marks tests that run code that utilizes the fetch_webpage_tool module (deselect with '-m \"not webpagetoolonly\"')",
+        ]
+        pythonpath = "."
+        testpaths = ["tests"]
 
-# see https://mypy.readthedocs.io/en/stable/config_file.html for config file location
-# mypy also accepts per file configuration (comment starting with #mypy: ) https://mypy.readthedocs.io/en/stable/inline_config.html
-# Finally, adding `#type: ignore` after a line, disables mypy checking for that line
-[tool.mypy]
-exclude = [
-    "tasks/",
-    "typings",
-    ".venv",
-    "contrib",
-    "scripts",
-    "venv",
-]
-mypy_path = "typings"
-# disable_error_code = import-untyped
-show_column_numbers = true
-disallow_subclassing_any = false
-disallow_untyped_calls = false
-disallow_untyped_decorators = false
-strict = false
-warn_return_any = false
-
-# Enable optional errors.
-enable_error_code = [
-    # "explicit-override",
-    "ignore-without-code",
-    "redundant-expr",
-    "redundant-self",
-    "truthy-bool",
-    "truthy-iterable",
-    "unused-awaitable",
-]
-
-# The following list of codes are globally ignored, do not add to this list
-no_implicit_optional = true
-disable_error_code = [
-    # annotation-unchecked are 'warning notes', not errors and won't cause mypy to fail
-    # but it does create a lot of noise in the CI mypy step.
-    # https://mypy-lang.blogspot.com/2022/11/mypy-0990-released.html
-    "import-untyped",
-    "annotation-unchecked",
-    "assignment",
-    "attr-defined",
-    "call-arg",
-    "has-type",
-    "import",
-    "misc",
-    "name-defined",
-    "operator",
-    "type-var",
-    "var-annotated",
-    # "consider-using-with",
-    "union-attr",
-    "return",
-]
-
-# Causes mypy to treat arguments with a None default value as having an implicit Optional type.
-follow_imports = "skip"
-# follow_imports = "silent"
-
-# Warns about casting an expression to its inferred type.
-warn_redundant_casts = true
-
-# Causes mypy to suppress errors caused by not being able to fully infer the types of global and class variables.
-allow_redefinition = true
-
-strict_optional = true
-
-# warn_unused_ignores = true
-
-# Display the codes needed for # type: ignore[code] annotations.
-show_error_codes = true
-
-# Warn of unreachable or redundant code.
-warn_unreachable = true
-
-# dmypy enables local_partial_types implicitly. We need mypy to align
-# with this behavior.
-local_partial_types = true
-
-# plugins = ["pydantic.mypy", "loguru_mypy"]
-plugins = ["pydantic.mypy"]
-
-[tool.pydantic-mypy]
-# NOTE: https://docs.pydantic.dev/latest/integrations/mypy/#configuring-the-plugin
-# See https://docs.pydantic.dev/latest/integrations/mypy/#mypy-plugin-capabilities for the effects of these options.
-init_forbid_extra = true
-init_typed = true
-warn_required_dynamic_aliases = true
-
-# By default, imported values to a module are treated as exported and mypy allows other modules to import them.
-# This flag changes the behavior to not re-export unless the item is imported using from-as or is included in __all__.
-# Note this is always treated as enabled for stub files. For example:
-no_implicit_reexport = true
-
-# Ignores all non-fatal errors.
-ignore_errors = true
-# warn_untyped_fields = true
-
-# mypy \
-#   --ignore-missing-imports \
-#   --follow-imports=skip \
-#   --strict-optional \
-#   pydantic_mypy_test.py
-ignore_missing_imports = true
-follow_imports = "skip"
-strict_optional = true
-
-# ===========================[ MYPY OVERRIDES ]========================
-[[tool.mypy.overrides]]
-check_untyped_defs = true
-ignore_missing_imports = true
-module = "tests.*"
-
-# [[tool.mypy.overrides]]
-# check_untyped_defs = true
-# ignore_missing_imports = true
-# module = "src.*"
-
-[[tool.mypy.overrides]]
-module = [
-    "prometheus_client.*",
-    "_pytest.*",
-    "_string",
-    "absl.*",
-    "albumentations.*",
-    "asr_python.*",
-    "astroid.*",
-    "boto3.*",
-    "botocore.*",
-    "colorama.*",
-    "colorama",
-    "contributors_txt",
-    "coverage",
-    "cv2.*",
-    "dill",
-    "discord.*",
-    "discord.client.*",
-    "enchant.*",
-    "etils.*",
-    "flatbuffers.*",
-    "flax.*",
-    "git.*",
-    "google.colab.*",
-    "importlib_metadata.*",
-    "invoke.*",
-    "IPython.*",
-    "iree.*",
-    "jax.experimental.jax2tf.tests.back_compat_testdata",
-    "jax.experimental.jax2tf.tests.flax_models",
-    "jaxlib.*",
-    "jaxlib.mlir.*",
-    "jraph.*",
-    "libtpu.*",
-    "matplotlib.*",
-    "mccabe",
-    "multiprocessing.*",
-    "numpy.*",
-    "opt_einsum.*",
-    "optax.*",
-    "pl_bolts.*",
-    "pssh.*",
-    "pygments.*",
-    "pytest_benchmark.*",
-    "pytest.*",
-    "pytest",
-    "rich.*",
-    "robustness.*",
-    "scipy.*",
-    "seaborn",
-    "setuptools.*",
-    "skimage.*",
-    "sklearn.*",
-    "sphinx.*",
-    "tensorboard_plugin_profile.convert.*",
-    "tensorboard.*",
-    "tensorflow.*",
-    "tensorflow.io.*",
-    "tensorflowjs.*",
-    "tensorstore.*",
-    "timm.*",
-    "torch.*",
-    "torchvision.*",
-    "usort.*",
-    "uvloop.*",
-    "web_pdb.*",
-    "wilds.*",
-    "zstandard.*",
-    "aiodebug.*",
-    "aiomonitor.*",
-    # "loguru.*",
-    "aiofiles.*",
-    "passlib.*",
-    "orjson",
-    "sentence_transformers.*",
-    "requests_toolbelt",
-    "requests_toolbelt.multipart",
-    "requests_toolbelt.multipart.decoder",
-    'vcr',
-    'vcr.*',
-    "pysnooper",
-]
-ignore_missing_imports = true
-ignore_errors = true
-
-[[tool.mypy.overrides]]
-module = [
-    "pandas._config.config",                      # TODO
-    "pandas._libs.*",
-    "pandas._testing.*",                          # TODO
-    "pandas.compat.numpy.function",               # TODO
-    "pandas.compat.compressors",                  # TODO
-    "pandas.core._numba.executor",                # TODO
-    "pandas.core.array_algos.masked_reductions",  # TODO
-    "pandas.core.array_algos.putmask",            # TODO
-    "pandas.core.array_algos.quantile",           # TODO
-    "pandas.core.array_algos.replace",            # TODO
-    "pandas.core.array_algos.take",               # TODO
-    "pandas.core.arrays.*",                       # TODO
-    "pandas.core.computation.*",                  # TODO
-    "pandas.core.dtypes.astype",                  # TODO
-    "pandas.core.dtypes.cast",                    # TODO
-    "pandas.core.dtypes.common",                  # TODO
-    "pandas.core.dtypes.concat",                  # TODO
-    "pandas.core.dtypes.dtypes",                  # TODO
-    "pandas.core.dtypes.generic",                 # TODO
-    "pandas.core.dtypes.missing",                 # TODO
-    "pandas.core.groupby.generic",                # TODO
-    "pandas.core.groupby.grouper",                # TODO
-    "pandas.core.groupby.groupby",                # TODO
-    "pandas.core.groupby.ops",                    # TODO
-    "pandas.core.indexers.*",                     # TODO
-    "pandas.core.indexes.*",                      # TODO
-    "pandas.core.interchange.column",             # TODO
-    "pandas.core.interchange.dataframe_protocol", # TODO
-    "pandas.core.interchange.from_dataframe",     # TODO
-    "pandas.core.internals.*",                    # TODO
-    "pandas.core.ops.array_ops",                  # TODO
-    "pandas.core.ops.common",                     # TODO
-    "pandas.core.ops.missing",                    # TODO
-    "pandas.core.reshape.*",                      # TODO
-    "pandas.core.strings.*",                      # TODO
-    "pandas.core.tools.*",                        # TODO
-    "pandas.core.window.common",                  # TODO
-    "pandas.core.window.ewm",                     # TODO
-    "pandas.core.window.expanding",               # TODO
-    "pandas.core.window.numba_",                  # TODO
-    "pandas.core.window.online",                  # TODO
-    "pandas.core.window.rolling",                 # TODO
-    "pandas.core.accessor",                       # TODO
-    "pandas.core.algorithms",                     # TODO
-    "pandas.core.apply",                          # TODO
-    "pandas.core.arraylike",                      # TODO
-    "pandas.core.base",                           # TODO
-    "pandas.core.common",                         # TODO
-    "pandas.core.construction",                   # TODO
-    "pandas.core.flags",                          # TODO
-    "pandas.core.frame",                          # TODO
-    "pandas.core.generic",                        # TODO
-    "pandas.core.indexing",                       # TODO
-    "pandas.core.missing",                        # TODO
-    "pandas.core.nanops",                         # TODO
-    "pandas.core.resample",                       # TODO
-    "pandas.core.roperator",                      # TODO
-    "pandas.core.sample",                         # TODO
-    "pandas.core.series",                         # TODO
-    "pandas.core.sorting",                        # TODO
-    "pandas.errors",                              # TODO
-    "pandas.io.clipboard",                        # TODO
-    "pandas.io.excel._base",                      # TODO
-    "pandas.io.excel._odfreader",                 # TODO
-    "pandas.io.excel._openpyxl",                  # TODO
-    "pandas.io.excel._pyxlsb",                    # TODO
-    "pandas.io.excel._xlrd",                      # TODO
-    "pandas.io.excel._xlsxwriter",                # TODO
-    "pandas.io.formats.excel",                    # TODO
-    "pandas.io.formats.format",                   # TODO
-    "pandas.io.formats.style",                    # TODO
-    "pandas.io.formats.style_render",             # TODO
-    "pandas.io.formats.xml",                      # TODO
-    "pandas.io.json.*",                           # TODO
-    "pandas.io.parsers.*",                        # TODO
-    "pandas.io.sas.sas_xport",                    # TODO
-    "pandas.io.sas.sas7bdat",                     # TODO
-    "pandas.io.clipboards",                       # TODO
-    "pandas.io.html",                             # TODO
-    "pandas.io.parquet",                          # TODO
-    "pandas.io.pytables",                         # TODO
-    "pandas.io.sql",                              # TODO
-    "pandas.io.xml",                              # TODO
-    "pandas.plotting.*",                          # TODO
-    "pandas.tests.*",
-    "pandas.tseries.frequencies",                 # TODO
-    "pandas.tseries.holiday",                     # TODO
-    "pandas.util._decorators",                    # TODO
-    "pandas.util._doctools",                      # TODO
-    "pandas.util._test_decorators",               # TODO
-    "pandas.util._validators",                    # TODO
-    "pandas.util",                                # TODO
-    "pandas._version",
-    "pandas.conftest",
-    "pandas",
-]
-disallow_untyped_calls = false
-disallow_untyped_defs = false
-disallow_incomplete_defs = false
-
-[[tool.mypy.overrides]]
-module = [
-    "pandas.tests.*",
-    "pandas._version",
-    "pandas.io.clipboard",
-]
-check_untyped_defs = false
-
-[[tool.mypy.overrides]]
-module = [
-    "pandas.tests.apply.test_series_apply",
-    "pandas.tests.arithmetic.conftest",
-    "pandas.tests.arrays.sparse.test_combine_concat",
-    "pandas.tests.dtypes.test_common",
-    "pandas.tests.frame.methods.test_to_records",
-    "pandas.tests.groupby.test_rank",
-    "pandas.tests.groupby.transform.test_transform",
-    "pandas.tests.indexes.interval.test_interval",
-    "pandas.tests.indexing.test_categorical",
-    "pandas.tests.io.excel.test_writers",
-    "pandas.tests.reductions.test_reductions",
-    "pandas.tests.test_expressions",
-]
-ignore_errors = true
-
-
-# ===========================[ RUFF ]========================
-# SOURCE: https://docs.astral.sh/ruff/settings/#tab-size
+# Basic settings
 [tool.ruff]
-# SOURCE: https://github.com/humblFINANCE/humblAPI/blob/master/pyproject.toml
-# select = ["A", "ASYNC", "B", "BLE", "C4", "C90", "D", "DTZ", "E", "EM", "ERA", "F", "FBT", "FLY", "FURB", "G", "I", "ICN", "INP", "INT", "ISC", "LOG", "N", "NPY", "PERF", "PGH", "PIE", "PLC", "PLE", "PLR", "PLW", "PT", "PTH", "PYI", "RET", "RSE", "RUF", "S", "SIM", "SLF", "SLOT", "T10", "T20", "TCH", "TID", "TRY", "UP", "W", "YTT"]
-# ignore = ["E501", "PGH001", "RET504", "S101"]
-# unfixable = ["ERA001", "F401", "F841", "T201", "T203"]
-# SOURCE: https://github.com/humblFINANCE/humblAPI/blob/master/pyproject.toml - end
-
-
-extend-include = [
-    "*.ipynb",
-    "src/*.ipynb",
-    "notebook/*.ipynb",
-    "*.py",
-    "*.pyi",
-    "**/pyproject.toml",
-    "*.ipynb",
-    "pyproject.toml",
-    "src/**/*.py",
-]
-output-format = "full"
-force-exclude = true
-respect-gitignore = true
-# include = ["*.py", "*.pyi", "**/pyproject.toml", "*.ipynb", "pyproject.toml", "src/**/*.py"]
-exclude = [
-    ".bzr",
-    ".direnv",
-    ".eggs",
-    ".git",
-    ".git-rewrite",
-    ".hg",
-    ".ipynb_checkpoints",
-    ".mypy_cache",
-    ".nox",
-    ".pants.d",
-    ".pyenv",
-    ".pytest_cache",
-    ".pytype",
-    ".ruff_cache",
-    ".svn",
-    ".tox",
-    ".venv",
-    ".vscode",
-    "__pypackages__",
-    "_build",
-    "buck-out",
-    "build",
-    "dist",
-    "node_modules",
-    "site-packages",
-    "venv",
-]
-extend-exclude = [
-    "__pycache__",
-    "__pypackages__",
-    "_build",
-    ".bzr",
-    ".direnv",
-    ".eggs",
-    ".git-rewrite",
-    ".git",
-    ".hg",
-    ".mypy_cache",
-    ".nox",
-    ".pants.d",
-    ".pytype",
-    ".ruff_cache",
-    ".svn",
-    ".tox",
-    ".venv",
-    "**/__pycache__",
-    "buck-out",
-    "build",
-    "data",
-    "data/*",
-    "dist",
-    "docs",
-    "doc",
-    "git",
-    "logs/*",
-    "node_modules",
-    "notebooks/*",
-    "tests/data",
-    "venv",
-    "typings",
-    "contrib",
-]
-
-# https://docs.astral.sh/ruff/settings/#indent-width
-# The formatter wraps lines at a length of 88
-line-length = 120
-target-version = "py310"
-unsafe-fixes = false
-
-
-# ===========================[ RUFF lint ]========================
-[tool.ruff.lint]
-unfixable = [
-    "ERA", # do not autoremove commented out code
-]
-# # A list of rule codes or prefixes for which safe fixes should be considered unsafe. default []
-# extend-unsafe-fixes = [
-#     "D",
-# ] # pydocstyle (D) https://docs.astral.sh/ruff/rules/#pydocstyle-d
-
-# A list of rule codes or prefixes to consider non-fixable. default []
-# unfixable = ["I"] # isort (I) https://docs.astral.sh/ruff/rules/#isort-i
-
-# Only allow fix behavior for `E` and `F` rules. https://docs.astral.sh/ruff/settings/#lint_fixable
-
-# fixable = [
-#     "E", # Error (E)# https://docs.astral.sh/ruff/rules/#pycodestyle-e-w
-#     "F", # Pyflakes (F)
-#     "I",
-# ]
-# Allow fix for all enabled rules (when `--fix`) is provided.
-fixable = ["ALL"]
-
-# # Enable Pyflakes (`F`) and a subset of the pycodestyle (`E`)  codes by default.
-# # Unlike Flake8, Ruff doesn't enable pycodestyle warnings (`W`) or
-# # McCabe complexity (`C901`) by default.
-# select = [
-#     "I", # isort
-#     "Q", # flake8-quotes (Q) https://docs.astral.sh/ruff/rules/#flake8-quotes-q
-#     # "RUF100", # unused `noqa` directive
-#     # "C90",    # mccabe (C90). C901 complex-structure	{name} is too complex ({complexity} > {max_complexity})
-#     # "F",      # pyflakes (F) https://docs.astral.sh/ruff/rules/#pyflakes-f
-#     "D",    # pydocstyle (D) https://docs.astral.sh/ruff/rules/#pydocstyle-d
-#     "I002", # from __future__ import annotations
-#     # # used to be in extended select
-#     # "ARG", # flake8-unused-arguments
-#     # "C",   # pylint: Convention (C)
-#     # "C4",  # flake8-comprehensions
-#     # "D107", # pycodestyle (Missing docstring in __init__)
-#     # "E",    # pycodestyle errors https://docs.astral.sh/ruff/rules/#pycodestyle-e-w
-#     # "PL",    # pylint
-#     # "RUF",   # Ruff
-#     # "SIM",   # flake8-simplify
-#     # "T10",   # debugger
-#     # "TCH",   # type-checking
-#     # "UP",    # pyupgrade
-#     # "PLW1508", # pycodestyle warnings. invalid-envvar-default (PLW1508)#. https://docs.astral.sh/ruff/rules/invalid-envvar-default/
-#     # "ASYNC", # flake8-async
-#     # "TCH", # flake8-type-checking (TCH). https://docs.astral.sh/ruff/rules/#flake8-type-checking-tch
-# ]
-
-# SOURCE: https://github.com/ansible-collections/cloud-content-handbook/blob/9be137d78af4d1cc140b210f3058977164021c9d/proposals/ruff_transition.md
-# This section configures specific linting rules and options for ruff.
-# See all rules at https://docs.astral.sh/ruff/rules/
-select = [
-    "E", # pycodestyle
-    "W", # pycodestyle
-    "F", # Pyflakes
-    # "Q",    # flake8-quotes
-    "I",    # isort
-    "TID",  # flake8-tidy-imports
-    "TCH",  # flake8-type-checking
-    "PL",   # Pylint
-    "FLY",  # Flynt
-    "COM",  # flake8-commas
-    "N",    # pep8-naming
-    "YTT",  # flake8-2020
-    "PT",   # flake8-pytest-style
-    "ISC",  # flake8-implicit-str-concat
-    "D",    # pydocstyle
-    "C90",  # mccabe
-    "I002", # from __future__ import annotations
-
-    # # warning: `one-blank-line-before-class` (D203) and `no-blank-line-before-class` (D211) are incompatible. Ignoring `one-blank-line-before-class`.
-    # # warning: `multi-line-summary-first-line` (D212) and `multi-line-summary-second-line` (D213) are incompatible. Ignoring `multi-line-summary-second-line`.
-    # "D200", # fits-on-one-line	One-line docstring should fit on one line	✔️ 🛠️
-    # "D201", # no-blank-line-before-function	No blank lines allowed before function docstring (found {num_lines})	✔️ 🛠️
-    # "D202", # no-blank-line-after-function	No blank lines allowed after function docstring (found {num_lines})	✔️ 🛠️
-
-    # "D204", # one-blank-line-after-class	1 blank line required after class docstring	✔️ 🛠️
-    # "D205", # blank-line-after-summary	1 blank line required between summary line and description	✔️ 🛠️
-    # "D207", # under-indentation	Docstring is under-indented	✔️ 🛠️
-    # "D208", # over-indentation	Docstring is over-indented	✔️ 🛠️
-    # "D209", # new-line-after-last-paragraph	Multi-line docstring closing quotes should be on a separate line	✔️ 🛠️
-    # "D210", # surrounding-whitespace	No whitespaces allowed surrounding docstring text	✔️ 🛠️
-    # # "D211",	# blank-line-before-class	No blank lines allowed before class docstring	✔️ 🛠️
-    # "D213", # multi-line-summary-second-line	Multi-line docstring summary should start at the second line	✔️ 🛠️
-    # "D214", # section-not-over-indented	Section is over-indented ("{name}")	✔️ 🛠️
-    # "D215", # section-underline-not-over-indented	Section underline is over-indented ("{name}")	✔️ 🛠️
-    # "D300", # triple-single-quotes	Use triple double quotes """	✔️ 🛠️
-    # "D301", # escape-sequence-in-docstring	Use r""" if any backslashes in a docstring	✔️ 🛠️
-    # "D400", # ends-in-period	First line should end with a period	✔️ 🛠️
-    # "D403", # first-line-capitalized	First word of the first line should be capitalized: {} -> {}	✔️ 🛠️
-    # "D405", # capitalize-section-name	Section name should be properly capitalized ("{name}")	✔️ 🛠️
-    # "D406", # new-line-after-section-name	Section name should end with a newline ("{name}")	✔️ 🛠️
-    # "D407", # dashed-underline-after-section	Missing dashed underline after section ("{name}")	✔️ 🛠️
-    # "D408", # section-underline-after-name	Section underline should be in the line following the section's name ("{name}")	✔️ 🛠️
-    # "D409", # section-underline-matches-section-length	Section underline should match the length of its name ("{name}")	✔️ 🛠️
-    # "D410", # no-blank-line-after-section	Missing blank line after section ("{name}")	✔️ 🛠️
-    # "D411", # no-blank-line-before-section	Missing blank line before section ("{name}")	✔️ 🛠️
-    # "D412", # blank-lines-between-header-and-content	No blank lines allowed between a section header and its content ("{name}")	✔️ 🛠️
-    # "D413", # blank-line-after-last-section	Missing blank line after last section ("{name}")	✔️ 🛠️
-    # "D415", # ends-in-punctuation	First line should end with a period, question mark, or exclamation point	✔️ 🛠️
-    # "D416", # section-name-ends-in-colon	Section name should end with a colon ("{name}")	✔️ 🛠️
-
-    # To be enabed
-    # "S",      # flake8-bandit
-    # "C",      # complexity
-    # "FBT001", # flake8-boolean-trap
-    # "UP",     # pyupgrade
-    # "SIM",    # flake8-simplify
-    # "C4",     # flake8-comprehensions
-    # "RUF",    # Ruff-specific rules
-    # "B",      # flake8-bugbear
-
-    # https://github.com/python-poetry/cleo/blob/main/pyproject.toml
-    # "B",      # flake8-bugbear
-    # "C4",     # flake8-comprehensions
-    # "ERA",    # flake8-eradicate/eradicate
-    # "I",      # isort
-    # "N",      # pep8-naming
-    # "PIE",    # flake8-pie
-    # "PGH",    # pygrep
-    # "PTH",    # flake8-use-pathlib
-    # "ISC",    # flake8-implicit-string-concat
-    # "RET",    # flake8-return
-    # "FLY",    # flynt
-    # "PERF",   # perflint
-    # "RUF",    # ruff checks
-    # "SIM",    # flake8-simplify
-    # "TCH",    # flake8-type-checking
-    # "TID",    # flake8-tidy-imports
-    # "UP",     # pyupgrade
-]
-
-# SOURCE: https://github.com/ansible-collections/cloud-content-handbook/blob/9be137d78af4d1cc140b210f3058977164021c9d/proposals/ruff_transition.md - end
-# Conflicts with the formatter
-ignore = [
-    "N815",
-    "PLW0603",
-    "D",
-    "COM812",
-    "ISC001",
-    "N804",
-    "F821",
-    "N804",
-    "PLR1722",
-    "N802",
-    "N801",
-    "PLW0602",
-    "F811",
-    "PLW2901",
-    "YTT201",
-    "E722",
-    "PLC0132",
-    "PLW0128",
-    "W191",    # tab-indentation
-    "E111",    # indentation-with-invalid-multiple
-    "E114",    # indentation-with-invalid-multiple-comment
-    "E117",    # over-indented
-    "D206",    # indent-with-spaces
-    "D300",    # triple-single-quotes
-    "Q000",    # bad-quotes-inline-string
-    "Q001",    # bad-quotes-multiline-string
-    "Q002",    # bad-quotes-docstring
-    "Q003",    # avoidable-escaped-quote
-    "COM812",  # missing-trailing-comma
-    "COM819",  # prohibited-trailing-comma
-    "ISC001",  # single-line-implicit-string-concatenation
-    "ISC002",  # multi-line-implicit-string-concatenation
-    "E501",
-
-    # new list
-    "E721",
-    "E741",
-    "E731",
-    "E731",
-    "PLR1714",
-    "N818",
-    "PLW0127",
-    "PT012",
-    "N806",
-    "E712",
-    "E711",
-    "W505",
-    "PT006",
-    "PLR2004",
-    "N812",
-    "F841",
-    # "R1730",
-    # "I",      # isort, ruff doesn't have enough support for isort yet.
-    "TID",     # flake8-tidy-imports (TID)#
-    "F401",    # unused-import	{name} imported but unused; consider using importlib.util.find_spec to test for availability
-    "F402",    # import-shadowed-by-loop-var	Import {name} from {row} shadowed by loop variable
-    "F403",    # undefined-local-with-import-star	from {name} import * used; unable to detect undefined names
-    "F404",    # late-future-import	from __future__ imports must occur at the beginning of the file
-    "F405",    # undefined-local-with-import-star-usage	{name} may be undefined, or defined from star imports
-    "F406",    # undefined-local-with-nested-import-star-usage	from {name} import * only allowed at module level
-    "E401",    # multiple-imports-on-one-line	Multiple imports on one line
-    "E402",    # module-import-not-at-top-of-file	Module level import not at top of cell
-    "UP026",   # deprecated-mock-import	mock is deprecated, use unittest.mock
-    "UP029",   # unnecessary-builtin-import	Unnecessary builtin import: {import}
-    "UP035",   # deprecated-import	Import from {target} instead: {names}
-    "ICN",     # flake8-import-conventions (ICN)
-    "TCH",     # flake8-type-checking (TCH)#
-    "PLC0414", # useless-import-alias	Import alias does not rename original package
-    "PLC0415", # PLC0415	import-outside-top-level	import should be at the top-level of a file
-    "PLC2403", # non-ascii-import-name	Module alias {name} contains a non-ASCII character, use an ASCII-only alias
-    "PLC2701", # import-private-name	Private name import {name} from external module {module}
-    "PLR0402", # manual-from-import	Use from {module} import {name} in lieu of alias
-    "PLW0406", # import-self	Module {name} imports itself
-
-    # via hatch: https://github.com/pypa/hatch/blob/864854478bac936de2d94273ae083c7c29564df2/scripts/update_ruff.py#L12
-    # Allow non-abstract empty methods in abstract base classes
-    'B027', # empty-method-without-abstract-decorator	{name} is an empty method in an abstract base class, but has no abstract decorator
-    # Allow boolean positional values in function calls, like `dict.get(... True)`
-    'FBT003', # boolean-positional-value-in-call	Boolean positional value in function call
-    # Ignore complexity
-    'C901',    # complex-structure	{name} is too complex ({complexity} > {max_complexity})
-    'PLR0904', # too-many-public-methods	Too many public methods ({methods} > {max_methods})
-    "PLR0911", # too-many-return-statements	Too many return statements ({returns} > {max_returns})
-    "PLR0912", # too-many-branches	Too many branches ({branches} > {max_branches})
-    "PLR0913", # too-many-arguments	Too many arguments in function definition ({c_args} > {max_args})
-    "PLR0914", # too-many-locals	Too many local variables ({current_amount}/{max_amount})
-    "PLR0915", # too-many-statements	Too many statements ({statements} > {max_statements})
-    "PLR0916", # too-many-boolean-expressions	Too many Boolean expressions ({expressions} > {max_expressions})
-    "PLR0917", # too-many-positional	Too many positional arguments ({c_pos}/{max_pos})
-    'PLR1702', # too-many-nested-blocks	Too many nested blocks ({nested_blocks} > {max_nested_blocks})
-
-    # These are dependent on projects themselves
-    'AIR', # airflow
-    'CPY', # flake8-copyright (CPY)#
-    'D',   # pydocstyle (D)#
-    'NPY', # NumPy-specific rules (NPY)#
-    'PD',  # pandas-vet (PD)
-
-    # Many projects either don't have type annotations or it would take much effort to satisfy this
-    'ANN', # flake8-annotations (ANN).
-
-    # Don't be too strict about TODOs as not everyone uses them the same way
-    'FIX',     # flake8-fixme (FIX)#
-    'TD001',   # invalid-todo-tag	Invalid TODO tag: {tag}
-    'TD002',   # missing-todo-author	Missing author in TODO; try: # TODO(<author_name>): ... or # TODO @<author_name>: ...
-    'TD003',   # missing-todo-link	Missing issue link on the line following this TODO
-    'PTH',     # flake8-use-pathlib (PTH) # There are valid reasons to not use pathlib such as performance and import cost
-    'FURB101', # read-whole-file	open and read should be replaced by Path({filename}).{suggestion}
-
-    # Conflicts with type checking
-    'RET501', # unnecessary-return-none	Do not explicitly return None in function if it is the only possible return value	✔️ 🛠️
-    'RET502', # implicit-return-value	Do not implicitly return None in function able to return non-None value	✔️ 🛠️
-
-    # Under review https://github.com/astral-sh/ruff/issues/8796
-    'PT004', # pytest-missing-fixture-name-underscore	Fixture {function} does not return anything, add leading underscore	✔️ 🛠️
-    'PT005', # pytest-incorrect-fixture-name-underscore	Fixture {function} returns a value, remove leading underscore
-
-    # Buggy https://github.com/astral-sh/ruff/issues/4845
-    'ERA001', # commented-out-code	Found commented-out code
-
-    # Business logic relying on other programs has no choice but to use subprocess
-    'S404', # suspicious-subprocess-import	subprocess module is possibly insecure
-
-    # Too prone to false positives and might be removed https://github.com/astral-sh/ruff/issues/4045
-    'S603', # subprocess-without-shell-equals-true	subprocess call: check for execution of untrusted input
-
-    # Too prone to false positives https://github.com/astral-sh/ruff/issues/8761
-    'SIM401', # if-else-block-instead-of-dict-get	Use {contents} instead of an if block
-
-    # Allow for easy ignores
-    'PGH003', # blanket-type-ignore	Use specific rule codes when ignoring type issues	✔️ 🛠️
-    'PGH004', # blanket-noqa	Use specific rule codes when using noqa	✔️ 🛠️
-
-    # This is required sometimes, and doesn't matter on Python 3.11+
-    'PERF203', # try-except-in-loop	try-except within a loop incurs performance overhead
-
-    # Potentially unnecessary on Python 3.12+
-    'FURB140', # reimplemented-starmap	Use itertools.starmap instead of the generator
-
-    # Conflicts with formatter, see:
-    # https://docs.astral.sh/ruff/formatter/#conflicting-lint-rules
-    "E111",    # indentation-with-invalid-multiple	Indentation is not a multiple of {indent_size}
-    "E114",    # indentation-with-invalid-multiple-comment	Indentation is not a multiple of {indent_size} (comment)
-    "E117",    # over-indented	Over-indented (comment)
-    "E301",    # blank-line-between-methods	Expected {BLANK_LINES_NESTED_LEVEL:?} blank line, found 0
-    "E302",    # blank-lines-top-level	Expected {expected_blank_lines:?} blank lines, found {actual_blank_lines}
-    "E303",    # too-many-blank-lines	Too many blank lines ({actual_blank_lines})
-    "E304",    # blank-line-after-decorator	Blank lines found after function decorator ({lines})
-    "E305",    # blank-lines-after-function-or-class	Expected 2 blank lines after class or function definition, found ({blank_lines})
-    "E306",    # blank-lines-before-nested-definition	Expected 1 blank line before a nested definition, found 0
-    "E501",    # line-too-long	Line too long ({width} > {limit})
-    "W191",    # tab-indentation	Indentation contains tabs
-    "D206",    # indent-with-spaces	Docstring should be indented with spaces, not tabs
-    "D300",    # triple-single-quotes	Use triple double quotes """
-    "COM812",  # missing-trailing-comma	Trailing comma missing
-    "COM819",  # prohibited-trailing-comma	Trailing comma prohibited
-    "ISC001",  # single-line-implicit-string-concatenation	Implicitly concatenated string literals on one line
-    "ISC002",  # multi-line-implicit-string-concatenation	Implicitly concatenated string literals over multiple lines
-    "Q000",    # bad-quotes-inline-string	Single quotes found but double quotes preferred
-    "Q001",    # bad-quotes-multiline-string	Single quote multiline found but double quotes preferred
-    "Q002",    # bad-quotes-docstring	Single quote docstring found but double quotes preferred
-    "Q003",    # avoidable-escaped-quote	Change outer quotes to avoid escaping inner quotes
-    "Q004",    # unnecessary-escaped-quote	Unnecessary escape on inner quote character
-    "PLE1141", # dict-iter-missing-items	Unpacking a dictionary in iteration without calling .items()
-    "PLE1142", # await-outside-async	await should be used within an async function
-    "Q",
-    "N999",
-]
-
-[tool.ruff.lint.flake8-tidy-imports]
-ban-relative-imports = "all"
-
-
-# SOURCE: https://github.com/google/jax/blob/a1c82219e2d23ec994e42761ebcaf4c53d9e4ea7/pyproject.toml#L159C1-L160C20
-[tool.ruff.lint.mccabe]
-# max-complexity = 18
-max-complexity = 31 # C901: Recommended goal is 10
-
-# 4. Ignore `E402` (import violations) in all `__init__.py` files, and in select subdirectories.
-[tool.ruff.lint.per-file-ignores]
-"src/goob_ai/gen_ai/models/vectorstores/*" = ["N815"]
-"__init__.py" = ["F401", "E402"]
-"**/{tests,docs,doc}/*" = ["E402"]
-# https://github.com/astral-sh/ruff/issues/3928
-# "*.pyi" = [
-#     "I002", # from __future__ import annotations
-# ]
-"conf/*" = ["D"]
-"demo/*" = ["D"]
-"docs/*" = ["D"]
-"test/*" = ["D"]
-"tests/conftest.py" = ["D"]
-"*.pyi" = ["D", "E501", "E701", "I002"]
-
-# ===========================[ ISORT ]========================
-# SOURCE: https://github.com/zulip/zulip/blob/f4d109c289f614273b43b411cbd8d1fad128842e/pyproject.toml#L199
-[tool.ruff.lint.isort]
-# Use a single line between direct and from import.
-lines-between-types = 1
-# Use a single line after each import block.
-lines-after-imports = 2
-
-# Add the specified import line to all files.
-# PEP 563: Postponed evaluation of annotations
-# https://peps.python.org/pep-0563/
-required-imports = ["from __future__ import annotations"]
-
-# Allow imports relative to the "app" directory.
-known-third-party = [
-    "boto3",
-    "fastapi",
-    "langchain",
-    "pydantic",
-    "beautifulsoup4",
-    "langchain_community",
-    "langchain_openai",
-    "openai",
-    "requests",
-    "discord",
-    "uvicorn",
-]
-split-on-trailing-comma = false
-
-known-first-party = ["src", "tests"]
-
-known-local-folder = ["src/*"]
-
-section-order = [
-    "future",
-    "standard-library",
-    "third-party",
-    "pytest",
-    "first-party",
-    "local-folder",
-]
-
-[tool.ruff.lint.isort.sections]
-# Group all Django imports into a separate section.
-"pytest" = ["conftest", "pytest", "pytest_mock"]
-
-# ===========================[ FLAKE8-TYPE-CHECKING ]========================
-[tool.ruff.lint.flake8-type-checking]
-# pydantic models use annotations at runtime
-runtime-evaluated-base-classes = [
-    # NOTE: ruff is unable to detect that these are subclasses of pydantic.BaseModel
-    "pydantic.BaseModel",
-]
-runtime-evaluated-decorators = ["pydantic.dataclasses.dataclass"]
-
-# ===========================[ PYUPGRADE ]========================
-[tool.ruff.lint.pyupgrade]
-# Preserve types, even if a file imports `from __future__ import annotations`.
-keep-runtime-typing = true
-
-[tool.ruff.lint.pydocstyle]
-# NOTE: Enabling a convention will disable any rules that are not included in the specified convention. As such, the intended workflow is to enable a convention and then selectively enable or disable any additional rules on top of it. See: https://github.com/astral-sh/ruff/blob/c3e28f9d55b4484b0e7507d3bee6339b9fb83bb5/docs/faq.md
-# Accepts: "google", "numpy", or "pep257".
-convention = "pep257"
-
-# ===========================[ RUFF FORMAT ]========================
-[tool.ruff.format]
-# SOURCE: https://github.com/ansible-collections/cloud-content-handbook/blob/9be137d78af4d1cc140b210f3058977164021c9d/proposals/ruff_transition.md - end
-# Conflicts with the formatter
-exclude = [
-    "N999",
-    "D203",    # one-blank-line-before-class	1 blank line required before class docstring	✔️ 🛠️
-    "COM812",
-    "ISC001",
-    "N804",
-    "F821",
-    "N804",
-    "PLR1722",
-    "N802",
-    "N801",
-    "PLW0602",
-    "F811",
-    "PLW2901",
-    "YTT201",
-    "E722",
-    "PLC0132",
-    "PLW0128",
-    "W191",    # tab-indentation
-    "E111",    # indentation-with-invalid-multiple
-    "E114",    # indentation-with-invalid-multiple-comment
-    "E117",    # over-indented
-    "D206",    # indent-with-spaces
-    "D300",    # triple-single-quotes
-    "Q000",    # bad-quotes-inline-string
-    "Q001",    # bad-quotes-multiline-string
-    "Q002",    # bad-quotes-docstring
-    "Q003",    # avoidable-escaped-quote
-    "COM812",  # missing-trailing-comma
-    "COM819",  # prohibited-trailing-comma
-    "ISC001",  # single-line-implicit-string-concatenation
-    "ISC002",  # multi-line-implicit-string-concatenation
-    "E501",
-
-    # new list
-    "E721",
-    "E741",
-    "E731",
-    "E731",
-    "PLR1714",
-    "N818",
-    "PLW0127",
-    "PT012",
-    "N806",
-    "E712",
-    "E711",
-    "W505",
-    "PT006",
-    "PLR2004",
-    "N812",
-    "F841",
-    # "R1730",
-    # "I",      # isort, ruff doesn't have enough support for isort yet.
-    "TID",     # flake8-tidy-imports (TID)#
-    "F401",    # unused-import	{name} imported but unused; consider using importlib.util.find_spec to test for availability
-    "F402",    # import-shadowed-by-loop-var	Import {name} from {row} shadowed by loop variable
-    "F403",    # undefined-local-with-import-star	from {name} import * used; unable to detect undefined names
-    "F404",    # late-future-import	from __future__ imports must occur at the beginning of the file
-    "F405",    # undefined-local-with-import-star-usage	{name} may be undefined, or defined from star imports
-    "F406",    # undefined-local-with-nested-import-star-usage	from {name} import * only allowed at module level
-    "E401",    # multiple-imports-on-one-line	Multiple imports on one line
-    "E402",    # module-import-not-at-top-of-file	Module level import not at top of cell
-    "UP026",   # deprecated-mock-import	mock is deprecated, use unittest.mock
-    "UP029",   # unnecessary-builtin-import	Unnecessary builtin import: {import}
-    "UP035",   # deprecated-import	Import from {target} instead: {names}
-    "ICN",     # flake8-import-conventions (ICN)
-    "TCH",     # flake8-type-checking (TCH)#
-    "PLC0414", # useless-import-alias	Import alias does not rename original package
-    "PLC0415", # PLC0415	import-outside-top-level	import should be at the top-level of a file
-    "PLC2403", # non-ascii-import-name	Module alias {name} contains a non-ASCII character, use an ASCII-only alias
-    "PLC2701", # import-private-name	Private name import {name} from external module {module}
-    "PLR0402", # manual-from-import	Use from {module} import {name} in lieu of alias
-    "PLW0406", # import-self	Module {name} imports itself
-
-    # via hatch: https://github.com/pypa/hatch/blob/864854478bac936de2d94273ae083c7c29564df2/scripts/update_ruff.py#L12
-    # Allow non-abstract empty methods in abstract base classes
-    'B027', # empty-method-without-abstract-decorator	{name} is an empty method in an abstract base class, but has no abstract decorator
-    # Allow boolean positional values in function calls, like `dict.get(... True)`
-    'FBT003', # boolean-positional-value-in-call	Boolean positional value in function call
-    # Ignore complexity
-    'C901',    # complex-structure	{name} is too complex ({complexity} > {max_complexity})
-    'PLR0904', # too-many-public-methods	Too many public methods ({methods} > {max_methods})
-    "PLR0911", # too-many-return-statements	Too many return statements ({returns} > {max_returns})
-    "PLR0912", # too-many-branches	Too many branches ({branches} > {max_branches})
-    "PLR0913", # too-many-arguments	Too many arguments in function definition ({c_args} > {max_args})
-    "PLR0914", # too-many-locals	Too many local variables ({current_amount}/{max_amount})
-    "PLR0915", # too-many-statements	Too many statements ({statements} > {max_statements})
-    "PLR0916", # too-many-boolean-expressions	Too many Boolean expressions ({expressions} > {max_expressions})
-    "PLR0917", # too-many-positional	Too many positional arguments ({c_pos}/{max_pos})
-    'PLR1702', # too-many-nested-blocks	Too many nested blocks ({nested_blocks} > {max_nested_blocks})
-
-    # These are dependent on projects themselves
-    'AIR', # airflow
-    'CPY', # flake8-copyright (CPY)#
-    'D',   # pydocstyle (D)#
-    'NPY', # NumPy-specific rules (NPY)#
-    'PD',  # pandas-vet (PD)
-
-    # Many projects either don't have type annotations or it would take much effort to satisfy this
-    'ANN', # flake8-annotations (ANN).
-
-    # Don't be too strict about TODOs as not everyone uses them the same way
-    'FIX',     # flake8-fixme (FIX)#
-    'TD001',   # invalid-todo-tag	Invalid TODO tag: {tag}
-    'TD002',   # missing-todo-author	Missing author in TODO; try: # TODO(<author_name>): ... or # TODO @<author_name>: ...
-    'TD003',   # missing-todo-link	Missing issue link on the line following this TODO
-    'PTH',     # flake8-use-pathlib (PTH) # There are valid reasons to not use pathlib such as performance and import cost
-    'FURB101', # read-whole-file	open and read should be replaced by Path({filename}).{suggestion}
-
-    # Conflicts with type checking
-    'RET501', # unnecessary-return-none	Do not explicitly return None in function if it is the only possible return value	✔️ 🛠️
-    'RET502', # implicit-return-value	Do not implicitly return None in function able to return non-None value	✔️ 🛠️
-
-    # Under review https://github.com/astral-sh/ruff/issues/8796
-    'PT004', # pytest-missing-fixture-name-underscore	Fixture {function} does not return anything, add leading underscore	✔️ 🛠️
-    'PT005', # pytest-incorrect-fixture-name-underscore	Fixture {function} returns a value, remove leading underscore
-
-    # Buggy https://github.com/astral-sh/ruff/issues/4845
-    'ERA001', # commented-out-code	Found commented-out code
-
-    # Business logic relying on other programs has no choice but to use subprocess
-    'S404', # suspicious-subprocess-import	subprocess module is possibly insecure
-
-    # Too prone to false positives and might be removed https://github.com/astral-sh/ruff/issues/4045
-    'S603', # subprocess-without-shell-equals-true	subprocess call: check for execution of untrusted input
-
-    # Too prone to false positives https://github.com/astral-sh/ruff/issues/8761
-    'SIM401', # if-else-block-instead-of-dict-get	Use {contents} instead of an if block
-
-    # Allow for easy ignores
-    'PGH003', # blanket-type-ignore	Use specific rule codes when ignoring type issues	✔️ 🛠️
-    'PGH004', # blanket-noqa	Use specific rule codes when using noqa	✔️ 🛠️
-
-    # This is required sometimes, and doesn't matter on Python 3.11+
-    'PERF203', # try-except-in-loop	try-except within a loop incurs performance overhead
-
-    # Potentially unnecessary on Python 3.12+
-    'FURB140', # reimplemented-starmap	Use itertools.starmap instead of the generator
-
-    # Conflicts with formatter, see:
-    # https://docs.astral.sh/ruff/formatter/#conflicting-lint-rules
-    "E111",    # indentation-with-invalid-multiple	Indentation is not a multiple of {indent_size}
-    "E114",    # indentation-with-invalid-multiple-comment	Indentation is not a multiple of {indent_size} (comment)
-    "E117",    # over-indented	Over-indented (comment)
-    "E301",    # blank-line-between-methods	Expected {BLANK_LINES_NESTED_LEVEL:?} blank line, found 0
-    "E302",    # blank-lines-top-level	Expected {expected_blank_lines:?} blank lines, found {actual_blank_lines}
-    "E303",    # too-many-blank-lines	Too many blank lines ({actual_blank_lines})
-    "E304",    # blank-line-after-decorator	Blank lines found after function decorator ({lines})
-    "E305",    # blank-lines-after-function-or-class	Expected 2 blank lines after class or function definition, found ({blank_lines})
-    "E306",    # blank-lines-before-nested-definition	Expected 1 blank line before a nested definition, found 0
-    "E501",    # line-too-long	Line too long ({width} > {limit})
-    "W191",    # tab-indentation	Indentation contains tabs
-    "D206",    # indent-with-spaces	Docstring should be indented with spaces, not tabs
-    "D300",    # triple-single-quotes	Use triple double quotes """
-    "COM812",  # missing-trailing-comma	Trailing comma missing
-    "COM819",  # prohibited-trailing-comma	Trailing comma prohibited
-    "ISC001",  # single-line-implicit-string-concatenation	Implicitly concatenated string literals on one line
-    "ISC002",  # multi-line-implicit-string-concatenation	Implicitly concatenated string literals over multiple lines
-    "Q000",    # bad-quotes-inline-string	Single quotes found but double quotes preferred
-    "Q001",    # bad-quotes-multiline-string	Single quote multiline found but double quotes preferred
-    "Q002",    # bad-quotes-docstring	Single quote docstring found but double quotes preferred
-    "Q003",    # avoidable-escaped-quote	Change outer quotes to avoid escaping inner quotes
-    "Q004",    # unnecessary-escaped-quote	Unnecessary escape on inner quote character
-    "PLE1141", # dict-iter-missing-items	Unpacking a dictionary in iteration without calling .items()
-    "PLE1142", # await-outside-async	await should be used within an async function
-    "Q",
-]
-# Like Black, use double quotes for strings.
-quote-style = "double"
-# Like Black, indent with spaces, rather than tabs.
-indent-style = "space"
-# Like Black, respect magic trailing commas.
-skip-magic-trailing-comma = false
-# Like Black, automatically detect the appropriate line ending.
-line-ending = "auto"
-# Enable auto-formatting of code examples in docstrings. Markdown, reStructuredText code/literal blocks and doctests are all supported
-# This is currently disabled by default, but it is planned for this to be opt-out in the future.
-docstring-code-format = true
-# Set the line length limit used when formatting code snippets in docstrings. This only has an effect when the `docstring-code-format` setting is enabled.
-docstring-code-line-length = "dynamic"
-
-# ===========================[ RUFF pycodestyle ]========================
-# https://docs.astral.sh/ruff/settings/#lint_pycodestyle_max-doc-length
-[tool.ruff.lint.pycodestyle]
-# E501 reports lines that exceed the length of 100
-max-doc-length = 120
-
-# ===========================[ PYLINT ]========================
-# Configuration for the pylint
-#
-# Usage:
-#   pylint --rcfile=<path/to/this/config/file> <path/to/file/to/check>
-#   pylint --rcfile=<path/to/this/config/file> <path/to/directory/to/check>
-#   pylint --rcfile=<path/to/this/config/file> <path/to/directory/to/check>/*.py
-#   pylint --rcfile=<path/to/this/config/file> <path/to/directory/to/check>/**/*.py
-#
-# VSCode (settings.json):
-#   "pylint.args": [
-#       "--rcfile", "<path/to/this/file>"
-#   ]
-
-# Sections:
-#   - [tool.pylint.main]
-#      Main configuration, load plugins
-#   - [tool.pylint.master]
-#      Allow list of modules
-#   - [tool.pylint.design]
-#      Code design (complexity)
-#   - [tool.pylint.typecheck]
-#      Type checking
-#   - [tool.pylint.basic]
-#      Naming conventions
-#   - [tool.pylint.code_style]
-#      Code style
-#   - [tool.pylint.spelling]
-#      Spell checker
-#      (Not working) - Alternates to use: code spell checker (VSCode extension)
-#   - [tool.pylint.similarities]
-#     Detects duplicated code
-#   - [tool.pylint.formatting]
-#      Code formatting, Code complexity, Code quality
-#   - [tool.pylint.messages_control]
-#      Enable/Disable messages
-[tool.pylint.MAIN]
-extension-pkg-allow-list = [
-    "torch",
-    "numpy",
-    "orjson",
-    "cv2",
-]
-extension-pkg-whitelist = ["pydantic", "torch", "numpy", "orjson", "cv2"]
-py-version = "3.10"
-# Use a conservative default here; 2 should speed up most setups and not hurt
-# any too bad. Override on command line as appropriate.
-jobs = 0
-fail-on = ["I"]
-load-plugins = [
-    "pylint.extensions.code_style",
-    "pylint.extensions.typing",
-    # "pylint.extensions.no_self_use",
-    # "pylint_per_file_ignores",
-    # "pylint.extensions.bad_builtin",
-    # "pylint.extensions.broad_try_clause",
-    # "pylint.extensions.check_elif",
-    # "pylint.extensions.code_style",
-    # "pylint.extensions.consider_ternary_expression",
-    # "pylint.extensions.docparams",
-    # "pylint.extensions.docstyle",
-    # "pylint.extensions.dunder",
-    # "pylint.extensions.empty_comment",
-    # "pylint.extensions.emptystring",
-    # "pylint.extensions.mccabe",
-    # "pylint.extensions.no_self_use",
-    # "pylint.extensions.overlapping_exceptions",
-    # "pylint.extensions.redefined_variable_type",
-]
-persistent = false
-# ignore = "lib"
-ignore-paths = [
-    ".venv",       # Virtual Environment
-    "^.*.pyi$",    # Type Hinting
-    "^.*_prv_.*$", # Private Files/Folders (e.g. _prv_*.py | _prv_* folder)
-    "lib",         # External Libraries
-]
-# init-hook = "import sys; sys.path.append('.'); sys.path.append('./src');"
-# https://pylint.pycqa.org/en/v2.13.9/technical_reference/c_extensions.html
-# Pylint and C extensions
-# If you are getting the dreaded no-member error, there is a possibility that either pylint found a bug in your code or that it actually tries to lint a C extension module.
-
-# Linting C extension modules is not supported out of the box, especially since pylint has no way to get an AST object out of the extension module.
-
-# But pylint actually has a mechanism which you might use in case you want to analyze C extensions. pylint has a flag, called extension-pkg-allow-list (formerly extension-pkg-whitelist), through which you can tell it to import that module and to build an AST from that imported module:
-# extension-pkg-allow-list = "pydantic, torch, numpy, orjson, cv2"
-# extension-pkg-whitelist = "pydantic, torch, numpy, orjson, cv2"
-
-
-# SOURCE: https://github.com/ocellicode/gpyt-commandbus/blob/80172644b35af7b4679ace734bea1c5ea2212a52/pyproject.toml#L21
-[tool.pylint.exceptions]
-overgeneral-exceptions = ["builtins.BaseException", "builtins.Exception"]
-
-# # Think about enabling this
-# # SOURCE: https://github.com/ocellicode/gpyt-commandbus/blob/80172644b35af7b4679ace734bea1c5ea2212a52/pyproject.toml#L21
-# [tool.pylint.classes]
-# defining-attr-methods = [
-#     "__init__",
-#     "__new__",
-#     "setUp",
-#     "asyncSetUp",
-#     "__post_init__",
-# ]
-# exclude-protected = [
-#     "_asdict",
-#     "_fields",
-#     "_replace",
-#     "_source",
-#     "_make",
-#     "os._exit",
-# ]
-# valid-classmethod-first-arg = ["cls"]
-# valid-metaclass-classmethod-first-arg = ["mcs"]
-
-# # Think about enabling this
-# # SOURCE: https://github.com/ocellicode/gpyt-commandbus/blob/80172644b35af7b4679ace734bea1c5ea2212a52/pyproject.toml#L21
-# [tool.pylint.design]
-# max-args = 5
-# max-attributes = 7
-# max-bool-expr = 5
-# max-branches = 12
-# max-locals = 15
-# max-parents = 7
-# max-public-methods = 20
-# max-returns = 6
-# max-statements = 50
-# min-public-methods = 2
-
-
-[tool.pylint.BASIC]
-class-const-naming-style = "any"
-
-[tool.pylint."MESSAGES CONTROL"]
-# https://github.com/pydantic/pydantic/issues/1961
-extension-pkg-whitelist = "pydantic"
-# Reasons disabled:
-# format - handled by ruff
-# locally-disabled - it spams too much
-# duplicate-code - unavoidable
-# cyclic-import - doesn't test if both import on load
-# abstract-class-little-used - prevents from setting right foundation
-# unused-argument - generic callbacks and setup methods create a lot of warnings
-# too-many-* - are not enforced for the sake of readability
-# too-few-* - same as too-many-*
-# abstract-method - with intro of async there are always methods missing
-# inconsistent-return-statements - doesn't handle raise
-# too-many-ancestors - it's too strict.
-# wrong-import-order - isort guards this
-# consider-using-f-string - str.format sometimes more readable
-# ---
-# Pylint CodeStyle plugin
-# consider-using-namedtuple-or-dataclass - too opinionated
-# consider-using-assignment-expr - decision to use := better left to devs
-disable = [
-    "possibly-used-before-assignment",                  # Warns about variables potentially used before assignment
-    "raw-checker-failed",                               # Internal pylint error
-    "bad-inline-option",                                # Invalid inline pylint option
-    "file-ignored",                                     # Entire file was ignored due to configuration
-    "suppressed-message",                               # Message was suppressed via inline comment
-    "deprecated-pragma",                                # Use of deprecated pragma
-    "use-implicit-booleaness-not-comparison-to-string", # Suggests using implicit boolean check instead of comparing to empty string
-    "use-implicit-booleaness-not-comparison-to-zero",   # Suggests using implicit boolean check instead of comparing to zero
-    "fixme",                                            # Warns about FIXME, TODO and XXX comments
-    "line-too-long",                                    # Line exceeds maximum allowed length
-    "missing-class-docstring",                          # Class has no docstring
-    "missing-function-docstring",                       # Function or method has no docstring
-    "missing-module-docstring",                         # Module has no docstring
-    "too-few-public-methods",                           # Class has too few public methods
-    "raise-missing-from",                               # Exception raised without 'from' clause
-    "abstract-method",                                  # Abstract method is not overridden
-    "consider-using-assignment-expr",                   # Suggests using assignment expression (:=)
-    "consider-using-f-string",                          # Suggests using f-strings for string formatting
-    "consider-using-namedtuple-or-dataclass",           # Suggests using namedtuple or dataclass
-    "cyclic-import",                                    # Detects cyclic imports between modules
-    "duplicate-code",                                   # Detects duplicated code
-    "format",                                           # Related to code formatting issues
-    "inconsistent-return-statements",                   # Function has inconsistent return statements
-    "locally-disabled",                                 # Warns about locally disabled pylint messages
-    "not-context-manager",                              # Suggests using 'with' statement for context managers
-    "too-few-public-methods",                           # Class has too few public methods (duplicate)
-    "too-many-ancestors",                               # Class has too many parent classes
-    "too-many-arguments",                               # Function or method has too many arguments
-    "too-many-boolean-expressions",                     # Boolean expression is too complex
-    "too-many-instance-attributes",                     # Class has too many instance attributes
-    "too-many-lines",                                   # Module has too many lines
-    "too-many-locals",                                  # Function or method has too many local variables
-    "too-many-public-methods",                          # Class has too many public methods
-    "wrong-import-order",                               # Imports are in the wrong order
-    # Handled by ruff
-    # Ref: <https://github.com/astral-sh/ruff/issues/970>
-    "await-outside-async",    # PLE1142  # Warns about 'await' used outside an async function
-    "bad-str-strip-call",     # PLE1310  # Detects suspicious arguments in str.strip() calls
-    "bad-string-format-type", # PLE1307  # Warns about invalid format string types
-    "bidirectional-unicode",  # PLE2502  # Detects potentially dangerous bidirectional Unicode characters
-    "continue-in-finally",    # PLE0116  # Warns about 'continue' in 'finally' block which may swallow exceptions
-    "duplicate-bases",        # PLE0241  # Detects duplicate base classes in class definitions
-    "format-needs-mapping",   # F502     # Warns when a format string needs a mapping (dict) but receives something else
-    "function-redefined",     # F811     # Detects when a function is redefined
-    # Needed because ruff does not understand type of __all__ generated by a function
-    # "invalid-all-format", # PLE0605
-    "anomalous-backslash-in-string",      # W605     # Detects anomalous backslash in string
-    "assert-on-string-literal",           # PLW0129  # Warns about assert statements on string literals
-    "assert-on-tuple",                    # F631     # Warns about assert statements on tuples
-    "bad-format-string",                  # W1302, F # Detects invalid format strings
-    "bad-format-string-key",              # W1300, F # Warns about invalid keys in format strings
-    "bare-except",                        # E722     # Warns about bare except clauses
-    "binary-op-exception",                # PLW0711  # Warns about binary operators used with exceptions
-    "cell-var-from-loop",                 # B023     # Detects cell variables from loop variables
-    "invalid-all-object",                 # PLE0604  # Warns about invalid objects in __all__
-    "invalid-character-backspace",        # PLE2510  # Detects invalid backspace characters
-    "invalid-character-esc",              # PLE2513  # Detects invalid escape characters
-    "invalid-character-nul",              # PLE2514  # Detects invalid null characters
-    "invalid-character-sub",              # PLE2512  # Detects invalid substitute characters
-    "invalid-character-zero-width-space", # PLE2515  # Detects invalid zero-width space characters
-    "logging-too-few-args",               # PLE1206  # Warns about too few arguments in logging calls
-    "logging-too-many-args",              # PLE1205  # Warns about too many arguments in logging calls
-    "missing-format-string-key",          # F524     # Detects missing keys in format strings
-    "mixed-format-string",                # F506     # Warns about mixed old and new style format strings
-    "no-method-argument",                 # N805     # Warns when a method has no 'self' parameter
-    "no-self-argument",                   # N805     # Warns when a method has no 'self' parameter (duplicate)
-    "nonexistent-operator",               # B002     # Warns about nonexistent operators
-    "nonlocal-without-binding",           # PLE0117  # Warns about nonlocal variables without binding
-    "not-in-loop",                        # F701, F702 # Warns about break/continue statements outside loops
-    "notimplemented-raised",              # F901     # Warns when NotImplemented is raised instead of NotImplementedError
-    "return-in-init",                     # PLE0101  # Warns about return statements in __init__ methods
-    "return-outside-function",            # F706     # Warns about return statements outside functions
-    "syntax-error",                       # E999     # Detects syntax errors
-    "too-few-format-args",                # F524     # Warns about too few arguments for format string
-    "too-many-format-args",               # F522     # Warns about too many arguments for format string
-    "too-many-star-expressions",          # F622     # Warns about too many starred expressions in assignment
-    "truncated-format-string",            # F501     # Detects truncated format strings
-    "undefined-all-variable",             # F822     # Warns about undefined variables in __all__
-    "undefined-variable",                 # F821     # Warns about undefined variables
-    "used-prior-global-declaration",      # PLE0118  # Warns when a variable is used before its global declaration
-    "yield-inside-async-function",        # PLE1700  # Warns about yield statements inside async functions
-    "yield-outside-function",             # F704     # Warns about yield statements outside functions
-    # "dangerous-default-value", # B006, ruff catches new occurrences, needs more work
-    "duplicate-except",                     # B014     # Warns about duplicate except clauses
-    "duplicate-key",                        # F601     # Warns about duplicate keys in dictionaries
-    "duplicate-string-formatting-argument", # F        # Warns about duplicate keys in format strings
-    "duplicate-value",                      # F        # Warns about duplicate values in sets
-    "eval-used",                            # S307     # Warns about the use of eval()
-    "exec-used",                            # S102     # Warns about the use of exec()
-    "expression-not-assigned",              # B018     # Warns about expressions that are not assigned
-    "f-string-without-interpolation",       # F541     # Warns about f-strings without any interpolation
-    "forgotten-debug-statement",            # T100     # Warns about forgotten debug statements
-    "format-string-without-interpolation",  # F        # Warns about format strings without any interpolation
-    # "global-statement", # PLW0603, ruff catches new occurrences, needs more work
-    "global-variable-not-assigned",  # PLW0602  # Warns about global variables that are not assigned
-    "implicit-str-concat",           # ISC001   # Warns about implicit string concatenation
-    "import-self",                   # PLW0406  # Warns when a module imports itself
-    "inconsistent-quotes",           # Q000     # Warns about inconsistent use of quotes
-    "invalid-envvar-default",        # PLW1508  # Warns about invalid default values for environment variables
-    "keyword-arg-before-vararg",     # B026     # Warns about keyword arguments appearing before variable arguments
-    "logging-format-interpolation",  # G        # Warns about using % formatting in logging functions
-    "logging-fstring-interpolation", # G        # Warns about using f-strings in logging functions
-    "logging-not-lazy",              # G        # Warns about non-lazy logging calls
-    "misplaced-future",              # F404     # Warns about misplaced __future__ imports
-    "named-expr-without-context",    # PLW0131  # Warns about named expressions (walrus operator) without proper context
-    "nested-min-max",                # PLW3301  # Warns about nested min/max calls that can be flattened
-    "pointless-statement",           # B018     # Warns about pointless statements
-    "raise-missing-from",            # B904     # Warns about raise statements missing 'from' clause
-    # "redefined-builtin", # A001, ruff is way more stricter, needs work
-    "bad-classmethod-argument",          # N804     # Warns about incorrect first argument name in classmethods
-    "comparison-of-constants",           # PLR0133  # Warns about comparisons between constants
-    "comparison-with-itself",            # PLR0124  # Warns about comparisons of a value with itself
-    "consider-alternative-union-syntax", # UP007    # Suggests using alternative union syntax (Python 3.10+)
-    "consider-iterating-dictionary",     # SIM118   # Suggests iterating over dictionary items directly
-    "consider-merging-isinstance",       # PLR1701  # Suggests merging multiple isinstance checks
-    "consider-using-alias",              # UP006    # Suggests using type aliases (Python 3.7+)
-    "consider-using-dict-comprehension", # C402     # Suggests using dict comprehension instead of dict()
-    "consider-using-generator",          # C417     # Suggests using a generator expression instead of a list comprehension
-    "consider-using-get",                # SIM401   # Suggests using dict.get() instead of checking for key existence
-    "consider-using-set-comprehension",  # C401     # Suggests using set comprehension instead of set()
-    "consider-using-sys-exit",           # PLR1722  # Suggests using sys.exit() instead of exit()
-    "consider-using-ternary",            # SIM108   # Suggests using ternary operator instead of if-else
-    "empty-docstring",                   # D419     # Warns about empty docstrings
-    "invalid-name",                      # N815     # Warns about invalid names (variables, functions, classes, etc.)
-    "line-too-long",                     # E501     # Warns about lines that are too long (disabled globally)
-    "literal-comparison",                # F632     # Warns about comparisons to literals using is/is not
-    "missing-class-docstring",           # D101     # Warns about missing docstrings in classes
-    "missing-final-newline",             # W292     # Warns about missing final newline in files
-    "missing-function-docstring",        # D103     # Warns about missing docstrings in functions
-    "missing-module-docstring",          # D100     # Warns about missing docstrings in modules
-    "multiple-imports",                  # E401     # Warns about multiple imports on one line
-    "no-else-break",                     # RET508   # Suggests removing unnecessary else after break
-    "no-else-continue",                  # RET507   # Suggests removing unnecessary else after continue
-    "no-else-raise",                     # RET506   # Suggests removing unnecessary else after raise
-    "no-else-return",                    # RET505   # Suggests removing unnecessary else after return
-    "property-with-parameters",          # PLR0206  # Warns about properties with parameters
-    "singleton-comparison",              # E711, E712 # Warns about comparison to True, False, or None
-    "subprocess-run-check",              # PLW1510  # Suggests using check=True with subprocess.run()
-    "super-with-arguments",              # UP008    # Suggests using super() without arguments (Python 3+)
-    "superfluous-parens",                # UP034    # Warns about unnecessary parentheses
-    "too-many-branches",                 # PLR0912  # Warns about too many branches in a function
-    "too-many-return-statements",        # PLR0911  # Warns about too many return statements in a function
-    "too-many-statements",               # PLR0915  # Warns about too many statements in a function
-    "trailing-comma-tuple",              # COM818   # Warns about trailing commas in single-item tuples
-    "try-except-raise",                  # TRY302   # Suggests simplifying try-except-raise blocks
-    "ungrouped-imports",                 # I001     # Warns about ungrouped imports
-    "unidiomatic-typecheck",             # E721     # Warns about unidiomatic type checking
-    "unnecessary-comprehension",         # C416     # Warns about unnecessary list comprehensions
-    "unnecessary-direct-lambda-call",    # PLC3002  # Warns about unnecessary direct lambda calls
-    "unnecessary-lambda-assignment",     # PLC3001  # Warns about unnecessary lambda assignments
-    "unnecessary-pass",                  # PIE790   # Warns about unnecessary pass statements
-    "unneeded-not",                      # SIM208   # Suggests simplifying unnecessary not operators
-    "unused-argument",                   # ARG001   # Warns about unused function arguments
-    "unused-format-string-argument",     # F507     # Warns about unused format string arguments
-    "unused-format-string-key",          # F504     # Warns about unused format string keys
-    "unused-import",                     # F401     # Warns about unused imports
-    "unused-variable",                   # F841     # Warns about unused variables
-    "use-a-generator",                   # C417     # Suggests using a generator instead of a list comprehension
-    "use-dict-literal",                  # C406     # Suggests using dict literal instead of dict()
-    "use-list-literal",                  # C405     # Suggests using list literal instead of list()
-    "useless-else-on-loop",              # PLW0120  # Warns about useless else clauses on loops
-    "useless-import-alias",              # PLC0414  # Warns about useless import aliases
-    "useless-object-inheritance",        # UP004    # Warns about useless object inheritance in Python 3
-    "useless-return",                    # PLR1711  # Warns about useless return statements
-    "wildcard-import",                   # F403     # Warns about wildcard imports
-    "wrong-import-order",                # I001     # Warns about incorrect import order
-    "wrong-import-position",             # E402     # Warns about imports not at the top of the file
-    # "no-self-use", # PLR6301  # Optional plugin, not enabled
-    # Handled by mypy
-    # Ref: <https://github.com/antonagestam/pylint-mypy-overlap>
-    "abstract-class-instantiated",               # Warns about instantiation of abstract classes
-    "arguments-differ",                          # Warns when overridden method arguments differ from superclass
-    "assigning-non-slot",                        # Warns about assigning to attributes not defined in __slots__
-    "assignment-from-no-return",                 # Warns about assigning result of a function that doesn't return
-    "assignment-from-none",                      # Warns about assigning None to variables
-    "bad-exception-cause",                       # Warns about incorrect exception causes
-    "bad-format-character",                      # Warns about bad characters in format strings
-    "bad-reversed-sequence",                     # Warns about reversing non-sequence objects
-    "bad-super-call",                            # Warns about incorrect super() calls
-    "bad-thread-instantiation",                  # Warns about incorrect threading.Thread subclass instantiation
-    "catching-non-exception",                    # Warns about catching non-exception objects
-    "comparison-with-callable",                  # Warns about comparisons between callable and non-callable
-    "deprecated-class",                          # Warns about usage of deprecated classes
-    "dict-iter-missing-items",                   # Warns about dict.iter*() methods missing .items()
-    "format-combined-specification",             # Warns about combined format string specifications
-    "global-variable-undefined",                 # Warns about undefined global variables
-    "import-error",                              # Warns about imports that cannot be resolved
-    "inconsistent-mro",                          # Warns about inconsistent method resolution order
-    "inherit-non-class",                         # Warns about inheriting from non-class objects
-    "init-is-generator",                         # Warns about __init__ methods declared as generators
-    "invalid-class-object",                      # Warns about invalid objects in class statements
-    "invalid-enum-extension",                    # Warns about invalid enum extensions
-    "invalid-envvar-value",                      # Warns about invalid environment variable values
-    "invalid-format-returned",                   # Warns about invalid values returned by __format__
-    "invalid-hash-returned",                     # Warns about invalid values returned by __hash__
-    "invalid-metaclass",                         # Warns about invalid metaclasses
-    "invalid-overridden-method",                 # Warns about invalid method overrides
-    "invalid-repr-returned",                     # Warns about invalid values returned by __repr__
-    "invalid-sequence-index",                    # Warns about invalid sequence indices
-    "invalid-slice-index",                       # Warns about invalid slice indices
-    "invalid-slots",                             # Used when an invalid __slots__ is found in class. Only a string, an iterable or a sequence is permitted.
-    "invalid-slots-object",                      # Warns about invalid __slots__ objects
-    "invalid-star-assignment-target",            # Warns about invalid targets in star assignments
-    "invalid-str-returned",                      # Warns when __str__ doesn't return a string
-    "invalid-unary-operand-type",                # Warns about invalid types for unary operators
-    "invalid-unicode-codec",                     # Warns about invalid Unicode codec operations
-    "isinstance-second-argument-not-valid-type", # Warns when isinstance() second argument is not a type
-    "method-hidden",                             # Warns about methods hidden by instance attributes
-    "misplaced-format-function",                 # Warns about misplaced string format method calls
-    "missing-format-argument-key",               # Warns about missing keys in format string arguments
-    "missing-format-attribute",                  # Warns about missing attributes in format strings
-    "missing-kwoa",                              # Warns about missing keyword-only arguments
-    # "no-member",
-    "no-value-for-parameter",                       # Warns when a function call is missing a required parameter
-    "non-iterator-returned",                        # Warns when a __iter__ method doesn't return an iterator
-    "non-str-assignment-to-dunder-name",            # Warns when assigning non-string to __name__
-    "nonlocal-and-global",                          # Warns when a variable is declared both nonlocal and global
-    "not-a-mapping",                                # Warns when a non-mapping is used where a mapping is expected
-    "not-an-iterable",                              # Warns when a non-iterable is used where an iterable is expected
-    "not-async-context-manager",                    # Warns when an async context manager is expected but not used
-    "not-callable",                                 # Warns when trying to call a non-callable object
-    "not-context-manager",                          # Warns when a context manager is expected but not used
-    "overridden-final-method",                      # Warns when a final method is overridden
-    "raising-bad-type",                             # Warns when raising a non-exception type
-    "raising-non-exception",                        # Warns when raising a non-exception object
-    "redundant-keyword-arg",                        # Warns about redundant keyword arguments
-    "relative-beyond-top-level",                    # Warns about relative imports beyond top-level package
-    "self-cls-assignment",                          # Warns about assigning to self or cls in methods
-    "signature-differs",                            # Warns when an overriding method's signature differs
-    "star-needs-assignment-target",                 # Warns when * is used without an assignment target
-    "subclassed-final-class",                       # Warns when a final class is subclassed
-    "super-without-brackets",                       # Warns about using super without parentheses (Python 2 style)
-    "too-many-function-args",                       # Warns when a function is called with too many arguments
-    "typevar-double-variance",                      # Warns about TypeVar with conflicting variance
-    "typevar-name-mismatch",                        # Warns when a TypeVar name doesn't match its parameter
-    "unbalanced-dict-unpacking",                    # Warns about unbalanced dict unpacking in assignments
-    "unbalanced-tuple-unpacking",                   # Warns about unbalanced tuple unpacking in assignments
-    "unexpected-keyword-arg",                       # Warns about unexpected keyword arguments in function calls
-    "unhashable-member",                            # Warns when trying to hash an unhashable object
-    "unpacking-non-sequence",                       # Warns when trying to unpack a non-sequence
-    "unsubscriptable-object",                       # Warns when trying to subscript a non-subscriptable object
-    "unsupported-assignment-operation",             # Warns about unsupported assignment operations
-    "unsupported-binary-operation",                 # Warns about unsupported binary operations
-    "unsupported-delete-operation",                 # Warns about unsupported delete operations
-    "unsupported-membership-test",                  # Warns about unsupported membership test operations
-    "used-before-assignment",                       # Warns when a variable is used before it's assigned
-    "using-final-decorator-in-unsupported-version", # Warns about using @final decorator in unsupported Python versions
-    "wrong-exception-operation",                    # Warns about wrong operations on exception objects
-]
-enable = [
-    # "useless-suppression",          # temporarily every now and then to clean them up
-    "use-symbolic-message-instead",
-    # "c-extension-no-member",
-
-    # # pylint.extensions.docstyle
-    # "missing-class-docstring",
-    # "missing-docstring",
-    # "missing-function-docstring",
-    # "missing-module-docstring",
-
-    # # pylint.extensions.typing
-    # "deprecated-typing-alias",
-]
-
-[tool.pylint.REPORTS]
-score = false
-
-# SOURCE: https://github.com/atlassian-api/atlassian-python-api/blob/master/pyproject.toml
-[tool.pylint.TYPECHECK]
-# List of members which are set dynamically and missed by pylint inference
-# system, and so shouldn't trigger E1101 when accessed. Python regular
-# expressions are accepted.
-generated-members = 'numpy.*, torch.*, cv2.*, discord.*,logging.root.*'
-ignored-classes = [
-    "_CountingAttr", # for attrs
-]
-mixin-class-rgx = ".*[Mm]ix[Ii]n"
-
-[tool.pylint.FORMAT]
-expected-line-ending-format = "LF"
-
-# [tool.pylint.TYPING]
-# runtime-typing = false
-# Set to ``no`` if the app / library does **NOT* need to support runtime introspection of type annotations. If you use type annotations exclusively for type checking of an application, you're probably fine. For libraries, evaluate if some users want to access the type hints at runtime first, e.g., through typing.get_type_hints. Applies to Python versions 3.7 - 3.9*
-[tool.pylint.TYPING]
-runtime-typing = false
-
-[tool.pylint.CODE_STYLE]
-# Max line length for which to sill emit suggestions.
-# Used to prevent optional suggestions which would get split by a code formatter
-# (e.g., black). Will default to the setting for ``max-line-length``.
-max-line-length-suggestions = 72
-
-[tool.pylint.logging]
-# Possible choices: ['old', 'new']
-logging-format-style = "new"
-
-logging-modules = ["logging", "loguru"]
-
-[tool.pylint.similarities]
-ignore-comments = true
-ignore-docstrings = true
-ignore-imports = false
-min-similarity-lines = 5
-
-# NOTE: see https://github.com/Ruzzy77/python-template/blob/57c8964f1efb2635d0bdca5684613a8d8736aed0/pyrightconfig.json
-[tool.pyright]
-include = [
-    "src",
-    "tests",
-]
-exclude = [
-    "**/__pycache__",
-    "build",
-    "dist",
-    "docs",
-    "**/.venv",
-    "**/node_modules",
-    "**/__pycache__",
-    ".git",
-    "**/build",
-    "tasks",
-    "typings",
-]
-############################################################################
-# FIXME: THIS MIGHT BREAK SHIT
-# SOURCE: https://github.com/charbonnierg/pytest-broadcaster/blob/e98456b2f6db7f99a034795f162ac0013a8001d7/pyproject.toml#L157C1-L158C15
-venv = ".venv"
-venvPath = "."
-# FIXME: THIS MIGHT BREAK SHIT
-############################################################################
-defineConstant = {DEBUG = true}
-stubPath = "./typings"
-# https://github.com/microsoft/pyright/blob/main/docs/configuration.md#reportGeneralTypeIssues
-reportUnnecessaryTypeIgnoreComment = "none"
-pythonVersion = "3.10"
-verboseOutput = true
-reportUnusedImport = "none"
-reportMissingImports = "error"
-reportImportCycles = "error"
-reportUnusedVariable = "none"
-reportMissingTypeStubs = "warning"
-# reportUnknownMemberType = "false" # ORIGINAL ONE
-# reportUnknownMemberType = "error"
-# -------------------------------------------------------------------------
-reportUnusedFunction = "warning" # this is what we use in ad
-reportUnusedClass = "warning"    # this is what we use in ad
-# -------------------------------------------------------------------------
-# reportUnusedFunction = "none" # this is what we use in goob-ai
-# reportUnusedClass = "none" # this is what we use in goob-ai
-# -------------------------------------------------------------------------
-
-# -------------------------------------------------------------------------
-# SOURCE: https://github.com/RobertCraigie/prisma-client-py/blob/main/pyproject.toml
-# -------------------------------------------------------------------------
-# NOTE: these should be periodically enabled and disabled
-# they are too stict for general usage as I don't want
-# pyright disable comments everywhere and I also don't
-# want to have to maintain my own stubs just to mark
-# some types as Any, however they can find potential
-# holes in our type information.
-reportUnknownVariableType = false
-reportUnknownMemberType = false
-reportUnknownArgumentType = false
-
-# very strict errors
-reportUnusedCallResult = false
-reportImplicitStringConcatenation = false
-reportCallInDefaultInitializer = true
-# -------------------------------------------------------------------------
-
-
-# # TODO: Let's disable this for now
-# # ----------------------------------------------------------------------------
-# # GOOB_AI only values.  - start
-# # ----------------------------------------------------------------------------
-# reportUnnecessaryCast = true
-# typeCheckingMode = "basic"
-# reportReturnType = "none"
-# # [boolean or string, optional]: Generate or suppress diagnostics for general type inconsistencies, unsupported operations, argument/parameter mismatches, etc. This covers all of the basic type-checking rules not covered by other rules. It does not include syntax errors. The default value for this setting is "error".
-# # reportGeneralTypeIssues = "none"
-# reportArgumentType = "none"
-reportAttributeAccessIssue = "error"
-# reportOptionalMemberAccess = false
-# reportGeneralTypeIssues = true
-# reportCallIssue = "none"
-# # ----------------------------------------------------------------------------
-# # GOOB_AI only values.  - end
-# # ----------------------------------------------------------------------------
-
-
-# SOURCE: https://github.com/Ruzzy77/python-template/blob/57c8964f1efb2635d0bdca5684613a8d8736aed0/pyproject.toml#L168C1-L189C2
-################################################################################
-# Docformatter Configuration
-# (docformatter doesn't support custom config file names)
-# [tool.docformatter]
-# black             = true
-# blank             = true
-# recursive         = true
-# style             = "google"
-# wrap-descriptions = 80
-# wrap-summaries    = 80       # 0: disable wrapping
-
-# # make_summary_multiline = false
-# # pre_summary_newline    = false
-# # pre_summary_space      = false
-
-# exclude = [
-#     ".venv",
-#     "build",
-#     "dist",
-#     "docs",
-#     "examples",
-#     "notebooks",
-#     "sample*",
-#     "test*",
-# ]
+    exclude = [
+        ".bzr",
+        ".direnv",
+        ".eggs",
+        ".git",
+        ".git-rewrite",
+        ".hg",
+        ".mypy_cache",
+        ".nox",
+        ".pants.d",
+        ".pytype",
+        ".ruff_cache",
+        ".svn",
+        ".tox",
+        ".venv",
+        "__pypackages__",
+        "_build",
+        "buck-out",
+        "build",
+        "contrib/",
+        "dist",
+        "node_modules",
+        "tests",
+        "venv",
+    ]
+    include = ["*.ipynb", "*.py", "*.pyi"]
+    line-length = 120
+    src = ["packages", "src", "tests"]
+    target-version = "py312"
+
+    [tool.ruff.format]
+        docstring-code-format = true
+
+    # Linting settings
+    [tool.ruff.lint]
+        dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+        ignore = [
+            # Existing ignores
+            "B008",
+            "B904",
+            "C901",
+            # New ignores from errors
+            "D100",
+            "D103",
+            "D104",
+            "D107",
+            "D200",
+            "D203",
+            "D205",
+            "D211",
+            "D212",
+            "D213",
+            "D400",
+            "D401",
+            "D413",
+            "D415",
+            "D417",
+            "E501",
+            "E722",
+            "F401",
+            "F841",
+            "N812",
+            "PGH003",
+            "RUF013",
+            "RUF015",
+            "RUF022",
+            "S101",
+            "S110",
+            "S603",
+            "S607",
+            "SIM102",
+            "SIM103",
+            "SIM108",
+            "SIM118",
+            "UP006",
+            "UP007",
+            "UP035",
+        ]
+        # Existing configuration
+        select = [
+            "A",
+            "B",
+            "C4",
+            "C90",
+            "D",
+            "E",
+            "F",
+            "I",
+            "PGH",
+            "RUF",
+            "S",
+            "SIM",
+            "T10",
+            "TID252",
+            "UP",
+            "W",
+            "YTT",
+        ]
+
+        # Add per-file configurations
+        [tool.ruff.lint.per-file-ignores]
+            # Init files
+            "**/__init__.py"    = ["D104", "F401"]
+            "**/__version__.py" = ["D104", "F401", "RUF"]
+            # Server/complex files
+            "**/fserver.py" = ["C901", "D200", "D205", "D400", "D415"]
+            # Template handling
+            "**/import_templates.py" = ["C901", "D401"]
+            # Repository analysis
+            "**/repository_analyzer.py" = ["C901", "SIM102"]
+            "**/server.py" = ["B904", "PGH003"]
+            "contrib/**" = ["D103", "E702", "RUF"]
+            "doc/**" = ["A001", "C408", "UP031"]
+            "scripts/**" = [
+                "A001",
+                "C408",
+                "D",
+                "D103",
+                "PGH004",
+                "RUF005",
+                "UP031",
+                "UP038",
+            ]
+            "src/**" = [
+                "A001",
+                "A002",
+                "A004",
+                "B006",
+                "B007",
+                "B018",
+                "B026",
+                "B904",
+                "C408",
+                "C416",
+                "C417",
+                "C901",
+                "D101",
+                "D102",
+                "D103",
+                "D105",
+                "D106",
+                "D200",
+                "D205",
+                "D301",
+                "D400",
+                "D401",
+                "D415",
+                "E402",
+                "E702",
+                "E711",
+                "E721",
+                "E731",
+                "E741",
+                "F403",
+                "F405",
+                "F811",
+                "F821",
+                "PGH003",
+                "PGH004",
+                "RUF002",
+                "RUF005",
+                "RUF006",
+                "RUF008",
+                "RUF012",
+                "RUF046",
+                "RUF100",
+                "S105",
+                "S108",
+                "S113",
+                "S311",
+                "S324",
+                "S602",
+                "S605",
+                "SIM101",
+                "SIM102",
+                "SIM110",
+                "SIM115",
+                "SIM116",
+                "SIM117",
+                "SIM222",
+                "T100",
+                "TID252",
+                "UP031",
+                "UP038",
+                "UP040",
+                "YTT201",
+            ]
+
+        [tool.ruff.lint.pydocstyle]
+            convention = "google"
+
+[tool.tomlsort]
+    all = true
+    ignore_case = true
+    sort_first = [
+        "build-system",
+        "dependency-groups",
+        "project",
+        "project.scripts",
+        "project.urls",
+        "tool.setuptools",
+        "tool.uv.sources",
+        "tool.uv.workspace",
+    ]
+    sort_inline_arrays = false
+    sort_inline_tables = false
+    sort_table_keys = false
+    spaces_before_inline_comment = 2
+    spaces_indent_inline_array = 4
+    trailing_comma_inline_array = true
 
 [tool.towncrier]
-# DISABLED: # package = "goob_ai"
-# DISABLED: # package_dir = "src"
-# DISABLED: # # filename = "doc/en/changelog.rst"
-# DISABLED: # # directory = "changelog/"
-# DISABLED: # # title_format = "pytest {version} ({project_date})"
-# DISABLED: # # template = "changelog/_template.rst"
-# DISABLED: #
-# DISABLED: # # NOTE: The types are declared because:
-# DISABLED: # # NOTE: - there is no mechanism to override just the value of
-# DISABLED: # # NOTE:   `tool.towncrier.type.misc.showcontent`;
-# DISABLED: # # NOTE: - and, we want to declare extra non-default types for
-# DISABLED: # # NOTE:   clarity and flexibility.
-# DISABLED: # # For writing into the correct file
-# DISABLED: # filename = "NEWS.rst"
-# DISABLED: # # For finding the news fragments
-# DISABLED: # directory = "news/"
+    # Add the filename option extension to news fragment files created with towncrier create
+    create_add_extension = true
+    # File handling configuration
+    # Ensure the content of a news fragment file created with towncrier create ends with an empty line
+    create_eof_newline = true
+    # The directory storing your news fragments
+    directory = "changes/"
+    # The filename of your news file
+    filename = "CHANGELOG.md"
+    # A case-insensitive list of filenames in the news fragments directory to ignore
+    ignore = [
+        ".gitignore",
+        ".gitkeep",
+        ".keep",
+        ".template.md.jinja",
+        "README",
+        "README.md",
+        "README.rst",
+        "simple.md.jinja",
+        "towncrier_template.md.jinja",
+        "towncrier_template_from_hikari.md.jinja",
+    ]
+    # Format string for rendering the issue/ticket number in newsfiles
+    issue_format = "[#{issue}](https://github.com/bossjones/goob-ai/pull/{issue})"
+    # Validation and ignore patterns
+    # Ensure the issue name matches a certain regex pattern (digit-only file names in this case)
+    issue_pattern = "\\d+"    # Only allow numeric issue IDs
+    name          = "goob_ai"
+    # The Python package name of your project - allows name and version to be automatically determined
+    package = "goob_ai"
+    # The magic string that towncrier looks for when considering where the release notes should start
+    start_string = "<!-- towncrier release notes start -->\n"
+    # Path to the template for generating the news file
+    # template = "changes/.template.md.jinja"
+    # template = "changes/towncrier_template.md.jinja"
+    template = "changes/towncrier_template_from_hikari.md.jinja"
+    # Format string for the title of your project, using {name}, {version}, and {project_date}
+    # title_format = "## [{version}](https://github.com/bossjones/goob-ai/tree/{version}) - {project_date}"
+    # The characters used for underlining headers (empty strings mean no underlining)
+    # underlines = ["", "", ""]
+    underlines = [2, 3]
 
+    [[tool.towncrier.section]]
+        path = ""
 
-# DISABLED: # # For rendering properly for this project
-# DISABLED: # issue_format = "`#{issue} <https://github.com/pypa/pip/issues/{issue}>`_"
-# DISABLED: # template = "tools/news/template.rst"
+    # The order of entries matters! It controls the order in which changelog sections are displayed.
+    # https://towncrier.readthedocs.io/en/stable/configuration.html#use-a-toml-array-defined-order
+    # # Custom fragment types using TOML array for defined order
+    [[tool.towncrier.type]]
+        # A boolean value indicating whether the fragment should be considered by the towncrier check command.
+        check = true
+        # The type / category of the fragment.
+        directory = "breaking"
+        # The description of the fragment type, as it must be included in the news file.
+        name = "Breaking Changes"
+        # A boolean value indicating whether the fragment contents should be included in the news file.
+        showcontent = true
 
-# Grouping of entries, within our changelog
-# type = [
-#   { name = "Deprecations and Removals", directory = "removal", showcontent = true },
-#   { name = "Features",                  directory = "feature", showcontent = true },
-#   { name = "Bug Fixes",                 directory = "bugfix",  showcontent = true },
-#   { name = "Vendored Libraries",        directory = "vendor",  showcontent = true },
-#   { name = "Improved Documentation",    directory = "doc",     showcontent = true },
-#   { name = "Process",                   directory = "process", showcontent = true },
-#   { name = "Trivial Changes",           directory = "trivial", showcontent = false },
-# ]
-name = "goob_ai"
-package = "goob_ai"
-package_dir = "src"
-directory = "changelog.d"
-filename = "CHANGELOG.md"
-start_string = "<!-- towncrier release notes start -->\n"
-template = "changelog.d/towncrier_template.md.jinja"
-title_format = ""
-issue_format = "[#{issue}](https://github.com/bossjones/goob_ai/issues/{issue})"
-underlines = ["", "", ""]
+    [[tool.towncrier.type]]
+        check       = true
+        directory   = "feat"
+        name        = "Features"
+        showcontent = true
 
-[[tool.towncrier.section]]
-path = ""
+    [[tool.towncrier.type]]
+        check       = true
+        directory   = "fix"
+        name        = "Bug Fixes"
+        showcontent = true
 
-[[tool.towncrier.type]]
-# When something public gets removed in a breaking way. Could be
-# deprecated in an earlier release.
-directory = "breaking"
-name = "Removals and backward incompatible breaking changes"
-showcontent = true
+    [[tool.towncrier.type]]
+        check       = true
+        directory   = "docs"
+        name        = "Documentation"
+        showcontent = true
 
-[[tool.towncrier.type]]
-# Declarations of future API removals and breaking changes in behavior.
-directory = "deprecation"
-name = "Deprecations (removal in next major release)"
-showcontent = true
+    [[tool.towncrier.type]]
+        check       = true
+        directory   = "chore"
+        name        = "Chores"
+        showcontent = false
 
-[[tool.towncrier.type]]
-# New behaviors, public APIs. That sort of stuff.
-directory = "feature"
-name = "New features"
-showcontent = true
+    [[tool.towncrier.type]]
+        check       = true
+        directory   = "refactor"
+        name        = "Code Refactoring"
+        showcontent = false
 
-[[tool.towncrier.type]]
-# New behaviors in existing features.
-directory = "improvement"
-name = "Improvements in existing functionality"
-showcontent = true
+    [[tool.towncrier.type]]
+        check       = true
+        directory   = "perf"
+        name        = "Performance Improvements"
+        showcontent = true
 
-[[tool.towncrier.type]]
-# Something we deemed an improper undesired behavior that got corrected
-# in the release to match pre-agreed expectations.
-directory = "bugfix"
-name = "Bug fixes"
-showcontent = true
+    [[tool.towncrier.type]]
+        check       = true
+        directory   = "ci"
+        name        = "CI/CD Improvements"
+        showcontent = true
 
-[[tool.towncrier.type]]
-# Updates regarding bundling dependencies.
-directory = "vendor"
-name = "Vendored libraries"
-showcontent = true
+    [[tool.towncrier.type]]
+        check       = true
+        directory   = "deps"
+        name        = "Dependencies"
+        showcontent = true
 
-[[tool.towncrier.type]]
-# Notable updates to the documentation structure or build process.
-directory = "doc"
-name = "Improved documentation"
-showcontent = true
+    [[tool.towncrier.type]]
+        check       = true
+        directory   = "security"
+        name        = "Security"
+        showcontent = true
 
-[[tool.towncrier.type]]
-# Notes for downstreams about unobvious side effects and tooling. Changes
-# in the test invocation considerations and runtime assumptions.
-directory = "packaging"
-name = "Packaging updates and notes for downstreams"
-showcontent = true
+    [[tool.towncrier.type]]
+        check       = true
+        directory   = "test"
+        name        = "Testing"
+        showcontent = true
 
-[[tool.towncrier.type]]
-# Stuff that affects the contributor experience. e.g. Running tests,
-# building the docs, setting up the development environment.
-directory = "contrib"
-name = "Contributor-facing changes"
-showcontent = true
+    [[tool.towncrier.type]]
+        check       = true
+        directory   = "style"
+        name        = "Code Style"
+        showcontent = true
 
-[[tool.towncrier.type]]
-# Changes that are hard to assign to any of the above categories.
-directory = "misc"
-name = "Miscellaneous internal changes"
-showcontent = true
+    [[tool.towncrier.type]]
+        check       = true
+        directory   = "build"
+        name        = "Build System"
+        showcontent = true
 
-[[tool.towncrier.type]]
-directory = "change"
-name = "Changes"
-showcontent = true
-
-[[tool.towncrier.type]]
-directory = "security"
-name = "Security"
-showcontent = true
-
-[[tool.towncrier.type]]
-directory = "removed"
-name = "Removed"
-showcontent = true
-
-[[tool.towncrier.type]]
-directory = "added"
-name = "Added"
-showcontent = true
-
-[[tool.towncrier.type]]
-directory = "changed"
-name = "Changed"
-showcontent = true
-
-[[tool.towncrier.type]]
-directory = "fixed"
-name = "Fixed"
-showcontent = true
-
-[tool.pydocstringformatter]
-write = false
-style = ["pep257"]
-strip-whitespaces = true
-# Activate or deactivate split-summary-body: Split the
-# summary and body of a docstring based on a period and
-# max length. The maximum length of a summary can be set
-# with the --max-summary-lines option. Styles: pep257.
-# (default: True)
-split-summary-body = false
-numpydoc-section-hyphen-length = false
-
-[tool.mdformat]
-# docs: https://mdformat.readthedocs.io/en/stable/users/configuration_file.html
-wrap = 120         # possible values: {"keep", "no", INTEGER}
-number = false     # possible values: {false, true}
-end_of_line = "lf" # possible values: {"lf", "crlf", "keep"}
-
-[tool.pydocstyle]
-convention = "pep257"
-
-[tool.docformatter]
-# wrap long summary lines at this length; set to 0 to disable wrapping (default: 79, 88 with --black option)
-wrap-summaries = 120
-# wrap descriptions at this length; set to 0 to disable wrapping (default: 72, 88 with --black option)
-wrap-descriptions = 120
-in-place = true
-# add a newline before one-line or the summary of a multi-line docstring
-pre-summary-newline = true
-# place closing triple quotes on a new-line when a one-line docstring wraps to two or more lines
-close-quotes-on-newline = true
-#  make formatting compatible with standard black options
-black = true
-# add blank line after elaborate description
-blank = true
-recursive = true
-style = "google"
-
-# add a newline before and after a one-line docstring
-# make_summary_multiline = false
-# add a newline before one-line or the summary of a multi-line docstring
-# pre_summary_newline    = false
-# add a space between the opening triple quotes and the first word in a one-line or summary line of a multi-line docstring
-# pre_summary_space      = false
-
-exclude = [
-    ".venv",
-    "build",
-    "dist",
-    "docs",
-    "examples",
-    "notebooks",
-    "sample*",
-    "test*",
-    "tasks*",
-    "task*",
-]
-
-# SOURCE: https://github.com/astropy/astropy/blob/922afe8446cda46f65c5b5ec4aac9e43fadabcc3/pyproject.toml#L427
-# [tool.docformatter]
-# # The ``summaries`` are not (yet) 75 characters because the summary lines can't be
-# # automatically wrapped and must be re-written, which should be done at some point.
-# recursive = true
-# wrap-summaries = 1000
-# wrap-descriptions = 75
-# black = true
-# syntax = "numpy"
-
-
-[tool.yamlfix]
-line_length = 120
-preserve_quotes = true
-sequence_style = "block_style"
-comments_min_spaces_from_content = 1
-comments_require_starting_space = false
-whitelines = 1
-# indent_mapping = 4
-# indent_offset = 4
-# indent_sequence = 6
-
-
-# allow_duplicate_keys: bool = False
-# comments_min_spaces_from_content: int = 2
-# comments_require_starting_space: bool = True
-# comments_whitelines: int = 1
-# whitelines: int = 0
-# section_whitelines: int = 0
-# config_path: Optional[str] = None
-# explicit_start: bool = True
-# indent_mapping: int = 2
-# indent_offset: int = 2
-# indent_sequence: int = 4
-# line_length: int = 80
-# none_representation: str = ""
-# quote_basic_values: bool = False
-# quote_keys_and_basic_values: bool = False
-# preserve_quotes: bool = False
-# quote_representation: str = "'"
-# sequence_style: YamlNodeStyle = YamlNodeStyle.FLOW_STYLE
-
-# [tool.repo-review]
-# ignore = ["RTD103"]
-
-
-# [tool.repo-review]
-# ignore = ["PY004", "PY007", "PP308", "GH102", "PC140", "RTD100", "RTD103"]
-
-# SOURCE: https://github.com/astropy/astropy/blob/922afe8446cda46f65c5b5ec4aac9e43fadabcc3/pyproject.toml#L427
-[tool.repo-review]
-ignore = [
-    # "PLW0603",
-    "MY",    # ignore MyPy setting checks
-    "PC111", # ignore using `blacken-docs` in pre-commit
-    "PC140", # ignore using `mypy` in pre-commit
-    "PC180", # ignore using `prettier` in pre-commit
-    "PC901", # ignore using custom update message (we have many of the default ones in our history already)
-    "PP308", # ignore requiring `-ra` flag for pytest, astropy's test suite is too large for this to be useful
-]
-
-
-[tool.pycln]
-# path = "."
-paths = ["src", "tests"]
-# include=".*_util\.py$"
-exclude = ".*test.py$"
-# Expand wildcard star imports.
-expand_stars = true
-# Also emit messages to stderr about files that were not changed and about files/imports that were ignored.
-verbose = true
-# Do not write the files back, just output a diff for each file on stdout.
-diff = true
-# Remove all unused imports (not just those checked from side effects).
-# all=true
-no_gitignore = false
-# Stop enforcing the existence of the __all__ dunder in __init__.py files. (disabling this policy)
-disable_all_dunder_policy = true
+[tool.uv.sources]
+    cursor-rules-mcp-server = { workspace = true }
+    pytest-freezegun        = { git = "https://github.com/bossjones/pytest-freezegun" }

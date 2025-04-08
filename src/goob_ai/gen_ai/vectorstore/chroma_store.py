@@ -1,19 +1,18 @@
 # NOTE: https://github.com/apify/actor-vector-database-integrations/blob/master/code/src/vector_stores/chroma.py
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime, timezone
 from typing import TYPE_CHECKING, Dict, List, Optional
 
-import chromadb
-
-from chromadb.config import Settings as ChromaSettings
-from langchain_chroma import Chroma
+# TODO: Remove chromadb dependency once reimplemented
+# import chromadb
+# from chromadb.config import Settings as ChromaSettings
+# from langchain_chroma import Chroma
 from langchain_core.documents import Document
 from loguru import logger as LOGGER
 
 from goob_ai.aio_settings import aiosettings
 from goob_ai.gen_ai.vectorstore.base import VectorDbBase
-
 
 if TYPE_CHECKING:
     from langchain_core.embeddings import Embeddings
@@ -21,7 +20,8 @@ if TYPE_CHECKING:
     from goob_ai.models.vectorstores.chroma_input_model import ChromaIntegration
 
 
-class ChromaDatabase(Chroma, VectorDbBase):
+# TODO: Reimplement ChromaDatabase without langchain_chroma dependency
+class ChromaDatabase(VectorDbBase):  # Removed Chroma inheritance
     """Chroma database wrapper for vector storage and retrieval."""
 
     def __init__(self, actor_input: ChromaIntegration, embeddings: Embeddings) -> None:
@@ -31,27 +31,29 @@ class ChromaDatabase(Chroma, VectorDbBase):
             actor_input: ChromaIntegration object containing configuration settings.
             embeddings: Embeddings object for generating vector representations.
         """
-        settings = None
-        if auth := actor_input.chromaServerAuthCredentials:
-            settings = ChromaSettings(
-                chroma_client_auth_credentials=auth,
-                chroma_client_auth_provider=actor_input.chromaClientAuthProvider,
-            )
-        client = chromadb.HttpClient(
-            host=actor_input.chromaClientHost,
-            port=actor_input.chromaClientPort or 8000,
-            ssl=actor_input.chromaClientSsl or False,
-            settings=settings,
-        )
-        collection_name = actor_input.chromaCollectionName or "chroma"
-        super().__init__(
-            client=client,
-            collection_name=collection_name,
-            embedding_function=embeddings,
-        )
-        self.client = client
-        self.index = self.client.get_collection(collection_name)
-        self._dummy_vector: list[float] = []
+        # TODO: Reimplement initialization without chromadb dependency
+        raise NotImplementedError("ChromaDatabase is currently disabled")
+        # settings = None
+        # if auth := actor_input.chromaServerAuthCredentials:
+        #     settings = ChromaSettings(
+        #         chroma_client_auth_credentials=auth,
+        #         chroma_client_auth_provider=actor_input.chromaClientAuthProvider,
+        #     )
+        # client = chromadb.HttpClient(
+        #     host=actor_input.chromaClientHost,
+        #     port=actor_input.chromaClientPort or 8000,
+        #     ssl=actor_input.chromaClientSsl or False,
+        #     settings=settings,
+        # )
+        # collection_name = actor_input.chromaCollectionName or "chroma"
+        # super().__init__(
+        #     client=client,
+        #     collection_name=collection_name,
+        #     embedding_function=embeddings,
+        # )
+        # self.client = client
+        # self.index = self.client.get_collection(collection_name)
+        # self._dummy_vector: list[float] = []
 
     @property
     def dummy_vector(self) -> list[float]:
@@ -60,9 +62,11 @@ class ChromaDatabase(Chroma, VectorDbBase):
         Returns:
             A dummy vector generated from the embeddings.
         """
-        if not self._dummy_vector and self.embeddings:
-            self._dummy_vector = self.embeddings.embed_query("dummy")
-        return self._dummy_vector
+        # TODO: Reimplement dummy_vector without chromadb dependency
+        raise NotImplementedError("dummy_vector is currently disabled")
+        # if not self._dummy_vector and self.embeddings:
+        #     self._dummy_vector = self.embeddings.embed_query("dummy")
+        # return self._dummy_vector
 
     async def is_connected(self) -> bool:
         """Check if the database is connected.
@@ -70,9 +74,11 @@ class ChromaDatabase(Chroma, VectorDbBase):
         Returns:
             True if the database is connected, False otherwise.
         """
-        if self.client.heartbeat() <= 1:
-            return False
-        return True
+        # TODO: Reimplement is_connected without chromadb dependency
+        raise NotImplementedError("is_connected is currently disabled")
+        # if self.client.heartbeat() <= 1:
+        #     return False
+        # return True
 
     def get_by_item_id(self, item_id: str) -> list[Document]:
         """Get documents by item_id.
@@ -83,21 +89,28 @@ class ChromaDatabase(Chroma, VectorDbBase):
         Returns:
             A list of Document objects matching the item_id.
         """
-        results = self.index.get(where={"item_id": item_id}, include=["metadatas"])
-        if (ids := results.get("ids")) and (metadata := results.get("metadatas")):
-            return [Document(page_content="", metadata={**m, "chunk_id": _id}) for _id, m in zip(ids, metadata)]
-        return []
+        # TODO: Reimplement get_by_item_id without chromadb dependency
+        raise NotImplementedError("get_by_item_id is currently disabled")
+        # results = self.index.get(where={"item_id": item_id}, include=["metadatas"])
+        # if (ids := results.get("ids")) and (metadata := results.get("metadatas")):
+        #     return [
+        #         Document(page_content="", metadata={**m, "chunk_id": _id})
+        #         for _id, m in zip(ids, metadata, strict=False)
+        #     ]
+        # return []
 
-    def update_last_seen_at(self, ids: list[str], last_seen_at: Optional[int] = None) -> None:
+    def update_last_seen_at(self, ids: list[str], last_seen_at: int | None = None) -> None:
         """Update last_seen_at field in the database.
 
         Args:
             ids: List of document IDs to update.
             last_seen_at: Timestamp to set for last_seen_at. Defaults to current timestamp.
         """
-        last_seen_at = last_seen_at or int(datetime.now(timezone.utc).timestamp())
-        for _id in ids:
-            self.index.update(ids=_id, metadatas=[{"last_seen_at": last_seen_at}])
+        # TODO: Reimplement update_last_seen_at without chromadb dependency
+        raise NotImplementedError("update_last_seen_at is currently disabled")
+        # last_seen_at = last_seen_at or int(datetime.now(UTC).timestamp())
+        # for _id in ids:
+        #     self.index.update(ids=_id, metadatas=[{"last_seen_at": last_seen_at}])
 
     def delete_expired(self, expired_ts: int) -> None:
         """Delete expired objects.
@@ -105,17 +118,19 @@ class ChromaDatabase(Chroma, VectorDbBase):
         Args:
             expired_ts: Timestamp threshold for expiration.
         """
-        self.index.delete(where={"last_seen_at": {"$lt": expired_ts}})  # type: ignore[dict-item]
+        # TODO: Reimplement delete_expired without chromadb dependency
+        raise NotImplementedError("delete_expired is currently disabled")
+        # self.index.delete(where={"last_seen_at": {"$lt": expired_ts}})  # type: ignore[dict-item]
 
     def delete_all(self) -> None:
         """Delete all objects in the database."""
-        r = self.index.get()
-        if r["ids"]:
-            self.delete(ids=r["ids"])
+        # TODO: Reimplement delete_all without chromadb dependency
+        raise NotImplementedError("delete_all is currently disabled")
+        # r = self.index.get()
+        # if r["ids"]:
+        #     self.delete(ids=r["ids"])
 
-    def search_by_vector(
-        self, vector: list[float], k: int = 1_000_000, filter_: Optional[dict] = None
-    ) -> list[Document]:
+    def search_by_vector(self, vector: list[float], k: int = 1_000_000, filter_: dict | None = None) -> list[Document]:
         """Search documents by vector similarity.
 
         Args:
@@ -126,4 +141,6 @@ class ChromaDatabase(Chroma, VectorDbBase):
         Returns:
             A list of Document objects most similar to the query vector.
         """
-        return self.similarity_search_by_vector(vector, k=k, filter=filter_)
+        # TODO: Reimplement search_by_vector without chromadb dependency
+        raise NotImplementedError("search_by_vector is currently disabled")
+        # return self.similarity_search_by_vector(vector, k=k, filter=filter_)

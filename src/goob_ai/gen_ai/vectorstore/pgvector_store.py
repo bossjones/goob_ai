@@ -1,7 +1,7 @@
 # NOTE: https://github.com/apify/actor-vector-database-integrations/blob/master/code/src/vector_stores/chroma.py
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime, timezone
 from typing import TYPE_CHECKING, Any, List, Optional
 
 from langchain_core.documents import Document
@@ -122,7 +122,7 @@ class PGVectorDatabase(PGVector, VectorDbBase):
 
         return [Document(page_content="", metadata=r.cmetadata | {"chunk_id": r.id}) for r in results]
 
-    def update_last_seen_at(self, ids: list[str], last_seen_at: Optional[int] = None) -> None:
+    def update_last_seen_at(self, ids: list[str], last_seen_at: int | None = None) -> None:
         """Update the last_seen_at field in the database for the specified IDs.
 
         Args:
@@ -132,7 +132,7 @@ class PGVectorDatabase(PGVector, VectorDbBase):
         Raises:
             ValueError: If the collection is not found.
         """
-        last_seen_at = last_seen_at or int(datetime.now(timezone.utc).timestamp())
+        last_seen_at = last_seen_at or int(datetime.now(UTC).timestamp())
 
         with self._make_sync_session() as session:
             if not (collection := self.get_collection(session)):
@@ -176,7 +176,7 @@ class PGVectorDatabase(PGVector, VectorDbBase):
         if ids := self.get_all_ids():
             self.delete(ids=ids, collection_only=True)
 
-    def search_by_vector(self, vector: list[float], k: int = 10_000, filter_: Optional[dict] = None) -> list[Document]:
+    def search_by_vector(self, vector: list[float], k: int = 10_000, filter_: dict | None = None) -> list[Document]:
         """Search for documents by vector similarity.
 
         Args:

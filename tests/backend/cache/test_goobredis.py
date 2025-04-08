@@ -5,28 +5,25 @@
 from __future__ import annotations
 
 import asyncio
-
 from typing import TYPE_CHECKING, Optional
 
+import pytest
 import pytest_asyncio
 import redis.asyncio as redis
-
-from goob_ai.backend.cache.goobredis import get_driver
 from loguru import logger as LOGGER
 from redis.connection import Connection, parse_url
 from redis.exceptions import RedisClusterException
 from redis.retry import Retry
 
-import pytest
-
+from goob_ai.backend.cache.goobredis import get_driver
 
 if TYPE_CHECKING:
     from _pytest.fixtures import FixtureRequest
     from _pytest.logging import LogCaptureFixture
     from _pytest.monkeypatch import MonkeyPatch
-    from goob_ai.backend.cache.goobredis import GoobRedisClient
-
     from pytest_mock.plugin import MockerFixture
+
+    from goob_ai.backend.cache.goobredis import GoobRedisClient
 
 ##########################################################################
 

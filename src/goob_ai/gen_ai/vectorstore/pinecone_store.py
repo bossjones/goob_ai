@@ -1,7 +1,7 @@
 # NOTE: https://github.com/apify/actor-vector-database-integrations/blob/master/code/src/vector_stores/chroma.py
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime, timezone
 from typing import TYPE_CHECKING, Dict, List, Optional, Tuple
 
 from langchain_core.documents import Document
@@ -10,7 +10,6 @@ from loguru import logger as LOGGER
 from pinecone.grpc.pinecone import PineconeGRPC as PineconeClient
 
 from goob_ai.gen_ai.vectorstore.base import VectorDbBase
-
 
 if TYPE_CHECKING:
     from langchain_core.embeddings import Embeddings
@@ -72,14 +71,14 @@ class PineconeDatabase(PineconeVectorStore, VectorDbBase):
         )
         return [Document(page_content="", metadata=d["metadata"] | {"chunk_id": d["id"]}) for d in results["matches"]]
 
-    def update_last_seen_at(self, ids: list[str], last_seen_at: Optional[int] = None) -> None:
+    def update_last_seen_at(self, ids: list[str], last_seen_at: int | None = None) -> None:
         """Update the last_seen_at field for the given IDs.
 
         Args:
             ids: The list of IDs to update.
             last_seen_at: The timestamp to set. Defaults to the current timestamp.
         """
-        last_seen_at = last_seen_at or int(datetime.now(timezone.utc).timestamp())
+        last_seen_at = last_seen_at or int(datetime.now(UTC).timestamp())
         for _id in ids:
             self.index.update(id=_id, set_metadata={"last_seen_at": last_seen_at})
 
@@ -99,7 +98,7 @@ class PineconeDatabase(PineconeVectorStore, VectorDbBase):
         if r := list(self.index.list(prefix="")):
             self.delete(ids=r)
 
-    def search_by_vector(self, vector: list[float], k: int = 10_000, filter_: Optional[dict] = None) -> list[Document]:
+    def search_by_vector(self, vector: list[float], k: int = 10_000, filter_: dict | None = None) -> list[Document]:
         """Search documents by vector similarity.
 
         Args:

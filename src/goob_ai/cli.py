@@ -17,15 +17,14 @@ import sys
 import tempfile
 import traceback
 import typing
-
-from collections.abc import Awaitable, Iterable, Sequence
+from collections.abc import Awaitable, Callable, Iterable, Sequence
 from enum import Enum
 from functools import partial, wraps
 from importlib import import_module, metadata
 from importlib.metadata import version as importlib_metadata_version
 from pathlib import Path
 from re import Pattern
-from typing import Annotated, Any, Callable, Dict, List, Optional, Set, Tuple, Type, Union
+from typing import Annotated, Any, Dict, List, Optional, Set, Tuple, Type, Union
 
 import anyio
 import asyncer
@@ -34,14 +33,9 @@ import discord
 import rich
 import sentry_sdk
 import typer
-
 from langchain.globals import set_debug, set_verbose
-from langchain_chroma import Chroma as ChromaVectorStore
 from loguru import logger as LOGGER
-from pinecone import Pinecone, ServerlessSpec  # pyright: ignore[reportAttributeAccessIssue]
-from pinecone.core.openapi.data.model.describe_index_stats_response import DescribeIndexStatsResponse
-from pinecone.core.openapi.data.model.query_response import QueryResponse
-from pinecone.core.openapi.data.model.upsert_response import UpsertResponse
+from pinecone import Pinecone, ServerlessSpec
 from pinecone.data.index import Index
 from redis.asyncio import ConnectionPool, Redis
 from rich import print, print_json
@@ -59,7 +53,6 @@ from sentry_sdk.integrations.threading import ThreadingIntegration
 from typer import Typer
 
 import goob_ai
-
 from goob_ai import db
 from goob_ai.aio_settings import aiosettings, get_rich_console
 from goob_ai.asynctyper import AsyncTyper
@@ -72,9 +65,8 @@ from goob_ai.utils import repo_typing
 from goob_ai.utils.base import print_line_seperator
 from goob_ai.utils.file_functions import fix_path
 
-
 # # Use the following to enable the debugger
-# from IPython.terminal.debugger import TerminalPdb  # noqa
+# from IPython.terminal.debugger import TerminalPdb
 # sys.excepthook = TerminalPdb(
 #     call_pdb=True, ostream=sys.__stdout__
 # )
@@ -199,7 +191,7 @@ def load_commands(directory: str = "subcommands"):
 
     for filename in os.listdir(subcommands_dir):
         if filename.endswith("_cmd.py"):
-            module_name = f'{__name__.split(".")[0]}.{directory}.{filename[:-3]}'
+            module_name = f"{__name__.split('.')[0]}.{directory}.{filename[:-3]}"
             module = import_module(module_name)
             if hasattr(module, "app"):
                 APP.add_typer(module.app, name=filename[:-7])
@@ -227,7 +219,6 @@ def deps() -> None:
     rich.print(f"langchain_core_version: {importlib_metadata_version('langchain_core')}")
     rich.print(f"langchain_openai_version: {importlib_metadata_version('langchain_openai')}")
     rich.print(f"langchain_text_splitters_version: {importlib_metadata_version('langchain_text_splitters')}")
-    rich.print(f"langchain_chroma_version: {importlib_metadata_version('langchain_chroma')}")
     rich.print(f"chromadb_version: {importlib_metadata_version('chromadb')}")
     rich.print(f"langsmith_version: {importlib_metadata_version('langsmith')}")
     rich.print(f"pydantic_version: {importlib_metadata_version('pydantic')}")
@@ -301,7 +292,7 @@ def create_index_quickstart() -> None:
     typer.echo("3. Upsert vectors")
     index: Index = pc.Index(aiosettings.pinecone_index)
 
-    ns1_upsert_resp: UpsertResponse = index.upsert(
+    ns1_upsert_resp: Any = index.upsert(
         vectors=[
             {"id": "vec1", "values": [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]},
             {"id": "vec2", "values": [0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2]},
@@ -311,7 +302,7 @@ def create_index_quickstart() -> None:
         namespace="ns1",
     )
 
-    ns2_upsert_resp: UpsertResponse = index.upsert(
+    ns2_upsert_resp: Any = index.upsert(
         vectors=[
             {"id": "vec5", "values": [0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5]},
             {"id": "vec6", "values": [0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6]},
@@ -323,18 +314,18 @@ def create_index_quickstart() -> None:
 
     # 6. Check the index
     typer.echo("4. Check the index")
-    index_rsp: DescribeIndexStatsResponse = index.describe_index_stats()
+    index_rsp: Any = index.describe_index_stats()
     # Returns:
     # {'dimension': 8,
     #  'index_fullness': 0.0,
     #  'namespaces': {'ns1': {'vector_count': 4}, 'ns2': {'vector_count': 4}},
     #  'total_vector_count': 8}
     typer.echo("5. Run a similarity search")
-    n1_results: QueryResponse = index.query(
+    n1_results: Any = index.query(
         namespace="ns1", vector=[0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3], top_k=3, include_values=True
     )
 
-    n2_results: QueryResponse = index.query(
+    n2_results: Any = index.query(
         namespace="ns2", vector=[0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7], top_k=3, include_values=True
     )
 
@@ -410,62 +401,6 @@ def run_download_and_predict(
     path_to_image_from_cli = fix_path(img_url)
     try:
         ImageService.handle_predict_from_file(path_to_image_from_cli)
-    except Exception as ex:
-        print(f"{ex}")
-        exc_type, exc_value, exc_traceback = sys.exc_info()
-        print(f"Error Class: {ex.__class__}")
-        output = f"[UNEXPECTED] {type(ex).__name__}: {ex}"
-        print(output)
-        print(f"exc_type: {exc_type}")
-        print(f"exc_value: {exc_value}")
-        traceback.print_tb(exc_traceback)
-        if aiosettings.dev_mode:
-            bpdb.pm()
-
-
-@APP.command()
-def query_readthedocs() -> None:
-    """Smoketest for querying readthedocs pdfs against vectorstore."""
-    try:
-        import rich
-
-        from langchain_chroma import Chroma
-        from langchain_openai import OpenAIEmbeddings
-
-        from goob_ai.services.chroma_service import CHROMA_PATH, DATA_PATH, ChromaService
-        from goob_ai.utils import file_functions
-
-        client = ChromaService.client
-        test_collection_name = "readthedocs"
-
-        documents = []
-
-        d = file_functions.tree(DATA_PATH)
-        result = file_functions.filter_pdfs(d)
-
-        for filename in result:
-            LOGGER.info(f"Loading document: {filename}")
-            db: ChromaVectorStore = ChromaService.add_to_chroma(
-                path_to_document=f"{filename}",
-                collection_name=test_collection_name,
-                embedding_function=None,
-            )
-
-        embedding_function = OpenAIEmbeddings()
-
-        db: ChromaVectorStore = Chroma(
-            client=client,
-            collection_name=test_collection_name,
-            embedding_function=embedding_function,
-        )
-
-        # query it
-        query = "How do I enable syntax highlighting with rich?"
-        docs = db.similarity_search(query)
-        rich.print("Answer: ")
-        # rich.print(docs)
-        print(docs[0].page_content)
-
     except Exception as ex:
         print(f"{ex}")
         exc_type, exc_value, exc_traceback = sys.exc_info()

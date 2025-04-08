@@ -10,14 +10,12 @@ import asyncio
 import pickle
 import sys
 import traceback
-
-from collections.abc import AsyncGenerator
-from typing import Any, Callable, Dict, List, Optional, Union
+from collections.abc import AsyncGenerator, Callable
+from typing import Any, Dict, List, Optional, Union
 
 import backoff
 import redis
 import redis.asyncio
-
 from loguru import logger as LOGGER
 from redis.asyncio import Connection, Redis
 from redis.asyncio.client import PubSub
@@ -30,7 +28,6 @@ from redis.sentinel import Sentinel
 
 from goob_ai import metrics
 from goob_ai.aio_settings import AioSettings, aiosettings
-
 
 # from langchain.cache import RedisCache
 # from redis.asyncio.connection import (
@@ -83,18 +80,18 @@ class GoobRedisClient:
 
     def __init__(self, url: str, max_connections: int = 10):
         self._url: str = url
-        self._pool: Optional[Redis] = None
-        self._pubsub: Optional[PubSub] = None
+        self._pool: Redis | None = None
+        self._pubsub: PubSub | None = None
         self._loop = None
         self._receivers: dict[str, Any] = {}
         self._pubsub_subscriptor = None
-        self._conn: Optional[Connection] = None
-        self.connection: Optional[Connection] = None
+        self._conn: Connection | None = None
+        self.connection: Connection | None = None
         self.initialized = False
         self.init_lock = asyncio.Lock()
         self._max_connections: int = max_connections
-        self.auto_close_connection_pool: Optional[bool] = None
-        self._client: Optional[Redis] = None
+        self.auto_close_connection_pool: bool | None = None
+        self._client: Redis | None = None
 
     async def initialize(self, loop: asyncio.AbstractEventLoop) -> None:
         """
@@ -130,9 +127,8 @@ class GoobRedisClient:
     @backoff.on_exception(backoff.expo, (OSError,), max_time=30, max_tries=4)
     async def _connect(self) -> None:
         """Connect to the Redis server."""
-
         # If you create a custom `ConnectionPool` to be used by a single `Redis` instance, use the `Redis.from_pool` class method. The Redis client will take ownership of the connection pool. This will cause the pool to be disconnected along with the Redis instance. Disconnecting the connection pool simply disconnects all connections hosted in the pool.
-        self._conn_pool: Union[redis.asyncio.AsyncConnectionPool, redis.asyncio.ConnectionPool] = (
+        self._conn_pool: redis.asyncio.AsyncConnectionPool | redis.asyncio.ConnectionPool = (
             redis.asyncio.ConnectionPool.from_url(str(aiosettings.redis_url), max_connections=self._max_connections)
         )
         # , single_connection_client=True
@@ -162,7 +158,7 @@ class GoobRedisClient:
         self.initialized = False
 
     @property
-    def pool(self) -> Optional[Redis]:
+    def pool(self) -> Redis | None:
         """Get the Redis connection pool."""
         return self._pool
 
@@ -180,7 +176,7 @@ class GoobRedisClient:
             raise NoRedisConfigured()
         return await self._pool.info("get")
 
-    async def set(self, key: str, data: str, *, expire: Optional[int] = None) -> None:
+    async def set(self, key: str, data: str, *, expire: int | None = None) -> None:
         """
         Set a key-value pair in Redis.
 
@@ -201,7 +197,7 @@ class GoobRedisClient:
             ok = await self._pool.set(key, data, **kwargs)  # type: ignore
         assert ok is True, ok
 
-    async def get(self, key: str) -> Optional[str]:
+    async def get(self, key: str) -> str | None:
         """
         Get the value of a key from Redis.
 
@@ -378,7 +374,7 @@ class GoobRedisClient:
             if message is not None:
                 yield message["data"]
 
-    async def aclose(self, close_connection_pool: Optional[bool] = None) -> None:
+    async def aclose(self, close_connection_pool: bool | None = None) -> None:
         """
         Closes Redis client connection
 
@@ -395,7 +391,7 @@ class GoobRedisClient:
             await self._pool.connection_pool.disconnect()
 
 
-_DRIVER: Optional[GoobRedisClient] = GoobRedisClient(str(aiosettings.redis_url))
+_DRIVER: GoobRedisClient | None = GoobRedisClient(str(aiosettings.redis_url))
 
 
 async def get_driver() -> GoobRedisClient:

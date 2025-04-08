@@ -1,16 +1,11 @@
 from __future__ import annotations
 
 import json
-
 from importlib.metadata import version
 from typing import TYPE_CHECKING, Any, ClassVar, Dict, Optional, Set, Type
 
 import langsmith
 import pandas as pd
-
-from goob_ai import llm_manager
-from goob_ai.agent import AiAgent
-from goob_ai.tools.rag_tool import format_docs
 from langchain.agents import AgentExecutor
 from langchain_anthropic import ChatAnthropic
 from langchain_core.documents import Document
@@ -23,6 +18,9 @@ from langsmith.run_trees import RunTree
 from langsmith.schemas import Example, Run
 from loguru import logger as LOGGER
 
+from goob_ai import llm_manager
+from goob_ai.agent import AiAgent
+from goob_ai.tools.rag_tool import format_docs
 
 # Load the example inputs from q_a.json
 with open("scripts/q_a.json") as file:

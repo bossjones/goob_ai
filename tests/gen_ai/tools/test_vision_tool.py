@@ -6,13 +6,13 @@ import logging
 import os.path
 import sys
 import textwrap
-
-from collections.abc import Iterable, Iterator
+from collections.abc import Callable, Iterable, Iterator
 from datetime import datetime
 from enum import Enum
 from functools import partial
-from typing import TYPE_CHECKING, Annotated, Any, Callable, Dict, List, Literal, Optional, Tuple, Type, Union
+from typing import TYPE_CHECKING, Annotated, Any, Dict, List, Literal, Optional, Tuple, Type, Union
 
+import pytest
 from langchain_core.callbacks import AsyncCallbackManagerForToolRun, CallbackManagerForToolRun
 from langchain_core.messages import ToolMessage
 from langchain_core.pydantic_v1 import BaseModel, Field, ValidationError
@@ -31,13 +31,9 @@ from loguru import logger as LOGGER
 from requests_mock.mocker import Mocker as RequestsMocker
 from typing_extensions import TypedDict
 
-import pytest
-
-
 if TYPE_CHECKING:
     from _pytest.fixtures import FixtureRequest
     from _pytest.monkeypatch import MonkeyPatch
-
     from pytest_mock.plugin import MockerFixture
 
 logger = logging.getLogger(__name__)

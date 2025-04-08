@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import asyncio
-
 from collections.abc import AsyncGenerator, Generator
 from typing import Any, Optional
 
@@ -15,7 +14,6 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import Session, declarative_base, sessionmaker
 
 from goob_ai.aio_settings import aiosettings
-
 
 # Creating the engine
 engine = create_engine(aiosettings.postgres_url)
@@ -78,7 +76,7 @@ class RedisValueDTO(BaseModel):
     """Data Transfer Object (DTO) for Redis values."""
 
     key: str
-    value: Optional[str]  # noqa: WPS110
+    value: str | None
 
 
 def init_worker_redis() -> ConnectionPool:  # pragma: no cover

@@ -4,10 +4,7 @@ from importlib.metadata import version
 from typing import TYPE_CHECKING, Any, ClassVar, Dict, Optional, Set, Type
 
 import pandas as pd
-
-from goob_ai import llm_manager
-from goob_ai.agent import AiAgent
-from goob_ai.tools.rag_tool import format_docs
+import pytest
 from langchain.agents import AgentExecutor
 from langchain_anthropic import ChatAnthropic
 from langchain_core.documents import Document
@@ -19,19 +16,18 @@ from langsmith.run_trees import RunTree
 from langsmith.schemas import Example, Run
 from loguru import logger as LOGGER
 
-import pytest
-
+from goob_ai import llm_manager
+from goob_ai.agent import AiAgent
+from goob_ai.tools.rag_tool import format_docs
 
 if TYPE_CHECKING:
     from _pytest.capture import CaptureFixture
     from _pytest.fixtures import FixtureRequest
     from _pytest.logging import LogCaptureFixture
     from _pytest.monkeypatch import MonkeyPatch
-
     from pytest_mock.plugin import MockerFixture
 
 import re
-
 
 # from backend.graph import OPENAI_MODEL_KEY, format_docs, graph
 

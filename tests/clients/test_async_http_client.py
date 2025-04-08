@@ -3,20 +3,17 @@
 from __future__ import annotations
 
 import asyncio
-
 from typing import TYPE_CHECKING, Optional
 
 import httpx
+import pytest
 import pytest_asyncio
 import respx
-
-from goob_ai.clients.http_client import AsyncHttpxClient
 from httpx import ConnectError, HTTPError, HTTPStatusError, RequestError, TimeoutException
 from loguru import logger as LOGGER
 from tenacity import RetryError
 
-import pytest
-
+from goob_ai.clients.http_client import AsyncHttpxClient
 
 # FIXME: Turn these into pytest fixtures going forward
 TEST_URL = "https://www.mydomainname.com"
@@ -28,7 +25,6 @@ if TYPE_CHECKING:
     from _pytest.fixtures import FixtureRequest
     from _pytest.logging import LogCaptureFixture
     from _pytest.monkeypatch import MonkeyPatch
-
     from pytest_mock.plugin import MockerFixture
 
 

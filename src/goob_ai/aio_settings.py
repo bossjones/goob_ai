@@ -6,10 +6,10 @@ from __future__ import annotations
 import enum
 import os
 import pathlib
-
+from collections.abc import Callable
 from pathlib import Path
 from tempfile import gettempdir
-from typing import Annotated, Any, Callable, Dict, List, Optional, Set, Union, cast
+from typing import Annotated, Any, Dict, List, Optional, Set, Union, cast
 
 from pydantic import (
     AliasChoices,
@@ -91,7 +91,7 @@ def get_rich_console() -> Console:
     """
     _summary_
 
-    Returns
+    Returns:
     -------
         Console: _description_
 
@@ -99,7 +99,7 @@ def get_rich_console() -> Console:
     return Console()
 
 
-class LogLevel(str, enum.Enum):  # noqa: WPS600
+class LogLevel(str, enum.Enum):
     """Possible log levels."""
 
     NOTSET = "NOTSET"
@@ -195,9 +195,9 @@ class AioSettings(BaseSettings):
     # Variables for Redis
     redis_host: str = "localhost"
     redis_port: int = 7600
-    redis_user: Optional[str] = None
-    redis_pass: Optional[SecretStr] = None
-    redis_base: Optional[int] = None
+    redis_user: str | None = None
+    redis_pass: SecretStr | None = None
+    redis_base: int | None = None
     enable_redis: bool = False
 
     sentry_dsn: str = ""
@@ -227,10 +227,10 @@ class AioSettings(BaseSettings):
     chat_history_buffer: int = 10
 
     retry_stop_after_attempt: int = 3
-    retry_wait_exponential_multiplier: Union[int, float] = 2
-    retry_wait_exponential_max: Union[int, float] = 5
-    retry_wait_exponential_min: Union[int, float] = 1
-    retry_wait_fixed: Union[int, float] = 15
+    retry_wait_exponential_multiplier: int | float = 2
+    retry_wait_exponential_max: int | float = 5
+    retry_wait_exponential_min: int | float = 1
+    retry_wait_fixed: int | float = 15
 
     pinecone_api_key: SecretStr = Field(env="PINECONE_API_KEY", description="pinecone api key", default="")
     pinecone_env: str = Field(env="PINECONE_ENV", description="pinecone env", default="")
@@ -289,11 +289,11 @@ class AioSettings(BaseSettings):
     # )
     postgres_host: str = "localhost"
     postgres_port: int = 7432
-    postgres_password: Optional[str] = "langchain"
-    postgres_driver: Optional[str] = "psycopg"
-    postgres_database: Optional[str] = "langchain"
-    postgres_collection_name: Optional[str] = "langchain"
-    postgres_user: Optional[str] = "langchain"
+    postgres_password: str | None = "langchain"
+    postgres_driver: str | None = "psycopg"
+    postgres_database: str | None = "langchain"
+    postgres_collection_name: str | None = "langchain"
+    postgres_user: str | None = "langchain"
     enable_postgres: bool = True
 
     @property

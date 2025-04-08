@@ -6,22 +6,20 @@ import io
 import math
 import os
 import tempfile
-
 from base64 import b64encode
+from collections.abc import Callable
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from os import PathLike
 from pathlib import Path
-from typing import Any, Callable, List, Union
+from typing import Any, List, Union
 
 import requests
 import torch
-
 from loguru import logger as LOGGER
 from matplotlib import pyplot as plt
 from PIL import Image, UnidentifiedImageError
 from pkg_resources import parse_version
 from torchvision.transforms import transforms
-
 
 # from IPython.core.display import HTML
 
@@ -33,7 +31,7 @@ class ImageDefaults:
     """
     A class to hold default settings for image processing.
 
-    Attributes
+    Attributes:
     ----------
         device (str): The device to be used for image processing, default is "cpu".
 
@@ -157,7 +155,7 @@ class VideoWrapper:
     """
     A class to wrap video file information.
 
-    Attributes
+    Attributes:
     ----------
         video_path (str): The path to the video file.
         video_size (tuple[int, int]): The size of the video (width, height).
@@ -181,7 +179,7 @@ class VideoWrapper:
         """
         Get the path to the video file.
 
-        Returns
+        Returns:
         -------
             str: The path to the video file.
 
@@ -278,7 +276,7 @@ class ImageWrapper:
         """
         Normalize the image data.
 
-        Returns
+        Returns:
         -------
             ImageWrapper: A new ImageWrapper instance containing the normalized image data.
 
@@ -324,7 +322,7 @@ class ImageWrapper:
         """
         Scale image data to the range [-1, 1].
 
-        Returns
+        Returns:
         -------
             ImageWrapper: A new ImageWrapper instance containing the scaled image data.
 
@@ -339,7 +337,7 @@ class ImageWrapper:
         """
         Convert the image data to PIL format.
 
-        Returns
+        Returns:
         -------
             Image.Image | list[Image.Image]: The image data in PIL format. If there is only one image, it returns a single PIL Image object. Otherwise, it returns a list of PIL Image objects.
 
@@ -357,7 +355,7 @@ class ImageWrapper:
         """
         Convert the image data to PyTorch tensor format.
 
-        Returns
+        Returns:
         -------
             torch.Tensor: The image data in PyTorch tensor format.
 
@@ -395,7 +393,7 @@ class ImageWrapper:
         """
         Convert the image data to PIL format.
 
-        Returns
+        Returns:
         -------
             ImageWrapper: A new ImageWrapper instance containing the image data in PIL format.
 
@@ -410,7 +408,7 @@ class ImageWrapper:
         """
         Convert the image data to PyTorch tensor format.
 
-        Returns
+        Returns:
         -------
             ImageWrapper: A new ImageWrapper instance containing the image data in PyTorch tensor format.
 
@@ -579,7 +577,7 @@ class ImageWrapper:
 
 
 def wrap(
-    input_data: Union[ImageWrapper, torch.Tensor, Image.Image, list[Union[torch.Tensor, Image.Image, ImageWrapper]]],
+    input_data: ImageWrapper | torch.Tensor | Image.Image | list[torch.Tensor | Image.Image | ImageWrapper],
     labels: list[int] | None = None,
 ) -> ImageWrapper:
     """
@@ -686,7 +684,7 @@ def from_dir(dir_path: str) -> ImageWrapper:
     return ImageWrapper(image_list, "pil")
 
 
-def from_path(input_data: Union[str, Path]) -> ImageWrapper:
+def from_path(input_data: str | Path) -> ImageWrapper:
     """
     Load an image from a file path and return it as an ImageWrapper instance.
 
@@ -885,7 +883,7 @@ def from_path(input_data: Union[str, Path]) -> ImageWrapper:
 #     return LivePlotter(*args, **kwargs)
 
 
-def download(image_urls: Union[str, list[str]]) -> ImageWrapper:
+def download(image_urls: str | list[str]) -> ImageWrapper:
     """
     Download images from the given URLs.
 
@@ -1000,7 +998,7 @@ def search_history() -> ImageWrapper | None:
     from the last search performed using the `search_images` function.
     If no search has been performed yet, it returns None.
 
-    Returns
+    Returns:
     -------
         ImageWrapper | None: The ImageWrapper instance containing the last searched images,
                                 or None if no search has been performed.

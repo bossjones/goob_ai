@@ -2,19 +2,16 @@ from __future__ import annotations
 
 import asyncio
 import os
-
 from asyncio import DefaultEventLoopPolicy
 from collections.abc import Iterable, Iterator
 from pathlib import Path, PosixPath
 from typing import TYPE_CHECKING
 
+import pytest
 import pytest_asyncio
 
 from goob_ai import aio_settings
 from goob_ai.utils import async_
-
-import pytest
-
 
 if TYPE_CHECKING:
     from _pytest.fixtures import FixtureRequest

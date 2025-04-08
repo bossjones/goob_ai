@@ -374,3 +374,16 @@ notebooks/e2e_evals.ipynb
 src/goob_ai/data/chroma/vectorstorage/
 src/goob_ai/bot_logger/__init__.py
 file.out
+
+# Private individual user cursor rules
+.cursor/rules/_*.mdc
+.cursor/mcp.json
+!changes/build/
+!scripts/tests/bats/helpers/lib
+bin/taplo
+
+
+# temp
+Justfile.bak
+pyproject.toml.diff
+pyproject.toml.new

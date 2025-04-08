@@ -6,11 +6,9 @@
 from __future__ import annotations
 
 import logging
-
 from typing import List, Optional
 
 import discord
-
 from discord import Message as DiscordMessage
 from loguru import logger as LOGGER
 
@@ -18,7 +16,7 @@ from goob_ai.base import GoobMessage
 from goob_ai.constants import INACTIVATE_THREAD_PREFIX, MAX_CHARS_PER_REPLY_MSG
 
 
-def discord_message_to_message(message: DiscordMessage) -> Optional[GoobMessage]:
+def discord_message_to_message(message: DiscordMessage) -> GoobMessage | None:
     if (
         message.type == discord.MessageType.thread_starter_message
         and message.reference.cached_message

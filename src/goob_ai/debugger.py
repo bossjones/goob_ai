@@ -3,11 +3,9 @@
 from __future__ import annotations
 
 import logging
-
 from typing import Any
 
 import rich
-
 from loguru import logger as LOGGER
 from rich import print
 
@@ -58,7 +56,7 @@ def dump_magic(obj, magic=False):
 
     """
     for attr in dir(obj):
-        if magic is not True and not attr.startswith("__") or magic is True:
+        if (magic is not True and not attr.startswith("__")) or magic is True:
             print(f"obj.{attr} = {getattr(obj, attr)}")
 
 

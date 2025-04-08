@@ -1,5 +1,9 @@
-import better_exceptions, sys, types
+import sys
+import types
+
+import better_exceptions
 from IPython import get_ipython
+
 ip = get_ipython()
 old_show = ip.showtraceback
 def exception_thunk(self, exc_tuple=None, filename=None,

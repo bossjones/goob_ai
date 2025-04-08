@@ -7,23 +7,20 @@ import logging
 import os.path
 import sys
 import textwrap
-
-from collections.abc import Iterable, Iterator
+from collections.abc import Callable, Iterable, Iterator
 from datetime import datetime
 from enum import Enum
 from functools import partial
 from pathlib import Path
-from typing import TYPE_CHECKING, Annotated, Any, Callable, Dict, List, Literal, Optional, Tuple, Type, Union
-
-from goob_ai.utils import vidops
+from typing import TYPE_CHECKING, Annotated, Any, Dict, List, Literal, Optional, Tuple, Type, Union
 
 import pytest
 
+from goob_ai.utils import vidops
 
 if TYPE_CHECKING:
     from _pytest.fixtures import FixtureRequest
     from _pytest.monkeypatch import MonkeyPatch
-
     from pytest_mock.plugin import MockerFixture
 
 
