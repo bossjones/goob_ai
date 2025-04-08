@@ -27,11 +27,11 @@ on: # yamllint disable-line rule:truthy
       debug_enabled:
         description: 'Run the build with tmate debugging enabled (https://github.com/marketplace/actions/debugging-with-tmate)'
         required: false
-        default: false
+        default: "false"
     # Allow this workflow to be run manually (pushing to testpypi instead of pypi)
 
 env:
-  python-version: '3.10'
+  python-version: '3.12'
 
 jobs:
   test:
@@ -41,7 +41,7 @@ jobs:
     if: github.repository == 'bossjones/goob_ai'
     env:
       OS: ubuntu-22.04
-      PYTHON: '3.10'
+      PYTHON: '3.12'
       LANGCHAIN_ENDPOINT: "https://api.smith.langchain.com"
       LANGCHAIN_TRACING_V2: true
       OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
