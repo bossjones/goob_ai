@@ -31,7 +31,7 @@
             "*.cheat": "markdown"
         },
         "pylint.interpreter": [
-            ".venv/bin/python3"
+            ".venv/bin/python"
         ],
         "pylint.args": [
             "--enable=F,E,E1101",

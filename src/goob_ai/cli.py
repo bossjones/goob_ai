@@ -35,10 +35,7 @@ import sentry_sdk
 import typer
 from langchain.globals import set_debug, set_verbose
 from loguru import logger as LOGGER
-from pinecone import Pinecone, ServerlessSpec  # pyright: ignore[reportAttributeAccessIssue]
-from pinecone.core.openapi.data.model.describe_index_stats_response import DescribeIndexStatsResponse
-from pinecone.core.openapi.data.model.query_response import QueryResponse
-from pinecone.core.openapi.data.model.upsert_response import UpsertResponse
+from pinecone import Pinecone, ServerlessSpec
 from pinecone.data.index import Index
 from redis.asyncio import ConnectionPool, Redis
 from rich import print, print_json
@@ -295,7 +292,7 @@ def create_index_quickstart() -> None:
     typer.echo("3. Upsert vectors")
     index: Index = pc.Index(aiosettings.pinecone_index)
 
-    ns1_upsert_resp: UpsertResponse = index.upsert(
+    ns1_upsert_resp: Any = index.upsert(
         vectors=[
             {"id": "vec1", "values": [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]},
             {"id": "vec2", "values": [0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2]},
@@ -305,7 +302,7 @@ def create_index_quickstart() -> None:
         namespace="ns1",
     )
 
-    ns2_upsert_resp: UpsertResponse = index.upsert(
+    ns2_upsert_resp: Any = index.upsert(
         vectors=[
             {"id": "vec5", "values": [0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5]},
             {"id": "vec6", "values": [0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6]},
@@ -317,18 +314,18 @@ def create_index_quickstart() -> None:
 
     # 6. Check the index
     typer.echo("4. Check the index")
-    index_rsp: DescribeIndexStatsResponse = index.describe_index_stats()
+    index_rsp: Any = index.describe_index_stats()
     # Returns:
     # {'dimension': 8,
     #  'index_fullness': 0.0,
     #  'namespaces': {'ns1': {'vector_count': 4}, 'ns2': {'vector_count': 4}},
     #  'total_vector_count': 8}
     typer.echo("5. Run a similarity search")
-    n1_results: QueryResponse = index.query(
+    n1_results: Any = index.query(
         namespace="ns1", vector=[0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3], top_k=3, include_values=True
     )
 
-    n2_results: QueryResponse = index.query(
+    n2_results: Any = index.query(
         namespace="ns2", vector=[0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7], top_k=3, include_values=True
     )
 
