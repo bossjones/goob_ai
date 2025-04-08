@@ -23,16 +23,16 @@ jobs:
         steps:
             - name: Checkout main
               uses: actions/checkout@v2
-            - uses: Swatinem/rust-cache@v2
-      # - name: Deploy docs
-      #   uses: mhausenblas/mkdocs-deploy-gh-pages@master
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #     CONFIG_FILE: mkdocs.yml
-      #     REQUIREMENTS: ./requirements.lock
-      # Allow debugging with tmate
-            - name: Setup tmate session
-              uses: mxschmitt/action-tmate@v3
-              if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.debug_enabled }}
-              with:
-                  limit-access-to-actor: true
+      #       - uses: Swatinem/rust-cache@v2
+      # # - name: Deploy docs
+      # #   uses: mhausenblas/mkdocs-deploy-gh-pages@master
+      # #   env:
+      # #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # #     CONFIG_FILE: mkdocs.yml
+      # #     REQUIREMENTS: ./requirements.lock
+      # # Allow debugging with tmate
+      #       - name: Setup tmate session
+      #         uses: mxschmitt/action-tmate@v3
+      #         if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.debug_enabled }}
+      #         with:
+      #             limit-access-to-actor: true

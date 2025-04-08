@@ -19,7 +19,11 @@ on: # yamllint disable-line rule:truthy
       - "v*"
   # https://docs.github.com/en/webhooks-and-events/webhooks/webhook-events-and-payloads#pull_request
   pull_request:
-
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - ready_for_review
   # # https://docs.github.com/en/webhooks-and-events/webhooks/webhook-events-and-payloads#workflow_dispatch
   # workflow_dispatch:
   #   # Allow this workflow to be run manually (pushing to testpypi instead of pypi)
@@ -28,55 +32,61 @@ on: # yamllint disable-line rule:truthy
       debug_enabled:
         description: 'Run the build with tmate debugging enabled (https://github.com/marketplace/actions/debugging-with-tmate)'
         required: false
-        default: false
+        default: "false"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref_name }}-${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: true
 
 env:
-  python-version: '3.10'
-  MAIN_PYTHON_VERSION: "3.10"
+  COLUMNS: 150
+  UV_FROZEN: true
+  FORCE_COLOR: 1
+  LANGCHAIN_ENDPOINT: "https://api.smith.langchain.com"
+  LANGCHAIN_TRACING_V2: true
+  LANGCHAIN_HUB_API_URL: "https://api.hub.langchain.com"
+  LANGCHAIN_PROJECT: "goob-ci"
 
 jobs:
   test:
-    name: test
-    runs-on: ubuntu-22.04
+    name: Test ${{ matrix.os }} / Python ${{ matrix.python-version }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+        python-version: ["3.10"]
 
-    # # Service containers to run with `runner-job`
-    # services:
-    #   # Label used to access the service container
-    #   redis:
-    #     # Docker Hub image
-    #     image: redis
-    #     # Set health checks to wait until redis has started
-    #     # options: >-
-    #     #   --health-cmd "redis-cli ping"
-    #     #   --health-interval 10s
-    #     #   --health-timeout 5s
-    #     #   --health-retries 5
-    #     ports:
-    #       # Maps port 7600 on service container to the host
-    #       - 7600:7600
+    runs-on: ${{ matrix.os }}
 
-    if: github.repository == 'bossjones/goob_ai'
     env:
-      OS: ubuntu-22.04
-      PYTHON: '3.10'
-      LANGCHAIN_ENDPOINT: "https://api.smith.langchain.com"
-      LANGCHAIN_TRACING_V2: true
       OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
       LANGCHAIN_API_KEY: ${{ secrets.LANGCHAIN_API_KEY }}
-      # Update with your API URL if using a hosted instance of Langsmith.
-      LANGCHAIN_HUB_API_URL: "https://api.hub.langchain.com"
       LANGCHAIN_HUB_API_KEY: ${{ secrets.LANGCHAIN_API_KEY }}
-      LANGCHAIN_PROJECT: "goob-ci"
       GOOB_AI_CONFIG_DISCORD_TOKEN: "foo"
       GOOB_AI_CONFIG_OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+
     steps:
-
-      - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
-      - run: echo "🐧 This job is now running on a ${{ runner.os }} server hosted by GitHub!"
-      - run: echo "🔎 The name of your branch is ${{ github.ref_name }} and your repository is ${{ github.repository }}."
-
       - name: Set up Git repository
         uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Set up UV and Python ${{ matrix.python-version }}
+        id: setup-uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          enable-cache: true
+          cache-dependency-glob: |
+            **/requirements*.txt
+            **/pyproject.toml
+            **/uv.lock
+
+      - name: Setup Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -94,161 +104,66 @@ jobs:
         id: chroma-docker-compose-up
         run: |
           mkdir -p ./src/goob_ai/data/chroma/vectorstorage || true
-          # git clone --depth 1 --branch feature-boss-chroma https://github.com/bossjones/chroma.git vendored_chroma
-          # cd vendored_chroma
           docker compose up -d
           docker ps -a
         continue-on-error: true
 
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: get version python
-        shell: bash       # use bash to run date command
-        run: echo "Py${{ env.python-version }}"
-
-      - name: Hash + Timestamp
-        shell: bash       # use bash to run date command
-        run: 'echo "HASH=${{ runner.os }}-${{ runner.arch }}-Py${{ env.python-version }}-$(date -u "+%Y%m")" >> $GITHUB_ENV'
-
-      # # SOURCE: https://github.com/wakabame/study_pytorch/blob/327bee3de2c283e1592d806d9b909e8b4af6b9fe/.github/workflows/apply_lint_and_test.yaml#L24
-      # - name: Load cached venv
-      #   id: cached-rye-dependencies
-      #   uses: actions/cache@v3
-      #   with:
-      #     path: .venv
-      #     key: venv-${{ runner.name }}-${{ runner.os }}-${{ hashFiles('.github/dependabot/requirements-dev.txt') }}
-
-      - name: "Set up Python ${{ env.python-version }}"
-        # if: steps.cached-rye-dependencies.outputs.cache-hit != 'true'
-        uses: actions/setup-python@v5
-        with:
-          python-version: "${{ env.python-version }}"
-          # cache: "pip"
-          # cache-dependency-path: .github/dependabot/requirements-dev.txt
-
-      - name: Install Rye
+      - name: Install system dependencies
+        if: runner.os == 'Linux'
         run: |
-          curl -sSf https://rye.astral.sh/get | bash
-          echo "$HOME/.rye/shims" >> $GITHUB_PATH
-        env:
-          RYE_VERSION: '0.37.0'
-          RYE_INSTALL_OPTION: '--yes'
-
-      - name: install tesseract and ffmpeg
-        run: |
-          sudo apt-get install -y tesseract-ocr tesseract-ocr-por libyaml-dev poppler-utils
-          sudo apt install ffmpeg -y
-          sudo apt-get install autoconf automake build-essential libtool python3-dev libsqlite3-dev -y
-
-          echo "install deps for llm_aided_ocr"
+          sudo apt-get update
+          sudo apt-get install -y tesseract-ocr tesseract-ocr-por libyaml-dev poppler-utils ffmpeg
           sudo apt-get install -y build-essential libssl-dev zlib1g-dev libbz2-dev \
           libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev libncursesw5-dev \
-          xz-utils tk-dev libffi-dev liblzma-dev python3-openssl git
+          xz-utils tk-dev libffi-dev liblzma-dev python3-openssl git autoconf automake \
+          build-essential libtool python3-dev libsqlite3-dev
 
-      - name: Install dependencies
-        # if: steps.cached-rye-dependencies.outputs.cache-hit != 'true'
-        env:
-          LANGCHAIN_ENDPOINT: "https://api.smith.langchain.com"
-          LANGCHAIN_TRACING_V2: true
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          LANGCHAIN_API_KEY: ${{ secrets.LANGCHAIN_API_KEY }}
-          # Update with your API URL if using a hosted instance of Langsmith.
-          LANGCHAIN_HUB_API_URL: "https://api.hub.langchain.com"
-          LANGCHAIN_HUB_API_KEY: ${{ secrets.LANGCHAIN_API_KEY }}
-          LANGCHAIN_PROJECT: "goob-ci"
-          GOOB_AI_CONFIG_DISCORD_TOKEN: "foo"
-          GOOB_AI_CONFIG_OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-        run: |
-          cp -f env.sample .env
-          rye config --set-bool behavior.use-uv=true
-          ./scripts/retry -t 4  -- rye sync --all-features
-
-      # Allow debugging with tmate
       - name: Setup tmate session
         uses: mxschmitt/action-tmate@v3
-        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.debug_enabled }}
+        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.debug_enabled == 'true' }}
         with:
-          # Use registered public SSH key(s)
-          # If you have registered one or more public SSH keys with your GitHub profile, tmate will be started such that only those keys are authorized to connect, otherwise anybody can connect to the tmate session. If you want to require a public SSH key to be installed with the tmate session, no matter whether the user who started the workflow has registered any in their GitHub profile, you will need to configure the setting limit-access-to-actor to true, like so:
           limit-access-to-actor: true
 
-      - name: Run tests and collect coverage
-        env:
-          LANGCHAIN_ENDPOINT: "https://api.smith.langchain.com"
-          LANGCHAIN_TRACING_V2: true
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          LANGCHAIN_API_KEY: ${{ secrets.LANGCHAIN_API_KEY }}
-          # Update with your API URL if using a hosted instance of Langsmith.
-          LANGCHAIN_HUB_API_URL: "https://api.hub.langchain.com"
-          LANGCHAIN_HUB_API_KEY: ${{ secrets.LANGCHAIN_API_KEY }}
-          LANGCHAIN_PROJECT: "goob-ci"
-          GOOB_AI_CONFIG_DISCORD_TOKEN: "foo"
-          GOOB_AI_CONFIG_OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      - name: Install dependencies
         run: |
-          # cp -f env.sample .env
-          # rye config --set-bool behavior.use-uv=true
-          # ./scripts/retry -t 4  -- rye sync --all-features
+          cp -f env.sample .env
+          ./scripts/retry -t 4 -- uv sync --dev
 
-          rye run goobctl chroma generate
+      - name: Display UV and Python versions
+        run: |
+          echo "UV version: $(uv --version)"
+          echo "Python version: $(uv run python --version)"
+          echo "Cache hit: ${{ steps.setup-uv.outputs.cache-hit }}"
 
-          echo "rye run lint"
-          rye run lint
-
-          # rye run typecheck
-
-          echo "rye run python -c 'import goob_ai'"
-          rye run python -c 'import goob_ai'
-
-          echo "rye run test"
-          rye run test
-
-          sudo apt update
-          sudo apt-get install tree -y
-          tree
-          ls -lta
-
-      # SOURCE: https://til.simonwillison.net/github-actions/debug-tmate
-      # Starting a shell just for test failures on manual runs #
-      # I had a tricky test failure that I wanted to debug interactively. Here's a recipe for starting a tmate shell ONLY if the previous step failed, and only if the run was triggered manually (using workflow_dispatch) - because I don't want an accidental test opening up a shell and burning up my GitHub Actions minutes allowance.
-
-      #     steps:
-      #     - name: Run tests
-      #       run: pytest
-      #     - name: tmate session if tests fail
-      #       if: failure() && github.event_name == 'workflow_dispatch'
-      #       uses: mxschmitt/action-tmate@v3
+      - name: Run tests and collect coverage
+        run: |
+          ./scripts/retry -t 2 -- uv run goobctl chroma generate
+          uv run lint
+          uv run python -c 'import goob_ai'
+          ./scripts/retry -t 2 -- uv run pytest --diff-width=60 --diff-symbols --cov-append --cov-report=term-missing --cov-report=xml:cov.xml --cov-report=html:htmlcov --junitxml=junit/test-results.xml --cov=.
 
       - name: tmate session if tests fail
         if: failure() && github.event_name == 'workflow_dispatch'
         uses: mxschmitt/action-tmate@v3
         with:
-          # Use registered public SSH key(s)
-          # If you have registered one or more public SSH keys with your GitHub profile, tmate will be started such that only those keys are authorized to connect, otherwise anybody can connect to the tmate session. If you want to require a public SSH key to be installed with the tmate session, no matter whether the user who started the workflow has registered any in their GitHub profile, you will need to configure the setting limit-access-to-actor to true, like so:
           limit-access-to-actor: true
 
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v4
         with:
-          # token: ${{ secrets.CODECOV_TOKEN }}
-          flags: "${{ runner.os }},${{ runner.arch }},${{ env.python-version }}"
+          flags: "${{ runner.os }},${{ runner.arch }},${{ matrix.python-version }}"
           verbose: true
           fail_ci_if_error: true
-          # directory: ./junit/
-          # files: ./test-results.xml,cov.xml
           files: ./cov.xml
-          # flags: smart-tests
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
-      - name: Upload Test Results
-        if: '!cancelled()'
-        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
         with:
-          name: test-results-${{ env.HASH }}
+          name: test-results-${{ matrix.os }}-${{ matrix.python-version }}
           path: |
-            .coverage
-            tools\durations\${{ runner.os }}.json
-            junit/test-results.xml
+            junit/
             cov.xml
-          retention-days: 1         # temporary, combined in aggregate below
+            htmlcov/
