@@ -223,7 +223,7 @@ debugpy==1.8.2
 decorator==4.4.2
     # via ipython
     # via moviepy
-deepdiff==8.0.1
+deepdiff==8.6.2
     # via unstructured-client
 defusedxml==0.7.1
     # via langchain-anthropic
