@@ -731,7 +731,7 @@ olefile==0.47
     # via python-oxmsg
 omegaconf==2.3.0
     # via effdet
-onnx==1.14.1
+onnx==1.22.0
     # via unstructured
     # via unstructured-inference
 onnxruntime==1.18.1
