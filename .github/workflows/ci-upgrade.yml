@@ -95,7 +95,7 @@ jobs:
         run: 'echo "HASH=${{ runner.os }}-${{ runner.arch }}-Py${{ env.python-version }}-$(date -u "+%Y%m")" >> $GITHUB_ENV'
 
       - name: "Set up Python ${{ env.python-version }}"
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: "${{ env.python-version }}"
 
