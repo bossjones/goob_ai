@@ -1014,7 +1014,7 @@ pypandoc==1.13
 pyparsing==3.1.2
     # via httplib2
     # via matplotlib
-pypdf==4.3.1
+pypdf==6.21.4
     # via goob-ai
     # via unstructured
     # via unstructured-client
